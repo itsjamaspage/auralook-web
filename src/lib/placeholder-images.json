@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-look",
-      "description": "Futuristic high-fashion streetwear techwear runway",
-      "imageUrl": "https://picsum.photos/seed/auralook-techwear-runway/1200/800",
-      "imageHint": "techwear fashion"
+      "description": "High-fashion model in futuristic techwear clothing on a runway",
+      "imageUrl": "https://picsum.photos/seed/fashion-runway-2026/1200/800",
+      "imageHint": "fashion clothing"
     },
     {
       "id": "look-1",
