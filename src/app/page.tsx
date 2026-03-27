@@ -32,7 +32,7 @@ export default function Home() {
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
           <Badge className="bg-primary/20 text-primary border-primary/20 px-4 py-1.5 rounded-full text-sm font-medium animate-float">
             <Sparkles className="w-4 h-4 mr-2 inline" />
-            Vibe Checked by AI
+            {t(dictionary.vibeCheckedByAI)}
           </Badge>
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none">
             {t(dictionary.heroTitle)}
@@ -63,7 +63,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {MOCK_LOOKS.map((look, idx) => (
-            <Link key={look.id} href={`` + `/looks/${look.id}`} className="group relative block">
+            <Link key={look.id} href={`/looks/${look.id}`} className="group relative block">
               <div className="relative aspect-[3/4] overflow-hidden rounded-3xl glass border-white/5">
                 <Image 
                   src={look.imageUrl} 

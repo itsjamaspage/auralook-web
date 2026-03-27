@@ -12,6 +12,7 @@ const dictionary = {
   myOrders: { en: 'My Orders', ru: 'Мои заказы', uz: 'Mening buyurtmalarim' },
   logout: { en: 'Logout', ru: 'Выйти', uz: 'Chiqish' },
   login: { en: 'Login', ru: 'Войти', uz: 'Kirish' },
+  vibeCheckedByAI: { en: 'Vibe Checked by AI', ru: 'Проверено ИИ', uz: 'AI tomonidan tekshirilgan' },
 
   // Auth Pages
   welcomeBack: { en: 'Welcome Back', ru: 'С возвращением', uz: 'Xush kelibsiz' },
