@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
   name: 'telegramOrderStatusPrompt',
   input: {schema: AiTelegramOrderStatusNotificationInputSchema},
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
-  prompt: `You are a helpful and polite e-commerce assistant from "JamaStore". Your task is to compose a concise and informative real-time order status update for a customer.
+  prompt: `You are a helpful and polite e-commerce assistant from "Auralook.uz". Your task is to compose a concise and informative real-time order status update for a customer.
 
 Generate the message in the specified language.
 
@@ -51,7 +51,7 @@ Examples (for 'en' language):
 - If currentStatus is 'New': "Hello {{customerName}}, thank you for your order ({{orderId}}) of {{productName}}! We've received it and are processing it now. You will receive another update soon."
 - If currentStatus is 'Confirmed': "Great news, {{customerName}}! Your order ({{orderId}}) for {{productName}} has been confirmed and is being prepared for shipment. We'll let you know once it's on its way!"
 - If currentStatus is 'Shipped': "Exciting update, {{customerName}}! Your order ({{orderId}}) of {{productName}} has been shipped! It's estimated to arrive by {{estimatedDeliveryDate}}. Get ready for your delivery!"
-- If currentStatus is 'Delivered': "Your order ({{orderId}}) of {{productName}} has been delivered, {{customerName}}! We hope you love your purchase. Thank you for choosing JamaStore!"
+- If currentStatus is 'Delivered': "Your order ({{orderId}}) of {{productName}} has been delivered, {{customerName}}! We hope you love your purchase. Thank you for choosing Auralook.uz!"
 
 Now, compose the message for the provided order details in the requested language.`,
 });

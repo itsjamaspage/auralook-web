@@ -1,16 +1,48 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, Send, Mail, Lock, User } from 'lucide-react';
+import { ShieldCheck, Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth, useUser } from '@/firebase';
+import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
   const router = useRouter();
+  const auth = useAuth();
+  const { user } = useUser();
+  const { toast } = useToast();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    if (isLogin) {
+      initiateEmailSignIn(auth, email, password);
+    } else {
+      initiateEmailSignUp(auth, email, password);
+    }
+    
+    // Note: Success is handled by the useUser hook redirecting above.
+    // Error handling would typically happen via an auth state listener or global error emitter.
+    setTimeout(() => setIsLoading(false), 2000); 
+  };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-6">
@@ -29,50 +61,51 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-0 space-y-6">
-          <div className="space-y-4">
-            {!isLogin && (
+        <CardContent className="p-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Full Name</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="John Doe" className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl" />
+                  <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    id="email"
+                    type="email" 
+                    placeholder="name@example.com" 
+                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="email" placeholder="name@example.com" className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl" />
-              </div>
-            </div>
-            {!isLogin && (
               <div className="space-y-2">
-                <Label>Telegram Username</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Send className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="@username" className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl" />
+                  <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    id="password"
+                    type="password" 
+                    placeholder="••••••••" 
+                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label>Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input type="password" placeholder="••••••••" className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl" />
-              </div>
             </div>
-          </div>
 
-          <Button 
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-lg"
-            onClick={() => router.push('/')}
-          >
-            {isLogin ? 'Login' : 'Get Started'}
-          </Button>
+            <Button 
+              type="submit"
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-lg"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Processing...' : (isLogin ? 'Login' : 'Get Started')}
+            </Button>
+          </form>
 
-          <div className="text-center">
+          <div className="text-center mt-6">
             <button 
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
