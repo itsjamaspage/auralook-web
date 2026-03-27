@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { MOCK_LOOKS, MOCK_ORDERS, type Order } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Table, 
@@ -15,10 +15,7 @@ import {
 } from '@/components/ui/table';
 import { 
   Plus, 
-  LayoutDashboard, 
   Package, 
-  Bell, 
-  Settings, 
   ExternalLink,
   CheckCircle,
   Truck,
@@ -38,7 +35,6 @@ export default function AdminDashboard() {
     
     const order = updated.find(o => o.id === orderId)!;
     
-    // Simulate AI generation of Telegram message
     try {
       const { message } = await aiTelegramOrderStatusNotification({
         customerName: order.customerName,
@@ -51,7 +47,7 @@ export default function AdminDashboard() {
       
       toast({
         title: `Status Updated to ${newStatus}`,
-        description: `Telegram message sent: "${message.substring(0, 50)}..."`,
+        description: `Telegram message prepared: "${message.substring(0, 50)}..."`,
       });
     } catch (e) {
       console.error(e);
@@ -62,8 +58,8 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter">JamaStore Admin</h1>
-          <p className="text-muted-foreground">Manage your looks, catalog, and customer orders.</p>
+          <h1 className="text-4xl font-black tracking-tighter">Auralook.uz Admin</h1>
+          <p className="text-muted-foreground">Internal management for looks and orders.</p>
         </div>
         <Link href="/admin/looks/new">
           <Button className="rounded-2xl bg-primary text-primary-foreground font-bold px-8">
