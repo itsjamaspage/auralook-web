@@ -70,7 +70,7 @@ export default function LoginPage() {
                   <Input 
                     id="email"
                     type="email" 
-                    placeholder="name@example.com" 
+                    placeholder={t(dictionary.emailPlaceholder)}
                     className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -85,7 +85,7 @@ export default function LoginPage() {
                   <Input 
                     id="password"
                     type="password" 
-                    placeholder="••••••••" 
+                    placeholder={t(dictionary.passwordPlaceholder)}
                     className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

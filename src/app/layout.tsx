@@ -4,6 +4,7 @@ import { Navbar } from '@/components/navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Footer } from '@/components/footer';
+import { LanguageProvider } from '@/hooks/use-language';
 
 export const metadata: Metadata = {
   title: 'Auralook.uz | Future of Fashion',
@@ -24,12 +25,14 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">
         <FirebaseClientProvider>
-          <Navbar />
-          <main className="flex-grow pt-24">
-            {children}
-          </main>
-          <Toaster />
-          <Footer />
+          <LanguageProvider>
+            <Navbar />
+            <main className="flex-grow pt-24">
+              {children}
+            </main>
+            <Toaster />
+            <Footer />
+          </LanguageProvider>
         </FirebaseClientProvider>
       </body>
     </html>

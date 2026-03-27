@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { Globe, User, LogOut } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import {
@@ -40,8 +40,8 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Globe className="w-5 h-5" />
+              <Button variant="ghost" className="rounded-full w-10 h-10 font-bold p-0 border border-white/10 hover:bg-white/5">
+                {lang.toUpperCase()}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-dark border-white/10">
