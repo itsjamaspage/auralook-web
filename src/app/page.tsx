@@ -1,4 +1,3 @@
-
 "use client"
 
 import Image from 'next/image';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import Link from 'next/link';
 
 export default function Home() {
   const { t, dictionary } = useLanguage();
@@ -21,7 +21,7 @@ export default function Home() {
         
         <div className="absolute inset-0 z-[-1]">
           <Image 
-            src={heroImage?.imageUrl || "https://picsum.photos/seed/auralook-vibe-2026/1200/800"} 
+            src={heroImage?.imageUrl || "https://picsum.photos/seed/auralook-fashion-2026/1200/800"} 
             alt="Auralook Fashion" 
             fill 
             className="object-cover opacity-60"
@@ -43,10 +43,12 @@ export default function Home() {
             {t(dictionary.heroSub)}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-xl shadow-primary/20">
-              {t(dictionary.browseLooks)}
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+            <Link href="/looks">
+              <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-xl shadow-primary/20 w-full sm:w-auto">
+                {t(dictionary.browseLooks)}
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
