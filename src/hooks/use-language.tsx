@@ -36,7 +36,7 @@ const dictionary = {
   viewDetails: { en: 'View Details', ru: 'Подробнее', uz: 'Batafsil ko\'rish' },
   aiSizeEngine: { en: 'AI Size Engine', ru: 'Движок ИИ для Размеров', uz: 'AI o\'lcham mexanizmi' },
   aiSizeEngineSub: { en: 'Stop guessing your size. Our advanced neural networks calculate the perfect fit based on your body dimensions.', ru: 'Хватит гадать свой размер. Наши передовые нейронные сети вычисляют идеальную посадку на основе размеров вашего тела.', uz: 'O\'lchamingizni taxmin qilishni to\'xtating. Bizning ilg\'or neyron tarmoqlarimiz tana o\'lchamingizga qarab mukammal moslikni hisoblab chiqadi.' },
-  quickLogistics: { en: 'Quick Logistics', ru: 'Быстрая Логистика', uz: 'Tezkor Logistika' },
+  quickLogistics: { en: 'Quick Logistics', ru: 'Быстрая Логистика', uz: 'Tezkor Логистика', uz: 'Tezkor Logistika' },
   quickLogisticsSub: { en: 'Fast delivery across Uzbekistan with real-time status updates via our Telegram integration.', ru: 'Быстрая доставка по всему Узбекистану с обновлением статуса в реальном времени через нашу интеграцию с Telegram.', uz: 'O\'zbekiston bo\'ylab tezkor yetkazib berish va Telegram integratsiyamiz orqali real vaqt rejimida holat yangilanishi.' },
   globalAesthetics: { en: 'Global Aesthetics', ru: 'Глобальная Эстетика', uz: 'Global Estetika' },
   globalAestheticsSub: { en: 'Curated from the best designers worldwide, tailored for the unique style of modern Tashkent.', ru: 'Собрано от лучших дизайнеров мира, адаптировано под уникальный стиль современного Ташкента.', uz: 'Dunyo bo\'ylab eng yaxshi dizaynerlardan saralangan, zamonaviy Toshkentning o\'ziga xos uslubiga moslashtirilgan.' },
