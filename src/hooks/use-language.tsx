@@ -6,7 +6,7 @@ export type Language = 'en' | 'ru' | 'uz';
 
 const dictionary = {
   // Hero & Navigation
-  heroTitle: { en: 'Next Gen Style', ru: 'Стиль Нового Поколения', uz: 'Yangi Avlod Usul' },
+  heroTitle: { en: 'Next Gen Style', ru: 'Стиль Нового Поколения', uz: 'Yangi Avlod Uslubi' },
   heroSub: { en: 'Auralook.uz: Future of Fashion in Uzbekistan', ru: 'Auralook.uz: Будущее моды в Узбекистане', uz: 'Auralook.uz: O\'zbekistonda modaning kelajagi' },
   browseLooks: { en: 'Browse Looks', ru: 'Посмотреть Образы', uz: 'Liboslarni Ko\'rish' },
   myOrders: { en: 'My Orders', ru: 'Мои заказы', uz: 'Mening buyurtmalarim' },
