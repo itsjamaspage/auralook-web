@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-look",
-      "description": "Futuristic high-fashion streetwear runway",
-      "imageUrl": "https://picsum.photos/seed/fashion-runway-99/1200/800",
-      "imageHint": "fashion runway"
+      "description": "Futuristic high-fashion streetwear techwear runway",
+      "imageUrl": "https://picsum.photos/seed/auralook-vibe-2026/1200/800",
+      "imageHint": "techwear fashion"
     },
     {
       "id": "look-1",

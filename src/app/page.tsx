@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from 'next/image';
@@ -20,12 +21,12 @@ export default function Home() {
         
         <div className="absolute inset-0 z-[-1]">
           <Image 
-            src={heroImage?.imageUrl || "https://picsum.photos/seed/fashion-runway-99/1200/800"} 
-            alt="Fashion Background" 
+            src={heroImage?.imageUrl || "https://picsum.photos/seed/auralook-vibe-2026/1200/800"} 
+            alt="Auralook Fashion" 
             fill 
             className="object-cover opacity-60"
             priority
-            data-ai-hint={heroImage?.imageHint || "fashion runway"}
+            data-ai-hint={heroImage?.imageHint || "techwear fashion"}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
         </div>
