@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-look",
+      "description": "Futuristic streetwear look",
+      "imageUrl": "https://picsum.photos/seed/fashion1/1200/800",
+      "imageHint": "futuristic streetwear"
+    },
+    {
+      "id": "look-1",
+      "description": "Cyberpunk aesthetic outfit",
+      "imageUrl": "https://picsum.photos/seed/look1/600/800",
+      "imageHint": "cyberpunk outfit"
+    },
+    {
+      "id": "look-2",
+      "description": "Minimalist techwear look",
+      "imageUrl": "https://picsum.photos/seed/look2/600/800",
+      "imageHint": "minimalist techwear"
+    },
+    {
+      "id": "look-3",
+      "description": "Urban ninja style clothing",
+      "imageUrl": "https://picsum.photos/seed/look3/600/800",
+      "imageHint": "urban ninja"
+    },
+    {
+      "id": "look-4",
+      "description": "High-fashion avant-garde look",
+      "imageUrl": "https://picsum.photos/seed/look4/600/800",
+      "imageHint": "avant-garde fashion"
+    },
+    {
+      "id": "look-5",
+      "description": "Neon-lit night look",
+      "imageUrl": "https://picsum.photos/seed/look5/600/800",
+      "imageHint": "neon fashion"
+    },
+    {
+      "id": "admin-bg",
+      "description": "Modern studio workspace",
+      "imageUrl": "https://picsum.photos/seed/studio/1200/800",
+      "imageHint": "modern studio"
+    }
+  ]
 }
