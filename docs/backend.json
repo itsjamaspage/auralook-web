@@ -1,0 +1,314 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the Auralook.uz application, storing core profile information and communication details.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's unique email address for account access. This is used for login and identification.",
+          "format": "email"
+        },
+        "telegramUsername": {
+          "type": "string",
+          "description": "The user's Telegram username for receiving automated notifications about order status and other updates."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "telegramUsername",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores detailed profile information for a user, specifically used by the AI Smart Size Advisor to provide personalized clothing size recommendations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User associated with this profile. (Relationship: User 1:1 UserProfile)"
+        },
+        "heightCm": {
+          "type": "number",
+          "description": "The user's height in centimeters, a key input for the AI Smart Size Advisor."
+        },
+        "weightKg": {
+          "type": "number",
+          "description": "The user's weight in kilograms, a key input for the AI Smart Size Advisor."
+        },
+        "gender": {
+          "type": "string",
+          "description": "The user's self-identified gender, used to tailor size recommendations (e.g., 'male', 'female', 'other')."
+        },
+        "desiredFit": {
+          "type": "string",
+          "description": "The user's preferred clothing fit style (e.g., 'loose', 'regular', 'tight'), influencing size recommendations."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "heightCm",
+        "weightKg",
+        "gender",
+        "desiredFit"
+      ]
+    },
+    "Look": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Look",
+      "type": "object",
+      "description": "Represents a curated outfit or 'look' displayed in the Auralook.uz multi-language lookbook, featuring images and localized descriptions.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Look entity."
+        },
+        "titleUz": {
+          "type": "string",
+          "description": "The title of the look in Uzbek for localized display."
+        },
+        "titleRu": {
+          "type": "string",
+          "description": "The title of the look in Russian for localized display."
+        },
+        "titleEn": {
+          "type": "string",
+          "description": "The title of the look in English for localized display."
+        },
+        "descriptionUz": {
+          "type": "string",
+          "description": "A detailed, multi-language description of the look in Uzbek, potentially AI-generated."
+        },
+        "descriptionRu": {
+          "type": "string",
+          "description": "A detailed, multi-language description of the look in Russian, potentially AI-generated."
+        },
+        "descriptionEn": {
+          "type": "string",
+          "description": "A detailed, multi-language description of the look in English, potentially AI-generated."
+        },
+        "mainImageUrl": {
+          "type": "string",
+          "description": "URL for the high-resolution main image of the look.",
+          "format": "uri"
+        },
+        "thumbnailImageUrl": {
+          "type": "string",
+          "description": "URL for a smaller thumbnail image of the look, optimized for UI display.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the look was first created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the look's details were last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "titleUz",
+        "titleRu",
+        "titleEn",
+        "descriptionUz",
+        "descriptionRu",
+        "descriptionEn",
+        "mainImageUrl",
+        "thumbnailImageUrl",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer's order, tracking its details and status for automated updates and notifications.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who placed this order. (Relationship: User 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "The date and time when the order was placed.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the order (e.g., 'New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled')."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary amount of the order, including shipping and taxes."
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "The complete shipping address provided by the customer for this order."
+        },
+        "customerNotes": {
+          "type": "string",
+          "description": "Any additional notes or specific instructions provided by the customer for this order."
+        },
+        "telegramNotificationSent": {
+          "type": "boolean",
+          "description": "Flag indicating whether a real-time Telegram notification regarding this order's status has been sent to the customer."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the order's status or details were last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "orderDate",
+        "status",
+        "totalAmount",
+        "shippingAddress",
+        "telegramNotificationSent",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores core user account information. Each document's ID is the user's authentication UID. Access is restricted to the owning user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/userProfiles/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores detailed profile information for a user, specific for the AI Smart Size Advisor. Each document's ID is the user's authentication UID, matching the 'userId' field within the document. Access is restricted to the owning user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of the user, which also serves as the document ID and the 'userId' field value."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/looks/{lookId}",
+        "definition": {
+          "entityName": "Look",
+          "schema": {
+            "$ref": "#/backend/entities/Look"
+          },
+          "description": "Contains curated outfit 'Looks' for the multi-language lookbook. Documents are publicly readable by all users (authenticated and unauthenticated). Write, update, and delete access is restricted to users with the 'look_creator' role.",
+          "params": [
+            {
+              "name": "lookId",
+              "description": "The unique identifier for a specific Look."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Manages customer order details. Includes denormalized 'userId' for authorization independence. Accessible by the owning user (identified by 'userId' field) and by users with the 'order_manager' role for tracking and updates.",
+          "params": [
+            {
+              "name": "orderId",
+              "description": "The unique identifier for a specific customer order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_order_managers/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Database-backed access control collection for 'order manager' roles. An existing document at this path grants the corresponding userId permission to manage orders.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of a user designated as an order manager."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_look_creators/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Database-backed access control collection for 'look creator' roles. An existing document at this path grants the corresponding userId permission to create, update, and delete looks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication UID of a user designated as a look creator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Auralook.uz Firestore structure is designed with a strong emphasis on Authorization Independence, Structural Segregation, and DBAC, while accounting for the removal of an explicit 'admin dashboard'.\n\n**Authorization Independence:** This is primarily achieved through denormalization and careful path design. For user-specific private data such as `UserProfile` and `Order` information, instead of nesting them deeply under `users/{userId}` subcollections where security rules might rely on parent document reads (`get()`), they are placed in top-level collections (`/userProfiles/{userId}` and `/orders/{orderId}`). Each document in these collections explicitly contains the `userId` field. This `userId` field is used in security rules to directly verify ownership (`request.auth.uid == resource.data.userId`) without requiring a `get()` call to a parent user document. This enables atomic operations and simplifies security rule logic. For `Look` entities, access is global for reads, and write access is granted based on a global role collection, completely independent of other data entities.\n\n**Structural Segregation & QAPs:**\n*   **`/users/{userId}`:** This collection stores core `User` data. Access is strictly limited to the authenticated user (`request.auth.uid`). `list` operations are not applicable here, as users can only access their own specific user document.\n*   **`/userProfiles/{userId}`:** This collection stores the `UserProfile` data, with each document's ID matching the `userId`. This ensures a 1:1 relationship and clear path-based ownership. Similar to `/users`, `list` operations are not applicable beyond retrieving one's own profile.\n*   **`/looks/{lookId}`:** This collection stores publicly viewable `Look` data. Its security posture is 'publicly readable by all', thus directly supporting QAPs for `list` operations without requiring filters in rules. Write access is segregated to users holding the `look_creator` role, which is checked via an existence check in the `/roles_look_creators/{uid}` collection.\n*   **`/orders/{orderId}`:** This collection stores all `Order` entities at the top level. Each `Order` document explicitly contains a `userId` field. This design supports QAPs for both regular users and 'order managers':\n    *   **User View:** Users can efficiently `list` their own orders by querying `where('userId', '==', request.auth.uid)`. The security rules verify that `resource.data.userId == request.auth.uid` for any access, enabling a secure `list` operation without rules acting as filters.\n    *   **Order Manager View:** Users designated as 'order managers' (via the `/roles_order_managers/{uid}` collection) are granted permission to `list` all orders. This allows them to track and update customer order statuses efficiently across all users without requiring a `get()` call per order or complex filtering in rules.\n\n**DBAC (Database-Backed Access Control):** Global roles like `order_manager` and `look_creator` are managed through dedicated top-level collections (`/roles_order_managers/{userId}` and `/roles_look_creators/{userId}`). The existence of a document for a given `uid` in these collections grants the respective role, ensuring clear and auditable role management without relying on custom claims.\n\nThis structure provides a secure, scalable, and debuggable foundation for Auralook.uz, explicitly addressing the core design principles and the specific requirements, including the removal of the explicit 'admin dashboard' by abstracting admin functionalities into role-based permissions."
+  }
+}

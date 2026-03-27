@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Auralook.uz Security Rules
+     * 
+     * CORE PHILOSOPHY:
+     * This ruleset implements a strict identity-based security model designed for the Auralook.uz 
+     * multi-language lookbook and e-commerce platform. It prioritizes Authorization Independence 
+     * by using denormalized identifiers (like userId) within documents to perform high-performance 
+     * security checks without nested lookups.
+     * 
+     * DATA STRUCTURE:
+     * - /users & /userProfiles: Use path-based ownership where the Document ID matches the Auth UID.
+     * - /looks: Publicly accessible content restricted for modification to specific creators.
+     * - /orders: Private transaction data accessible by the owner or authorized order managers.
+     * - /roles_*: Database-Backed Access Control (DBAC) collections defining administrative privileges.
+     * 
+     * KEY SECURITY DECISIONS:
+     * 1. Public Content: Looks are readable by everyone to facilitate SEO and social sharing.
+     * 2. DBAC: Administrative actions (managing orders, creating looks) are governed by membership 
+     *    in specific role collections, removing the need for a monolithic admin dashboard entity.
+     * 3. Immutability: Critical relational fields, such as the owner of an order or profile, 
+     *    are enforced as immutable once created to prevent privilege escalation.
+     * 4. Existence Checks: All update and delete operations require the document to exist 
+     *    pre-operation to ensure state integrity.
+     */
+
+    // --- Global Helper Functions ---
+
+    /** Checks if the user is authenticated with Firebase Auth. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** Checks if the current user's UID matches the provided ID (Path-based ownership). */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** Checks if the user owns the existing document (Resource-based ownership). */
+    function isDataOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    /** Verifies a document exists and is owned by the current user. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    /** 
+     * Checks for a specific role by looking for a document in a role collection.
+     * DBAC: Database-Backed Access Control.
+     */
+    function hasRole(roleCollection) {
+      return isSignedIn() && exists(/databases/$(database)/documents/$(roleCollection)/$(request.auth.uid));
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for core user accounts. Access is strictly private.
+     * @path /users/{userId}
+     * @allow get, list, create, update: if the auth UID matches the {userId} path.
+     * @deny update: if the user is not the owner or if the document doesn't exist.
+     * @principle Restricts access to a user's own data tree using path-based authorization.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if false; // Users typically cannot self-delete in this workflow.
+    }
+
+    /**
+     * @description Rules for AI Smart Size Advisor profiles.
+     * @path /userProfiles/{userId}
+     * @allow create: if owner AND the internal 'userId' field matches their UID.
+     * @deny update: if attempting to change the 'userId' link to another user.
+     * @principle Validates relational integrity between path and document data.
+     */
+    match /userProfiles/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for the public Lookbook.
+     * @path /looks/{lookId}
+     * @allow get, list: if true (Publicly accessible).
+     * @deny create, update, delete: if the user lacks the 'look_creator' role.
+     * @principle Implements Public Read with Role-Based Writes.
+     */
+    match /looks/{lookId} {
+      allow get, list: if true;
+      allow create: if hasRole('roles_look_creators');
+      allow update, delete: if resource != null && hasRole('roles_look_creators');
+    }
+
+    /**
+     * @description Rules for customer orders.
+     * @path /orders/{orderId}
+     * @allow create: if signed in and setting themselves as the owner.
+     * @allow update: if user is the order owner or has the 'order_manager' role.
+     * @deny list: for any user who is neither the owner nor a manager.
+     * @principle Uses denormalized ownership (userId) for Authorization Independence.
+     */
+    match /orders/{orderId} {
+      allow get, list: if isDataOwner(resource.data.userId) || hasRole('roles_order_managers');
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if resource != null && (isDataOwner(resource.data.userId) || hasRole('roles_order_managers')) && request.resource.data.userId == resource.data.userId;
+      allow delete: if resource != null && hasRole('roles_order_managers');
+    }
+
+    /**
+     * @description System role: Order Managers.
+     * @path /roles_order_managers/{userId}
+     * @allow get: if user is signed in (to verify their own or others' status).
+     * @deny list, create, update, delete: to all client-side requests.
+     * @principle DBAC collections are read-only for clients to prevent unauthorized privilege escalation.
+     */
+    match /roles_order_managers/{userId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if false;
+    }
+
+    /**
+     * @description System role: Look Creators.
+     * @path /roles_look_creators/{userId}
+     * @allow get: if user is signed in.
+     * @deny list, create, update, delete: to all client-side requests.
+     * @principle DBAC collections are read-only for clients to prevent unauthorized privilege escalation.
+     */
+    match /roles_look_creators/{userId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if false;
+    }
+  }
+}
