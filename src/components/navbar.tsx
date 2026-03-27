@@ -33,7 +33,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/" className="hover:text-primary transition-colors">{t(dictionary.browseLooks)}</Link>
           {user && (
-            <Link href="/orders" className="hover:text-primary transition-colors">My Orders</Link>
+            <Link href="/orders" className="hover:text-primary transition-colors">{t(dictionary.myOrders)}</Link>
           )}
         </div>
 
@@ -71,7 +71,7 @@ export function Navbar() {
                   <DropdownMenuSeparator className="bg-white/5" />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {t(dictionary.logout)}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -79,7 +79,7 @@ export function Navbar() {
               <Link href="/login">
                 <Button variant="outline" className="rounded-full border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                   <User className="w-4 h-4 mr-2" />
-                  Login
+                  {t(dictionary.login)}
                 </Button>
               </Link>
             )

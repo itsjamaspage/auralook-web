@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,8 +22,8 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user } = useUser();
   const { toast } = useToast();
+  const { t, dictionary } = useLanguage();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       router.push('/');
@@ -39,8 +40,6 @@ export default function LoginPage() {
       initiateEmailSignUp(auth, email, password);
     }
     
-    // Note: Success is handled by the useUser hook redirecting above.
-    // Error handling would typically happen via an auth state listener or global error emitter.
     setTimeout(() => setIsLoading(false), 2000); 
   };
 
@@ -54,10 +53,10 @@ export default function LoginPage() {
             <ShieldCheck className="w-8 h-8" />
           </div>
           <CardTitle className="text-3xl font-black tracking-tighter">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? t(dictionary.welcomeBack) : t(dictionary.createAccount)}
           </CardTitle>
           <CardDescription className="text-muted-foreground font-light">
-            {isLogin ? 'Access your orders and sizes' : 'Join the future of fashion'}
+            {isLogin ? t(dictionary.accessOrders) : t(dictionary.joinFuture)}
           </CardDescription>
         </CardHeader>
 
@@ -65,7 +64,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t(dictionary.email)}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -80,7 +79,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t(dictionary.password)}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -101,7 +100,7 @@ export default function LoginPage() {
               className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-lg"
               disabled={isLoading}
             >
-              {isLoading ? 'Processing...' : (isLogin ? 'Login' : 'Get Started')}
+              {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}
             </Button>
           </form>
 
@@ -110,7 +109,7 @@ export default function LoginPage() {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+              {isLogin ? t(dictionary.dontHaveAccount) : t(dictionary.alreadyHaveAccount)}
             </button>
           </div>
         </CardContent>

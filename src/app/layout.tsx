@@ -3,6 +3,7 @@ import './globals.css';
 import { Navbar } from '@/components/navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'Auralook.uz | Future of Fashion',
@@ -28,16 +29,7 @@ export default function RootLayout({
             {children}
           </main>
           <Toaster />
-          <footer className="py-12 border-t border-white/5 text-center text-sm text-muted-foreground">
-            <div className="container mx-auto">
-              <p>© 2024 Auralook.uz AI. All rights reserved.</p>
-              <div className="flex justify-center gap-6 mt-4">
-                <span className="hover:text-primary cursor-pointer transition-colors">Telegram</span>
-                <span className="hover:text-primary cursor-pointer transition-colors">Instagram</span>
-                <span className="hover:text-primary cursor-pointer transition-colors">Contact</span>
-              </div>
-            </div>
-          </footer>
+          <Footer />
         </FirebaseClientProvider>
       </body>
     </html>
