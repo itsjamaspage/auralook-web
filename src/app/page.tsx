@@ -15,20 +15,20 @@ export default function Home() {
   return (
     <div className="space-y-24 pb-24">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden px-6">
+      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6">
         <div className="hero-glow top-1/4 left-1/4" />
         <div className="hero-glow bottom-1/4 right-1/4" />
         
-        <div className="absolute inset-0 z-[-1] opacity-40">
+        <div className="absolute inset-0 z-[-1]">
           <Image 
-            src={heroImage?.imageUrl || "https://picsum.photos/seed/fashion-hero-new/1200/800"} 
-            alt="Hero Background" 
+            src={heroImage?.imageUrl || "https://picsum.photos/seed/fashion-runway-99/1200/800"} 
+            alt="Fashion Background" 
             fill 
-            className="object-cover"
+            className="object-cover opacity-60"
             priority
-            data-ai-hint={heroImage?.imageHint || "high fashion"}
+            data-ai-hint={heroImage?.imageHint || "fashion runway"}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
         </div>
 
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
@@ -43,7 +43,7 @@ export default function Home() {
             {t(dictionary.heroSub)}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:scale-105 transition-transform">
+            <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-xl shadow-primary/20">
               {t(dictionary.browseLooks)}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
