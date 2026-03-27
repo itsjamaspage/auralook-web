@@ -35,7 +35,7 @@ export function useLanguage() {
     accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
     joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
     email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-    password: { en: 'Password', ru: 'Пароль', uz: 'Parol' },
+    password: { en: 'Password', ru: 'Пароль', uz: 'Пароль' },
     getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
     dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: 'Hisobingiz yo\'qmi? Ro\'yxatdan o\'ting' },
     alreadyHaveAccount: { en: 'Already have an account? Login', ru: 'Уже есть аккаунт? Войти', uz: 'Hisobingiz bormi? Kirish' },
@@ -62,7 +62,7 @@ export function useLanguage() {
     returns: { en: '14-Day Free Returns', ru: 'Бесплатный возврат в течение 14 дней', uz: '14 kunlik bepul qaytarish' },
 
     // Footer
-    allRightsReserved: { en: '© 2024 Auralook.uz AI. All rights reserved.', ru: '© 2024 Auralook.uz AI. Все права защищены.', uz: '© 2024 Auralook.uz AI. Barcha huquqlar himoyalangan.' },
+    allRightsReserved: { en: '© 2026 Auralook.uz AI. All rights reserved.', ru: '© 2026 Auralook.uz AI. Все права защищены.', uz: '© 2026 Auralook.uz AI. Barcha huquqlar himoyalangan.' },
     contact: { en: 'Contact', ru: 'Контакт', uz: 'Aloqa' },
   };
 

@@ -20,7 +20,7 @@ const dictionary = {
   accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
   joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
   email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-  password: { en: 'Password', ru: 'Пароль', uz: 'Parol' },
+  password: { en: 'Password', ru: 'Parol', uz: 'Parol' },
   emailPlaceholder: { en: 'name@example.com', ru: 'name@example.com', uz: 'ism@misol.com' },
   passwordPlaceholder: { en: '••••••••', ru: '••••••••', uz: '••••••••' },
   getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
@@ -49,7 +49,7 @@ const dictionary = {
   returns: { en: '14-Day Free Returns', ru: 'Бесплатный возврат в течение 14 дней', uz: '14 kunlik bepul qaytarish' },
 
   // Footer
-  allRightsReserved: { en: '© 2024 Auralook.uz. All rights reserved.', ru: '© 2024 Auralook.uz. Все права защищены.', uz: '© 2024 Auralook.uz. Barcha huquqlar himoyalangan.' },
+  allRightsReserved: { en: '© 2026 Auralook.uz. All rights reserved.', ru: '© 2026 Auralook.uz. Все права защищены.', uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.' },
   contact: { en: 'Contact', ru: 'Контакт', uz: 'Aloqa' },
 };
 
