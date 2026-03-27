@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-look",
-      "description": "Futuristic streetwear look",
-      "imageUrl": "https://picsum.photos/seed/fashion1/1200/800",
-      "imageHint": "futuristic streetwear"
+      "description": "Futuristic high-fashion streetwear",
+      "imageUrl": "https://picsum.photos/seed/fashion-hero-new/1200/800",
+      "imageHint": "high fashion"
     },
     {
       "id": "look-1",

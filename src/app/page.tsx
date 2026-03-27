@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from 'next/image';
@@ -5,9 +6,11 @@ import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
   const { t, dictionary } = useLanguage();
+  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-look');
 
   return (
     <div className="space-y-24 pb-24">
@@ -16,16 +19,16 @@ export default function Home() {
         <div className="hero-glow top-1/4 left-1/4" />
         <div className="hero-glow bottom-1/4 right-1/4" />
         
-        <div className="absolute inset-0 z-[-1] opacity-30">
+        <div className="absolute inset-0 z-[-1] opacity-40">
           <Image 
-            src="https://picsum.photos/seed/fashion1/1200/800" 
+            src={heroImage?.imageUrl || "https://picsum.photos/seed/fashion-hero-new/1200/800"} 
             alt="Hero Background" 
             fill 
             className="object-cover"
             priority
-            data-ai-hint="futuristic streetwear"
+            data-ai-hint={heroImage?.imageHint || "high fashion"}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
         </div>
 
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
