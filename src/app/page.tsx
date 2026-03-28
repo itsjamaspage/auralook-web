@@ -2,10 +2,9 @@
 
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Ruler } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { SizeAdvisorModal } from '@/components/size-advisor-modal';
 
 export default function Home() {
   const { t, dictionary } = useLanguage();
@@ -71,10 +70,6 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-
-              <div className="w-full sm:w-auto min-w-[200px]">
-                 <SizeAdvisorModal />
-              </div>
             </div>
 
             {/* Signal Lane Bottom */}
