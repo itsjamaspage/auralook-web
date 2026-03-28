@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -12,7 +13,6 @@ const dictionary = {
   myOrders: { en: 'My Orders', ru: 'Мои заказы', uz: 'Mening buyurtmalarim' },
   logout: { en: 'Logout', ru: 'Выйти', uz: 'Chiqish' },
   login: { en: 'Login', ru: 'Войти', uz: 'Kirish' },
-  storeTag: { en: 'Future of Fashion Hub', ru: 'Центр моды будущего', uz: 'Kelajak modasi markazi' },
 
   // Auth Pages
   welcomeBack: { en: 'Welcome Back', ru: 'С возвращением', uz: 'Xush kelibsiz' },
@@ -20,7 +20,7 @@ const dictionary = {
   accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
   joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
   email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-  password: { en: 'Password', ru: 'Parol', uz: 'Parol' },
+  password: { en: 'Parol', ru: 'Пароль', uz: 'Parol' },
   emailPlaceholder: { en: 'name@example.com', ru: 'name@example.com', uz: 'ism@misol.com' },
   passwordPlaceholder: { en: '••••••••', ru: '••••••••', uz: '••••••••' },
   getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },

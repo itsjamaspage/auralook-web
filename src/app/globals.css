@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,19 +43,19 @@
 
 /* Moving Signal Lane Animation */
 @keyframes signal-flow {
-  0% { left: -100%; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { left: 100%; opacity: 0; }
+  0% { left: -150%; opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { left: 150%; opacity: 0; }
 }
 
 .signal-lane {
   position: absolute;
   height: 100%;
-  width: 300px;
-  background: linear-gradient(90deg, transparent, white, var(--primary), white, transparent);
-  filter: drop-shadow(0 0 15px var(--primary));
-  animation: signal-flow 4s infinite linear;
+  width: 400px;
+  background: linear-gradient(90deg, transparent, white, var(--accent), var(--primary), white, transparent);
+  filter: blur(4px) drop-shadow(0 0 20px var(--primary));
+  animation: signal-flow 3s infinite linear;
   z-index: 20;
 }
 
@@ -62,17 +63,17 @@
 @keyframes neon-cycle-bg {
   0%, 100% { 
     background-color: hsl(45 100% 51%); /* Yellow */
-    box-shadow: 0 0 25px hsla(45, 100%, 51%, 0.4);
+    box-shadow: 0 0 30px hsla(45, 100%, 51%, 0.5);
     color: black;
   }
   33% { 
     background-color: hsl(180 100% 50%); /* Cyan */
-    box-shadow: 0 0 25px hsla(180, 100%, 50%, 0.4);
+    box-shadow: 0 0 30px hsla(180, 100%, 50%, 0.5);
     color: black;
   }
   66% { 
     background-color: hsl(300 100% 50%); /* Magenta */
-    box-shadow: 0 0 25px hsla(300, 100%, 50%, 0.4);
+    box-shadow: 0 0 30px hsla(300, 100%, 50%, 0.5);
     color: white;
   }
 }
@@ -86,9 +87,9 @@
 
 /* Sync Color Cycle for Border */
 @keyframes neon-cycle-border {
-  0%, 100% { border-color: hsl(45 100% 51%); }
-  33% { border-color: hsl(180 100% 50%); }
-  66% { border-color: hsl(300 100% 50%); }
+  0%, 100% { border-color: hsl(45 100% 51%); color: hsl(45 100% 51%); }
+  33% { border-color: hsl(180 100% 50%); color: hsl(180 100% 50%); }
+  66% { border-color: hsl(300 100% 50%); color: hsl(300 100% 50%); }
 }
 
 .animate-neon-bg {

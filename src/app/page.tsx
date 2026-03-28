@@ -1,9 +1,9 @@
+
 "use client"
 
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
 export default function Home() {
@@ -38,12 +38,17 @@ export default function Home() {
 
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-          <Badge className="animate-neon-border animate-neon-text bg-transparent px-4 py-1.5 rounded-full text-xs font-medium border-2 transition-all duration-500 opacity-60">
-            <ShoppingBag className="w-3.5 h-3.5 mr-2 inline" />
-            {t(dictionary.storeTag)}
-          </Badge>
           
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+          {/* Tech Pulse Beacon - Replaces the Boutique Tag */}
+          <div className="flex justify-center mb-8 h-12">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute w-12 h-12 rounded-full animate-neon-border border-2 opacity-20 animate-ping" />
+              <div className="absolute w-8 h-8 rounded-full animate-neon-border border-2 opacity-40 animate-pulse" />
+              <div className="w-3 h-3 rounded-full animate-neon-bg shadow-[0_0_15px_currentColor]" />
+            </div>
+          </div>
+          
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 animate-neon-text">
             {t(dictionary.heroTitle)}
           </h1>
           
@@ -53,7 +58,7 @@ export default function Home() {
 
           <div className="relative group w-full max-w-md mx-auto">
             {/* The Moving Lane Interaction - Top */}
-            <div className="absolute -top-6 left-0 right-0 h-[4px] overflow-hidden">
+            <div className="absolute -top-12 left-0 right-0 h-[8px] overflow-hidden">
               <div className="signal-lane" />
             </div>
 
@@ -70,8 +75,8 @@ export default function Home() {
             </div>
 
             {/* The Moving Lane Interaction - Bottom */}
-            <div className="absolute -bottom-6 left-0 right-0 h-[4px] overflow-hidden">
-              <div className="signal-lane" style={{ animationDelay: '1.5s' }} />
+            <div className="absolute -bottom-12 left-0 right-0 h-[8px] overflow-hidden">
+              <div className="signal-lane" style={{ animationDelay: '2s' }} />
             </div>
           </div>
         </div>
