@@ -1,35 +1,84 @@
+
 "use client"
 
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { MOCK_LOOKS } from '@/lib/mock-data';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, Truck, RefreshCcw, Loader2 } from 'lucide-react';
 import { SizeAdvisorModal } from '@/components/size-advisor-modal';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useUser, useFirestore } from '@/firebase';
+import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
+  const { user } = useUser();
+  const db = useFirestore();
+  const router = useRouter();
+  const [isOrdering, setIsOrdering] = useState(false);
   
   const look = MOCK_LOOKS.find(l => l.id === id);
 
   if (!look) return <div className="p-24 text-center">Look not found</div>;
 
-  const handlePurchase = () => {
-    toast({
-      title: "Order Received!",
-      description: "Check your Telegram for status updates. Our manager will contact you soon.",
-    });
+  const handlePurchase = async () => {
+    if (!user) {
+      toast({
+        title: "Registration Required",
+        description: "Please log in to place an order.",
+        variant: "destructive"
+      });
+      router.push('/login');
+      return;
+    }
+
+    setIsOrdering(true);
+    try {
+      // Get current user's telegram username from their profile
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+
+      const orderData = {
+        userId: user.uid,
+        customerName: user.email?.split('@')[0] || 'Customer',
+        telegramUsername: userData?.telegramUsername || 'Not provided',
+        orderDate: new Date().toISOString(),
+        status: 'New',
+        totalAmount: look.price,
+        shippingAddress: 'Tashkent (Pending detail)',
+        telegramNotificationSent: false,
+        updatedAt: new Date().toISOString(),
+        lookId: look.id,
+      };
+
+      await addDoc(collection(db, 'orders'), orderData);
+
+      toast({
+        title: "Order Received!",
+        description: "Check your Telegram for status updates. Our manager will contact you soon.",
+      });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Order Failed",
+        description: "Could not place order. Please try again.",
+      });
+    } finally {
+      setIsOrdering(false);
+    }
   };
 
   return (
     <div className="container mx-auto px-6 pb-24">
       <div className="grid lg:grid-cols-2 gap-16">
-        {/* Left: Images */}
         <div className="space-y-6">
           <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass border-white/10">
             <Image 
@@ -49,7 +98,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
         </div>
 
-        {/* Right: Content */}
         <div className="space-y-10 flex flex-col justify-center">
           <div className="space-y-4">
             <div className="flex gap-2">
@@ -84,9 +132,16 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               size="lg" 
               className="flex-1 rounded-2xl h-16 bg-primary text-primary-foreground font-black text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
               onClick={handlePurchase}
+              disabled={isOrdering}
             >
-              <ShoppingCart className="mr-2 w-6 h-6" />
-              Complete Order
+              {isOrdering ? (
+                <Loader2 className="animate-spin w-6 h-6" />
+              ) : (
+                <>
+                  <ShoppingCart className="mr-2 w-6 h-6" />
+                  Complete Order
+                </>
+              )}
             </Button>
           </div>
 

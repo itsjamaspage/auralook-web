@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -7,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ShieldCheck, Mail, Lock, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
+import { setDoc, doc, collection, getDocs, limit, query } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -21,14 +24,54 @@ export default function LoginPage() {
   
   const router = useRouter();
   const auth = useAuth();
+  const db = useFirestore();
   const { user } = useUser();
   const { t, dictionary } = useLanguage();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
       router.push('/');
     }
   }, [user, router]);
+
+  // Listen for auth state changes specifically for the signup flow
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
+      if (newUser && !isLogin) {
+        try {
+          // Check if this is the first user ever
+          const usersQuery = query(collection(db, 'users'), limit(1));
+          const snapshot = await getDocs(usersQuery);
+          const isFirstUser = snapshot.empty;
+
+          const userData = {
+            id: newUser.uid,
+            email: newUser.email,
+            telegramUsername: telegramUsername.startsWith('@') ? telegramUsername : `@${telegramUsername}`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          // Save user document
+          await setDoc(doc(db, 'users', newUser.uid), userData);
+
+          // If first user, automatically make admin
+          if (isFirstUser) {
+            await setDoc(doc(db, 'roles_order_managers', newUser.uid), userData);
+            await setDoc(doc(db, 'roles_look_creators', newUser.uid), userData);
+            toast({
+              title: "Admin Assigned",
+              description: "You are the first user and have been granted admin privileges.",
+            });
+          }
+        } catch (e) {
+          console.error("Error saving user data:", e);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, db, telegramUsername, isLogin, toast]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +88,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex-grow flex items-center justify-center px-6 min-h-[calc(100vh-160px)] relative overflow-hidden bg-background">
-      {/* Centered Ambient Glow */}
       <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px]" />
       
       <Card className="w-full max-w-md glass-dark border-2 neon-border rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -141,6 +142,14 @@
           "type": "string",
           "description": "Reference to the User who placed this order. (Relationship: User 1:N Order)"
         },
+        "customerName": {
+          "type": "string",
+          "description": "The name of the customer for display in the admin panel."
+        },
+        "telegramUsername": {
+          "type": "string",
+          "description": "The customer's Telegram username for notifications."
+        },
         "orderDate": {
           "type": "string",
           "description": "The date and time when the order was placed.",
@@ -175,6 +184,8 @@
       "required": [
         "id",
         "userId",
+        "customerName",
+        "telegramUsername",
         "orderDate",
         "status",
         "totalAmount",
