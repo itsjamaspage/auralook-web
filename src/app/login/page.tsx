@@ -39,6 +39,7 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
+          // Check if this is the first user ever
           const usersQuery = query(collection(db, 'users'), limit(1));
           const snapshot = await getDocs(usersQuery);
           const isFirstUser = snapshot.empty;
@@ -51,11 +52,12 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
-          // Always set user data on signup or if it's the first user ever
+          // Store user profile
           if (!isLogin || isFirstUser) {
             await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
           }
 
+          // If first user, grant admin roles immediately
           if (isFirstUser) {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             await setDoc(doc(db, 'roles_look_creators', newUser.uid), { userId: newUser.uid });

@@ -34,6 +34,7 @@ export default function AdminDashboard() {
   const db = useFirestore();
   const { toast } = useToast();
 
+  // Fetch real orders from Firestore
   const ordersQuery = useMemoFirebase(() => collection(db, 'orders'), [db]);
   const { data: orders, isLoading, error } = useCollection(ordersQuery);
 
@@ -47,6 +48,7 @@ export default function AdminDashboard() {
       
       const order = orders?.find(o => o.id === orderId);
       if (order) {
+        // Trigger AI notification (simulated Telegram preparation)
         const { message } = await aiTelegramOrderStatusNotification({
           customerName: order.customerName,
           orderId: order.id,
@@ -96,6 +98,7 @@ export default function AdminDashboard() {
         </Link>
       </div>
 
+      {/* Stats Overview */}
       <div className="grid md:grid-cols-4 gap-6">
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">

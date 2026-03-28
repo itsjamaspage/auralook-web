@@ -22,6 +22,7 @@ export function Navbar() {
   const auth = useAuth();
   const db = useFirestore();
 
+  // Check if current user is an admin
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_order_managers', user.uid);
