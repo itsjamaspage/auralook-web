@@ -8,12 +8,7 @@ import {
   ShoppingCart, 
   Loader2, 
   ChevronLeft, 
-  MoreHorizontal, 
-  Shirt, 
-  Zap, 
-  Thermometer, 
-  Droplets, 
-  Package 
+  MoreHorizontal
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -96,14 +91,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
-  const specs = [
-    { icon: <Shirt className="w-4 h-4" />, label: "Premium Fabric", sub: "Cotton Blend" },
-    { icon: <Zap className="w-4 h-4" />, label: "Fit Type", sub: "Athletic Slim" },
-    { icon: <Thermometer className="w-4 h-4" />, label: "Optimal Season", sub: "All Season" },
-    { icon: <Droplets className="w-4 h-4" />, label: "Care Instructions", sub: "Washable" },
-    { icon: <Package className="w-4 h-4" />, label: "Availability", sub: "In Stock" },
-  ];
-
   return (
     <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
       {/* Dynamic Background Energy */}
@@ -120,105 +107,85 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         )}
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 pt-2 pb-24 max-w-5xl lg:grid lg:grid-cols-2 gap-8 items-start">
+      <div className="relative z-10 container mx-auto px-6 pt-2 pb-24 max-w-7xl lg:grid lg:grid-cols-12 gap-8 items-center">
         
         {/* TOP NAV BAR */}
-        <div className="flex items-center justify-between w-full mb-6 lg:col-span-2">
+        <div className="flex items-center justify-between w-full mb-4 lg:col-span-12">
           <button 
             onClick={() => router.back()}
             className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <span className="font-bold tracking-tight text-white/60 uppercase text-[10px]">Technical Specs // Metadata</span>
+          <span className="font-bold tracking-tight text-white/40 uppercase text-[9px] font-mono">TECHNICAL DATA // ID_{look.id.substring(0, 8).toUpperCase()}</span>
           <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors">
             <MoreHorizontal className="w-5 h-5" />
           </button>
         </div>
 
-        {/* LEFT COLUMN: TITLE & SPECS */}
-        <div className="space-y-8">
-          {/* MAIN TITLE */}
+        {/* LEFT COLUMN: TITLE & SPECS (DESCRIPTION) */}
+        <div className="lg:col-span-5 space-y-8">
           <div className="space-y-2">
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none neon-text uppercase italic">
+            <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-none neon-text uppercase italic">
               {look.name || 'Aura Look'}
             </h1>
-            <p className="text-[10px] font-mono text-white/30 tracking-[0.3em]">REF // {look.id.substring(0, 8).toUpperCase()}</p>
+            <p className="text-[10px] font-mono text-white/20 tracking-[0.4em]">SYSTEM CORE // STATUS: ACTIVE</p>
           </div>
 
-          {/* SPECS LIST */}
-          <div className="space-y-4">
-            {specs.map((spec, i) => (
-              <div key={i} className="flex items-center gap-4 animate-in fade-in slide-in-from-left duration-500" style={{ animationDelay: `${i * 50}ms` }}>
-                <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60">
-                  {spec.icon}
-                </div>
-                <div className="space-y-0">
-                  <p className="text-sm font-bold text-white/90">{spec.label}</p>
-                  <p className="text-[10px] font-medium text-white/30 uppercase tracking-widest">{spec.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* DESCRIPTION SECTION (Integrated on left for better fitting) */}
-          <div className="glass-dark p-5 rounded-2xl border border-white/5 bg-white/[0.02]">
-            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] mb-2">Description // Data</p>
-            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line font-medium italic">
-              {look.description}
+          {/* MAIN DESCRIPTION / TECHNICAL SPECS */}
+          <div className="glass-dark p-8 rounded-[2rem] border border-white/5 bg-white/[0.01] relative overflow-hidden group min-h-[300px]">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+               <div className="w-12 h-12 border-t-2 border-r-2 border-white/40 rounded-tr-xl" />
+            </div>
+            
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.5em] mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full neon-bg animate-pulse" />
+              Technical Breakdown
             </p>
+            
+            <div className="text-xl lg:text-2xl text-white/90 leading-relaxed whitespace-pre-line font-medium italic">
+              {look.description}
+            </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: MAIN IMAGE */}
-        <div className="hidden lg:block relative h-[450px] w-full mt-4">
-           <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full animate-pulse" />
-           <div className="relative w-full h-full transform transition-transform hover:scale-105 duration-700">
+        {/* RIGHT COLUMN: BIGGER IMAGE */}
+        <div className="lg:col-span-7 relative h-[500px] lg:h-[700px] w-full mt-4 animate-in fade-in zoom-in duration-1000">
+           <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full animate-pulse" />
+           <div className="relative w-full h-full transform transition-transform hover:scale-[1.02] duration-1000">
              <Image 
                 src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
                 alt={look.name || 'Look'} 
                 fill 
-                className="object-contain"
+                className="object-contain drop-shadow-[0_0_50px_rgba(var(--primary),0.15)]"
                 priority
               />
-           </div>
-        </div>
-
-        {/* MOBILE IMAGE SHOWCASE */}
-        <div className="lg:hidden relative aspect-square w-full mt-6">
-           <div className="relative w-full h-full">
-             <Image 
-                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
-                alt={look.name || 'Look'} 
-                fill 
-                className="object-contain"
-                priority
-              />
+              
+              {/* Technical Overlay - Price */}
+              <div className="absolute top-8 right-0 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-2xl rotate-2 hover:rotate-0 transition-transform cursor-default z-20">
+                 <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">Current Valuation</p>
+                 <p className="text-4xl font-black neon-text">
+                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                 </p>
+              </div>
            </div>
         </div>
       </div>
 
       {/* BOTTOM ACTION BAR */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black via-black/90 to-transparent">
-        <div className="container mx-auto max-w-5xl flex items-center justify-between gap-6">
-          <div className="flex flex-col">
-            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">Valuation</p>
-            <p className="text-2xl font-black text-white">
-              {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-            </p>
-          </div>
-          
+      <div className="fixed bottom-0 left-0 right-0 p-6 z-50 bg-gradient-to-t from-black via-black/95 to-transparent">
+        <div className="container mx-auto max-w-7xl flex items-center justify-center">
           <Button 
-            className="flex-1 max-w-md h-12 rounded-xl neon-bg text-black font-black text-sm border-none shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full max-w-3xl h-16 rounded-2xl neon-bg text-black font-black text-xl border-none shadow-2xl transition-all hover:scale-[1.01] active:scale-[0.99]"
             onClick={handlePurchase}
             disabled={isOrdering}
           >
             {isOrdering ? (
-              <Loader2 className="animate-spin w-5 h-5" />
+              <Loader2 className="animate-spin w-8 h-8" />
             ) : (
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                COMPLETE ORDER
+              <div className="flex items-center gap-4">
+                <ShoppingCart className="w-6 h-6" />
+                COMPLETE ORDER // INITIATE PROTOCOL
               </div>
             )}
           </Button>
