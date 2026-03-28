@@ -62,7 +62,7 @@ export default function AdminDashboard() {
 
       {/* Action Area */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-white/20 transition-all duration-500">
+        <Card className="glass-dark rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-white/20 transition-all duration-500">
           <div className="space-y-2">
             <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{t(dictionary.catalog)}</p>
             <div className="text-5xl font-black text-white">
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        <Card className="md:col-span-2 glass-dark border-white/10 rounded-[2.5rem] p-2 relative overflow-hidden group">
+        <Card className="md:col-span-2 glass-dark rounded-[2.5rem] p-2 relative overflow-hidden group">
           <Link href="/admin/looks/new" className="block w-full h-full">
             <div className="flex items-center justify-center w-full h-full bg-white/[0.02] hover:bg-white/[0.05] transition-all rounded-[2rem] p-10 group/btn">
               <div className="flex flex-col items-center gap-3">
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-black tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
         </div>
 
-        <Card className="glass-dark border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
+        <Card className="glass-dark rounded-[3rem] overflow-hidden shadow-2xl">
           {looksLoading ? (
             <div className="p-32 flex flex-col items-center gap-6">
               <Loader2 className="animate-spin w-12 h-12 neon-text" />
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-white/5 border-b border-white/5">
+              <TableHeader className="bg-white/5 border-b border-white/10">
                 <TableRow className="border-none hover:bg-transparent">
                   <TableHead className="py-8 pl-10 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
                   <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>

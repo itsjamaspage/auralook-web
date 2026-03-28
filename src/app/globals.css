@@ -4,29 +4,40 @@
 
 @layer base {
   :root {
-    --background: 0 0% 10%;
+    --background: 0 0% 5%;
     --foreground: 0 0% 95%;
-    --card: 0 0% 13%;
+    --card: 0 0% 8%;
     --card-foreground: 0 0% 95%;
-    --popover: 0 0% 12%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 95%;
-    --primary: 150 100% 50%; /* Emerald Neon */
-    --primary-foreground: 0 0% 10%;
-    --secondary: 200 100% 50%; /* Azure Neon */
+    --primary: 150 100% 50%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 200 100% 50%;
     --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 330 100% 50%; /* Electric Rose */
-    --accent-foreground: 0 0% 10%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 330 100% 50%;
+    --accent-foreground: 0 0% 5%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
     --ring: 150 100% 50%;
     --radius: 1.5rem;
-    --sync-color: hsl(150 100% 50%);
-    --sync-shadow: hsla(150, 100%, 50%, 0.4);
   }
+}
+
+/* Houdini properties for ultra-smooth color interpolation */
+@property --sync-color {
+  syntax: '<color>';
+  initial-value: hsl(150 100% 50%);
+  inherits: true;
+}
+
+@property --sync-shadow {
+  syntax: '<color>';
+  initial-value: hsla(150, 100%, 50%, 0.4);
+  inherits: true;
 }
 
 @keyframes master-sync-cycle {
@@ -34,51 +45,45 @@
     --sync-color: hsl(150 100% 50%); 
     --sync-shadow: hsla(150, 100%, 50%, 0.4);
   }
-  25% { 
+  33% { 
     --sync-color: hsl(200 100% 50%); 
     --sync-shadow: hsla(200, 100%, 50%, 0.4);
   }
-  50% { 
+  66% { 
     --sync-color: hsl(330 100% 50%); 
     --sync-shadow: hsla(330, 100%, 50%, 0.4);
-  }
-  75% { 
-    --sync-color: hsl(270 100% 60%); 
-    --sync-shadow: hsla(270, 100%, 60%, 0.4);
   }
 }
 
 body {
-  animation: master-sync-cycle 12s infinite linear;
+  animation: master-sync-cycle 15s infinite linear;
+  @apply bg-background text-foreground font-body antialiased;
 }
 
 .neon-text {
   color: var(--sync-color) !important;
-  transition: color 0.3s ease;
+  transition: color 0.5s ease;
 }
 
 .neon-border {
   border-color: var(--sync-color) !important;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.5s ease;
 }
 
 .neon-bg {
   background-color: var(--sync-color) !important;
-  box-shadow: 0 0 30px var(--sync-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 25px var(--sync-shadow);
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.glass-dark {
+  @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary selection:text-primary-foreground;
-  }
-}
-
-.glass-dark {
-  @apply bg-black/40 backdrop-blur-xl border border-white/5;
 }
 
 @keyframes stream-down {
@@ -100,5 +105,5 @@ body {
   background: radial-gradient(circle, var(--sync-color) 0%, transparent 70%);
   filter: blur(100px);
   pointer-events: none;
-  opacity: 0.1;
+  opacity: 0.05;
 }

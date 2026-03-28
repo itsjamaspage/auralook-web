@@ -108,7 +108,7 @@ export default function NewLookPage() {
       <div className="grid lg:grid-cols-12 gap-10">
         {/* Media Sidebar */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02]">
+          <Card className="glass-dark rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02]">
             {imageUrl && (
               <img 
                 src={imageUrl} 
@@ -122,7 +122,7 @@ export default function NewLookPage() {
               </div>
               <p className="text-xs font-bold text-center text-white/80 uppercase tracking-widest">{t(dictionary.uploadImage)}</p>
               <Input 
-                className="mt-4 bg-white/5 border-white/10 text-xs text-white" 
+                className="mt-4 bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20" 
                 placeholder="Image URL" 
                 value={imageUrl} 
                 onChange={(e) => setImageUrl(e.target.value)}
@@ -133,10 +133,10 @@ export default function NewLookPage() {
 
         {/* Form Main Area */}
         <div className="lg:col-span-8 space-y-8">
-          <Card className="glass-dark border-white/5 rounded-[2.5rem] p-10 space-y-8">
+          <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8">
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/60">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <ImageIcon className="w-4 h-4 neon-text" />
                   {t(dictionary.lookName)}
                 </Label>
@@ -144,12 +144,12 @@ export default function NewLookPage() {
                   placeholder="e.g. Cyber Runner v2" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white" 
+                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
                 />
               </div>
 
               <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/60">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <Sparkles className="w-4 h-4 neon-text" />
                   {t(dictionary.lookPrice)}
                 </Label>
@@ -159,7 +159,7 @@ export default function NewLookPage() {
                     placeholder="299" 
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white" 
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
                   />
                   <RadioGroup 
                     value={currency} 
@@ -167,12 +167,12 @@ export default function NewLookPage() {
                     className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="USD" id="usd" className="border-white/20" />
-                      <Label htmlFor="usd" className="text-[10px] font-bold text-white">USD</Label>
+                      <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                      <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20" />
-                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white">UZS</Label>
+                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -180,7 +180,7 @@ export default function NewLookPage() {
             </div>
 
             {/* AI Generator Section */}
-            <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-6">
+            <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 space-y-6">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <Sparkles className="w-4 h-4 neon-text" />
@@ -191,7 +191,7 @@ export default function NewLookPage() {
                     placeholder={t(dictionary.keywordsPlaceholder)} 
                     value={keywords}
                     onChange={(e) => setKeywords(e.target.value)}
-                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:ring-1 focus:ring-primary/50 text-white"
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20"
                   />
                   <Button 
                     onClick={generateDescriptions} 
@@ -204,9 +204,9 @@ export default function NewLookPage() {
               </div>
 
               <div className="space-y-4">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">{t(dictionary.lookDescription)}</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
                 <Textarea 
-                  className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border" 
+                  className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border placeholder:text-white/20" 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the aesthetic..."
@@ -214,8 +214,8 @@ export default function NewLookPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-6 pt-10 border-t border-white/5">
-              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-2xl h-14 px-8 font-bold text-white/40">
+            <div className="flex justify-end gap-6 pt-10 border-t border-white/10">
+              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-2xl h-14 px-8 font-bold text-white/40 hover:text-white transition-colors">
                 {t(dictionary.cancel)}
               </Button>
               <Button 
