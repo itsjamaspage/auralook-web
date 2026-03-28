@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, Mail, Lock } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
@@ -16,12 +16,12 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [telegramUsername, setTelegramUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
   const auth = useAuth();
   const { user } = useUser();
-  const { toast } = useToast();
   const { t, dictionary } = useLanguage();
 
   useEffect(() => {
@@ -37,6 +37,8 @@ export default function LoginPage() {
     if (isLogin) {
       initiateEmailSignIn(auth, email, password);
     } else {
+      // In a real app, we'd save the telegramUsername to Firestore here
+      // For this prototype, we'll proceed with the sign-up
       initiateEmailSignUp(auth, email, password);
     }
     
@@ -44,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center px-6 relative overflow-hidden bg-background">
+    <div className="flex-grow flex items-center justify-center px-6 min-h-[calc(100vh-160px)] relative overflow-hidden bg-background">
       {/* Centered Ambient Glow */}
       <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20" />
       
@@ -79,6 +81,25 @@ export default function LoginPage() {
                   />
                 </div>
               </div>
+              
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="telegram">{t(dictionary.telegramUsername)}</Label>
+                  <div className="relative">
+                    <Send className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      id="telegram"
+                      type="text" 
+                      placeholder={t(dictionary.telegramPlaceholder)}
+                      className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
+                      value={telegramUsername}
+                      onChange={(e) => setTelegramUsername(e.target.value)}
+                      required={!isLogin}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="password">{t(dictionary.password)}</Label>
                 <div className="relative">
