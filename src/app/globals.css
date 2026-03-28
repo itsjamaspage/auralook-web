@@ -40,52 +40,49 @@
   @apply bg-black/40 backdrop-blur-xl border border-white/5;
 }
 
-/* Moving Signal Lane Animation */
+/* Moving Signal Lane Animation - Enhanced visibility */
 @keyframes signal-flow {
   0% { left: -150%; opacity: 0; }
-  10% { opacity: 0.8; }
-  90% { opacity: 0.8; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
   100% { left: 150%; opacity: 0; }
 }
 
 .signal-lane {
   position: absolute;
   height: 100%;
-  width: 400px;
-  background: linear-gradient(90deg, transparent, white, var(--accent), var(--primary), white, transparent);
-  filter: blur(8px) drop-shadow(0 0 25px var(--primary));
-  animation: signal-flow 3s infinite linear;
+  width: 600px;
+  background: linear-gradient(90deg, transparent, white, hsl(var(--primary)), white, transparent);
+  filter: blur(12px) drop-shadow(0 0 40px hsl(var(--primary)));
+  animation: signal-flow 4s infinite ease-in-out;
   z-index: 20;
 }
 
-/* Sync Color Cycle for Backgrounds */
-/* Updated to ensure text color (color: #000) is always high contrast black */
+/* Unified Sync Color Cycle - Applied to elements to ensure they match exactly */
 @keyframes neon-cycle-bg {
   0%, 100% { 
     background-color: hsl(150 100% 50%); /* Emerald */
-    box-shadow: 0 0 30px hsla(150, 100%, 50%, 0.5);
+    box-shadow: 0 0 40px hsla(150, 100%, 50%, 0.6);
     color: #000000 !important;
   }
   33% { 
     background-color: hsl(200 100% 50%); /* Azure */
-    box-shadow: 0 0 30px hsla(200, 100%, 50%, 0.5);
+    box-shadow: 0 0 40px hsla(200, 100%, 50%, 0.6);
     color: #000000 !important;
   }
   66% { 
     background-color: hsl(330 100% 50%); /* Rose */
-    box-shadow: 0 0 30px hsla(330, 100%, 50%, 0.5);
+    box-shadow: 0 0 40px hsla(330, 100%, 50%, 0.6);
     color: #000000 !important;
   }
 }
 
-/* Sync Color Cycle for Text */
 @keyframes neon-cycle-text {
   0%, 100% { color: hsl(150 100% 50%); }
   33% { color: hsl(200 100% 50%); }
   66% { color: hsl(330 100% 50%); }
 }
 
-/* Sync Color Cycle for Border */
 @keyframes neon-cycle-border {
   0%, 100% { border-color: hsl(150 100% 50%); }
   33% { border-color: hsl(200 100% 50%); }

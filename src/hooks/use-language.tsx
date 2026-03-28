@@ -31,7 +31,7 @@ const dictionary = {
 
   // Home Page Content
   curatedLooks: { en: 'Curated Looks', ru: 'Подобранные Образы', uz: 'Tanlangan Liboslar' },
-  curatedLooksSub: { en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.', ru: 'Наши стилисты и алгоритмы ИИ вручную отобрали эти наряды для создания совершенного футуристического образа.', uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.' },
+  curatedLooksSub: { en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.', ru: 'Наши стилистические и AI-алгоритмы вручную отобрали эти наряды для создания совершенного футуристического образа.', uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.' },
   all: { en: 'All', ru: 'Все', uz: 'Hammasi' },
   viewDetails: { en: 'View Details', ru: 'Подробнее', uz: 'Batafsil ko\'rish' },
   aiSizeEngine: { en: 'AI Size Engine', ru: 'Движок ИИ для Размеров', uz: 'AI o\'lcham mexanizmi' },

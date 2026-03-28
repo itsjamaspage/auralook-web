@@ -37,8 +37,6 @@ export default function LoginPage() {
     if (isLogin) {
       initiateEmailSignIn(auth, email, password);
     } else {
-      // In a real app, we'd save the telegramUsername to Firestore here
-      // For this prototype, we'll proceed with the sign-up
       initiateEmailSignUp(auth, email, password);
     }
     
@@ -52,7 +50,7 @@ export default function LoginPage() {
       
       <Card className="w-full max-w-md glass-dark border-2 animate-neon-border rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">
         <CardHeader className="text-center p-0 space-y-2">
-          <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4 animate-neon-text">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <CardTitle className="text-3xl font-black tracking-tighter">
@@ -119,7 +117,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit"
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black text-lg animate-neon-bg border-none"
+              className="w-full h-12 rounded-xl bg-primary text-black font-black text-lg animate-neon-bg border-none"
               disabled={isLoading}
             >
               {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}
@@ -129,7 +127,7 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <button 
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+              className="text-sm text-muted-foreground hover:animate-neon-text transition-colors underline-offset-4 hover:underline"
             >
               {isLogin ? t(dictionary.dontHaveAccount) : t(dictionary.alreadyHaveAccount)}
             </button>
