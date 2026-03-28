@@ -27,32 +27,30 @@
   }
 }
 
-/* Static High-Performance Neon Pulse */
+/* Static High-Performance Neon Pulse - Synchronized Hue Rotation */
 @property --sync-color {
   syntax: '<color>';
-  initial-value: hsl(150 100% 50%);
+  initial-value: hsl(0 100% 50%);
   inherits: true;
 }
 
 @property --sync-shadow {
   syntax: '<color>';
-  initial-value: hsla(150, 100%, 50%, 0.4);
+  initial-value: hsla(0, 100%, 50%, 0.4);
   inherits: true;
 }
 
 @keyframes master-sync-pulse {
-  0%, 100% { 
-    --sync-color: hsl(150 100% 50%); 
-    --sync-shadow: hsla(150, 100%, 50%, 0.4);
-  }
-  50% { 
-    --sync-color: hsl(150 100% 60%); 
-    --sync-shadow: hsla(150, 100%, 60%, 0.6);
-  }
+  0% { --sync-color: hsl(0 100% 50%); --sync-shadow: hsla(0, 100%, 50%, 0.4); }
+  20% { --sync-color: hsl(72 100% 50%); --sync-shadow: hsla(72, 100%, 50%, 0.4); }
+  40% { --sync-color: hsl(144 100% 50%); --sync-shadow: hsla(144, 100%, 50%, 0.4); }
+  60% { --sync-color: hsl(216 100% 50%); --sync-shadow: hsla(216, 100%, 50%, 0.4); }
+  80% { --sync-color: hsl(288 100% 50%); --sync-shadow: hsla(288, 100%, 50%, 0.4); }
+  100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
 }
 
 body {
-  animation: master-sync-pulse 4s infinite ease-in-out;
+  animation: master-sync-pulse 10s infinite linear;
   @apply bg-background text-foreground font-body antialiased;
 }
 
@@ -66,11 +64,26 @@ body {
 
 .neon-bg {
   background-color: var(--sync-color) !important;
-  box-shadow: 0 0 20px var(--sync-shadow);
+  box-shadow: 0 0 25px var(--sync-shadow);
 }
 
 .glass-dark {
   @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
+}
+
+.energy-line {
+  stroke: var(--sync-color);
+  opacity: 0.2;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: energy-flow 15s linear infinite;
+  filter: blur(1px);
+}
+
+@keyframes energy-flow {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @layer base {
