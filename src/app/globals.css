@@ -67,6 +67,20 @@
   90% { background-color: hsl(120 100% 50%); box-shadow: 0 0 40px hsla(120, 100%, 50%, 0.5); }
 }
 
+@keyframes energy-flow {
+  0% { stroke-dashoffset: 1000; opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.energy-line {
+  stroke-dasharray: 500;
+  stroke-dashoffset: 1000;
+  animation: energy-flow 10s infinite linear;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
 .neon-text {
   animation: neon-sync-color 15s infinite linear;
 }
@@ -90,23 +104,6 @@
 
 .glass-dark {
   @apply bg-black/40 backdrop-blur-xl border border-white/5;
-}
-
-@keyframes signal-flow {
-  0% { left: -150%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { left: 150%; opacity: 0; }
-}
-
-.signal-lane {
-  position: absolute;
-  height: 100%;
-  width: 1000px;
-  background: linear-gradient(90deg, transparent, white, var(--primary), white, transparent);
-  filter: blur(30px) drop-shadow(0 0 80px var(--primary));
-  animation: signal-flow 5s infinite ease-in-out;
-  z-index: 20;
 }
 
 @keyframes stream-down {
