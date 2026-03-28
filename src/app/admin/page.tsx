@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -32,7 +31,6 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
 
-  // Fetch only looks for the catalog management
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
@@ -57,7 +55,7 @@ export default function AdminDashboard() {
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="w-1 h-4 neon-bg rounded-full" />
-            <h1 className="text-2xl font-black tracking-tighter neon-text uppercase italic">
+            <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
               {t(dictionary.adminDashboard)}
             </h1>
           </div>
@@ -67,7 +65,7 @@ export default function AdminDashboard() {
       {/* Grid Quick Access */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Inventory Counter */}
-        <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-primary/40 transition-all duration-500">
+        <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-primary/40 transition-all duration-500 bg-white/[0.02]">
           <div className="space-y-2">
             <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{t(dictionary.catalog)}</p>
             <div className="text-5xl font-black text-white group-hover:neon-text transition-colors">
@@ -81,7 +79,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Create Button */}
-        <Card className="md:col-span-2 glass-dark border-white/10 rounded-[2.5rem] p-2 relative overflow-hidden group">
+        <Card className="md:col-span-2 glass-dark border-white/10 rounded-[2.5rem] p-2 relative overflow-hidden group bg-white/[0.02]">
           <Link href="/admin/looks/new" className="block w-full h-full">
             <div className="flex items-center justify-center w-full h-full bg-white/[0.02] hover:bg-white/[0.05] transition-all rounded-[2rem] p-10 group/btn">
               <div className="flex flex-col items-center gap-3">
@@ -95,9 +93,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           </Link>
-          <div className="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
-            <LayoutGrid className="w-48 h-48 text-white" />
-          </div>
         </Card>
       </div>
 
@@ -108,7 +103,7 @@ export default function AdminDashboard() {
           <h2 className="text-3xl font-black tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
         </div>
 
-        <Card className="glass-dark border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
+        <Card className="glass-dark border-white/10 rounded-[3rem] overflow-hidden shadow-2xl bg-white/[0.02]">
           {looksLoading ? (
             <div className="p-32 flex flex-col items-center gap-6">
               <Loader2 className="animate-spin w-12 h-12 neon-text" />

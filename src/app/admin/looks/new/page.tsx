@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -26,7 +25,7 @@ export default function NewLookPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
-  const [imageUrl, setImageUrl] = useState('https://picsum.photos/seed/new-look/600/800');
+  const [imageUrl, setImageUrl] = useState('');
 
   const { toast } = useToast();
   const router = useRouter();
@@ -75,12 +74,11 @@ export default function NewLookPage() {
         description,
         price: parseFloat(price),
         currency,
-        imageUrl,
+        imageUrl: imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         createdAt: serverTimestamp(),
         tags: keywords.split(',').map(k => k.trim()).filter(k => k !== '')
       };
 
-      // Non-blocking write preferred but for a simple dashboard we want to know when it's done for redirection
       await addDoc(collection(db, 'looks'), lookData);
 
       toast({ 
@@ -103,26 +101,28 @@ export default function NewLookPage() {
   return (
     <div className="container mx-auto px-6 py-12 max-w-5xl space-y-12">
       <div className="space-y-1">
-        <h1 className="text-4xl font-black tracking-tighter neon-text">{t(dictionary.createNewLook)}</h1>
-        <p className="text-muted-foreground">{t(dictionary.createNewLookDesc)}</p>
+        <h1 className="text-4xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.createNewLook)}</h1>
+        <p className="text-white/60 font-medium">{t(dictionary.createNewLookDesc)}</p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
         {/* Media Sidebar */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group">
-            <img 
-              src={imageUrl} 
-              alt="Preview" 
-              className="w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-opacity"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 border-white/10 m-4 rounded-[2rem] hover:neon-border transition-colors group">
+          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02]">
+            {imageUrl && (
+              <img 
+                src={imageUrl} 
+                alt="Preview" 
+                className="w-full h-full object-cover opacity-80 transition-opacity"
+              />
+            )}
+            <div className={`absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 ${imageUrl ? 'border-white/20' : 'border-white/10'} m-4 rounded-[2rem] hover:neon-border transition-colors group`}>
               <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
                 <Plus className="w-12 h-12 neon-text" />
               </div>
-              <p className="text-sm font-bold text-center neon-text">{t(dictionary.uploadImage)}</p>
+              <p className="text-xs font-bold text-center text-white/80 uppercase tracking-widest">{t(dictionary.uploadImage)}</p>
               <Input 
-                className="mt-4 bg-white/5 border-white/10 text-xs" 
+                className="mt-4 bg-white/5 border-white/10 text-xs text-white" 
                 placeholder="Image URL" 
                 value={imageUrl} 
                 onChange={(e) => setImageUrl(e.target.value)}
@@ -136,7 +136,7 @@ export default function NewLookPage() {
           <Card className="glass-dark border-white/5 rounded-[2.5rem] p-10 space-y-8">
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/60">
                   <ImageIcon className="w-4 h-4 neon-text" />
                   {t(dictionary.lookName)}
                 </Label>
@@ -144,12 +144,12 @@ export default function NewLookPage() {
                   placeholder="e.g. Cyber Runner v2" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border" 
+                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white" 
                 />
               </div>
 
               <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/60">
                   <Sparkles className="w-4 h-4 neon-text" />
                   {t(dictionary.lookPrice)}
                 </Label>
@@ -159,7 +159,7 @@ export default function NewLookPage() {
                     placeholder="299" 
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border" 
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white" 
                   />
                   <RadioGroup 
                     value={currency} 
@@ -168,11 +168,11 @@ export default function NewLookPage() {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="USD" id="usd" className="border-white/20" />
-                      <Label htmlFor="usd" className="text-xs font-bold">USD</Label>
+                      <Label htmlFor="usd" className="text-[10px] font-bold text-white">USD</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="UZS" id="uzs" className="border-white/20" />
-                      <Label htmlFor="uzs" className="text-xs font-bold">UZS</Label>
+                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white">UZS</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -180,9 +180,9 @@ export default function NewLookPage() {
             </div>
 
             {/* AI Generator Section */}
-            <div className="p-6 rounded-[2rem] bg-white/5 border border-white/5 space-y-6">
+            <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-6">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <Sparkles className="w-4 h-4 neon-text" />
                   {t(dictionary.aiDescGenerator)}
                 </Label>
@@ -191,7 +191,7 @@ export default function NewLookPage() {
                     placeholder={t(dictionary.keywordsPlaceholder)} 
                     value={keywords}
                     onChange={(e) => setKeywords(e.target.value)}
-                    className="bg-white/10 border-none h-14 rounded-2xl flex-1 focus:ring-1 focus:ring-primary/50"
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:ring-1 focus:ring-primary/50 text-white"
                   />
                   <Button 
                     onClick={generateDescriptions} 
@@ -204,9 +204,9 @@ export default function NewLookPage() {
               </div>
 
               <div className="space-y-4">
-                <Label className="font-bold uppercase tracking-widest text-xs">{t(dictionary.lookDescription)}</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">{t(dictionary.lookDescription)}</Label>
                 <Textarea 
-                  className="min-h-[250px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-lg focus:neon-border" 
+                  className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border" 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the aesthetic..."
@@ -215,7 +215,7 @@ export default function NewLookPage() {
             </div>
 
             <div className="flex justify-end gap-6 pt-10 border-t border-white/5">
-              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-2xl h-14 px-8 font-bold text-muted-foreground">
+              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-2xl h-14 px-8 font-bold text-white/40">
                 {t(dictionary.cancel)}
               </Button>
               <Button 

@@ -27,27 +27,60 @@
   }
 }
 
-/* MASTER NEON SYNC - 8 COLORS */
-@keyframes neon-sync {
-  0%, 100% { color: hsl(150 100% 50%); border-color: hsl(150 100% 50%); stroke: hsl(150 100% 50%); } /* Emerald */
-  12.5% { color: hsl(200 100% 50%); border-color: hsl(200 100% 50%); stroke: hsl(200 100% 50%); }   /* Azure */
-  25% { color: hsl(330 100% 50%); border-color: hsl(330 100% 50%); stroke: hsl(330 100% 50%); }    /* Rose */
-  37.5% { color: hsl(270 100% 60%); border-color: hsl(270 100% 60%); stroke: hsl(270 100% 60%); }   /* Violet */
-  50% { color: hsl(45 100% 50%); border-color: hsl(45 100% 50%); stroke: hsl(45 100% 50%); }      /* Gold */
-  62.5% { color: hsl(180 100% 50%); border-color: hsl(180 100% 50%); stroke: hsl(180 100% 50%); }   /* Cyan */
-  75% { color: hsl(25 100% 50%); border-color: hsl(25 100% 50%); stroke: hsl(25 100% 50%); }      /* Orange */
-  87.5% { color: hsl(80 100% 50%); border-color: hsl(80 100% 50%); stroke: hsl(80 100% 50%); }     /* Lime */
+/* MASTER NEON SYNC - Controlled at the root level for perfect synchronization */
+@keyframes master-sync-cycle {
+  0%, 100% { 
+    --sync-color: hsl(150 100% 50%); 
+    --sync-shadow: hsla(150, 100%, 50%, 0.4);
+  }
+  12.5% { 
+    --sync-color: hsl(200 100% 50%); 
+    --sync-shadow: hsla(200, 100%, 50%, 0.4);
+  }
+  25% { 
+    --sync-color: hsl(330 100% 50%); 
+    --sync-shadow: hsla(330, 100%, 50%, 0.4);
+  }
+  37.5% { 
+    --sync-color: hsl(270 100% 60%); 
+    --sync-shadow: hsla(270, 100%, 60%, 0.4);
+  }
+  50% { 
+    --sync-color: hsl(45 100% 50%); 
+    --sync-shadow: hsla(45, 100%, 50%, 0.4);
+  }
+  62.5% { 
+    --sync-color: hsl(180 100% 50%); 
+    --sync-shadow: hsla(180, 100%, 50%, 0.4);
+  }
+  75% { 
+    --sync-color: hsl(25 100% 50%); 
+    --sync-shadow: hsla(25, 100%, 50%, 0.4);
+  }
+  87.5% { 
+    --sync-color: hsl(80 100% 50%); 
+    --sync-shadow: hsla(80, 100%, 50%, 0.4);
+  }
 }
 
-@keyframes neon-sync-bg {
-  0%, 100% { background-color: hsl(150 100% 50%); box-shadow: 0 0 40px hsla(150, 100%, 50%, 0.5); }
-  12.5% { background-color: hsl(200 100% 50%); box-shadow: 0 0 40px hsla(200, 100%, 50%, 0.5); }
-  25% { background-color: hsl(330 100% 50%); box-shadow: 0 0 40px hsla(330, 100%, 50%, 0.5); }
-  37.5% { background-color: hsl(270 100% 60%); box-shadow: 0 0 40px hsla(270, 100%, 60%, 0.5); }
-  50% { background-color: hsl(45 100% 50%); box-shadow: 0 0 40px hsla(45, 100%, 50%, 0.5); }
-  62.5% { background-color: hsl(180 100% 50%); box-shadow: 0 0 40px hsla(180, 100%, 50%, 0.5); }
-  75% { background-color: hsl(25 100% 50%); box-shadow: 0 0 40px hsla(25, 100%, 50%, 0.5); }
-  87.5% { background-color: hsl(80 100% 50%); box-shadow: 0 0 40px hsla(80, 100%, 50%, 0.5); }
+:root {
+  animation: master-sync-cycle 12s infinite linear;
+}
+
+.neon-text {
+  color: var(--sync-color) !important;
+  transition: color 0.3s ease;
+}
+
+.neon-border {
+  border-color: var(--sync-color) !important;
+  transition: border-color 0.3s ease;
+}
+
+.neon-bg {
+  background-color: var(--sync-color) !important;
+  box-shadow: 0 0 30px var(--sync-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 @keyframes energy-flow {
@@ -58,22 +91,11 @@
 }
 
 .energy-line {
+  stroke: var(--sync-color);
   stroke-dasharray: 500;
   stroke-dashoffset: 1000;
-  animation: energy-flow 10s infinite linear, neon-sync 12s infinite linear;
-  filter: drop-shadow(0 0 8px currentColor);
-}
-
-.neon-text {
-  animation: neon-sync 12s infinite linear;
-}
-
-.neon-border {
-  animation: neon-sync 12s infinite linear;
-}
-
-.neon-bg {
-  animation: neon-sync-bg 12s infinite linear;
+  animation: energy-flow 10s infinite linear;
+  filter: drop-shadow(0 0 8px var(--sync-color));
 }
 
 @layer base {
@@ -99,7 +121,7 @@
   position: absolute;
   width: 1px;
   height: 150px;
-  background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+  background: linear-gradient(to bottom, transparent, var(--sync-color), transparent);
   animation: stream-down 12s infinite linear;
 }
 
@@ -115,8 +137,8 @@
 
 .hero-glow {
   position: absolute;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--sync-color) 0%, transparent 70%);
   filter: blur(100px);
   pointer-events: none;
-  opacity: 0.15;
+  opacity: 0.1;
 }
