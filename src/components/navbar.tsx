@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const { lang, changeLanguage, dictionary, t } = useLanguage();
+  const { dictionary, t } = useLanguage();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
@@ -38,25 +38,6 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="rounded-full w-10 h-10 font-bold p-0 border border-white/20 hover:bg-white/5 transition-colors">
-                {lang.toUpperCase()}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-dark border-white/10">
-              <DropdownMenuItem onClick={() => changeLanguage('en')} className={lang === 'en' ? 'neon-text' : ''}>
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('ru')} className={lang === 'ru' ? 'neon-text' : ''}>
-                Русский
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('uz')} className={lang === 'uz' ? 'neon-text' : ''}>
-                O'zbek
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {!isUserLoading && (
             user ? (
               <DropdownMenu>

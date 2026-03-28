@@ -40,14 +40,14 @@ export default function AdminDashboard() {
         customerName: order.customerName,
         orderId: order.id,
         currentStatus: newStatus,
-        productName: MOCK_LOOKS.find(l => l.id === order.lookId)?.name.en || 'Outfit',
-        estimatedDeliveryDate: newStatus === 'Shipped' ? 'Next Friday' : null,
-        language: 'en'
+        productName: MOCK_LOOKS.find(l => l.id === order.lookId)?.name.uz || 'Kiyim',
+        estimatedDeliveryDate: newStatus === 'Shipped' ? 'Keyingi juma' : null,
+        language: 'uz'
       });
       
       toast({
-        title: `Status Updated to ${newStatus}`,
-        description: `Telegram message prepared: "${message.substring(0, 50)}..."`,
+        title: `Holat yangilandi: ${newStatus}`,
+        description: `Telegram xabari tayyor: "${message.substring(0, 50)}..."`,
       });
     } catch (e) {
       console.error(e);
@@ -59,12 +59,12 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-4xl font-black tracking-tighter">Auralook.uz Admin</h1>
-          <p className="text-muted-foreground">Internal management for looks and orders.</p>
+          <p className="text-muted-foreground">Liboslar va buyurtmalarni boshqarish.</p>
         </div>
         <Link href="/admin/looks/new">
           <Button className="rounded-2xl bg-primary text-primary-foreground font-bold px-8">
             <Plus className="w-4 h-4 mr-2" />
-            Create Look
+            Libos yaratish
           </Button>
         </Link>
       </div>
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
       <div className="grid md:grid-cols-4 gap-6">
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Total Sales</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Jami savdo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">$12,490</div>
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Active Orders</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Faol buyurtmalar</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">14</div>
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Catalog Items</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Katalog</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{MOCK_LOOKS.length}</div>
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Growth</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">O'sish</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-500">+12.5%</div>
@@ -107,18 +107,18 @@ export default function AdminDashboard() {
       <div className="space-y-8">
         <div className="flex items-center gap-2">
           <Package className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-bold">Recent Orders</h2>
+          <h2 className="text-2xl font-bold">Yaqindagi buyurtmalar</h2>
         </div>
         
         <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
           <Table>
             <TableHeader className="bg-white/5">
               <TableRow className="border-white/5 hover:bg-transparent">
-                <TableHead className="py-6 font-bold">Order ID</TableHead>
-                <TableHead className="font-bold">Customer</TableHead>
-                <TableHead className="font-bold">Status</TableHead>
-                <TableHead className="font-bold">Amount</TableHead>
-                <TableHead className="font-bold text-right">Action</TableHead>
+                <TableHead className="py-6 font-bold">ID</TableHead>
+                <TableHead className="font-bold">Mijoz</TableHead>
+                <TableHead className="font-bold">Holat</TableHead>
+                <TableHead className="font-bold">Summa</TableHead>
+                <TableHead className="font-bold text-right">Amal</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -1,4 +1,4 @@
-export type Language = 'en' | 'ru' | 'uz';
+export type Language = 'uz';
 
 export interface Look {
   id: string;
@@ -23,13 +23,9 @@ export const MOCK_LOOKS: Look[] = [
   {
     id: '1',
     name: {
-      en: 'Cyber Runner Outfit',
-      ru: 'Наряд Кибер-бегун',
       uz: 'Cyber Runner Libosi'
     },
     description: {
-      en: 'A high-performance techwear ensemble designed for urban exploration.',
-      ru: 'Высокотехнологичный ансамбль одежды, предназначенный для городских исследований.',
       uz: 'Shahar tadqiqotlari uchun mo\'ljallangan yuqori samarali techwear ansambli.'
     },
     imageUrl: 'https://picsum.photos/seed/look1/600/800',
@@ -39,13 +35,9 @@ export const MOCK_LOOKS: Look[] = [
   {
     id: '2',
     name: {
-      en: 'Neon Nomad Set',
-      ru: 'Комплект Неоновый Кочевник',
       uz: 'Neon Nomad To\'plami'
     },
     description: {
-      en: 'Versatile layering pieces with reflective elements for nighttime visibility.',
-      ru: 'Универсальные многослойные вещи со светоотражающими элементами.',
       uz: 'Tungi vaqtda ko\'rinish uchun aks ettiruvchi elementlarga ega ko\'p qirrali kiyimlar.'
     },
     imageUrl: 'https://picsum.photos/seed/look2/600/800',
@@ -55,13 +47,9 @@ export const MOCK_LOOKS: Look[] = [
   {
     id: '3',
     name: {
-      en: 'Matrix Minimalist',
-      ru: 'Матричный Минималист',
       uz: 'Matrix Minimalist'
     },
     description: {
-      en: 'Sleek black-on-black aesthetic with advanced moisture-wicking fabrics.',
-      ru: 'Гладкая эстетика черного на черном с использованием влагоотводящих тканей.',
       uz: 'Namlikni o\'tkazmaydigan ilg\'or matolarga ega zamonaviy qora-qora estetika.'
     },
     imageUrl: 'https://picsum.photos/seed/look3/600/800',
@@ -71,13 +59,9 @@ export const MOCK_LOOKS: Look[] = [
   {
     id: '4',
     name: {
-      en: 'Zenith Aviator',
-      ru: 'Зенитный Авиатор',
       uz: 'Zenith Aviator'
     },
     description: {
-      en: 'Inspired by high-altitude flight gear, blending comfort and durability.',
-      ru: 'Вдохновлен высотным летным снаряжением, сочетающим комфорт и долговечность.',
       uz: 'Yuqori balandlikdagi parvoz asbob-uskunalaridan ilhomlangan, qulaylik va chidamlilikni uyg\'unlashtirgan.'
     },
     imageUrl: 'https://picsum.photos/seed/look4/600/800',

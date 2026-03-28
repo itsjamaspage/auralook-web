@@ -1,73 +1,61 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-export type Language = 'en' | 'ru' | 'uz';
+export type Language = 'uz';
 
 export function useLanguage() {
-  const [lang, setLang] = useState<Language>('uz');
-
-  useEffect(() => {
-    const saved = localStorage.getItem('aura_lang') as Language;
-    if (saved && ['en', 'ru', 'uz'].includes(saved)) {
-      setLang(saved);
-    }
-  }, []);
-
-  const changeLanguage = (newLang: Language) => {
-    setLang(newLang);
-    localStorage.setItem('aura_lang', newLang);
-  };
+  const [lang] = useState<Language>('uz');
 
   const t = (translations: Record<Language, string>) => {
-    return translations[lang] || translations['en'];
+    return translations[lang];
   };
 
   const dictionary = {
     // Hero & Navigation
-    heroTitle: { en: 'Next Gen Style', ru: 'Стиль Нового Поколения', uz: 'Yangi Avlod Uslubi' },
-    heroSub: { en: 'Auralook.uz: Future of Fashion in Uzbekistan', ru: 'Auralook.uz: Будущее моды в Узбекистане', uz: 'Auralook.uz: O\'zbekistonda modaning kelajagi' },
-    browseLooks: { en: 'Browse Looks', ru: 'Посмотреть Образы', uz: 'Liboslarni Ko\'rish' },
-    myOrders: { en: 'My Orders', ru: 'Мои заказы', uz: 'Mening buyurtmalarim' },
-    logout: { en: 'Logout', ru: 'Выйти', uz: 'Chiqish' },
-    login: { en: 'Login', ru: 'Войти', uz: 'Kirish' },
+    heroTitle: { uz: 'Yangi Avlod Uslubi' },
+    heroSub: { uz: 'Auralook.uz: O\'zbekistonda modaning kelajagi' },
+    browseLooks: { uz: 'Liboslarni Ko\'rish' },
+    myOrders: { uz: 'Mening buyurtmalarim' },
+    logout: { uz: 'Chiqish' },
+    login: { uz: 'Kirish' },
 
     // Auth Pages
-    welcomeBack: { en: 'Welcome Back', ru: 'С возвращением', uz: 'Xush kelibsiz' },
-    createAccount: { en: 'Create Account', ru: 'Создать аккаунт', uz: 'Hisob yaratish' },
-    accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
-    joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
-    email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-    password: { en: 'Password', ru: 'Пароль', uz: 'Parol' },
-    getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
-    dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: "Akkauntingiz yo'qmi? Yaratish" },
-    alreadyHaveAccount: { en: 'Already have an account? Login', ru: 'Уже есть аккаунт? Войти', uz: 'Hisobingiz bormi? Kirish' },
-    processing: { en: 'Processing...', ru: 'Обработка...', uz: 'Ishlanmoqda...' },
+    welcomeBack: { uz: 'Xush kelibsiz' },
+    createAccount: { uz: 'Hisob yaratish' },
+    accessOrders: { uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
+    joinFuture: { uz: 'Moda kelajagiga qo\'shiling' },
+    email: { uz: 'Email' },
+    password: { uz: 'Parol' },
+    getStarted: { uz: 'Boshlash' },
+    dontHaveAccount: { uz: "Akkauntingiz yo'qmi? Yaratish" },
+    alreadyHaveAccount: { uz: 'Hisobingiz bormi? Kirish' },
+    processing: { uz: 'Ishlanmoqda...' },
 
     // Home Page Content
-    curatedLooks: { en: 'Curated Looks', ru: 'Подобранные Образы', uz: 'Tanlangan Liboslar' },
-    curatedLooksSub: { en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.', ru: 'Наши стилисты и алгоритмы ИИ вручную отобрали эти наряды для создания совершенного футуристического образа.', uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.' },
-    all: { en: 'All', ru: 'Все', uz: 'Hammasi' },
-    viewDetails: { en: 'View Details', ru: 'Подробнее', uz: 'Batafsil ko\'rish' },
-    aiSizeEngine: { en: 'AI Size Engine', ru: 'Движок ИИ для Размеров', uz: 'AI o\'lcham mexanizmi' },
-    aiSizeEngineSub: { en: 'Stop guessing your size. Our advanced neural networks calculate the perfect fit based on your body dimensions.', ru: 'Хватит гадать свой размер. Наши передовые нейронные сети вычисляют идеальную посадку на основе размеров вашего тела.', uz: 'O\'lchamingizni taxmin qilishni to\'xtating. Bizning ilg\'or neyron tarmoqlarimiz tana o\'lchamingizga qarab mukammal moslikni hisoblab chiqadi.' },
-    quickLogistics: { en: 'Quick Logistics', ru: 'Быстрая Логистика', uz: 'Tezkor Logistika' },
-    quickLogisticsSub: { en: 'Fast delivery across Uzbekistan with real-time status updates via our Telegram integration.', ru: 'Быстрая доставка по всему Узбекистану с обновлением статуса в реальном времени через нашу интеграцию с Telegram.', uz: 'O\'zbekiston bo\'ylab tezkor yetkazib berish va Telegram integratsiyamiz orqali real vaqt rejimida holat yangilanishi.' },
-    globalAesthetics: { en: 'Global Aesthetics', ru: 'Глобальная Эстетика', uz: 'Global Estetika' },
-    globalAestheticsSub: { en: 'Curated from the best designers worldwide, tailored for the unique style of modern Tashkent.', ru: 'Собрано от лучших дизайнеров мира, адаптировано под уникальный стиль современного Ташкента.', uz: 'Dunyo bo\'ylab eng yaxshi dizaynerlardan saralangan, zamonaviy Toshkentning o\'ziga xos uslubiga moslashtirilgan.' },
+    curatedLooks: { uz: 'Tanlangan Liboslar' },
+    curatedLooksSub: { uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.' },
+    all: { uz: 'Hammasi' },
+    viewDetails: { uz: 'Batafsil ko\'rish' },
+    aiSizeEngine: { uz: 'AI o\'lcham mexanizmi' },
+    aiSizeEngineSub: { uz: 'O\'lchamingizni taxmin qilishni to\'xtating. Bizning ilg\'or neyron tarmoqlarimiz tana o\'lchamingizga qarab mukammal moslikni hisoblab chiqadi.' },
+    quickLogistics: { uz: 'Tezkor Logistika' },
+    quickLogisticsSub: { uz: 'O\'zbekiston bo\'ylab tezkor yetkazib berish va Telegram integratsiyamiz orqali real vaqt rejimida holat yangilanishi.' },
+    globalAesthetics: { uz: 'Global Estetika' },
+    globalAestheticsSub: { uz: 'Dunyo bo\'ylab eng yaxshi dizaynerlardan saralangan, zamonaviy Toshkentning o\'ziga xos uslubiga moslashtirilgan.' },
 
     // Product Detail
-    sizeAdvisor: { en: 'Smart Size Advisor', ru: 'Умный Советник по Размеру', uz: 'Aqlli O\'lcham Maslahatchisi' },
-    buyNow: { en: 'Buy Look', ru: 'Купить Образ', uz: 'Sotib Olish' },
-    price: { en: 'Price', ru: 'Цена', uz: 'Narxi' },
-    freeDelivery: { en: 'Free Delivery in Tashkent', ru: 'Бесплатная доставка в Ташкенте', uz: 'Toshkent bo\'ylab bepul yetkazib berish' },
-    authenticity: { en: 'Authenticity Guaranteed', ru: 'Гарантия подлинности', uz: 'Haqiqiyligi kafolatlangan' },
-    returns: { en: '14-Day Free Returns', ru: 'Бесплатный возврат в течение 14 дней', uz: '14 kunlik bepul qaytarish' },
+    sizeAdvisor: { uz: 'Aqlli O\'lcham Maslahatchisi' },
+    buyNow: { uz: 'Sotib Olish' },
+    price: { uz: 'Narxi' },
+    freeDelivery: { uz: 'Toshkent bo\'ylab bepul yetkazib berish' },
+    authenticity: { uz: 'Haqiqiyligi kafolatlangan' },
+    returns: { uz: '14 kunlik bepul qaytarish' },
 
     // Footer
-    allRightsReserved: { en: '© 2026 Auralook.uz. All rights reserved.', ru: '© 2026 Auralook.uz. Все права защищены.', uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.' },
-    contact: { en: 'Contact', ru: 'Контакт', uz: 'Aloqa' },
+    allRightsReserved: { uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.' },
+    contact: { uz: 'Aloqa' },
   };
 
-  return { lang, changeLanguage, t, dictionary };
+  return { lang, t, dictionary };
 }
