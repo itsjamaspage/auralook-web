@@ -44,12 +44,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-6">
-      <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10" />
+    <div className="flex-grow flex items-center justify-center px-6 relative overflow-hidden bg-background">
+      {/* Centered Ambient Glow */}
+      <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20" />
       
-      <Card className="w-full max-w-md glass-dark border-white/5 rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500">
+      <Card className="w-full max-w-md glass-dark border-2 animate-neon-border rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">
         <CardHeader className="text-center p-0 space-y-2">
-          <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4">
+          <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4 animate-pulse">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <CardTitle className="text-3xl font-black tracking-tighter">
@@ -71,7 +72,7 @@ export default function LoginPage() {
                     id="email"
                     type="email" 
                     placeholder={t(dictionary.emailPlaceholder)}
-                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
+                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -86,7 +87,7 @@ export default function LoginPage() {
                     id="password"
                     type="password" 
                     placeholder={t(dictionary.passwordPlaceholder)}
-                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl"
+                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -97,7 +98,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit"
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-lg"
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black text-lg animate-neon-bg border-none"
               disabled={isLoading}
             >
               {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}
