@@ -113,7 +113,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       <div className="container mx-auto px-6 pb-24 relative z-10 max-w-7xl">
         <div className="grid lg:grid-cols-[40%_60%] gap-12 lg:gap-20 items-start pt-12">
           
-          {/* LEFT: Visual Showcase (Smaller Image Section) */}
+          {/* LEFT: Visual Showcase (Scaled & Styled per reference) */}
           <div className="relative group animate-in fade-in slide-in-from-left-12 duration-1000 max-w-sm mx-auto lg:mx-0 w-full">
             {/* Corner Bracket Accents */}
             <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 neon-border rounded-tl-3xl z-20" />
@@ -125,7 +125,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 <span className="text-[8px] font-black tracking-widest uppercase text-white/50">REF // {look.id.substring(0, 8).toUpperCase()}</span>
               </div>
 
-              {/* Centered Large Price Tag Overlay */}
+              {/* Centered Large Price Tag Overlay - EXACT REFERENCE STYLE */}
               <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 text-center">
                 <span className="text-4xl font-black text-white drop-shadow-2xl">
                   {look.currency === 'USD' ? `${look.price}$` : `${look.price} UZS`}
@@ -157,21 +157,21 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 LIMITED PRODUCTION
               </div>
               
-              {/* Massive Stylized Title */}
+              {/* Massive Stylized Title (Slightly smaller for better balance) */}
               <div className="space-y-4">
-                <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] italic uppercase neon-text drop-shadow-2xl">
+                <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[0.9] italic uppercase neon-text drop-shadow-2xl">
                   {t(look.name) || 'Unnamed Look'}
                 </h1>
                 <div className="w-32 h-1.5 neon-bg rounded-full" />
               </div>
               
-              {/* Description with newline support */}
+              {/* Description with newline support as requested */}
               <p className="text-lg text-white/70 leading-relaxed font-medium max-w-xl whitespace-pre-line">
                 {t(look.description)}
               </p>
             </div>
 
-            {/* Current Valuation Glass Card */}
+            {/* Current Valuation Glass Card (More compact) */}
             <div className="space-y-8 glass-dark p-8 rounded-[3rem] border border-white/10 relative overflow-hidden shadow-2xl max-w-md">
               <div className="absolute top-0 right-0 p-8">
                 <Zap className="w-8 h-8 text-white/5" />
@@ -179,7 +179,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               
               <div className="space-y-1">
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">CURRENT VALUATION</span>
-                <div className="text-7xl font-black neon-text tabular-nums">
+                <div className="text-6xl font-black neon-text tabular-nums">
                   {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </div>
               </div>
