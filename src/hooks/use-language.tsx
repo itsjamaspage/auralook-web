@@ -19,7 +19,7 @@ const dictionary = {
   accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
   joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
   email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-  password: { en: 'Password', ru: 'Пароль', uz: 'Parol' },
+  password: { en: 'Password', ru: 'Parol', uz: 'Parol' },
   telegramUsername: { en: 'Telegram Username', ru: 'Имя пользователя Telegram', uz: 'Telegram foydalanuvchi nomi' },
   emailPlaceholder: { en: 'name@example.com', ru: 'name@example.com', uz: 'ism@misol.com' },
   passwordPlaceholder: { en: '••••••••', ru: '••••••••', uz: '••••••••' },

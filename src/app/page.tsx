@@ -64,7 +64,7 @@ export default function Home() {
               <Link href="/looks" className="w-full">
                 <Button 
                   size="lg" 
-                  className="animate-neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none"
+                  className="animate-neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none text-black"
                 >
                   {t(dictionary.browseLooks)}
                   <ArrowRight className="ml-2 w-6 h-6" />
