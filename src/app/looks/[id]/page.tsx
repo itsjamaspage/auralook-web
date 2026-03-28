@@ -1,24 +1,21 @@
+
 "use client"
 
-import { use, useState, useEffect } from 'react';
+import { use, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { 
-  ShoppingCart, 
   Loader2, 
-  ChevronLeft, 
-  Star,
   Heart,
   Plus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
-import { doc, getDoc, collection, addDoc, query, limit, where } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, query, limit } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
-import { SizeAdvisorModal } from '@/components/size-advisor-modal';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -30,13 +27,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const [isOrdering, setIsOrdering] = useState(false);
   const [selectedSize, setSelectedSize] = useState('M');
 
-  // Fetch Current Look
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
 
-  // Fetch Recommended Looks (other items)
   const recommendedQuery = useMemoFirebase(() => {
-    return query(collection(db, 'looks'), limit(4));
+    return query(collection(db, 'looks'), limit(5));
   }, [db]);
   const { data: recommended } = useCollection(recommendedQuery);
 
@@ -98,11 +93,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
+  const discountVal = look.discount || 0;
+  const originalPrice = discountVal > 0 ? look.price / (1 - discountVal / 100) : look.price;
+
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
       <div className="container mx-auto px-4 lg:px-8 py-6 max-w-7xl">
         
-        {/* Breadcrumb / Top Nav */}
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30 mb-8">
           <Link href="/looks" className="hover:text-primary transition-colors">Catalog</Link>
           <span>/</span>
@@ -111,17 +108,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
         <div className="grid lg:grid-cols-12 gap-12">
           
-          {/* LEFT: THUMBNAILS (Desktop) */}
-          <div className="hidden lg:flex lg:col-span-1 flex-col gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-[3/4] rounded-xl overflow-hidden border border-white/10 glass-dark opacity-60 hover:opacity-100 hover:neon-border transition-all cursor-pointer">
-                <Image src={look.imageUrl} alt="Thumbnail" width={100} height={133} className="object-cover w-full h-full" />
-              </div>
-            ))}
-          </div>
-
-          {/* CENTER: MAIN IMAGE */}
-          <div className="lg:col-span-6 relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 group">
+          <div className="lg:col-span-7 relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 group">
             <Image 
               src={look.imageUrl} 
               alt={look.name} 
@@ -134,7 +121,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </button>
           </div>
 
-          {/* RIGHT: PRODUCT INFO */}
           <div className="lg:col-span-5 space-y-8 flex flex-col justify-center">
             <div className="space-y-2">
               <p className="text-[10px] font-black tracking-[0.3em] text-primary/60 uppercase">System Core // Active</p>
@@ -145,23 +131,20 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
             <div className="flex items-center gap-6">
               <div className="flex flex-col">
-                <span className="text-sm text-white/30 line-through font-mono">
-                  {look.currency === 'UZS' ? `UZS ${(look.price * 1.2).toLocaleString()}` : `$${(look.price * 1.2).toFixed(2)}`}
-                </span>
+                {discountVal > 0 && (
+                  <span className="text-sm text-white/30 line-through font-mono">
+                    {look.currency === 'UZS' ? `UZS ${originalPrice.toLocaleString()}` : `$${originalPrice.toFixed(2)}`}
+                  </span>
+                )}
                 <span className="text-3xl font-black text-white">
                   {look.currency === 'UZS' ? `UZS ${look.price.toLocaleString()}` : `$${look.price}`}
                 </span>
               </div>
-              <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest">
-                20% Disc
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} className={`w-4 h-4 ${s <= 4 ? 'fill-primary text-primary' : 'text-white/10'}`} />
-              ))}
-              <span className="ml-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">(4.9) 1.2K Reviews</span>
+              {discountVal > 0 && (
+                <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest">
+                  {discountVal}% Disc
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -172,19 +155,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             <div className="space-y-4">
-               <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Available Finishes</p>
-               <div className="flex gap-3">
-                 <div className="w-8 h-8 rounded-full border-2 border-primary bg-black cursor-pointer" />
-                 <div className="w-8 h-8 rounded-full border border-white/10 bg-blue-900 cursor-pointer" />
-                 <div className="w-8 h-8 rounded-full border border-white/10 bg-zinc-800 cursor-pointer" />
-               </div>
-            </div>
-
-            <div className="space-y-4">
-               <div className="flex items-center justify-between">
-                 <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Size Matrix</p>
-                 <SizeAdvisorModal />
-               </div>
+               <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Size Matrix</p>
                <div className="flex flex-wrap gap-2">
                  {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
                    <button 
@@ -217,7 +188,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
         </div>
 
-        {/* RELATED ITEMS */}
         <div className="mt-32 space-y-12">
           <div className="flex items-center justify-between border-b border-white/5 pb-6">
             <h2 className="text-2xl font-black uppercase italic tracking-tighter">This item can be cool with this</h2>

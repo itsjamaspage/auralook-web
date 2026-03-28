@@ -102,6 +102,7 @@
         "description": { "type": "string" },
         "imageUrl": { "type": "string" },
         "price": { "type": "number" },
+        "discount": { "type": "number", "description": "Discount percentage (0-100)" },
         "currency": { "type": "string", "enum": ["USD", "UZS"] },
         "createdAt": { "type": "string", "format": "date-time" }
       }

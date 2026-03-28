@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Plus, DollarSign } from 'lucide-react';
+import { Loader2, Plus, DollarSign, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
@@ -17,9 +18,9 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export default function NewLookPage() {
   const [saving, setSaving] = useState(false);
   
-  // Simplified Form State
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [discount, setDiscount] = useState('0');
   const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
   const [imageUrl, setImageUrl] = useState('');
 
@@ -55,6 +56,7 @@ export default function NewLookPage() {
         name: `Look ${new Date().toLocaleDateString()}`,
         description,
         price: parseFloat(price),
+        discount: parseFloat(discount) || 0,
         currency,
         imageUrl: imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         createdAt: serverTimestamp(),
@@ -85,7 +87,6 @@ export default function NewLookPage() {
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
-        {/* Media Sidebar */}
         <div className="lg:col-span-4 space-y-6">
           <Card className="glass-dark rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02] border-white/10">
             {imageUrl && (
@@ -120,36 +121,51 @@ export default function NewLookPage() {
           </Card>
         </div>
 
-        {/* Form Main Area */}
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8 border-white/10">
-            <div className="space-y-4">
-              <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                <DollarSign className="w-4 h-4 neon-text" />
-                {t(dictionary.lookPrice)}
-              </Label>
-              <div className="flex gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
+                  <DollarSign className="w-4 h-4 neon-text" />
+                  {t(dictionary.lookPrice)}
+                </Label>
+                <div className="flex gap-4">
+                  <Input 
+                    type="number" 
+                    placeholder="299" 
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
+                  />
+                  <RadioGroup 
+                    value={currency} 
+                    onValueChange={(v: any) => setCurrency(v)}
+                    className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                      <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
+                  <Percent className="w-4 h-4 neon-text" />
+                  Discount (%)
+                </Label>
                 <Input 
                   type="number" 
-                  placeholder="299" 
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
+                  placeholder="20" 
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
                 />
-                <RadioGroup 
-                  value={currency} 
-                  onValueChange={(v: any) => setCurrency(v)}
-                  className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                    <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                    <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
-                  </div>
-                </RadioGroup>
               </div>
             </div>
 
