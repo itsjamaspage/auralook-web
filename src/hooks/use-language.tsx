@@ -130,70 +130,10 @@ const dictionary = {
     ru: 'Новый образ',
     en: 'New Look'
   },
-  deployNewApparel: {
-    uz: 'Yangi kiyimni joylashtirish',
-    ru: 'Разместить новую одежду',
-    en: 'Deploy New Apparel'
-  },
-  activeItems: {
-    uz: 'Faol narsalar',
-    ru: 'Активные товары',
-    en: 'Active Items'
-  },
   activeInventory: {
     uz: 'Faol inventar',
     ru: 'Активный инвентарь',
     en: 'Active Inventory'
-  },
-  totalSales: {
-    uz: 'Jami savdo',
-    ru: 'Общие продажи',
-    en: 'Total Sales'
-  },
-  activeOrders: {
-    uz: 'Faol buyurtmalar',
-    ru: 'Активные заказы',
-    en: 'Active Orders'
-  },
-  catalog: {
-    uz: 'Katalog',
-    ru: 'Каталог',
-    en: 'Catalog'
-  },
-  newItems: {
-    uz: 'Yangilar',
-    ru: 'Новые',
-    en: 'New'
-  },
-  orders: {
-    uz: 'Buyurtmalar',
-    ru: 'Заказы',
-    en: 'Orders'
-  },
-  orderId: {
-    uz: 'ID',
-    ru: 'ID',
-    en: 'ID'
-  },
-  customer: {
-    uz: 'Mijoz',
-    ru: 'Клиент',
-    en: 'Customer'
-  },
-  status: {
-    uz: 'Holat',
-    ru: 'Статус',
-    en: 'Status'
-  },
-  amount: {
-    uz: 'Summa',
-    ru: 'Сумма',
-    en: 'Amount'
-  },
-  actions: {
-    uz: 'Amallar',
-    ru: 'Действия',
-    en: 'Actions'
   },
   visual: {
     uz: 'Rasm',
@@ -225,11 +165,6 @@ const dictionary = {
     ru: 'Создать первый образ',
     en: 'Create First Look'
   },
-  noOrders: {
-    uz: "Hozircha buyurtmalar yo'q.",
-    ru: 'Заказов пока нет.',
-    en: 'No orders yet.'
-  },
 
   // New Look Page
   createNewLook: {
@@ -247,40 +182,10 @@ const dictionary = {
     ru: 'Загрузить фото',
     en: 'Upload Photo'
   },
-  lookName: {
-    uz: 'Libos nomi',
-    ru: 'Название образа',
-    en: 'Look Name'
-  },
   lookPrice: {
     uz: 'Narxi',
     ru: 'Цена',
     en: 'Price'
-  },
-  currency: {
-    uz: 'Valyuta',
-    ru: 'Валюта',
-    en: 'Currency'
-  },
-  aiDescGenerator: {
-    uz: 'AI Tavsif Yaratuvchi',
-    ru: 'ИИ Генератор описаний',
-    en: 'AI Description Generator'
-  },
-  keywordsPlaceholder: {
-    uz: 'Kalit so\'zlar (masalan, techwear, neon)',
-    ru: 'Ключевые слова (например, techwear, neon)',
-    en: 'Keywords (e.g., techwear, neon)'
-  },
-  generate: {
-    uz: 'Yaratish',
-    ru: 'Создать',
-    en: 'Generate'
-  },
-  aiUzbekHint: {
-    uz: 'AI professional matn yaratadi',
-    ru: 'ИИ создаст профессиональный текст',
-    en: 'AI creates professional text'
   },
   lookDescription: {
     uz: 'Tavsif',
@@ -341,7 +246,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = (translations: any): string => {
     if (!translations) return '';
     if (typeof translations === 'string') return translations;
-    return translations[lang] || translations['uz'] || translations['en'] || '';
+    // Robust access for objects
+    try {
+      return translations[lang] || translations['uz'] || translations['en'] || '';
+    } catch (e) {
+      return '';
+    }
   };
 
   return (

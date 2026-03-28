@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -7,7 +6,6 @@ import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Loader2, ShoppingCart } from 'lucide-react';
 
 export default function LooksPage() {
@@ -47,7 +45,7 @@ export default function LooksPage() {
               <div className="relative aspect-[3/4] overflow-hidden">
                 <Image
                   src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                  alt={look.name || 'Look'}
+                  alt={t(look.name) || 'Look'}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -62,7 +60,7 @@ export default function LooksPage() {
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <p className="text-xs font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</p>
-                    <p className="text-sm font-light text-white/80 line-clamp-1 italic">{look.description}</p>
+                    <p className="text-sm font-light text-white/80 line-clamp-1 italic">{t(look.description)}</p>
                   </div>
                   <div className="text-right">
                     <span className="text-lg font-black neon-text block">

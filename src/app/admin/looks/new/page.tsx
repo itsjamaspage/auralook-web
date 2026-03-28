@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -18,7 +17,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export default function NewLookPage() {
   const [saving, setSaving] = useState(false);
   
-  // Form State
+  // Simplified Form State
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
@@ -64,8 +63,7 @@ export default function NewLookPage() {
       await addDoc(collection(db, 'looks'), lookData);
 
       toast({ 
-        title: t(dictionary.lookSavedSuccess), 
-        description: "Your new look has been added to the catalog." 
+        title: t(dictionary.lookSavedSuccess)
       });
       router.push('/admin');
     } catch (e) {
@@ -73,7 +71,6 @@ export default function NewLookPage() {
       toast({
         variant: "destructive",
         title: "Save Failed",
-        description: "Could not save the look to Firestore.",
       });
     } finally {
       setSaving(false);
@@ -111,13 +108,12 @@ export default function NewLookPage() {
                 className="hidden" 
                 onChange={handleFileChange} 
               />
-              <div className="mt-4 w-full px-4">
+              <div className="mt-4 w-full px-4" onClick={(e) => e.stopPropagation()}>
                 <Input 
                   className="bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20 pointer-events-auto" 
                   placeholder="Or enter Image URL" 
                   value={imageUrl.startsWith('data:') ? '' : imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
             </label>
@@ -127,48 +123,44 @@ export default function NewLookPage() {
         {/* Form Main Area */}
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8 border-white/10">
-            <div className="grid md:grid-cols-1 gap-8">
-              <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                  <DollarSign className="w-4 h-4 neon-text" />
-                  {t(dictionary.lookPrice)}
-                </Label>
-                <div className="flex gap-4">
-                  <Input 
-                    type="number" 
-                    placeholder="299" 
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
-                  />
-                  <RadioGroup 
-                    value={currency} 
-                    onValueChange={(v: any) => setCurrency(v)}
-                    className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                      <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+            <div className="space-y-4">
+              <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
+                <DollarSign className="w-4 h-4 neon-text" />
+                {t(dictionary.lookPrice)}
+              </Label>
+              <div className="flex gap-4">
+                <Input 
+                  type="number" 
+                  placeholder="299" 
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
+                />
+                <RadioGroup 
+                  value={currency} 
+                  onValueChange={(v: any) => setCurrency(v)}
+                  className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                    <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                    <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
 
-            <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 space-y-6">
-              <div className="space-y-4">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
-                <Textarea 
-                  className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border placeholder:text-white/20" 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the aesthetic..."
-                />
-              </div>
+            <div className="space-y-4">
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
+              <Textarea 
+                className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border placeholder:text-white/20" 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the aesthetic..."
+              />
             </div>
 
             <div className="flex justify-end gap-6 pt-10 border-t border-white/10">
