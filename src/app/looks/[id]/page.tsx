@@ -1,10 +1,10 @@
 "use client"
 
-import { use, useEffect, useState } from 'react';
+import { use, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ShieldCheck, Truck, Loader2 } from 'lucide-react';
+import { ShoppingCart, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
@@ -137,17 +137,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 </>
               )}
             </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
-            <div className="flex items-center gap-3 text-xs font-bold text-white/40 uppercase tracking-tight">
-              <div className="p-2 bg-white/5 rounded-xl border border-white/10"><Truck className="w-4 h-4" /></div>
-              <span>Free Delivery in Tashkent</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs font-bold text-white/40 uppercase tracking-tight">
-              <div className="p-2 bg-white/5 rounded-xl border border-white/10"><ShieldCheck className="w-4 h-4" /></div>
-              <span>Authenticity Guaranteed</span>
-            </div>
           </div>
         </div>
       </div>
