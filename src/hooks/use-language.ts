@@ -1,14 +1,17 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { Language } from '@/lib/mock-data';
+
+export type Language = 'en' | 'ru' | 'uz';
 
 export function useLanguage() {
-  const [lang, setLang] = useState<Language>('en');
+  const [lang, setLang] = useState<Language>('uz');
 
   useEffect(() => {
     const saved = localStorage.getItem('aura_lang') as Language;
-    if (saved) setLang(saved);
+    if (saved && ['en', 'ru', 'uz'].includes(saved)) {
+      setLang(saved);
+    }
   }, []);
 
   const changeLanguage = (newLang: Language) => {
@@ -35,9 +38,9 @@ export function useLanguage() {
     accessOrders: { en: 'Access your orders and sizes', ru: 'Доступ к вашим заказам и размерам', uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring' },
     joinFuture: { en: 'Join the future of fashion', ru: 'Присоединяйтесь к будущему моды', uz: 'Moda kelajagiga qo\'shiling' },
     email: { en: 'Email', ru: 'Электронная почта', uz: 'Email' },
-    password: { en: 'Password', ru: 'Пароль', uz: 'Пароль' },
+    password: { en: 'Password', ru: 'Пароль', uz: 'Parol' },
     getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
-    dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: 'Hisobingiz yo\'qmi? Ro\'yxatdan o\'ting' },
+    dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: "Akkauntingiz yo'qmi? Yaratish" },
     alreadyHaveAccount: { en: 'Already have an account? Login', ru: 'Уже есть аккаунт? Войти', uz: 'Hisobingiz bormi? Kirish' },
     processing: { en: 'Processing...', ru: 'Обработка...', uz: 'Ishlanmoqda...' },
 
@@ -62,7 +65,7 @@ export function useLanguage() {
     returns: { en: '14-Day Free Returns', ru: 'Бесплатный возврат в течение 14 дней', uz: '14 kunlik bepul qaytarish' },
 
     // Footer
-    allRightsReserved: { en: '© 2026 Auralook.uz AI. All rights reserved.', ru: '© 2026 Auralook.uz AI. Все права защищены.', uz: '© 2026 Auralook.uz AI. Barcha huquqlar himoyalangan.' },
+    allRightsReserved: { en: '© 2026 Auralook.uz. All rights reserved.', ru: '© 2026 Auralook.uz. Все права защищены.', uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.' },
     contact: { en: 'Contact', ru: 'Контакт', uz: 'Aloqa' },
   };
 
