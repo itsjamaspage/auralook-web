@@ -13,13 +13,10 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden">
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-[-1] pointer-events-none">
-        {/* Base Darkness */}
         <div className="absolute inset-0 bg-[#0a0a0a]" />
         
-        {/* Colorful Neon Glows */}
         <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[140px] animate-float" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-accent/5 rounded-full blur-[100px]" />
 
         {/* Vertical Data Streams */}
         {[...Array(12)].map((_, i) => (
@@ -41,7 +38,7 @@ export default function Home() {
 
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-          <Badge className="bg-primary/20 text-primary border-primary/20 px-4 py-1.5 rounded-full text-sm font-medium animate-float">
+          <Badge className="animate-neon-border animate-neon-text bg-transparent px-4 py-1.5 rounded-full text-sm font-bold border-2 transition-all duration-500">
             <Sparkles className="w-4 h-4 mr-2 inline" />
             {t(dictionary.vibeCheckedByAI)}
           </Badge>
@@ -54,27 +51,27 @@ export default function Home() {
             {t(dictionary.heroSub)}
           </p>
 
-          <div className="relative group">
-            {/* The Moving Lane Interaction */}
-            <div className="absolute -top-6 left-0 right-0 h-px hidden sm:block">
-              <div className="signal-lane w-full" />
+          <div className="relative group w-full max-w-md mx-auto">
+            {/* The Moving Lane Interaction - Top */}
+            <div className="absolute -top-4 left-0 right-0 h-[2px] overflow-hidden">
+              <div className="signal-lane" />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8 items-center relative z-10">
-              <Link href="/looks" className="w-full sm:w-auto">
+              <Link href="/looks" className="w-full">
                 <Button 
                   size="lg" 
-                  className="animate-neon-cycle w-full sm:w-auto h-16 px-12 text-lg font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-xl"
+                  className="animate-neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none"
                 >
                   {t(dictionary.browseLooks)}
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-6 h-6" />
                 </Button>
               </Link>
             </div>
 
-            {/* Signal Lane Bottom */}
-            <div className="absolute -bottom-6 left-0 right-0 h-px hidden sm:block">
-              <div className="signal-lane w-full" style={{ animationDelay: '2s' }} />
+            {/* The Moving Lane Interaction - Bottom */}
+            <div className="absolute -bottom-4 left-0 right-0 h-[2px] overflow-hidden">
+              <div className="signal-lane" style={{ animationDelay: '1.5s' }} />
             </div>
           </div>
         </div>

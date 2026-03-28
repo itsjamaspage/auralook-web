@@ -42,38 +42,65 @@
 
 /* Moving Signal Lane Animation */
 @keyframes signal-flow {
-  0% { left: 0%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
+  0% { left: -100%; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
   100% { left: 100%; opacity: 0; }
 }
 
 .signal-lane {
   position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  filter: drop-shadow(0 0 8px var(--primary));
-  animation: signal-flow 4s infinite linear;
+  height: 3px;
+  width: 200px;
+  background: linear-gradient(90deg, transparent, white, transparent);
+  filter: drop-shadow(0 0 15px white);
+  animation: signal-flow 3s infinite linear;
+  z-index: 20;
 }
 
-/* Button Color Pulse Sync */
-@keyframes neon-cycle {
+/* Sync Color Cycle for Backgrounds */
+@keyframes neon-cycle-bg {
   0%, 100% { 
     background-color: hsl(45 100% 51%); /* Yellow */
-    box-shadow: 0 0 20px hsla(45, 100%, 51%, 0.3);
+    box-shadow: 0 0 25px hsla(45, 100%, 51%, 0.4);
+    color: black;
   }
   33% { 
     background-color: hsl(180 100% 50%); /* Cyan */
-    box-shadow: 0 0 20px hsla(180, 100%, 50%, 0.3);
+    box-shadow: 0 0 25px hsla(180, 100%, 50%, 0.4);
+    color: black;
   }
   66% { 
     background-color: hsl(300 100% 50%); /* Magenta */
-    box-shadow: 0 0 20px hsla(300, 100%, 50%, 0.3);
+    box-shadow: 0 0 25px hsla(300, 100%, 50%, 0.4);
+    color: white;
   }
 }
 
-.animate-neon-cycle {
-  animation: neon-cycle 8s infinite alternate ease-in-out;
+/* Sync Color Cycle for Text */
+@keyframes neon-cycle-text {
+  0%, 100% { color: hsl(45 100% 51%); }
+  33% { color: hsl(180 100% 50%); }
+  66% { color: hsl(300 100% 50%); }
+}
+
+/* Sync Color Cycle for Border */
+@keyframes neon-cycle-border {
+  0%, 100% { border-color: hsl(45 100% 51%); }
+  33% { border-color: hsl(180 100% 50%); }
+  66% { border-color: hsl(300 100% 50%); }
+}
+
+.animate-neon-bg {
+  animation: neon-cycle-bg 6s infinite ease-in-out;
+}
+
+.animate-neon-text {
+  animation: neon-cycle-text 6s infinite ease-in-out;
+}
+
+.animate-neon-border {
+  animation: neon-cycle-border 6s infinite ease-in-out;
 }
 
 /* Floating Vertical Data Streams */
