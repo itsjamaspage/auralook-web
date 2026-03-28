@@ -38,28 +38,22 @@ export default function Home() {
         {/* Animated Energy Lanes connecting brand points */}
         {mounted && (
           <svg className="absolute inset-0 w-full h-full opacity-60">
-            {/* Connection: Top Left (Logo Area) to Center (Hero Title) */}
             <path 
               d="M 100,100 Q 200,400 500,450" 
               fill="none" 
-              stroke="currentColor" 
               strokeWidth="2" 
               className="energy-line"
             />
-            {/* Connection: Hero Title to Browse Looks Button */}
             <path 
               d="M 500,450 Q 500,700 500,800" 
               fill="none" 
-              stroke="currentColor" 
               strokeWidth="2" 
               className="energy-line"
               style={{ animationDelay: '2s' }}
             />
-            {/* Messy Random Interconnections */}
             <path 
               d="M -100,500 L 1200,100 Q 600,900 1300,500" 
               fill="none" 
-              stroke="currentColor" 
               strokeWidth="1" 
               className="energy-line"
               style={{ animationDelay: '5s' }}
@@ -67,7 +61,6 @@ export default function Home() {
             <path 
               d="M 1000,-100 Q 200,500 1100,1100" 
               fill="none" 
-              stroke="currentColor" 
               strokeWidth="1.5" 
               className="energy-line"
               style={{ animationDelay: '1s' }}

@@ -27,7 +27,7 @@ const dictionary = {
   getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
   dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: "Akkauntingiz yo'qmi? Yaratish" },
   alreadyHaveAccount: { en: 'Already have an account? Login', ru: 'Уже есть аккаунт? Войти', uz: 'Hisobingiz bormi? Kirish' },
-  processing: { en: 'Processing...', ru: 'Обработка...', uz: 'Ishlanmoqda...' },
+  processing: { en: 'Processing...', ru: 'Ishlanmoqda...', uz: 'Ishlanmoqda...' },
 
   // Home Page Content
   curatedLooks: { en: 'Curated Looks', ru: 'Подобранные Образы', uz: 'Tanlangan Liboslar' },
