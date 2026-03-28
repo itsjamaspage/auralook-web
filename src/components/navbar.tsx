@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut } from 'lucide-react';
-import { useUser, useAuth } from '@/firebase';
+import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,16 @@ export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const db = useFirestore();
+
+  // Check if the current user is an admin
+  const adminRoleRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'roles_order_managers', user.uid);
+  }, [db, user]);
+
+  const { data: adminRole } = useDoc(adminRoleRef);
+  const isAdmin = !!adminRole;
 
   const handleLogout = () => {
     signOut(auth);
@@ -37,7 +48,7 @@ export function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/" className="hover:neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
+          <Link href="/looks" className="hover:neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
           {user && (
             <Link href="/orders" className="hover:neon-text transition-colors duration-500">{t(dictionary.myOrders)}</Link>
           )}
@@ -78,6 +89,19 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="glass-dark border-white/10">
                   <DropdownMenuItem className="text-muted-foreground text-xs">{user.email}</DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/5" />
+                  
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex items-center w-full">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          {t(dictionary.adminPanel)}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-white/5" />
+                    </>
+                  )}
+
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
                     {t(dictionary.logout)}

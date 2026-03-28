@@ -36,6 +36,11 @@ const dictionary = {
     ru: 'Войти',
     en: 'Login'
   },
+  adminPanel: {
+    uz: 'Admin Panel',
+    ru: 'Панель администратора',
+    en: 'Admin Panel'
+  },
 
   // Auth Pages
   welcomeBack: { 
