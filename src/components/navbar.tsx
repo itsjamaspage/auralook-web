@@ -1,9 +1,9 @@
 "use client"
 
 import Link from 'next/link';
-import { useLanguage } from '@/hooks/use-language';
+import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Globe } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import {
@@ -15,13 +15,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const { dictionary, t } = useLanguage();
+  const { dictionary, t, lang, setLang } = useLanguage();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
   const handleLogout = () => {
     signOut(auth);
   };
+
+  const languages: { code: Language; label: string }[] = [
+    { code: 'uz', label: 'UZ' },
+    { code: 'ru', label: 'RU' },
+    { code: 'en', label: 'EN' },
+  ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -38,6 +44,26 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-3">
+                <Globe className="w-4 h-4 mr-2" />
+                {lang.toUpperCase()}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="glass-dark border-white/10">
+              {languages.map((l) => (
+                <DropdownMenuItem 
+                  key={l.code} 
+                  onClick={() => setLang(l.code)}
+                  className={lang === l.code ? "bg-white/10 text-primary" : ""}
+                >
+                  {l.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {!isUserLoading && (
             user ? (
               <DropdownMenu>
