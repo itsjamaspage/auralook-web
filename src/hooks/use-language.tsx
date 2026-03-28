@@ -38,8 +38,8 @@ const dictionary = {
     en: 'Login'
   },
   adminPanel: {
-    uz: 'Admin Panel',
-    ru: 'Панель администратора',
+    uz: 'Boshqaruv Paneli',
+    ru: 'Панель управления',
     en: 'Admin Panel'
   },
 
@@ -131,6 +131,21 @@ const dictionary = {
     ru: 'Новый образ',
     en: 'New Look'
   },
+  deployNewApparel: {
+    uz: 'Yangi kiyimni joylashtirish',
+    ru: 'Разместить новую одежду',
+    en: 'Deploy New Apparel'
+  },
+  activeItems: {
+    uz: 'Faol narsalar',
+    ru: 'Активные товары',
+    en: 'Active Items'
+  },
+  activeInventory: {
+    uz: 'Faol inventar',
+    ru: 'Активный инвентарь',
+    en: 'Active Inventory'
+  },
   totalSales: {
     uz: 'Jami savdo',
     ru: 'Общие продажи',
@@ -180,6 +195,36 @@ const dictionary = {
     uz: 'Amallar',
     ru: 'Действия',
     en: 'Actions'
+  },
+  visual: {
+    uz: 'Rasm',
+    ru: 'Изображение',
+    en: 'Visual'
+  },
+  productName: {
+    uz: 'Mahsulot nomi',
+    ru: 'Название товара',
+    en: 'Product Name'
+  },
+  marketValue: {
+    uz: 'Bozor qiymati',
+    ru: 'Рыночная стоимость',
+    en: 'Market Value'
+  },
+  operations: {
+    uz: 'Amallar',
+    ru: 'Операции',
+    en: 'Operations'
+  },
+  emptyCatalog: {
+    uz: 'Katalogingiz hozirda bo\'sh.',
+    ru: 'Ваш каталог сейчас пуст.',
+    en: 'Your catalog is currently empty.'
+  },
+  createFirstLook: {
+    uz: 'Birinchi libosni yarating',
+    ru: 'Создать первый образ',
+    en: 'Create First Look'
   },
   noOrders: {
     uz: "Hozircha buyurtmalar yo'q.",
