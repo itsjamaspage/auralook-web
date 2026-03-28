@@ -209,9 +209,14 @@ const dictionary = {
     en: 'Look Name'
   },
   lookPrice: {
-    uz: 'Narxi (USD)',
-    ru: 'Цена (USD)',
-    en: 'Price (USD)'
+    uz: 'Narxi',
+    ru: 'Цена',
+    en: 'Price'
+  },
+  currency: {
+    uz: 'Valyuta',
+    ru: 'Валюта',
+    en: 'Currency'
   },
   aiDescGenerator: {
     uz: 'AI Tavsif Yaratuvchi',
@@ -247,6 +252,11 @@ const dictionary = {
     uz: 'Nashr qilish',
     ru: 'Опубликовать',
     en: 'Publish'
+  },
+  lookSavedSuccess: {
+    uz: 'Libos muvaffaqiyatli saqlandi!',
+    ru: 'Образ успешно сохранен!',
+    en: 'Look saved successfully!'
   },
 
   // Footer

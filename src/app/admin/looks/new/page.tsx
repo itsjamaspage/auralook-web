@@ -8,18 +8,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Loader2, Sparkles, Plus } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Loader2, Sparkles, Plus, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function NewLookPage() {
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [keywords, setKeywords] = useState('');
+  
+  // Form State
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
+  const [imageUrl, setImageUrl] = useState('https://picsum.photos/seed/new-look/600/800');
+
   const { toast } = useToast();
   const router = useRouter();
   const { t, dictionary } = useLanguage();
+  const db = useFirestore();
 
   async function generateDescriptions() {
     if (!keywords) return;
@@ -36,88 +48,182 @@ export default function NewLookPage() {
       });
     } catch (e) {
       console.error(e);
+      toast({
+        variant: "destructive",
+        title: "AI Generation Failed",
+        description: "Could not generate description.",
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  const handleSave = () => {
-    toast({ title: "Look Saved", description: "Your new look has been added to the catalog." });
-    router.push('/admin');
+  const handleSave = async () => {
+    if (!name || !description || !price) {
+      toast({
+        variant: "destructive",
+        title: "Missing Fields",
+        description: "Please fill in all required fields.",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const lookData = {
+        name,
+        description,
+        price: parseFloat(price),
+        currency,
+        imageUrl,
+        createdAt: serverTimestamp(),
+        tags: keywords.split(',').map(k => k.trim()).filter(k => k !== '')
+      };
+
+      // Non-blocking write preferred but for a simple dashboard we want to know when it's done for redirection
+      await addDoc(collection(db, 'looks'), lookData);
+
+      toast({ 
+        title: t(dictionary.lookSavedSuccess), 
+        description: "Your new look has been added to the catalog." 
+      });
+      router.push('/admin');
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Save Failed",
+        description: "Could not save the look to Firestore.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="container mx-auto px-6 py-12 max-w-4xl space-y-12">
+    <div className="container mx-auto px-6 py-12 max-w-5xl space-y-12">
       <div className="space-y-1">
         <h1 className="text-4xl font-black tracking-tighter neon-text">{t(dictionary.createNewLook)}</h1>
         <p className="text-muted-foreground">{t(dictionary.createNewLookDesc)}</p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 space-y-6">
-          <Card className="glass-dark border-white/5 rounded-3xl overflow-hidden aspect-[3/4] flex flex-col items-center justify-center p-8 border-dashed border-2 hover:neon-border transition-colors group">
-            <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
-              <Plus className="w-12 h-12 neon-text" />
+      <div className="grid lg:grid-cols-12 gap-10">
+        {/* Media Sidebar */}
+        <div className="lg:col-span-4 space-y-6">
+          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group">
+            <img 
+              src={imageUrl} 
+              alt="Preview" 
+              className="w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-opacity"
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 border-white/10 m-4 rounded-[2rem] hover:neon-border transition-colors group">
+              <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
+                <Plus className="w-12 h-12 neon-text" />
+              </div>
+              <p className="text-sm font-bold text-center neon-text">{t(dictionary.uploadImage)}</p>
+              <Input 
+                className="mt-4 bg-white/5 border-white/10 text-xs" 
+                placeholder="Image URL" 
+                value={imageUrl} 
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
             </div>
-            <p className="text-sm font-bold text-center">{t(dictionary.uploadImage)}</p>
-            <p className="text-xs text-muted-foreground text-center mt-2">Max: 50MB. PNG/JPG</p>
           </Card>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>{t(dictionary.lookName)}</Label>
-              <Input placeholder="Cyber Runner" className="bg-white/5 border-white/10" />
-            </div>
-            <div className="space-y-2">
-              <Label>{t(dictionary.lookPrice)}</Label>
-              <Input type="number" placeholder="299" className="bg-white/5 border-white/10" />
-            </div>
-          </div>
         </div>
 
-        <div className="md:col-span-2 space-y-8">
-          <Card className="glass-dark border-white/5 rounded-3xl p-8 space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center gap-2">
+        {/* Form Main Area */}
+        <div className="lg:col-span-8 space-y-8">
+          <Card className="glass-dark border-white/5 rounded-[2.5rem] p-10 space-y-8">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                  <ImageIcon className="w-4 h-4 neon-text" />
+                  {t(dictionary.lookName)}
+                </Label>
+                <Input 
+                  placeholder="e.g. Cyber Runner v2" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border" 
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                  <Sparkles className="w-4 h-4 neon-text" />
+                  {t(dictionary.lookPrice)}
+                </Label>
+                <div className="flex gap-4">
+                  <Input 
+                    type="number" 
+                    placeholder="299" 
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border" 
+                  />
+                  <RadioGroup 
+                    value={currency} 
+                    onValueChange={(v: any) => setCurrency(v)}
+                    className="flex items-center gap-4 bg-white/5 px-4 rounded-2xl border border-white/10"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="USD" id="usd" className="border-white/20" />
+                      <Label htmlFor="usd" className="text-xs font-bold">USD</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20" />
+                      <Label htmlFor="uzs" className="text-xs font-bold">UZS</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Generator Section */}
+            <div className="p-6 rounded-[2rem] bg-white/5 border border-white/5 space-y-6">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
                   <Sparkles className="w-4 h-4 neon-text" />
                   {t(dictionary.aiDescGenerator)}
                 </Label>
+                <div className="flex gap-4">
+                  <Input 
+                    placeholder={t(dictionary.keywordsPlaceholder)} 
+                    value={keywords}
+                    onChange={(e) => setKeywords(e.target.value)}
+                    className="bg-white/10 border-none h-14 rounded-2xl flex-1 focus:ring-1 focus:ring-primary/50"
+                  />
+                  <Button 
+                    onClick={generateDescriptions} 
+                    disabled={loading || !keywords}
+                    className="neon-bg text-black font-black px-8 rounded-2xl h-14 border-none transition-transform active:scale-95"
+                  >
+                    {loading ? <Loader2 className="animate-spin" /> : t(dictionary.generate)}
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder={t(dictionary.keywordsPlaceholder)} 
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  className="bg-white/5 border-white/10 h-12"
+
+              <div className="space-y-4">
+                <Label className="font-bold uppercase tracking-widest text-xs">{t(dictionary.lookDescription)}</Label>
+                <Textarea 
+                  className="min-h-[250px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-lg focus:neon-border" 
+                  value={description} 
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe the aesthetic..."
                 />
-                <Button 
-                  onClick={generateDescriptions} 
-                  disabled={loading || !keywords}
-                  className="neon-bg text-black font-bold px-6 rounded-xl border-none h-12"
-                >
-                  {loading ? <Loader2 className="animate-spin" /> : t(dictionary.generate)}
-                </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                {t(dictionary.aiUzbekHint)}
-              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label>{t(dictionary.lookDescription)}</Label>
-              <Textarea 
-                className="min-h-[300px] bg-white/5 border-white/10 leading-relaxed font-light" 
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="..."
-              />
-            </div>
-
-            <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
-              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-xl">{t(dictionary.cancel)}</Button>
-              <Button onClick={handleSave} className="neon-bg text-black font-bold px-12 rounded-xl h-12 border-none transition-transform hover:scale-105">
-                {t(dictionary.publish)}
+            <div className="flex justify-end gap-6 pt-10 border-t border-white/5">
+              <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-2xl h-14 px-8 font-bold text-muted-foreground">
+                {t(dictionary.cancel)}
+              </Button>
+              <Button 
+                onClick={handleSave} 
+                disabled={saving}
+                className="neon-bg text-black font-black px-16 rounded-2xl h-14 border-none shadow-2xl transition-all hover:scale-105 active:scale-95"
+              >
+                {saving ? <Loader2 className="animate-spin" /> : t(dictionary.publish)}
               </Button>
             </div>
           </Card>

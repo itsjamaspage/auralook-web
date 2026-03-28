@@ -90,6 +90,21 @@
         "totalAmount",
         "updatedAt"
       ]
+    },
+    "Look": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Look",
+      "type": "object",
+      "description": "Represents a fashion outfit (Look) available in the store.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "price": { "type": "number" },
+        "currency": { "type": "string", "enum": ["USD", "UZS"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -131,6 +146,16 @@
             "$ref": "#/backend/entities/Order"
           },
           "description": "Customer orders visible to owners and admins."
+        }
+      },
+      {
+        "path": "/looks/{lookId}",
+        "definition": {
+          "entityName": "Look",
+          "schema": {
+            "$ref": "#/backend/entities/Look"
+          },
+          "description": "Clothing items available for purchase."
         }
       }
     ]
