@@ -31,9 +31,9 @@ export function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/" className="hover:text-primary transition-colors">{t(dictionary.browseLooks)}</Link>
+          <Link href="/" className="hover:animate-neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
           {user && (
-            <Link href="/orders" className="hover:text-primary transition-colors">{t(dictionary.myOrders)}</Link>
+            <Link href="/orders" className="hover:animate-neon-text transition-colors duration-500">{t(dictionary.myOrders)}</Link>
           )}
         </div>
 
@@ -61,7 +61,7 @@ export function Navbar() {
             user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="rounded-full animate-neon-border border-2 bg-transparent text-foreground hover:bg-white/5">
+                  <Button variant="outline" className="rounded-full animate-neon-border animate-neon-text border-2 bg-transparent hover:bg-white/5 transition-all duration-500">
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
                   </Button>
@@ -77,7 +77,7 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <Button variant="outline" className="rounded-full animate-neon-border border-2 bg-transparent text-foreground hover:bg-white/5 transition-all duration-300">
+                <Button variant="outline" className="rounded-full animate-neon-border animate-neon-text border-2 bg-transparent hover:bg-white/5 transition-all duration-500">
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}
                 </Button>

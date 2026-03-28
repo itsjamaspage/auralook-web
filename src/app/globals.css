@@ -58,47 +58,61 @@
   z-index: 20;
 }
 
-/* UNIVERSAL NEON SYNC CLOCK - 8 Seconds, Shared Keyframes */
+/* UNIVERSAL NEON SYNC CLOCK - 10 Seconds, 5 Colors */
 @keyframes neon-cycle-bg {
   0%, 100% { 
     background-color: hsl(150 100% 50%); /* Emerald */
     box-shadow: 0 0 40px hsla(150, 100%, 50%, 0.6);
     color: #000000 !important;
   }
-  33% { 
+  20% { 
     background-color: hsl(200 100% 50%); /* Azure */
     box-shadow: 0 0 40px hsla(200, 100%, 50%, 0.6);
     color: #000000 !important;
   }
-  66% { 
+  40% { 
     background-color: hsl(330 100% 50%); /* Rose */
     box-shadow: 0 0 40px hsla(330, 100%, 50%, 0.6);
+    color: #000000 !important;
+  }
+  60% { 
+    background-color: hsl(270 100% 60%); /* Violet */
+    box-shadow: 0 0 40px hsla(270, 100%, 60%, 0.6);
+    color: #000000 !important;
+  }
+  80% { 
+    background-color: hsl(45 100% 50%); /* Gold */
+    box-shadow: 0 0 40px hsla(45, 100%, 50%, 0.6);
     color: #000000 !important;
   }
 }
 
 @keyframes neon-cycle-text {
   0%, 100% { color: hsl(150 100% 50%); }
-  33% { color: hsl(200 100% 50%); }
-  66% { color: hsl(330 100% 50%); }
+  20% { color: hsl(200 100% 50%); }
+  40% { color: hsl(330 100% 50%); }
+  60% { color: hsl(270 100% 60%); }
+  80% { color: hsl(45 100% 50%); }
 }
 
 @keyframes neon-cycle-border {
   0%, 100% { border-color: hsl(150 100% 50%); }
-  33% { border-color: hsl(200 100% 50%); }
-  66% { border-color: hsl(330 100% 50%); }
+  20% { border-color: hsl(200 100% 50%); }
+  40% { border-color: hsl(330 100% 50%); }
+  60% { border-color: hsl(270 100% 60%); }
+  80% { border-color: hsl(45 100% 50%); }
 }
 
 .animate-neon-bg {
-  animation: neon-cycle-bg 8s infinite ease-in-out;
+  animation: neon-cycle-bg 10s infinite ease-in-out;
 }
 
 .animate-neon-text {
-  animation: neon-cycle-text 8s infinite ease-in-out;
+  animation: neon-cycle-text 10s infinite ease-in-out;
 }
 
 .animate-neon-border {
-  animation: neon-cycle-border 8s infinite ease-in-out;
+  animation: neon-cycle-border 10s infinite ease-in-out;
 }
 
 /* Floating Vertical Data Streams */
