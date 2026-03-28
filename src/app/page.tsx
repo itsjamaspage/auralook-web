@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -8,6 +9,14 @@ import Link from 'next/link';
 
 export default function Home() {
   const { t, dictionary } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  const [randomDurations, setRandomDurations] = useState<number[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+    // Generate random durations only on the client to avoid hydration mismatch
+    setRandomDurations([...Array(12)].map(() => 7 + Math.random() * 5));
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -19,14 +28,14 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[140px] animate-float" />
 
         {/* Vertical Data Streams */}
-        {[...Array(12)].map((_, i) => (
+        {mounted && randomDurations.length > 0 && [...Array(12)].map((_, i) => (
           <div 
             key={i} 
             className="data-stream" 
             style={{ 
               left: `${(i + 1) * 8}%`, 
               animationDelay: `${i * 0.8}s`,
-              animationDuration: `${7 + Math.random() * 5}s`
+              animationDuration: `${randomDurations[i]}s`
             }} 
           />
         ))}
