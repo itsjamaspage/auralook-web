@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -239,9 +238,9 @@ const dictionary = {
     en: 'Create New Look'
   },
   createNewLookDesc: {
-    uz: 'Yuqori sifatli media va AI tomonidan yaratilgan tavsiflarni qo\'shing.',
-    ru: 'Добавьте высококачественные медиа и описания, созданные ИИ.',
-    en: 'Add high-quality media and AI-generated descriptions.'
+    uz: 'Yuqori sifatli media va tavsiflarni qo\'shing.',
+    ru: 'Добавьте высококачественные медиа и описания.',
+    en: 'Add high-quality media and descriptions.'
   },
   uploadImage: {
     uz: 'Rasm yuklash',
@@ -303,6 +302,16 @@ const dictionary = {
     ru: 'Образ успешно сохранен!',
     en: 'Look saved successfully!'
   },
+  viewDetails: {
+    uz: 'Batafsil ko\'rish',
+    ru: 'Посмотреть детали',
+    en: 'View Details'
+  },
+  curatedLooksSub: {
+    uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.',
+    ru: 'Наши стилисты и алгоритмы ИИ вручную отобрали эти наряды для лучшего футуристического образа.',
+    en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.'
+  },
 
   // Footer
   allRightsReserved: { 
@@ -320,7 +329,7 @@ const dictionary = {
 interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
-  t: (translations: Record<Language, string>) => string;
+  t: (translations: any) => string;
   dictionary: typeof dictionary;
 }
 
@@ -329,8 +338,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Language>('uz');
 
-  const t = (translations: Record<Language, string>) => {
-    return translations[lang] || translations['uz'];
+  const t = (translations: any): string => {
+    if (!translations) return '';
+    if (typeof translations === 'string') return translations;
+    return translations[lang] || translations['uz'] || translations['en'] || '';
   };
 
   return (
