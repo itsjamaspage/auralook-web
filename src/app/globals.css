@@ -27,7 +27,7 @@
   }
 }
 
-/* Static High-Performance Neon Pulse - Synchronized Hue Rotation */
+/* Master Sync Animation - Controls everything pulse-wide */
 @property --sync-color {
   syntax: '<color>';
   initial-value: hsl(0 100% 50%);
@@ -42,10 +42,12 @@
 
 @keyframes master-sync-pulse {
   0% { --sync-color: hsl(0 100% 50%); --sync-shadow: hsla(0, 100%, 50%, 0.4); }
-  20% { --sync-color: hsl(72 100% 50%); --sync-shadow: hsla(72, 100%, 50%, 0.4); }
-  40% { --sync-color: hsl(144 100% 50%); --sync-shadow: hsla(144, 100%, 50%, 0.4); }
-  60% { --sync-color: hsl(216 100% 50%); --sync-shadow: hsla(216, 100%, 50%, 0.4); }
-  80% { --sync-color: hsl(288 100% 50%); --sync-shadow: hsla(288, 100%, 50%, 0.4); }
+  15% { --sync-color: hsl(45 100% 50%); --sync-shadow: hsla(45, 100%, 50%, 0.4); }
+  30% { --sync-color: hsl(90 100% 50%); --sync-shadow: hsla(90, 100%, 50%, 0.4); }
+  45% { --sync-color: hsl(135 100% 50%); --sync-shadow: hsla(135, 100%, 50%, 0.4); }
+  60% { --sync-color: hsl(180 100% 50%); --sync-shadow: hsla(180, 100%, 50%, 0.4); }
+  75% { --sync-color: hsl(225 100% 50%); --sync-shadow: hsla(225, 100%, 50%, 0.4); }
+  90% { --sync-color: hsl(270 100% 50%); --sync-shadow: hsla(270, 100%, 50%, 0.4); }
   100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
 }
 
@@ -64,7 +66,8 @@ body {
 
 .neon-bg {
   background-color: var(--sync-color) !important;
-  box-shadow: 0 0 25px var(--sync-shadow);
+  color: #000 !important;
+  box-shadow: 0 0 30px var(--sync-shadow) !important;
 }
 
 .glass-dark {
@@ -73,7 +76,7 @@ body {
 
 .energy-line {
   stroke: var(--sync-color);
-  opacity: 0.2;
+  opacity: 0.3;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: energy-flow 15s linear infinite;

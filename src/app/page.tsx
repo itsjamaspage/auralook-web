@@ -19,12 +19,12 @@ export default function Home() {
       {/* Dynamic Background Grid & Energy Paths */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Ambient Hero Glows */}
-        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[140px] animate-float" />
+        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-primary/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[140px]" />
 
         {/* Animated Energy Lanes connecting brand points */}
         {mounted && (
-          <svg className="absolute inset-0 w-full h-full opacity-60">
+          <svg className="absolute inset-0 w-full h-full">
             <path 
               d="M 100,100 Q 200,400 500,450" 
               fill="none" 
@@ -59,7 +59,7 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 z-10">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
           
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent neon-text">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none neon-text uppercase italic">
             {t(dictionary.heroTitle)}
           </h1>
           
@@ -72,7 +72,7 @@ export default function Home() {
               <Link href="/looks" className="w-full">
                 <Button 
                   size="lg" 
-                  className="neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none text-black"
+                  className="neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 border-none"
                 >
                   {t(dictionary.browseLooks)}
                   <ArrowRight className="ml-2 w-6 h-6" />
