@@ -114,6 +114,43 @@ const dictionary = {
     en: 'Processing...'
   },
 
+  // Look Detail Page
+  catalog: {
+    uz: 'KATALOG',
+    ru: 'КАТАЛОГ',
+    en: 'CATALOG'
+  },
+  status: {
+    uz: 'HOLATI',
+    ru: 'СТАТУС',
+    en: 'STATUS'
+  },
+  readyForDispatch: {
+    uz: 'YUBORISHGA TAYYOR',
+    ru: 'ГОТОВ К ОТПРАВКЕ',
+    en: 'READY FOR DISPATCH'
+  },
+  technicalDetails: {
+    uz: 'TEXNIK TAFSILOTLAR',
+    ru: 'ТЕХНИЧЕСКИЕ ДЕТАЛИ',
+    en: 'TECHNICAL DETAILS'
+  },
+  selectSizeMatrix: {
+    uz: 'O\'LCHAMNI TANLANG',
+    ru: 'ВЫБЕРИТЕ РАЗМЕР',
+    en: 'SELECT SIZE MATRIX'
+  },
+  executePurchase: {
+    uz: 'BUYURTMANI TASDIQLASH',
+    ru: 'ИСПОЛНИТЬ ПОКУПКУ',
+    en: 'EXECUTE PURCHASE'
+  },
+  secureCheckout: {
+    uz: 'XAVFSIZ TO\'LOV // SHIFRLANGAN SEANS',
+    ru: 'БЕЗОПАСНАЯ ОПЛАТА // ЗАШИФРОВАННАЯ СЕССИЯ',
+    en: 'SECURE CHECKOUT // ENCRYPTED SESSION'
+  },
+
   // Admin Dashboard
   adminDashboard: {
     uz: 'Boshqaruv Paneli',
@@ -246,7 +283,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = (translations: any): string => {
     if (!translations) return '';
     if (typeof translations === 'string') return translations;
-    // Robust access for objects
     try {
       return (translations && typeof translations === 'object') 
         ? (translations[lang] || translations['uz'] || translations['en'] || '')
