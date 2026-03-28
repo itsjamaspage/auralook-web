@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -21,7 +22,6 @@ export function Navbar() {
   const auth = useAuth();
   const db = useFirestore();
 
-  // Check if the current user is an admin
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_order_managers', user.uid);
@@ -42,22 +42,22 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3 border border-white/5">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-black tracking-tighter neon-text transition-all">Auralook.uz</span>
+          <span className="text-2xl font-black tracking-tighter neon-text">Auralook.uz</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/looks" className="hover:neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
+          <Link href="/looks" className="hover:text-primary transition-colors">{t(dictionary.browseLooks)}</Link>
           {user && (
-            <Link href="/orders" className="hover:neon-text transition-colors duration-500">{t(dictionary.myOrders)}</Link>
+            <Link href="/orders" className="hover:text-primary transition-colors">{t(dictionary.myOrders)}</Link>
           )}
         </div>
 
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase">
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase text-foreground">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -66,7 +66,7 @@ export function Navbar() {
                 <DropdownMenuItem 
                   key={l.code} 
                   onClick={() => setLang(l.code)}
-                  className={lang === l.code ? "bg-white/10 text-primary" : ""}
+                  className={lang === l.code ? "bg-white/10 text-primary" : "text-foreground"}
                 >
                   {l.label}
                 </DropdownMenuItem>
@@ -80,7 +80,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
+                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-foreground"
                   >
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
@@ -93,7 +93,7 @@ export function Navbar() {
                   {isAdmin && (
                     <>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center w-full">
+                        <Link href="/admin" className="flex items-center w-full cursor-pointer">
                           <LayoutDashboard className="w-4 h-4 mr-2" />
                           {t(dictionary.adminPanel)}
                         </Link>
@@ -102,7 +102,7 @@ export function Navbar() {
                     </>
                   )}
 
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
                     <LogOut className="w-4 h-4 mr-2" />
                     {t(dictionary.logout)}
                   </DropdownMenuItem>
@@ -112,7 +112,7 @@ export function Navbar() {
               <Link href="/login">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
+                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-foreground"
                 >
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}
