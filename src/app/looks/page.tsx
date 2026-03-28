@@ -33,9 +33,6 @@ export default function LooksPage() {
         <h1 className="text-4xl font-black tracking-tighter neon-text uppercase italic">
           {t(dictionary.browseLooks)}
         </h1>
-        <p className="text-white/60 max-w-2xl font-light">
-          {t(dictionary.curatedLooksSub)}
-        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
