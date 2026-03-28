@@ -2,7 +2,7 @@
 
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
@@ -38,9 +38,9 @@ export default function Home() {
 
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-          <Badge className="animate-neon-border animate-neon-text bg-transparent px-4 py-1.5 rounded-full text-sm font-bold border-2 transition-all duration-500">
-            <Sparkles className="w-4 h-4 mr-2 inline" />
-            {t(dictionary.vibeCheckedByAI)}
+          <Badge className="animate-neon-border animate-neon-text bg-transparent px-4 py-1.5 rounded-full text-xs font-medium border-2 transition-all duration-500 opacity-60">
+            <ShoppingBag className="w-3.5 h-3.5 mr-2 inline" />
+            {t(dictionary.storeTag)}
           </Badge>
           
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
@@ -53,7 +53,7 @@ export default function Home() {
 
           <div className="relative group w-full max-w-md mx-auto">
             {/* The Moving Lane Interaction - Top */}
-            <div className="absolute -top-4 left-0 right-0 h-[2px] overflow-hidden">
+            <div className="absolute -top-6 left-0 right-0 h-[4px] overflow-hidden">
               <div className="signal-lane" />
             </div>
 
@@ -70,7 +70,7 @@ export default function Home() {
             </div>
 
             {/* The Moving Lane Interaction - Bottom */}
-            <div className="absolute -bottom-4 left-0 right-0 h-[2px] overflow-hidden">
+            <div className="absolute -bottom-6 left-0 right-0 h-[4px] overflow-hidden">
               <div className="signal-lane" style={{ animationDelay: '1.5s' }} />
             </div>
           </div>

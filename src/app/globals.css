@@ -50,11 +50,11 @@
 
 .signal-lane {
   position: absolute;
-  height: 3px;
-  width: 200px;
-  background: linear-gradient(90deg, transparent, white, transparent);
-  filter: drop-shadow(0 0 15px white);
-  animation: signal-flow 3s infinite linear;
+  height: 100%;
+  width: 300px;
+  background: linear-gradient(90deg, transparent, white, var(--primary), white, transparent);
+  filter: drop-shadow(0 0 15px var(--primary));
+  animation: signal-flow 4s infinite linear;
   z-index: 20;
 }
 
