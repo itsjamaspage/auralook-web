@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Plus, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Plus, Image as ImageIcon, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
@@ -19,7 +19,6 @@ export default function NewLookPage() {
   const [saving, setSaving] = useState(false);
   
   // Form State
-  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
@@ -42,7 +41,7 @@ export default function NewLookPage() {
   };
 
   const handleSave = async () => {
-    if (!name || !description || !price) {
+    if (!description || !price) {
       toast({
         variant: "destructive",
         title: "Missing Fields",
@@ -54,7 +53,7 @@ export default function NewLookPage() {
     setSaving(true);
     try {
       const lookData = {
-        name,
+        name: `Look ${new Date().toLocaleDateString()}`, // Using date as a fallback name
         description,
         price: parseFloat(price),
         currency,
@@ -128,23 +127,10 @@ export default function NewLookPage() {
         {/* Form Main Area */}
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8 border-white/10">
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-1 gap-8">
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                  <ImageIcon className="w-4 h-4 neon-text" />
-                  {t(dictionary.lookName)}
-                </Label>
-                <Input 
-                  placeholder="e.g. Cyber Runner v2" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
-                />
-              </div>
-
-              <div className="space-y-4">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                  <ImageIcon className="w-4 h-4 neon-text" />
+                  <DollarSign className="w-4 h-4 neon-text" />
                   {t(dictionary.lookPrice)}
                 </Label>
                 <div className="flex gap-4">
