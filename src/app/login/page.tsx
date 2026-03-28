@@ -40,7 +40,6 @@ export default function LoginPage() {
       if (newUser) {
         try {
           // Check if this is the first user ever to grant admin roles
-          // This check is performed in Firestore
           const usersQuery = query(collection(db, 'users'), limit(1));
           const snapshot = await getDocs(usersQuery);
           const isFirstUser = snapshot.empty;
@@ -53,17 +52,15 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
-          // Store user profile if it's a new signup or first user
-          if (!isLogin || isFirstUser) {
-            await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
-          }
+          // Store user profile
+          await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
 
           // If first user, grant admin roles immediately in Firestore
           if (isFirstUser) {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             toast({
-              title: "Admin Privileges Granted",
-              description: "You have been identified as the primary administrator.",
+              title: "Admin Huquqlari Berildi",
+              description: "Siz birinchi foydalanuvchi sifatida administrator deb belgilandingiz.",
             });
           }
         } catch (e) {

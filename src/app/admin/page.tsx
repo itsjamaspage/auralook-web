@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { MOCK_LOOKS } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   const ordersQuery = useMemoFirebase(() => collection(db, 'orders'), [db]);
   const { data: orders, isLoading, error } = useCollection(ordersQuery);
 
-  const handleUpdateStatus = async (orderId: string, newStatus: any) => {
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
       await updateDoc(orderRef, { 
@@ -48,19 +48,19 @@ export default function AdminDashboard() {
       
       const order = orders?.find(o => o.id === orderId);
       if (order) {
-        // Trigger AI notification (simulated Telegram preparation)
-        const { message } = await aiTelegramOrderStatusNotification({
+        // Trigger AI notification preparation
+        await aiTelegramOrderStatusNotification({
           customerName: order.customerName,
           orderId: order.id,
           currentStatus: newStatus as any,
           productName: MOCK_LOOKS.find(l => l.id === order.lookId)?.name.uz || 'Kiyim',
-          estimatedDeliveryDate: newStatus === 'Shipped' ? 'Keyingi juma' : null,
+          estimatedDeliveryDate: newStatus === 'Shipped' ? 'Yaqin orada' : null,
           language: 'uz'
         });
         
         toast({
           title: `Holat yangilandi: ${newStatus}`,
-          description: `Telegram xabari tayyor.`,
+          description: `Mijoz uchun xabar tayyorlandi.`,
         });
       }
     } catch (e) {
@@ -77,8 +77,8 @@ export default function AdminDashboard() {
     return (
       <div className="container mx-auto px-6 py-24 text-center space-y-4">
         <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-        <h1 className="text-2xl font-bold">Access Denied</h1>
-        <p className="text-muted-foreground">You do not have administrative privileges to view this page.</p>
+        <h1 className="text-2xl font-bold">Ruxsat yo'q</h1>
+        <p className="text-muted-foreground">Sizda ushbu sahifani ko'rish uchun administrator huquqlari mavjud emas.</p>
       </div>
     );
   }
@@ -87,13 +87,13 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter">Auralook.uz Admin</h1>
-          <p className="text-muted-foreground">Liboslar va buyurtmalarni boshqarish.</p>
+          <h1 className="text-4xl font-black tracking-tighter">Boshqaruv Paneli</h1>
+          <p className="text-muted-foreground">Buyurtmalar va liboslar katalogini boshqarish.</p>
         </div>
         <Link href="/admin/looks/new">
           <Button className="rounded-2xl bg-primary text-primary-foreground font-bold px-8">
             <Plus className="w-4 h-4 mr-2" />
-            Libos yaratish
+            Yangi Libos
           </Button>
         </Link>
       </div>
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Yangilar</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-500">
+            <div className="text-3xl font-bold text-primary">
               {orders?.filter(o => o.status === 'New').length || 0}
             </div>
           </CardContent>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
                   <TableHead className="font-bold">Mijoz</TableHead>
                   <TableHead className="font-bold">Holat</TableHead>
                   <TableHead className="font-bold">Summa</TableHead>
-                  <TableHead className="font-bold text-right">Amal</TableHead>
+                  <TableHead className="font-bold text-right">Amallar</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

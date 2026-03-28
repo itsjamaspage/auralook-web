@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, LogOut, LayoutDashboard, Menu } from 'lucide-react';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
@@ -87,25 +87,27 @@ export function Navbar() {
                     {user.email?.split('@')[0]}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass-dark border-white/10">
-                  <DropdownMenuItem className="text-muted-foreground text-xs">{user.email}</DropdownMenuItem>
+                <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[200px] p-2">
+                  <div className="px-2 py-1.5 mb-1">
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
                   <DropdownMenuSeparator className="bg-white/5" />
                   
                   {isAdmin && (
                     <>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center w-full cursor-pointer">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          {t(dictionary.adminPanel)}
+                        <Link href="/admin" className="flex items-center w-full cursor-pointer py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
+                          <LayoutDashboard className="w-4 h-4 mr-2 text-primary" />
+                          <span className="font-bold">{t(dictionary.adminPanel)}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-white/5" />
                     </>
                   )}
 
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
+                  <DropdownMenuItem onClick={handleLogout} className="flex items-center w-full cursor-pointer py-2 px-3 rounded-lg hover:bg-destructive/10 text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
-                    {t(dictionary.logout)}
+                    <span className="font-medium">{t(dictionary.logout)}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
