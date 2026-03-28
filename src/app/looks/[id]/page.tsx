@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState } from 'react';
@@ -131,7 +132,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     <div className="min-h-[calc(100vh-80px)] bg-background text-foreground flex items-center justify-center py-4 lg:py-6 overflow-hidden">
       <div className="container mx-auto px-4 max-w-6xl">
         
-        <div className="grid lg:grid-cols-12 gap-8 items-start relative">
+        <div className="grid lg:grid-cols-12 gap-8 items-end relative">
           
           {/* Back Button */}
           <Button 
