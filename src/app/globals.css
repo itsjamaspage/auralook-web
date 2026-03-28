@@ -51,8 +51,11 @@
   100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
 }
 
-body {
+:root {
   animation: master-sync-pulse 10s infinite linear;
+}
+
+body {
   @apply bg-background text-foreground font-body antialiased;
 }
 

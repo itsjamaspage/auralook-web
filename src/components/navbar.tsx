@@ -43,16 +43,13 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3 border border-white/10">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-black tracking-tighter transition-all duration-500 neon-text">
+          <span className="text-2xl font-black tracking-tighter neon-text">
             Auralook.uz
           </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/looks" className="text-white/80 hover:neon-text transition-colors">{t(dictionary.browseLooks)}</Link>
-          {user && (
-            <Link href="/orders" className="text-white/80 hover:neon-text transition-colors">{t(dictionary.myOrders)}</Link>
-          )}
         </div>
 
         <div className="flex items-center gap-4">
