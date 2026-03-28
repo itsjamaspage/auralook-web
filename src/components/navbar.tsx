@@ -27,7 +27,7 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-black tracking-tighter neon-text">Auralook.uz</span>
+          <span className="text-2xl font-black tracking-tighter neon-text transition-none">Auralook.uz</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
