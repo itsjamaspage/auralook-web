@@ -4,9 +4,7 @@ import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ShieldCheck, Truck, RefreshCcw, Loader2 } from 'lucide-react';
-import { SizeAdvisorModal } from '@/components/size-advisor-modal';
-import { Badge } from '@/components/ui/badge';
+import { ShoppingCart, ShieldCheck, Truck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
@@ -118,19 +116,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           <div className="space-y-6">
             <div className="flex items-baseline gap-4">
               <span className="text-4xl font-black neon-text">
-                {look.price}
+                {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
               </span>
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
-                {look.currency || 'USD'}
-              </span>
-            </div>
-
-            <div className="p-6 glass-dark rounded-[2rem] border border-white/5 space-y-4 bg-white/[0.02]">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Size Guidance</p>
-              <SizeAdvisorModal />
-              <p className="text-[10px] text-white/20 text-center uppercase tracking-widest font-mono">
-                Powered by Auralook AI Engine
-              </p>
             </div>
           </div>
 

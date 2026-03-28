@@ -248,9 +248,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (typeof translations === 'string') return translations;
     // Robust access for objects
     try {
-      return translations[lang] || translations['uz'] || translations['en'] || '';
+      return (translations && typeof translations === 'object') 
+        ? (translations[lang] || translations['uz'] || translations['en'] || '')
+        : String(translations || '');
     } catch (e) {
-      return '';
+      return String(translations || '');
     }
   };
 

@@ -7,8 +7,12 @@ export type Language = 'uz';
 export function useLanguage() {
   const [lang] = useState<Language>('uz');
 
-  const t = (translations: Record<Language, string>) => {
-    return translations[lang];
+  const t = (translations: any) => {
+    if (!translations) return '';
+    if (typeof translations === 'string') return translations;
+    return (translations && typeof translations === 'object') 
+      ? (translations[lang] || translations['uz'] || '')
+      : String(translations || '');
   };
 
   const dictionary = {

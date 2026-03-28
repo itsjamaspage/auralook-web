@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -51,7 +50,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl">
-      {/* Refined Terminal Header */}
       <div className="flex items-center justify-between border-b border-white/10 pb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 neon-bg rounded-full" />
@@ -68,7 +66,6 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      {/* Main Catalog View */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <LayoutGrid className="w-5 h-5 neon-text" />
@@ -112,10 +109,7 @@ export default function AdminDashboard() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-black neon-text">
-                          {look.price}
-                        </span>
-                        <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">
-                          {look.currency || 'USD'}
+                          {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                         </span>
                       </div>
                     </TableCell>

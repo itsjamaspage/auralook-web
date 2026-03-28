@@ -64,10 +64,7 @@ export default function LooksPage() {
                   </div>
                   <div className="text-right">
                     <span className="text-lg font-black neon-text block">
-                      {look.price}
-                    </span>
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                      {look.currency || 'USD'}
+                      {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                     </span>
                   </div>
                 </div>
