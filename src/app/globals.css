@@ -95,20 +95,6 @@ body {
   transition: stroke 0.5s ease;
 }
 
-@keyframes stream-down {
-  0% { transform: translateY(-100%); opacity: 0; }
-  50% { opacity: 0.3; }
-  100% { transform: translateY(100vh); opacity: 0; }
-}
-
-.data-stream {
-  position: absolute;
-  width: 1px;
-  height: 150px;
-  background: linear-gradient(to bottom, transparent, var(--sync-color), transparent);
-  animation: stream-down 12s infinite linear;
-}
-
 .hero-glow {
   position: absolute;
   background: radial-gradient(circle, var(--sync-color) 0%, transparent 70%);

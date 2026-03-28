@@ -50,18 +50,18 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl">
-      {/* Sleeker Terminal Header */}
+      {/* Refined Terminal Header */}
       <div className="flex items-center justify-between border-b border-white/10 pb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 neon-bg rounded-full" />
-          <h1 className="text-lg font-black tracking-tight neon-text uppercase italic">
+          <h1 className="text-base font-black tracking-tighter neon-text uppercase italic">
             {t(dictionary.adminDashboard)}
           </h1>
         </div>
         
         <Link href="/admin/looks/new">
-          <Button className="neon-bg text-black font-black px-6 rounded-xl h-12 transition-transform hover:scale-105 active:scale-95 border-none">
-            <Plus className="w-5 h-5 mr-2" />
+          <Button className="neon-bg text-black font-black px-6 rounded-xl h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs">
+            <Plus className="w-4 h-4 mr-2" />
             {t(dictionary.newLook)}
           </Button>
         </Link>
@@ -70,8 +70,8 @@ export default function AdminDashboard() {
       {/* Main Catalog View */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <LayoutGrid className="w-6 h-6 neon-text" />
-          <h2 className="text-xl font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
+          <LayoutGrid className="w-5 h-5 neon-text" />
+          <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
         </div>
 
         <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">

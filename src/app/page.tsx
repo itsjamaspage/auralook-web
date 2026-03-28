@@ -22,19 +22,6 @@ export default function Home() {
         <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[140px] animate-float" />
 
-        {/* Vertical Data Streams */}
-        {mounted && [...Array(12)].map((_, i) => (
-          <div 
-            key={i} 
-            className="data-stream" 
-            style={{ 
-              left: `${(i + 1) * 8}%`, 
-              animationDelay: `${i * 0.8}s`,
-              animationDuration: `${10 + Math.random() * 5}s`
-            }} 
-          />
-        ))}
-
         {/* Animated Energy Lanes connecting brand points */}
         {mounted && (
           <svg className="absolute inset-0 w-full h-full opacity-60">
@@ -76,7 +63,7 @@ export default function Home() {
             {t(dictionary.heroTitle)}
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed">
             {t(dictionary.heroSub)}
           </p>
 
