@@ -35,50 +35,42 @@ export default function Home() {
           />
         ))}
 
-        {/* Messy Animated Energy Lanes Connecting Brand Points */}
+        {/* Animated Energy Lanes connecting brand points */}
         {mounted && (
-          <svg className="absolute inset-0 w-full h-full opacity-40">
-            <defs>
-              <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="var(--primary)" />
-                <stop offset="50%" stopColor="var(--secondary)" />
-                <stop offset="100%" stopColor="var(--accent)" />
-              </linearGradient>
-            </defs>
-            {/* Connection: Top Left (Auralook.uz) to Center (Next Gen Style) */}
+          <svg className="absolute inset-0 w-full h-full opacity-60">
+            {/* Connection: Top Left (Logo Area) to Center (Hero Title) */}
             <path 
-              d="M 50,50 Q 150,300 500,400 T 800,200" 
+              d="M 100,100 Q 200,400 500,450" 
               fill="none" 
-              stroke="url(#neonGradient)" 
-              strokeWidth="1.5" 
-              className="energy-line neon-text"
-              style={{ animationDelay: '0s', animationDuration: '12s' }}
+              stroke="currentColor" 
+              strokeWidth="2" 
+              className="energy-line"
             />
-            {/* Connection: Center to Bottom Button Area */}
+            {/* Connection: Hero Title to Browse Looks Button */}
             <path 
-              d="M 800,200 Q 600,600 500,800 S 200,900 100,600" 
+              d="M 500,450 Q 500,700 500,800" 
               fill="none" 
-              stroke="url(#neonGradient)" 
-              strokeWidth="1" 
-              className="energy-line neon-text"
-              style={{ animationDelay: '2s', animationDuration: '15s' }}
+              stroke="currentColor" 
+              strokeWidth="2" 
+              className="energy-line"
+              style={{ animationDelay: '2s' }}
             />
-            {/* Messy Random Paths */}
+            {/* Messy Random Interconnections */}
             <path 
               d="M -100,500 L 1200,100 Q 600,900 1300,500" 
               fill="none" 
-              stroke="url(#neonGradient)" 
-              strokeWidth="0.5" 
-              className="energy-line neon-text"
-              style={{ animationDelay: '5s', animationDuration: '18s' }}
+              stroke="currentColor" 
+              strokeWidth="1" 
+              className="energy-line"
+              style={{ animationDelay: '5s' }}
             />
             <path 
               d="M 1000,-100 Q 200,500 1100,1100" 
               fill="none" 
-              stroke="url(#neonGradient)" 
-              strokeWidth="1" 
-              className="energy-line neon-text"
-              style={{ animationDelay: '1s', animationDuration: '14s' }}
+              stroke="currentColor" 
+              strokeWidth="1.5" 
+              className="energy-line"
+              style={{ animationDelay: '1s' }}
             />
           </svg>
         )}
