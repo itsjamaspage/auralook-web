@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ShieldCheck, Mail, Lock, Send } from 'lucide-react';
@@ -39,7 +38,6 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
-          // Check if any admin exists.
           const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
           const adminSnapshot = await getDocs(adminRolesQuery);
           const noAdminsExist = adminSnapshot.empty;
@@ -52,10 +50,8 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
-          // Store/Update user profile
           await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
 
-          // Grant admin if no admins exist OR if this is the specific owner email
           if (noAdminsExist || newUser.email === 'jkhakimjonov8@gmail.com') {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             toast({
@@ -91,9 +87,9 @@ export default function LoginPage() {
       <Card className="w-full max-w-md glass-dark border-2 border-white/10 rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">
         <CardHeader className="text-center p-0 space-y-2">
           <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
-            <ShieldCheck className="w-8 h-8 text-primary" />
+            <ShieldCheck className="w-8 h-8 text-primary neon-text" />
           </div>
-          <CardTitle className="text-3xl font-black tracking-tighter">
+          <CardTitle className="text-3xl font-black tracking-tighter neon-text">
             {isLogin ? t(dictionary.welcomeBack) : t(dictionary.createAccount)}
           </CardTitle>
           <CardDescription className="text-muted-foreground font-light">
@@ -105,7 +101,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">{t(dictionary.email)}</Label>
+                <Label htmlFor="email" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">{t(dictionary.email)}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <input 
@@ -122,7 +118,7 @@ export default function LoginPage() {
               
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="telegram">{t(dictionary.telegramUsername)}</Label>
+                  <Label htmlFor="telegram" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">{t(dictionary.telegramUsername)}</Label>
                   <div className="relative">
                     <Send className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <input 
@@ -139,7 +135,7 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="password">{t(dictionary.password)}</Label>
+                <Label htmlFor="password" className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">{t(dictionary.password)}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <input 
@@ -167,7 +163,7 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <button 
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline font-bold"
             >
               {isLogin ? t(dictionary.dontHaveAccount) : t(dictionary.alreadyHaveAccount)}
             </button>
