@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Plus, Image as ImageIcon, DollarSign } from 'lucide-react';
+import { Loader2, Plus, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
@@ -53,7 +53,7 @@ export default function NewLookPage() {
     setSaving(true);
     try {
       const lookData = {
-        name: `Look ${new Date().toLocaleDateString()}`, // Using date as a fallback name
+        name: `Look ${new Date().toLocaleDateString()}`,
         description,
         price: parseFloat(price),
         currency,
