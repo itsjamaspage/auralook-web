@@ -1,34 +1,43 @@
 "use client"
 
-import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 
 export default function Home() {
   const { t, dictionary } = useLanguage();
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-look');
 
   return (
     <div className="space-y-24 pb-24">
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6">
-        <div className="hero-glow top-1/4 left-1/4" />
-        <div className="hero-glow bottom-1/4 right-1/4" />
-        
+        {/* Futuristic Background with Neon Glows and Technical Patterns */}
         <div className="absolute inset-0 z-[-1]">
-          <Image 
-            src={heroImage?.imageUrl || "https://picsum.photos/seed/auralook-fashion-2026/1200/800"} 
-            alt="Auralook Fashion" 
-            fill 
-            className="object-cover opacity-60"
-            priority
-            data-ai-hint={heroImage?.imageHint || "techwear fashion"}
+          {/* Solid Base */}
+          <div className="absolute inset-0 bg-background" />
+          
+          {/* Large Primary Glow Orb */}
+          <div className="absolute top-[-15%] left-[-10%] w-[70%] h-[70%] bg-primary/15 rounded-full blur-[140px] animate-pulse" />
+          
+          {/* Secondary Accent Orb */}
+          <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-yellow-500/10 rounded-full blur-[160px] animate-float" />
+          
+          {/* Subtle Technical Grid Overlay */}
+          <div 
+            className="absolute inset-0 opacity-[0.04]" 
+            style={{ 
+              backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+              backgroundSize: '60px 60px'
+            }} 
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
+
+          {/* Center Glow for Depth */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-transparent via-primary/5 to-transparent opacity-50" />
+
+          {/* Bottom Vignette to transition to content */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
         </div>
 
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
