@@ -13,40 +13,30 @@ export default function Home() {
     <div className="space-y-24 pb-24">
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6">
-        {/* Futuristic Cyber-Mesh Background */}
+        {/* Futuristic Ambient Background */}
         <div className="absolute inset-0 z-[-1]">
           {/* Deep Base */}
           <div className="absolute inset-0 bg-[#0a0a0a]" />
           
-          {/* Animated Mesh Glows */}
-          <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-yellow-500/10 rounded-full blur-[150px] animate-float" />
+          {/* Main Neon Glows */}
+          <div className="absolute top-[-10%] left-[-5%] w-[70%] h-[70%] bg-primary/15 rounded-full blur-[140px] animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-yellow-500/10 rounded-full blur-[160px] animate-float" />
           
-          {/* Scanning Lines Effect */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-               style={{ 
-                 backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 3px, transparent 4px)',
-                 backgroundSize: '100% 4px'
-               }} 
-          />
-
-          {/* Technical Perspective Grid */}
-          <div 
-            className="absolute inset-0 opacity-[0.07]" 
-            style={{ 
-              backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-              backgroundSize: '80px 80px',
-              perspective: '1000px',
-              transform: 'rotateX(60deg) translateY(-100px)'
-            }} 
-          />
+          {/* Floating Ambient Particles (Something else instead of grids) */}
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary/40 rounded-full blur-sm animate-float opacity-50" />
+          <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-yellow-400/30 rounded-full blur-sm animate-pulse opacity-40" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-white/20 rounded-full blur-[1px] animate-float opacity-30" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-2/3 right-1/3 w-4 h-4 bg-primary/20 rounded-full blur-md animate-pulse opacity-20" style={{ animationDelay: '0.5s' }} />
 
           {/* Dynamic Light Streaks */}
-          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent blur-sm opacity-20 animate-pulse" />
-          <div className="absolute top-1/3 right-0 w-1/2 h-px bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent blur-sm opacity-20 animate-float" />
+          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent blur-md opacity-20 animate-pulse" />
+          <div className="absolute top-1/3 right-0 w-3/4 h-px bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent blur-sm opacity-10 animate-float" />
+
+          {/* Subtle Color Wash */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,191,0,0.02),transparent_70%)]" />
 
           {/* Bottom Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background" />
         </div>
 
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
