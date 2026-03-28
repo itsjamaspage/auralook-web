@@ -22,7 +22,7 @@ export function Navbar() {
   const auth = useAuth();
   const db = useFirestore();
 
-  // Check if current user is an admin
+  // Check if current user is an admin by looking at roles_order_managers collection
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_order_managers', user.uid);
@@ -43,7 +43,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3 border border-white/5">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3 border border-white/10">
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-2xl font-black tracking-tighter neon-text">Auralook.uz</span>
         </Link>
