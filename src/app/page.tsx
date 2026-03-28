@@ -3,7 +3,7 @@
 
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ShoppingBag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -38,15 +38,6 @@ export default function Home() {
 
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-          
-          {/* Tech Pulse Beacon - Replaces the Boutique Tag */}
-          <div className="flex justify-center mb-8 h-12">
-            <div className="relative flex items-center justify-center">
-              <div className="absolute w-12 h-12 rounded-full animate-neon-border border-2 opacity-20 animate-ping" />
-              <div className="absolute w-8 h-8 rounded-full animate-neon-border border-2 opacity-40 animate-pulse" />
-              <div className="w-3 h-3 rounded-full animate-neon-bg shadow-[0_0_15px_currentColor]" />
-            </div>
-          </div>
           
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 animate-neon-text">
             {t(dictionary.heroTitle)}
