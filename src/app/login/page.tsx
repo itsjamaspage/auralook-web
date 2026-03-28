@@ -51,6 +51,7 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
+          // Always set user data on signup or if it's the first user ever
           if (!isLogin || isFirstUser) {
             await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
           }

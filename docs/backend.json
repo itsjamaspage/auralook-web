@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -37,273 +38,6 @@
         "updatedAt"
       ]
     },
-    "Admin": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Admin",
-      "type": "object",
-      "description": "Represents an administrator user with permissions to manage the store's content and orders.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Admin entity."
-        },
-        "email": {
-          "type": "string",
-          "description": "The admin's email address for authentication and contact.",
-          "format": "email"
-        },
-        "name": {
-          "type": "string",
-          "description": "The full name of the administrator."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the admin account was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the admin account was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "email",
-        "name",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
-    "Look": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Look",
-      "type": "object",
-      "description": "Represents a curated outfit or lookbook entry, often consisting of multiple products, displayed with multi-language support.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Look entity."
-        },
-        "titleEn": {
-          "type": "string",
-          "description": "The title of the look in English."
-        },
-        "titleUz": {
-          "type": "string",
-          "description": "The title of the look in Uzbek."
-        },
-        "titleRu": {
-          "type": "string",
-          "description": "The title of the look in Russian."
-        },
-        "descriptionEn": {
-          "type": "string",
-          "description": "A detailed description of the look in English, potentially AI-generated for SEO."
-        },
-        "descriptionUz": {
-          "type": "string",
-          "description": "A detailed description of the look in Uzbek, potentially AI-generated for SEO."
-        },
-        "descriptionRu": {
-          "type": "string",
-          "description": "A detailed description of the look in Russian, potentially AI-generated for SEO."
-        },
-        "mainImageUrl": {
-          "type": "string",
-          "description": "URL to the high-resolution main image of the look.",
-          "format": "uri"
-        },
-        "thumbnailImageUrl": {
-          "type": "string",
-          "description": "URL to a lower-resolution thumbnail image for previews.",
-          "format": "uri"
-        },
-        "adminId": {
-          "type": "string",
-          "description": "Reference to the Admin who created or last updated this look. (Relationship: Admin 1:N Look)"
-        },
-        "productIds": {
-          "type": "array",
-          "description": "References to Products that are part of this look. (Relationship: Look N:N Product)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the look was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the look was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "titleEn",
-        "titleUz",
-        "titleRu",
-        "descriptionEn",
-        "descriptionUz",
-        "descriptionRu",
-        "mainImageUrl",
-        "adminId",
-        "productIds",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
-    "Product": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Product",
-      "type": "object",
-      "description": "Represents an individual clothing item available in the store's catalog, with multi-language descriptions.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Product entity."
-        },
-        "nameEn": {
-          "type": "string",
-          "description": "The name of the product in English."
-        },
-        "nameUz": {
-          "type": "string",
-          "description": "The name of the product in Uzbek."
-        },
-        "nameRu": {
-          "type": "string",
-          "description": "The name of the product in Russian."
-        },
-        "descriptionEn": {
-          "type": "string",
-          "description": "A detailed, SEO-friendly description of the product in English, potentially AI-generated."
-        },
-        "descriptionUz": {
-          "type": "string",
-          "description": "A detailed, SEO-friendly description of the product in Uzbek, potentially AI-generated."
-        },
-        "descriptionRu": {
-          "type": "string",
-          "description": "A detailed, SEO-friendly description of the product in Russian, potentially AI-generated."
-        },
-        "brand": {
-          "type": "string",
-          "description": "The brand of the product."
-        },
-        "category": {
-          "type": "string",
-          "description": "The category of the product (e.g., 'Shirt', 'Pants', 'Dress')."
-        },
-        "price": {
-          "type": "number",
-          "description": "The current price of the product."
-        },
-        "currency": {
-          "type": "string",
-          "description": "The currency in which the product is priced (e.g., 'UZS', 'USD')."
-        },
-        "availableSizes": {
-          "type": "array",
-          "description": "A list of available sizes for this product (e.g., 'S', 'M', 'L', 'XL', 'XXL').",
-          "items": {
-            "type": "string"
-          }
-        },
-        "mainImageUrl": {
-          "type": "string",
-          "description": "URL to the high-resolution main image of the product.",
-          "format": "uri"
-        },
-        "thumbnailImageUrl": {
-          "type": "string",
-          "description": "URL to a lower-resolution thumbnail image for previews.",
-          "format": "uri"
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the product was added to the catalog.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the product was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "nameEn",
-        "nameUz",
-        "nameRu",
-        "descriptionEn",
-        "descriptionUz",
-        "descriptionRu",
-        "brand",
-        "category",
-        "price",
-        "currency",
-        "availableSizes",
-        "mainImageUrl",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
-    "UserMeasurement": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "UserMeasurement",
-      "type": "object",
-      "description": "Stores a user's physical measurements and preferences for the AI Smart Size Advisor.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the UserMeasurement entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to the User associated with these measurements. (Relationship: User 1:N UserMeasurement)"
-        },
-        "heightCm": {
-          "type": "number",
-          "description": "The user's height in centimeters."
-        },
-        "weightKg": {
-          "type": "number",
-          "description": "The user's weight in kilograms."
-        },
-        "gender": {
-          "type": "string",
-          "description": "The user's gender, used for size recommendations (e.g., 'male', 'female', 'other')."
-        },
-        "desiredFit": {
-          "type": "string",
-          "description": "The user's preference for clothing fit (e.g., 'tight', 'regular', 'loose')."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when these measurements were recorded.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when these measurements were last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "heightCm",
-        "weightKg",
-        "gender",
-        "desiredFit",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
     "Order": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Order",
@@ -316,7 +50,15 @@
         },
         "userId": {
           "type": "string",
-          "description": "Reference to the User who placed the order. (Relationship: User 1:N Order)"
+          "description": "Reference to the User who placed the order."
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Name of the customer for quick access."
+        },
+        "telegramUsername": {
+          "type": "string",
+          "description": "Telegram handle for order updates."
         },
         "orderDate": {
           "type": "string",
@@ -325,36 +67,15 @@
         },
         "status": {
           "type": "string",
-          "description": "The current status of the order (e.g., 'New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled')."
+          "description": "The current status of the order (e.g., 'New', 'Confirmed', 'Shipped', 'Delivered')."
         },
         "totalAmount": {
           "type": "number",
-          "description": "The total monetary amount of the order, including shipping and taxes."
+          "description": "The total monetary amount of the order."
         },
-        "currency": {
+        "lookId": {
           "type": "string",
-          "description": "The currency of the order's total amount (e.g., 'UZS', 'USD')."
-        },
-        "shippingAddress": {
-          "type": "string",
-          "description": "The full shipping address for the order."
-        },
-        "billingAddress": {
-          "type": "string",
-          "description": "The full billing address for the order, if different from shipping."
-        },
-        "telegramNotificationSent": {
-          "type": "boolean",
-          "description": "Flag indicating if an automated Telegram notification for this order's status has been sent to the customer."
-        },
-        "adminNotes": {
-          "type": "string",
-          "description": "Internal notes added by an administrator regarding the order."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the order record was created.",
-          "format": "date-time"
+          "description": "Reference to the Look purchased."
         },
         "updatedAt": {
           "type": "string",
@@ -365,53 +86,9 @@
       "required": [
         "id",
         "userId",
-        "orderDate",
         "status",
         "totalAmount",
-        "currency",
-        "shippingAddress",
-        "createdAt",
         "updatedAt"
-      ]
-    },
-    "OrderItem": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "OrderItem",
-      "type": "object",
-      "description": "Represents a single product item within an order, detailing the specific product, quantity, and price at the time of purchase.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the OrderItem entity."
-        },
-        "orderId": {
-          "type": "string",
-          "description": "Reference to the parent Order. (Relationship: Order 1:N OrderItem)"
-        },
-        "productId": {
-          "type": "string",
-          "description": "Reference to the Product purchased. (Relationship: Product 1:N OrderItem)"
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The quantity of the product ordered."
-        },
-        "priceAtOrder": {
-          "type": "number",
-          "description": "The unit price of the product at the time the order was placed."
-        },
-        "size": {
-          "type": "string",
-          "description": "The specific size of the product item ordered (e.g., 'S', 'M', 'L')."
-        }
-      },
-      "required": [
-        "id",
-        "orderId",
-        "productId",
-        "quantity",
-        "priceAtOrder",
-        "size"
       ]
     }
   },
@@ -430,128 +107,32 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores core user profile information. Access is restricted to the owner of the user profile, identified by `request.auth.uid` matching the `{userId}` wildcard.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user, matching `request.auth.uid`."
-            }
-          ]
+          "description": "Stores core user profile information."
         }
       },
       {
-        "path": "/admins/{adminId}",
+        "path": "/roles_order_managers/{userId}",
         "definition": {
-          "entityName": "Admin",
+          "entityName": "AdminRole",
           "schema": {
-            "$ref": "#/backend/entities/Admin"
-          },
-          "description": "Stores administrative user profiles. The existence of a document in this collection for a given UID signifies an admin role, used for Database-Backed Access Control (DBAC).",
-          "params": [
-            {
-              "name": "adminId",
-              "description": "The unique ID of the administrator, matching `request.auth.uid`."
+            "type": "object",
+            "properties": {
+              "userId": { "type": "string" }
             }
-          ]
+          },
+          "description": "Presence of a UID here grants Admin privileges."
         }
       },
       {
-        "path": "/looks/{lookId}",
-        "definition": {
-          "entityName": "Look",
-          "schema": {
-            "$ref": "#/backend/entities/Look"
-          },
-          "description": "Publicly accessible curated outfits (lookbook entries). Read access is public for all users, while write access is restricted to administrators.",
-          "params": [
-            {
-              "name": "lookId",
-              "description": "The unique ID of the look."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/products/{productId}",
-        "definition": {
-          "entityName": "Product",
-          "schema": {
-            "$ref": "#/backend/entities/Product"
-          },
-          "description": "Publicly accessible catalog of clothing items. Read access is public for all users, while write access is restricted to administrators.",
-          "params": [
-            {
-              "name": "productId",
-              "description": "The unique ID of the product."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/measurements/{measurementId}",
-        "definition": {
-          "entityName": "UserMeasurement",
-          "schema": {
-            "$ref": "#/backend/entities/UserMeasurement"
-          },
-          "description": "Stores personal physical measurements and preferences for the AI Smart Size Advisor, private to each user. Includes denormalized `userId` field (matching the path parameter) for robust authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the owner user."
-            },
-            {
-              "name": "measurementId",
-              "description": "The unique ID of the user's measurement record."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/orders/{orderId}",
+        "path": "/orders/{orderId}",
         "definition": {
           "entityName": "Order",
           "schema": {
             "$ref": "#/backend/entities/Order"
           },
-          "description": "User-specific purchase orders. Users can manage their own orders, and administrators have full access. Includes denormalized `userId` field (matching the path parameter) for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user who placed the order."
-            },
-            {
-              "name": "orderId",
-              "description": "The unique ID of the order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/orders/{orderId}/items/{orderItemId}",
-        "definition": {
-          "entityName": "OrderItem",
-          "schema": {
-            "$ref": "#/backend/entities/OrderItem"
-          },
-          "description": "Individual product items within a specific order. Access is inherited from the parent order, ensuring that only the order owner or an administrator can view or modify order items. Includes denormalized `userId` and `orderId` (derived from the path) for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user who owns the parent order."
-            },
-            {
-              "name": "orderId",
-              "description": "The unique ID of the parent order."
-            },
-            {
-              "name": "orderItemId",
-              "description": "The unique ID of the specific item within the order."
-            }
-          ]
+          "description": "Customer orders visible to owners and admins."
         }
       }
-    ],
-    "reasoning": "The Firestore data structure for JamaStore is designed to be secure, scalable, and debuggable by strictly adhering to the core design principles, especially Authorization Independence and QAPs (Query-Agnostic Rules).\n\n**Authorization Independence (CRITICAL):**\nThis principle is achieved by eliminating the need for `get()` calls in security rules, which inherently breaks atomic operations and adds complexity. Instead, authorization-relevant fields are denormalized:\n*   For **User-specific private data** (e.g., `/users/{userId}/measurements/{measurementId}` and `/users/{userId}/orders/{orderId}`), the `userId` is present both in the document path and denormalized as a field within the document itself (e.g., `UserMeasurement.userId`, `Order.userId`). This enables security rules to evaluate `request.auth.uid == userId` directly, ensuring atomic operations and simplified rule logic without needing to read parent documents.\n*   For **OrderItems** (`/users/{userId}/orders/{orderId}/items/{orderItemId}`), the `userId` and `orderId` from the hierarchical path directly provide the necessary authorization context. This inherently ties access to the specific user's order without additional lookups.\n*   For **Publicly accessible, Admin-managed data** like `/looks` and `/products`, authorization for write operations relies on a global role check. This check (`exists(/admins/$(request.auth.uid))`) is entirely independent of the specific document's content, further simplifying rules and ensuring independence.\n\n**QAPs (Rules are not Filters):**\nThe structure supports efficient and secure `list` operations, meaning security rules are not used to filter results, but to validate access to *all* documents a query might return.\n*   **Public Collections:** `/looks` and `/products` are designed for public read access. Any user can efficiently list and browse these collections as there are no inherent security filters required for reads.\n*   **Private User Data:** Collections like `/users/{userId}/measurements` and `/users/{userId}/orders` are structured as subcollections. This path-based ownership ensures that a user can only query and list their *own* measurements and orders, as `request.auth.uid` must match the `{userId}` wildcard in the path. This inherently restricts `list` operations to the authenticated user's data, making rules simple (`allow read: if request.auth.uid == userId`).\n*   **Admin Access:** Administrators (identified via the `/admins/{adminId}` collection for DBAC) have broad read/write access. While a single query for *all* orders across all users might require advanced indexing or Cloud Functions (not covered by basic security rules), the current structure maintains strong security for user-specific listing and allows admins to access specific orders by path.\n\n**Structural Segregation (Homogeneous Security Posture):**\n*   Collections like `/looks` and `/products` hold data with a consistent security posture (public read, admin write). \n*   User-specific data (`measurements`, `orders`) is strictly segregated under `/users/{userId}`, ensuring all documents within these subcollections share the same ownership-based security requirements.\n*   The `/admins` collection is dedicated solely to storing admin roles, separating it from general user profiles or application data.\n\n**Access Modeling & DBAC:**\n*   **Private Data:** `/users/{userId}`, `/users/{userId}/measurements`, `/users/{userId}/orders` consistently use a path-based ownership model, directly tying access to `request.auth.uid == userId`.\n*   **Global Roles (DBAC):** The `/admins/{adminId}` collection serves as the central point for Database-Backed Access Control. An authenticated user is granted 'admin' privileges if a document exists at `/admins/$(request.auth.uid)`. This allows for simple, performant existence checks in security rules to grant elevated privileges.\n\n**Data Clarity and Predictability:**\n*   Standardized authorization fields, such as `userId` and `orderId`, are used consistently across relevant collections.\n*   Wildcard names (`{userId}`, `{lookId}`, `{orderId}`) are descriptive and semantically clear.\n*   The `Order` entity explicitly uses a `status` field for clear state management, rather than relying on inferred states from multiple booleans or timestamps. This makes the application logic and security rules more straightforward.\n\nThis robust structure provides a clear, secure, and maintainable foundation for the JamaStore application, minimizing the complexity of Firestore Security Rules and directly supporting all critical application features outlined."
+    ]
   }
 }
