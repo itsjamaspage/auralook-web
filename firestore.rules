@@ -1,86 +1,125 @@
+/**
+ * JamaStore Security Rules
+ *
+ * Core Philosophy:
+ * This ruleset implements a hybrid security model combining strict User-Ownership for personal data 
+ * and Database-Backed Access Control (DBAC) for administrative functions. The system is designed 
+ * around "Authorization Independence," ensuring that security decisions are made efficiently using 
+ * path parameters and denormalized fields, minimizing the need for expensive cross-document lookups.
+ *
+ * Data Structure:
+ * - /users/{userId}: Private user profiles.
+ * - /admins/{adminId}: A protected collection where the presence of a UID grants global admin rights.
+ * - /looks/{lookId} & /products/{productId}: Publicly readable catalogs managed by admins.
+ * - /users/{userId}/measurements: Private, user-specific physical data for AI sizing.
+ * - /users/{userId}/orders: User-specific order history, also accessible by admins for fulfillment.
+ *
+ * Key Security Decisions:
+ * 1. Admin status is determined by document existence in the /admins collection.
+ * 2. Public catalogs (Looks, Products) allow 'get' and 'list' for all users (including anonymous/unauthenticated).
+ * 3. User-specific paths (/users/{userId}/...) strictly enforce that the {userId} wildcard matches 
+ *    the authenticated user's UID (request.auth.uid).
+ * 4. Critical relational fields (like userId within an Order) are validated on creation to match the path 
+ *    and are marked as immutable on update to prevent data hijacking.
+ * 5. Prototyping Mode: Schema validation (data types, optional fields) is omitted to allow for 
+ *    rapid frontend iteration, focusing purely on secure authorization.
+ */
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * Auralook.uz Security Rules
-     * 
-     * CORE PHILOSOPHY:
-     * This ruleset implements a strict identity-based security model designed for the Auralook.uz 
-     * multi-language lookbook and e-commerce platform. It prioritizes Authorization Independence 
-     * by using denormalized identifiers (like userId) within documents to perform high-performance 
-     * security checks without nested lookups.
-     * 
-     * DATA STRUCTURE:
-     * - /users & /userProfiles: Use path-based ownership where the Document ID matches the Auth UID.
-     * - /looks: Publicly accessible content restricted for modification to specific creators.
-     * - /orders: Private transaction data accessible by the owner or authorized order managers.
-     * - /roles_*: Database-Backed Access Control (DBAC) collections defining administrative privileges.
-     * 
-     * KEY SECURITY DECISIONS:
-     * 1. Public Content: Looks are readable by everyone to facilitate SEO and social sharing.
-     * 2. DBAC: Administrative actions (managing orders, creating looks) are governed by membership 
-     *    in specific role collections, removing the need for a monolithic admin dashboard entity.
-     * 3. Immutability: Critical relational fields, such as the owner of an order or profile, 
-     *    are enforced as immutable once created to prevent privilege escalation.
-     * 4. Existence Checks: All update and delete operations require the document to exist 
-     *    pre-operation to ensure state integrity.
-     */
+    // --- HELPER FUNCTIONS ---
 
-    // --- Global Helper Functions ---
-
-    /** Checks if the user is authenticated with Firebase Auth. */
+    /** @description Checks if the user is authenticated with any provider. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** Checks if the current user's UID matches the provided ID (Path-based ownership). */
+    /** @description Checks if the authenticated user's UID matches the provided userId. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** Checks if the user owns the existing document (Resource-based ownership). */
-    function isDataOwner(ownerId) {
-      return isSignedIn() && request.auth.uid == ownerId;
+    /** @description Checks if the authenticated user exists in the 'admins' collection. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    /** Verifies a document exists and is owned by the current user. */
+    /** @description Combines ownership check with document existence for updates and deletes. */
     function isExistingOwner(userId) {
       return resource != null && isOwner(userId);
     }
 
-    /** 
-     * Checks for a specific role by looking for a document in a role collection.
-     * DBAC: Database-Backed Access Control.
-     */
-    function hasRole(roleCollection) {
-      return isSignedIn() && exists(/databases/$(database)/documents/$(roleCollection)/$(request.auth.uid));
+    /** @description Checks if the user is an admin and the document exists. */
+    function isExistingAdmin() {
+      return resource != null && isAdmin();
     }
 
-    // --- Collection Rules ---
+    // --- COLLECTION RULES ---
 
     /**
-     * @description Rules for core user accounts. Access is strictly private.
+     * @description Rules for the User profile. Users can manage their own profiles; Admins have read access.
      * @path /users/{userId}
-     * @allow get, list, create, update: if the auth UID matches the {userId} path.
-     * @deny update: if the user is not the owner or if the document doesn't exist.
-     * @principle Restricts access to a user's own data tree using path-based authorization.
+     * @allow (get) If auth.uid == "user123"
+     * @deny (write) If auth.uid == "user456" trying to update "user123"
+     * @principle Ownership pattern for personal profiles.
      */
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin(); // Only admins should be able to list all users
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if false; // Users typically cannot self-delete in this workflow.
+      allow update: if isExistingOwner(userId) || isAdmin();
+      allow delete: if isAdmin(); // Only admins can delete user accounts
     }
 
     /**
-     * @description Rules for AI Smart Size Advisor profiles.
-     * @path /userProfiles/{userId}
-     * @allow create: if owner AND the internal 'userId' field matches their UID.
-     * @deny update: if attempting to change the 'userId' link to another user.
-     * @principle Validates relational integrity between path and document data.
+     * @description Stores administrative roles. Only existing admins can manage this collection.
+     * @path /admins/{adminId}
+     * @allow (get) If auth.uid is in the admins collection.
+     * @deny (create) If an unauthenticated user tries to make themselves an admin.
+     * @principle Database-Backed Access Control (DBAC).
      */
-    match /userProfiles/{userId} {
+    match /admins/{adminId} {
+      allow get: if isSignedIn(); // Users may need to check if they are admins
+      allow list: if isAdmin();
+      allow create, update, delete: if false; // Admin provisioning should happen via Admin SDK/Console for safety
+    }
+
+    /**
+     * @description Publicly readable lookbook entries. Writes restricted to admins.
+     * @path /looks/{lookId}
+     * @allow (list) Any visitor viewing the catalog.
+     * @deny (create) Any non-admin user.
+     * @principle Public read with restricted write access.
+     */
+    match /looks/{lookId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isExistingAdmin();
+    }
+
+    /**
+     * @description Publicly readable product catalog. Writes restricted to admins.
+     * @path /products/{productId}
+     * @allow (get) Any visitor viewing a product detail page.
+     * @deny (update) Any non-admin user.
+     * @principle Public read with restricted write access.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isExistingAdmin();
+    }
+
+    /**
+     * @description Private user physical measurements. Restricted to the owner.
+     * @path /users/{userId}/measurements/{measurementId}
+     * @allow (create) If userId in path matches auth.uid and userId in data.
+     * @deny (list) If auth.uid does not match the userId in the path.
+     * @principle Ownership and relational integrity.
+     */
+    match /users/{userId}/measurements/{measurementId} {
       allow get, list: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
@@ -88,55 +127,31 @@ service cloud.firestore {
     }
 
     /**
-     * @description Rules for the public Lookbook.
-     * @path /looks/{lookId}
-     * @allow get, list: if true (Publicly accessible).
-     * @deny create, update, delete: if the user lacks the 'look_creator' role.
-     * @principle Implements Public Read with Role-Based Writes.
+     * @description User-specific orders. Owners and Admins can access.
+     * @path /users/{userId}/orders/{orderId}
+     * @allow (get) User viewing their own order or Admin viewing any order.
+     * @deny (update) User trying to change an order belonging to someone else.
+     * @principle Shared access between owner and management role.
      */
-    match /looks/{lookId} {
-      allow get, list: if true;
-      allow create: if hasRole('roles_look_creators');
-      allow update, delete: if resource != null && hasRole('roles_look_creators');
-    }
-
-    /**
-     * @description Rules for customer orders.
-     * @path /orders/{orderId}
-     * @allow create: if signed in and setting themselves as the owner.
-     * @allow update: if user is the order owner or has the 'order_manager' role.
-     * @deny list: for any user who is neither the owner nor a manager.
-     * @principle Uses denormalized ownership (userId) for Authorization Independence.
-     */
-    match /orders/{orderId} {
-      allow get, list: if isDataOwner(resource.data.userId) || hasRole('roles_order_managers');
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if resource != null && (isDataOwner(resource.data.userId) || hasRole('roles_order_managers')) && request.resource.data.userId == resource.data.userId;
-      allow delete: if resource != null && hasRole('roles_order_managers');
-    }
-
-    /**
-     * @description System role: Order Managers.
-     * @path /roles_order_managers/{userId}
-     * @allow get: if user is signed in (to verify their own or others' status).
-     * @deny list, create, update, delete: to all client-side requests.
-     * @principle DBAC collections are read-only for clients to prevent unauthorized privilege escalation.
-     */
-    match /roles_order_managers/{userId} {
-      allow get: if isSignedIn();
-      allow list, create, update, delete: if false;
-    }
-
-    /**
-     * @description System role: Look Creators.
-     * @path /roles_look_creators/{userId}
-     * @allow get: if user is signed in.
-     * @deny list, create, update, delete: to all client-side requests.
-     * @principle DBAC collections are read-only for clients to prevent unauthorized privilege escalation.
-     */
-    match /roles_look_creators/{userId} {
-      allow get: if isSignedIn();
-      allow list, create, update, delete: if false;
+    match /users/{userId}/orders/{orderId} {
+      allow get, list: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if (isExistingOwner(userId) || isAdmin()) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAdmin(); // Protect order history from user deletion
+      
+      /**
+       * @description Individual items within an order. Inherits security from the order path.
+       * @path /users/{userId}/orders/{orderId}/items/{orderItemId}
+       * @allow (list) Owner listing items in their order.
+       * @deny (create) User adding items to an order they don't own.
+       * @principle Path-based hierarchical authorization.
+       */
+      match /items/{orderItemId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) || isAdmin();
+        allow update: if (isExistingOwner(userId) || isAdmin());
+        allow delete: if isAdmin();
+      }
     }
   }
 }
