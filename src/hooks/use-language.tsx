@@ -7,14 +7,14 @@ export type Language = 'uz' | 'ru' | 'en';
 const dictionary = {
   // Hero & Navigation
   heroTitle: { 
-    uz: 'Yangi avlod kiyimlari',
-    ru: 'Одежда нового поколения',
-    en: 'New Generation Clothing'
+    uz: 'Yangi Avlod kiyimlari',
+    ru: 'Одежды Нового Поколения',
+    en: 'New Generation Clothes'
   },
   heroSub: { 
-    uz: 'Auralook.uz: O\'zbekistonda modaning kelajagi',
-    ru: 'Auralook.uz: Будущее моды в Узбекистане',
-    en: 'Auralook.uz: The Future of Fashion in Uzbekistan'
+    uz: 'Kelajakni kiying, merosni his qiling.',
+    ru: 'Носите будущее, чувствуйте наследие.',
+    en: 'Wear the Future, Feel the Heritage.'
   },
   browseLooks: { 
     uz: 'Liboslarni Ko\'rish',
