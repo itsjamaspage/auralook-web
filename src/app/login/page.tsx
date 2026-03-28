@@ -38,9 +38,17 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
-          const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
-          const adminSnapshot = await getDocs(adminRolesQuery);
-          const noAdminsExist = adminSnapshot.empty;
+          // Check if any admins exist to handle the bootstrap case
+          let noAdminsExist = false;
+          try {
+            const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
+            const adminSnapshot = await getDocs(adminRolesQuery);
+            noAdminsExist = adminSnapshot.empty;
+          } catch (e) {
+            console.warn("Bootstrap check failed, assuming first user is admin or skipping.", e);
+            // If the query fails due to permissions, it might be because the user isn't an admin yet.
+            // But our updated rules allow list for signed-in users.
+          }
 
           const userData = {
             id: newUser.uid,
@@ -50,13 +58,15 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
+          // Update user profile
           await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
 
+          // Grant Admin role if bootstrap or specific email
           if (noAdminsExist || newUser.email === 'jkhakimjonov8@gmail.com') {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             toast({
-              title: "Admin Huquqlari",
-              description: "Siz administrator sifatida tasdiqlandingiz.",
+              title: "Administrator Access",
+              description: "You have been granted administrative privileges.",
             });
           }
         } catch (e) {
