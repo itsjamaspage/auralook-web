@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState } from 'react';
@@ -8,13 +7,12 @@ import { Button } from '@/components/ui/button';
 import { 
   Loader2, 
   Heart,
-  Plus
+  ChevronLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc, query, limit } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +37,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Accessing Metadata...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Loading Metadata...</p>
       </div>
     );
   }
@@ -97,71 +95,87 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const originalPrice = discountVal > 0 ? look.price / (1 - discountVal / 100) : look.price;
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
-      <div className="container mx-auto px-4 lg:px-8 py-6 max-w-7xl">
+    <div className="min-h-screen bg-background text-foreground pb-12 overflow-x-hidden">
+      <div className="container mx-auto px-4 lg:px-8 py-4 max-w-7xl">
         
-        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30 mb-8">
-          <Link href="/looks" className="hover:text-primary transition-colors">Catalog</Link>
-          <span>/</span>
-          <span className="text-white/60">{look.name}</span>
+        <div className="flex items-center justify-between mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => router.back()}
+            className="rounded-full w-10 h-10 p-0 border border-white/10 glass-dark hover:neon-border text-white"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30">
+            <Link href="/looks" className="hover:text-primary transition-colors">Catalog</Link>
+            <span>/</span>
+            <span className="text-white/60">{look.name}</span>
+          </div>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12">
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
           
-          <div className="lg:col-span-7 relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 group">
+          <div className="lg:col-span-7 relative aspect-[4/5] lg:aspect-auto lg:h-[70vh] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group">
             <Image 
               src={look.imageUrl} 
               alt={look.name} 
               fill 
-              className="object-cover transition-transform duration-1000 group-hover:scale-105"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
               priority
+              sizes="(max-width: 768px) 100vw, 60vw"
             />
-            <button className="absolute top-6 right-6 w-12 h-12 rounded-full glass-dark border border-white/10 flex items-center justify-center hover:neon-bg transition-all text-white hover:text-black">
+            {discountVal > 0 && (
+              <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full neon-bg text-black text-[11px] font-black uppercase tracking-tighter shadow-2xl">
+                -{discountVal}% OFF
+              </div>
+            )}
+            <button className="absolute bottom-6 right-6 w-12 h-12 rounded-full glass-dark border border-white/10 flex items-center justify-center hover:neon-bg transition-all text-white hover:text-black">
               <Heart className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="lg:col-span-5 space-y-8 flex flex-col justify-center">
-            <div className="space-y-2">
-              <p className="text-[10px] font-black tracking-[0.3em] text-primary/60 uppercase">System Core // Active</p>
-              <h1 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase italic neon-text leading-tight">
+          <div className="lg:col-span-5 space-y-6 flex flex-col">
+            <div className="space-y-1">
+              <p className="text-[10px] font-black tracking-[0.3em] text-primary/60 uppercase">Collection 2026 // Alpha</p>
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase italic neon-text leading-none">
                 {look.name}
               </h1>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex flex-col">
-                {discountVal > 0 && (
-                  <span className="text-sm text-white/30 line-through font-mono">
-                    {look.currency === 'UZS' ? `UZS ${originalPrice.toLocaleString()}` : `$${originalPrice.toFixed(2)}`}
+            <div className="glass-dark border border-white/5 rounded-2xl p-5 space-y-4">
+              <div className="flex items-end justify-between">
+                <div className="flex flex-col">
+                  {discountVal > 0 && (
+                    <span className="text-xs text-white/30 line-through font-mono">
+                      {look.currency === 'UZS' ? `UZS ${Math.round(originalPrice).toLocaleString()}` : `$${originalPrice.toFixed(2)}`}
+                    </span>
+                  )}
+                  <span className="text-3xl font-black text-white">
+                    {look.currency === 'UZS' ? `UZS ${look.price.toLocaleString()}` : `$${look.price}`}
                   </span>
-                )}
-                <span className="text-3xl font-black text-white">
-                  {look.currency === 'UZS' ? `UZS ${look.price.toLocaleString()}` : `$${look.price}`}
-                </span>
-              </div>
-              {discountVal > 0 && (
-                <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest">
-                  {discountVal}% Disc
                 </div>
-              )}
-            </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Status</p>
+                  <p className="text-[10px] font-bold text-primary uppercase">Ready for Dispatch</p>
+                </div>
+              </div>
 
-            <div className="space-y-4">
-              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Configuration Details</p>
-              <div className="text-sm text-white/70 leading-relaxed font-medium italic whitespace-pre-line glass-dark p-6 rounded-2xl border border-white/5">
-                {look.description}
+              <div className="pt-4 border-t border-white/5">
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Technical Details</p>
+                <div className="text-xs lg:text-sm text-white/70 leading-relaxed font-medium italic whitespace-pre-line">
+                  {look.description}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-               <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Size Matrix</p>
+            <div className="space-y-3">
+               <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Select Size Matrix</p>
                <div className="flex flex-wrap gap-2">
                  {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
                    <button 
                      key={size}
                      onClick={() => setSelectedSize(size)}
-                     className={`w-12 h-12 rounded-xl border font-black text-xs transition-all ${
+                     className={`w-10 h-10 rounded-xl border font-black text-[10px] transition-all ${
                        selectedSize === size 
                        ? 'neon-bg border-none' 
                        : 'border-white/10 glass-dark text-white/40 hover:border-white/30'
@@ -173,44 +187,45 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-6">
-              <Button variant="outline" className="h-14 rounded-2xl border-white/10 glass-dark hover:neon-border text-white font-black text-xs uppercase tracking-widest">
-                Add To Registry
-              </Button>
+            <div className="flex flex-col gap-3 pt-4">
               <Button 
                 onClick={handlePurchase}
                 disabled={isOrdering}
-                className="h-14 rounded-2xl neon-bg text-black font-black text-xs uppercase tracking-widest border-none shadow-2xl"
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black text-xs uppercase tracking-widest border-none shadow-2xl transition-transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : 'Execute Purchase'}
               </Button>
+              <p className="text-[9px] text-center text-white/30 uppercase tracking-[0.2em]">Secure Checkout // Encrypted Session</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-32 space-y-12">
-          <div className="flex items-center justify-between border-b border-white/5 pb-6">
-            <h2 className="text-2xl font-black uppercase italic tracking-tighter">This item can be cool with this</h2>
-            <Link href="/looks" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View All</Link>
+        <div className="mt-20 space-y-8">
+          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <h2 className="text-xl font-black uppercase italic tracking-tighter">Recommended Augmentations</h2>
+            <Link href="/looks" className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">View Repository</Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {recommended?.filter(r => r.id !== id).slice(0, 4).map((item) => (
               <Link key={item.id} href={`/looks/${item.id}`}>
-                <Card className="glass-dark border-white/10 overflow-hidden group hover:neon-border transition-all duration-500 rounded-[2rem]">
+                <div className="glass-dark border border-white/10 overflow-hidden group hover:neon-border transition-all duration-500 rounded-2xl h-full">
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <Image src={item.imageUrl} alt={item.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <button className="absolute bottom-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all">
-                      <Plus className="w-4 h-4" />
-                    </button>
+                    <Image 
+                      src={item.imageUrl} 
+                      alt={item.name} 
+                      fill 
+                      className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
                   </div>
-                  <div className="p-4 space-y-1">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-tighter">{item.name}</p>
-                    <p className="font-black text-sm text-white">
+                  <div className="p-3 space-y-1">
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-tighter truncate">{item.name}</p>
+                    <p className="font-black text-xs text-white">
                       {item.currency === 'UZS' ? `UZS ${item.price.toLocaleString()}` : `$${item.price}`}
                     </p>
                   </div>
-                </Card>
+                </div>
               </Link>
             ))}
           </div>
