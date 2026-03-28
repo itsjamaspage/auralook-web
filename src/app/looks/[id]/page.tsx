@@ -36,7 +36,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Decoding Metadata...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Decoding Metadata...</p>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden pb-24 lg:pb-0">
       {/* Dynamic Background Energy */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
         {mounted && (
@@ -107,76 +107,80 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         )}
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 pt-2 pb-24 max-w-7xl lg:grid lg:grid-cols-12 gap-8 items-center h-full">
+      <div className="relative z-10 container mx-auto px-6 py-4 lg:py-2 max-w-7xl h-full">
         
         {/* TOP NAV BAR - COMPACT */}
-        <div className="flex items-center justify-between w-full mb-2 lg:col-span-12">
+        <div className="flex items-center justify-between w-full mb-6 lg:mb-2">
           <button 
             onClick={() => router.back()}
-            className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors"
+            className="w-10 h-10 lg:w-8 lg:h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5 lg:w-4 lg:h-4" />
           </button>
-          <span className="font-bold tracking-tight text-white/40 uppercase text-[8px] font-mono">TECHNICAL DATA // ID_{look.id.substring(0, 8).toUpperCase()}</span>
-          <button className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors">
-            <MoreHorizontal className="w-4 h-4" />
+          <span className="font-bold tracking-tight text-white/40 uppercase text-[8px] lg:text-[10px] font-mono text-center px-4">
+            TECHNICAL DATA // ID_{look.id.substring(0, 8).toUpperCase()}
+          </span>
+          <button className="w-10 h-10 lg:w-8 lg:h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors">
+            <MoreHorizontal className="w-5 h-5 lg:w-4 lg:h-4" />
           </button>
         </div>
 
-        {/* LEFT COLUMN: TITLE & DESCRIPTION (COMPACT) */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="space-y-1">
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none neon-text uppercase italic">
-              {look.name || 'Aura Look'}
-            </h1>
-            <p className="text-[8px] font-mono text-white/20 tracking-[0.4em]">SYSTEM CORE // STATUS: ACTIVE</p>
-          </div>
-
-          {/* DESCRIPTION AREA - SUPPORTS MULTI-LINE & EMOJIS */}
-          <div className="glass-dark p-6 rounded-[1.5rem] border border-white/5 bg-white/[0.01] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-30 transition-opacity">
-               <div className="w-8 h-8 border-t-2 border-r-2 border-white/40 rounded-tr-lg" />
+        <div className="grid lg:grid-cols-12 gap-8 items-center">
+          {/* LEFT COLUMN: TITLE & DESCRIPTION */}
+          <div className="lg:col-span-4 space-y-6 lg:space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-none neon-text uppercase italic">
+                {look.name || 'Aura Look'}
+              </h1>
+              <p className="text-[8px] font-mono text-white/20 tracking-[0.4em]">SYSTEM CORE // STATUS: ACTIVE</p>
             </div>
-            
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full neon-bg animate-pulse" />
-              Outfit Configuration
-            </p>
-            
-            <div className="text-base lg:text-lg text-white/90 leading-relaxed whitespace-pre-line font-medium italic">
-              {look.description}
-            </div>
-          </div>
-        </div>
 
-        {/* RIGHT COLUMN: BIGGER IMAGE (SPANNING 8 COLS) */}
-        <div className="lg:col-span-8 relative h-[450px] lg:h-[600px] w-full animate-in fade-in zoom-in duration-1000">
-           <div className="absolute inset-0 bg-primary/5 blur-[100px] rounded-full animate-pulse" />
-           <div className="relative w-full h-full transform transition-transform hover:scale-[1.01] duration-1000">
-             <Image 
-                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
-                alt={look.name || 'Look'} 
-                fill 
-                className="object-contain drop-shadow-[0_0_40px_rgba(var(--primary),0.1)]"
-                priority
-              />
-              
-              {/* Technical Overlay - Price */}
-              <div className="absolute top-4 right-0 bg-white/5 backdrop-blur-xl border border-white/10 p-4 rounded-xl rotate-1 hover:rotate-0 transition-transform cursor-default z-20">
-                 <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Current Valuation</p>
-                 <p className="text-3xl font-black neon-text">
-                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                 </p>
+            {/* DESCRIPTION AREA */}
+            <div className="glass-dark p-6 lg:p-8 rounded-[1.5rem] lg:rounded-[2rem] border border-white/5 bg-white/[0.01] relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-3 lg:p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                 <div className="w-6 h-6 lg:w-8 lg:h-8 border-t-2 border-r-2 border-white/40 rounded-tr-lg" />
               </div>
-           </div>
+              
+              <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full neon-bg animate-pulse" />
+                Outfit Configuration
+              </p>
+              
+              <div className="text-sm sm:text-base lg:text-lg text-white/90 leading-relaxed whitespace-pre-line font-medium italic">
+                {look.description}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: BIGGER IMAGE */}
+          <div className="lg:col-span-8 relative h-[400px] sm:h-[500px] lg:h-[650px] w-full animate-in fade-in zoom-in duration-1000">
+             <div className="absolute inset-0 bg-primary/5 blur-[80px] lg:blur-[120px] rounded-full animate-pulse" />
+             <div className="relative w-full h-full transform transition-transform hover:scale-[1.01] duration-1000">
+               <Image 
+                  src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
+                  alt={look.name || 'Look'} 
+                  fill 
+                  className="object-contain drop-shadow-[0_0_40px_rgba(var(--primary),0.1)]"
+                  priority
+                />
+                
+                {/* Technical Overlay - Price */}
+                <div className="absolute top-0 right-0 lg:top-4 lg:right-0 bg-white/5 backdrop-blur-xl border border-white/10 p-4 rounded-xl rotate-1 hover:rotate-0 transition-transform cursor-default z-20">
+                   <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Current Valuation</p>
+                   <p className="text-2xl lg:text-3xl font-black neon-text">
+                      {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                   </p>
+                </div>
+             </div>
+          </div>
         </div>
       </div>
 
-      {/* BOTTOM ACTION BAR - COMPACT */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black via-black/90 to-transparent">
+      {/* BOTTOM ACTION BAR - ADAPTIVE */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black via-black/90 to-transparent lg:p-6">
         <div className="container mx-auto max-w-7xl flex items-center justify-center">
           <Button 
-            className="w-full max-w-2xl h-14 rounded-xl neon-bg text-black font-black text-lg border-none shadow-2xl transition-all hover:scale-[1.01] active:scale-[0.99]"
+            className="w-full max-w-2xl h-14 lg:h-16 rounded-xl lg:rounded-2xl neon-bg text-black font-black text-base lg:text-lg border-none shadow-2xl transition-all hover:scale-[1.01] active:scale-[0.99]"
             onClick={handlePurchase}
             disabled={isOrdering}
           >

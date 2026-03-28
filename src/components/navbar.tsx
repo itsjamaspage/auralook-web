@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, LogOut, LayoutDashboard, Menu } from 'lucide-react';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
@@ -40,22 +40,22 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3 border border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-4 lg:px-6 py-3 border border-white/10">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-black tracking-tighter neon-text">
+          <span className="text-xl lg:text-2xl font-black tracking-tighter neon-text whitespace-nowrap">
             Auralook.uz
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <div className="hidden lg:flex items-center gap-8 text-sm font-medium">
           <Link href="/looks" className="text-white/80 hover:neon-text transition-colors">{t(dictionary.browseLooks)}</Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 lg:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase text-white">
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-9 lg:h-10 px-3 lg:px-4 font-bold uppercase text-white text-xs lg:text-sm">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -78,13 +78,20 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-white"
+                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-3 lg:px-4 h-9 lg:h-10 text-white text-xs lg:text-sm"
                   >
-                    <User className="w-4 h-4 mr-2" />
-                    {user.email?.split('@')[0]}
+                    <User className="w-4 h-4 mr-0 lg:mr-2" />
+                    <span className="hidden lg:inline">{user.email?.split('@')[0]}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[220px] p-2">
+                <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[200px] lg:min-w-[220px] p-2">
+                  <div className="px-3 py-2 lg:hidden">
+                    <p className="font-bold text-white text-sm mb-4">{t(dictionary.browseLooks)}</p>
+                    <Link href="/looks" className="block text-white/60 hover:neon-text text-sm mb-4">
+                      {t(dictionary.browseLooks)}
+                    </Link>
+                  </div>
+                  <DropdownMenuSeparator className="bg-white/5 lg:hidden" />
                   <div className="px-3 py-2">
                     <p className="text-xs text-white/40 truncate">{user.email}</p>
                   </div>
@@ -109,15 +116,22 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/login">
-                <Button 
-                  variant="ghost" 
-                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-white"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  {t(dictionary.login)}
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/looks" className="lg:hidden">
+                   <Button variant="ghost" size="icon" className="rounded-full border border-white/20 hover:bg-white/5 h-9 w-9 text-white">
+                     <Menu className="w-4 h-4" />
+                   </Button>
+                </Link>
+                <Link href="/login">
+                  <Button 
+                    variant="ghost" 
+                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-3 lg:px-4 h-9 lg:h-10 text-white text-xs lg:text-sm"
+                  >
+                    <User className="w-4 h-4 mr-0 lg:mr-2" />
+                    <span className="hidden lg:inline">{t(dictionary.login)}</span>
+                  </Button>
+                </Link>
+              </div>
             )
           )}
         </div>
