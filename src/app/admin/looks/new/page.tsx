@@ -2,14 +2,13 @@
 "use client"
 
 import { useState } from 'react';
-import { aiProductDescriptionGeneration } from '@/ai/flows/ai-product-description-generation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Sparkles, Plus, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Plus, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
@@ -17,9 +16,7 @@ import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function NewLookPage() {
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [keywords, setKeywords] = useState('');
   
   // Form State
   const [name, setName] = useState('');
@@ -32,31 +29,6 @@ export default function NewLookPage() {
   const router = useRouter();
   const { t, dictionary } = useLanguage();
   const db = useFirestore();
-
-  async function generateDescriptions() {
-    if (!keywords) return;
-    setLoading(true);
-    try {
-      const result = await aiProductDescriptionGeneration({
-        keywords,
-        languages: ['uz']
-      });
-      setDescription(result.uz || '');
-      toast({
-        title: "AI Generated Content",
-        description: "SEO-friendly description created successfully.",
-      });
-    } catch (e) {
-      console.error(e);
-      toast({
-        variant: "destructive",
-        title: "AI Generation Failed",
-        description: "Could not generate description.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,7 +60,6 @@ export default function NewLookPage() {
         currency,
         imageUrl: imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         createdAt: serverTimestamp(),
-        tags: keywords.split(',').map(k => k.trim()).filter(k => k !== '')
       };
 
       await addDoc(collection(db, 'looks'), lookData);
@@ -173,7 +144,7 @@ export default function NewLookPage() {
 
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                  <Sparkles className="w-4 h-4 neon-text" />
+                  <ImageIcon className="w-4 h-4 neon-text" />
                   {t(dictionary.lookPrice)}
                 </Label>
                 <div className="flex gap-4">
@@ -202,30 +173,7 @@ export default function NewLookPage() {
               </div>
             </div>
 
-            {/* AI Generator Section */}
             <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 space-y-6">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
-                  <Sparkles className="w-4 h-4 neon-text" />
-                  {t(dictionary.aiDescGenerator)}
-                </Label>
-                <div className="flex gap-4">
-                  <Input 
-                    placeholder={t(dictionary.keywordsPlaceholder)} 
-                    value={keywords}
-                    onChange={(e) => setKeywords(e.target.value)}
-                    className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20"
-                  />
-                  <Button 
-                    onClick={generateDescriptions} 
-                    disabled={loading || !keywords}
-                    className="neon-bg text-black font-black px-8 rounded-2xl h-14 border-none transition-transform active:scale-95"
-                  >
-                    {loading ? <Loader2 className="animate-spin" /> : t(dictionary.generate)}
-                  </Button>
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
                 <Textarea 
