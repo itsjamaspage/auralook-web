@@ -26,8 +26,8 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-black tracking-tighter neon-text">Auralook.uz</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <span className="text-2xl font-black tracking-tighter neon-text transition-all duration-1000">Auralook.uz</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -40,7 +40,7 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="rounded-full w-10 h-10 font-bold p-0 border border-white/10 hover:bg-white/5 transition-colors">
+              <Button variant="ghost" className="rounded-full w-10 h-10 font-bold p-0 border border-white/20 hover:bg-white/5 transition-colors">
                 {lang.toUpperCase()}
               </Button>
             </DropdownMenuTrigger>
@@ -63,7 +63,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full font-bold border border-white/10 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
+                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
                   >
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
@@ -82,7 +82,7 @@ export function Navbar() {
               <Link href="/login">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full font-bold border border-white/10 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
+                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10"
                 >
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}

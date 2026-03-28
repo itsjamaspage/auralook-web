@@ -64,12 +64,16 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Language>('uz'); // Default set to Uzbek
+  // STRICTLY default to 'uz'
+  const [lang, setLang] = useState<Language>('uz');
 
   useEffect(() => {
     const saved = localStorage.getItem('aura_lang') as Language;
     if (saved && ['en', 'ru', 'uz'].includes(saved)) {
       setLang(saved);
+    } else {
+      setLang('uz');
+      localStorage.setItem('aura_lang', 'uz');
     }
   }, []);
 
