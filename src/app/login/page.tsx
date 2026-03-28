@@ -39,7 +39,7 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
-          // Check if this is the first user ever
+          // Check if this is the first user ever to grant admin roles
           const usersQuery = query(collection(db, 'users'), limit(1));
           const snapshot = await getDocs(usersQuery);
           const isFirstUser = snapshot.empty;
@@ -60,7 +60,6 @@ export default function LoginPage() {
           // If first user, grant admin roles immediately
           if (isFirstUser) {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
-            await setDoc(doc(db, 'roles_look_creators', newUser.uid), { userId: newUser.uid });
             toast({
               title: "Admin Privileges Granted",
               description: "You are the primary administrator for Auralook.uz.",
@@ -160,7 +159,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit"
-              className="w-full h-12 rounded-xl text-black font-black text-lg bg-primary hover:bg-primary/90 border-none transition-all"
+              className="w-full h-12 rounded-xl text-black font-black text-lg neon-bg border-none transition-all shadow-2xl"
               disabled={isLoading}
             >
               {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}
