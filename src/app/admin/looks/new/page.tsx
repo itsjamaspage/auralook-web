@@ -101,14 +101,14 @@ export default function NewLookPage() {
   return (
     <div className="container mx-auto px-6 py-12 max-w-5xl space-y-12">
       <div className="space-y-1">
-        <h1 className="text-4xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.createNewLook)}</h1>
+        <h1 className="text-3xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.createNewLook)}</h1>
         <p className="text-white/60 font-medium">{t(dictionary.createNewLookDesc)}</p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
         {/* Media Sidebar */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="glass-dark rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02]">
+          <Card className="glass-dark rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group bg-white/[0.02] border-white/10">
             {imageUrl && (
               <img 
                 src={imageUrl} 
@@ -117,9 +117,11 @@ export default function NewLookPage() {
               />
             )}
             <div className={`absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 ${imageUrl ? 'border-white/20' : 'border-white/10'} m-4 rounded-[2rem] hover:neon-border transition-colors group`}>
-              <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
-                <Plus className="w-12 h-12 neon-text" />
-              </div>
+              {!imageUrl && (
+                <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
+                  <Plus className="w-12 h-12 neon-text" />
+                </div>
+              )}
               <p className="text-xs font-bold text-center text-white/80 uppercase tracking-widest">{t(dictionary.uploadImage)}</p>
               <Input 
                 className="mt-4 bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20" 
@@ -133,7 +135,7 @@ export default function NewLookPage() {
 
         {/* Form Main Area */}
         <div className="lg:col-span-8 space-y-8">
-          <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8">
+          <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8 border-white/10">
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">

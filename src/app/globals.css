@@ -56,7 +56,7 @@
 }
 
 body {
-  animation: master-sync-cycle 10s infinite linear;
+  animation: master-sync-cycle 12s infinite linear;
   @apply bg-background text-foreground font-body antialiased;
 }
 
@@ -80,10 +80,19 @@ body {
   @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+@keyframes energy-flow {
+  0% { stroke-dashoffset: 1000; opacity: 0.1; }
+  50% { opacity: 0.4; }
+  100% { stroke-dashoffset: 0; opacity: 0.1; }
+}
+
+.energy-line {
+  stroke: var(--sync-color);
+  stroke-dasharray: 200;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px var(--sync-shadow));
+  animation: energy-flow 20s infinite linear;
+  transition: stroke 0.5s ease;
 }
 
 @keyframes stream-down {
@@ -106,4 +115,10 @@ body {
   filter: blur(100px);
   pointer-events: none;
   opacity: 0.05;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
 }

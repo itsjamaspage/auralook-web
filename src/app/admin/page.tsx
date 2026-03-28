@@ -17,8 +17,8 @@ import {
   LayoutGrid,
   Trash2,
   Edit3,
-  Box,
-  ExternalLink
+  ExternalLink,
+  Package
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -49,77 +49,52 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12 space-y-12 max-w-6xl">
-      {/* Terminal Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-white/10 pb-6">
+    <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl">
+      {/* Sleeker Terminal Header */}
+      <div className="flex items-center justify-between border-b border-white/10 pb-6">
         <div className="flex items-center gap-3">
-          <div className="w-1 h-4 neon-bg rounded-full" />
-          <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
+          <div className="w-1 h-6 neon-bg rounded-full" />
+          <h1 className="text-lg font-black tracking-tight neon-text uppercase italic">
             {t(dictionary.adminDashboard)}
           </h1>
         </div>
-      </div>
-
-      {/* Action Area */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Card className="glass-dark rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-white/20 transition-all duration-500">
-          <div className="space-y-2">
-            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{t(dictionary.catalog)}</p>
-            <div className="text-5xl font-black text-white">
-              {looks?.length || 0}
-            </div>
-            <p className="text-xs text-white/40 font-medium">{t(dictionary.activeItems)}</p>
-          </div>
-          <div className="bg-white/5 p-5 rounded-3xl border border-white/5 group-hover:neon-border transition-all">
-            <Box className="w-10 h-10 neon-text" />
-          </div>
-        </Card>
-
-        <Card className="md:col-span-2 glass-dark rounded-[2.5rem] p-2 relative overflow-hidden group">
-          <Link href="/admin/looks/new" className="block w-full h-full">
-            <div className="flex items-center justify-center w-full h-full bg-white/[0.02] hover:bg-white/[0.05] transition-all rounded-[2rem] p-10 group/btn">
-              <div className="flex flex-col items-center gap-3">
-                <div className="p-4 rounded-full bg-white/5 group-hover/btn:neon-border transition-all">
-                  <Plus className="w-8 h-8 neon-text" />
-                </div>
-                <span className="text-xl font-black neon-text uppercase tracking-widest">
-                  {t(dictionary.newLook)}
-                </span>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.2em]">{t(dictionary.deployNewApparel)}</p>
-              </div>
-            </div>
-          </Link>
-        </Card>
+        
+        <Link href="/admin/looks/new">
+          <Button className="neon-bg text-black font-black px-6 rounded-xl h-12 transition-transform hover:scale-105 active:scale-95 border-none">
+            <Plus className="w-5 h-5 mr-2" />
+            {t(dictionary.newLook)}
+          </Button>
+        </Link>
       </div>
 
       {/* Main Catalog View */}
-      <div className="space-y-8">
-        <div className="flex items-center gap-4">
-          <LayoutGrid className="w-8 h-8 neon-text" />
-          <h2 className="text-2xl font-black tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <LayoutGrid className="w-6 h-6 neon-text" />
+          <h2 className="text-xl font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
         </div>
 
-        <Card className="glass-dark rounded-[3rem] overflow-hidden shadow-2xl">
+        <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
           {looksLoading ? (
             <div className="p-32 flex flex-col items-center gap-6">
-              <Loader2 className="animate-spin w-12 h-12 neon-text" />
-              <p className="text-white/40 animate-pulse font-mono tracking-widest text-[10px]">ENCRYPTED DATA LOADING...</p>
+              <Loader2 className="animate-spin w-10 h-10 neon-text" />
+              <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Decrypting Catalog...</p>
             </div>
           ) : (
             <Table>
               <TableHeader className="bg-white/5 border-b border-white/10">
                 <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="py-8 pl-10 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
+                  <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
                   <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>
                   <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.marketValue)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-10">{t(dictionary.operations)}</TableHead>
+                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">{t(dictionary.operations)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {looks?.map((look) => (
                   <TableRow key={look.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
-                    <TableCell className="py-6 pl-10">
-                      <div className="relative w-16 h-20 rounded-2xl overflow-hidden border border-white/10 group-hover:neon-border transition-all">
+                    <TableCell className="py-5 pl-8">
+                      <div className="relative w-14 h-18 rounded-xl overflow-hidden border border-white/10 group-hover:neon-border transition-all">
                         <img 
                           src={look.imageUrl} 
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
@@ -128,16 +103,14 @@ export default function AdminDashboard() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-bold text-white text-lg tracking-tight">{look.name}</span>
-                        <div className="flex gap-2">
-                          <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">ID: {look.id.substring(0, 8)}</span>
-                        </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-white text-base tracking-tight">{look.name}</span>
+                        <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-black neon-text">
+                        <span className="text-lg font-black neon-text">
                           {look.price}
                         </span>
                         <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">
@@ -145,23 +118,23 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right pr-10">
-                      <div className="flex justify-end gap-3">
+                    <TableCell className="text-right pr-8">
+                      <div className="flex justify-end gap-2">
                         <Link href={`/looks/${look.id}`}>
-                          <Button variant="ghost" size="icon" className="text-white/60 hover:neon-text hover:bg-white/5 rounded-xl transition-all">
-                            <ExternalLink className="w-5 h-5" />
+                          <Button variant="ghost" size="icon" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
+                            <ExternalLink className="w-4 h-4" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon" className="text-white/60 hover:neon-text hover:bg-white/5 rounded-xl transition-all">
-                          <Edit3 className="w-5 h-5" />
+                        <Button variant="ghost" size="icon" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
+                          <Edit3 className="w-4 h-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleDeleteLook(look.id)}
-                          className="text-white/60 hover:text-destructive hover:bg-destructive/5 rounded-xl transition-all"
+                          className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -171,12 +144,12 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableCell colSpan={4} className="py-32 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <Box className="w-12 h-12 text-white/10" />
-                        <p className="text-white/40 font-light text-lg">
+                        <Package className="w-10 h-10 text-white/10" />
+                        <p className="text-white/40 font-light text-base">
                           {t(dictionary.emptyCatalog)}
                         </p>
                         <Link href="/admin/looks/new">
-                          <Button variant="outline" className="border-white/10 text-white rounded-xl hover:bg-white/5 hover:neon-text transition-all">
+                          <Button variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
                             {t(dictionary.createFirstLook)}
                           </Button>
                         </Link>
