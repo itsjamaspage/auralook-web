@@ -46,15 +46,15 @@ export default function NewLookPage() {
   return (
     <div className="container mx-auto px-6 py-12 max-w-4xl space-y-12">
       <div className="space-y-1">
-        <h1 className="text-4xl font-black tracking-tighter">Yangi Libos Yaratish</h1>
+        <h1 className="text-4xl font-black tracking-tighter neon-text">Yangi Libos Yaratish</h1>
         <p className="text-muted-foreground">Yuqori sifatli media va AI tomonidan yaratilgan tavsiflarni qo'shing.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-1 space-y-6">
-          <Card className="glass-dark border-white/5 rounded-3xl overflow-hidden aspect-[3/4] flex flex-col items-center justify-center p-8 border-dashed border-2">
+          <Card className="glass-dark border-white/5 rounded-3xl overflow-hidden aspect-[3/4] flex flex-col items-center justify-center p-8 border-dashed border-2 hover:neon-border transition-colors">
             <div className="bg-white/5 p-6 rounded-full mb-4">
-              <Plus className="w-12 h-12 text-primary" />
+              <Plus className="w-12 h-12 neon-text" />
             </div>
             <p className="text-sm font-bold text-center">Rasm yuklash</p>
             <p className="text-xs text-muted-foreground text-center mt-2">Max: 50MB. PNG/JPG</p>
@@ -77,7 +77,7 @@ export default function NewLookPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Sparkles className="w-4 h-4 neon-text" />
                   AI Tavsif Yaratuvchi
                 </Label>
               </div>
@@ -91,7 +91,7 @@ export default function NewLookPage() {
                 <Button 
                   onClick={generateDescriptions} 
                   disabled={loading || !keywords}
-                  className="bg-primary text-primary-foreground font-bold px-6 rounded-xl"
+                  className="neon-bg text-black font-bold px-6 rounded-xl border-none"
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Yaratish"}
                 </Button>
@@ -113,7 +113,7 @@ export default function NewLookPage() {
 
             <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
               <Button variant="ghost" onClick={() => router.back()} className="hover:bg-white/5 rounded-xl">Bekor qilish</Button>
-              <Button onClick={handleSave} className="bg-primary text-primary-foreground font-bold px-12 rounded-xl h-12">Nashr qilish</Button>
+              <Button onClick={handleSave} className="neon-bg text-black font-bold px-12 rounded-xl h-12 border-none transition-transform hover:scale-105">Nashr qilish</Button>
             </div>
           </Card>
         </div>

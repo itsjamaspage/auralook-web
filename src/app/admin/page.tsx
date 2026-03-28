@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -87,11 +86,11 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter">Boshqaruv Paneli</h1>
+          <h1 className="text-4xl font-black tracking-tighter neon-text">Boshqaruv Paneli</h1>
           <p className="text-muted-foreground">Buyurtmalar va liboslar katalogini boshqarish.</p>
         </div>
         <Link href="/admin/looks/new">
-          <Button className="rounded-2xl bg-primary text-primary-foreground font-bold px-8">
+          <Button className="rounded-2xl neon-bg border-none text-black font-bold px-8 transition-transform hover:scale-105">
             <Plus className="w-4 h-4 mr-2" />
             Yangi Libos
           </Button>
@@ -131,7 +130,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Yangilar</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">
+            <div className="text-3xl font-bold neon-text">
               {orders?.filter(o => o.status === 'New').length || 0}
             </div>
           </CardContent>
@@ -140,14 +139,14 @@ export default function AdminDashboard() {
 
       <div className="space-y-8">
         <div className="flex items-center gap-2">
-          <Package className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-bold">Buyurtmalar</h2>
+          <Package className="w-6 h-6 neon-text" />
+          <h2 className="text-2xl font-bold neon-text">Buyurtmalar</h2>
         </div>
         
         <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
           {isLoading ? (
             <div className="p-24 flex justify-center">
-              <Loader2 className="animate-spin w-8 h-8 text-primary" />
+              <Loader2 className="animate-spin w-8 h-8 neon-text" />
             </div>
           ) : (
             <Table>
@@ -167,7 +166,7 @@ export default function AdminDashboard() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-bold">{order.customerName}</span>
-                        <span className="text-xs text-primary font-mono">{order.telegramUsername}</span>
+                        <span className="text-xs neon-text font-mono">{order.telegramUsername}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -180,7 +179,7 @@ export default function AdminDashboard() {
                         {order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-bold text-primary">${order.totalAmount}</TableCell>
+                    <TableCell className="font-bold neon-text">${order.totalAmount}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {order.status === 'New' && (
@@ -198,7 +197,7 @@ export default function AdminDashboard() {
                             <PackageCheck className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="hover:text-primary">
+                        <Button variant="ghost" size="sm" className="hover:neon-text">
                           <ExternalLink className="w-4 h-4" />
                         </Button>
                       </div>
