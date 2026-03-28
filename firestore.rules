@@ -21,6 +21,10 @@ service cloud.firestore {
     match /users/{userId} {
       allow get, create: if isOwner(userId);
       allow list, update, delete: if isAdmin();
+      
+      match /liked_looks/{lookId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     match /roles_order_managers/{userId} {

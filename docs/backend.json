@@ -106,6 +106,14 @@
         "currency": { "type": "string", "enum": ["USD", "UZS"] },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "LikedLook": {
+      "type": "object",
+      "description": "A look that a user has marked as favorite.",
+      "properties": {
+        "lookId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -124,6 +132,16 @@
             "$ref": "#/backend/entities/User"
           },
           "description": "Stores core user profile information."
+        }
+      },
+      {
+        "path": "/users/{userId}/liked_looks/{lookId}",
+        "definition": {
+          "entityName": "LikedLook",
+          "schema": {
+            "$ref": "#/backend/entities/LikedLook"
+          },
+          "description": "Individual looks saved by the user."
         }
       },
       {
