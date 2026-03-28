@@ -51,9 +51,9 @@
 .signal-lane {
   position: absolute;
   height: 100%;
-  width: 600px;
+  width: 800px;
   background: linear-gradient(90deg, transparent, white, hsl(var(--primary)), white, transparent);
-  filter: blur(12px) drop-shadow(0 0 40px hsl(var(--primary)));
+  filter: blur(20px) drop-shadow(0 0 60px hsl(var(--primary)));
   animation: signal-flow 4s infinite ease-in-out;
   z-index: 20;
 }

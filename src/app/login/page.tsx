@@ -117,7 +117,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit"
-              className="w-full h-12 rounded-xl text-black font-black text-lg animate-neon-bg border-none"
+              className="w-full h-12 rounded-xl text-black font-black text-lg animate-neon-bg border-none transition-none"
               disabled={isLoading}
             >
               {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}

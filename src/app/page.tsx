@@ -13,6 +13,7 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
+    // Safe duration generation for hydration
     setRandomDurations([...Array(12)].map(() => 7 + Math.random() * 5));
   }, []);
 
@@ -46,7 +47,7 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
           
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 animate-neon-text">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent animate-neon-text">
             {t(dictionary.heroTitle)}
           </h1>
           
@@ -56,7 +57,7 @@ export default function Home() {
 
           <div className="relative group w-full max-w-md mx-auto">
             {/* The Moving Lane Interaction - Top */}
-            <div className="absolute -top-12 left-0 right-0 h-[8px] overflow-hidden">
+            <div className="absolute -top-12 left-0 right-0 h-[12px] overflow-hidden">
               <div className="signal-lane" />
             </div>
 
@@ -73,7 +74,7 @@ export default function Home() {
             </div>
 
             {/* The Moving Lane Interaction - Bottom */}
-            <div className="absolute -bottom-12 left-0 right-0 h-[8px] overflow-hidden">
+            <div className="absolute -bottom-12 left-0 right-0 h-[12px] overflow-hidden">
               <div className="signal-lane" style={{ animationDelay: '2s' }} />
             </div>
           </div>
