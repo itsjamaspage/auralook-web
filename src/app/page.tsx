@@ -13,31 +13,40 @@ export default function Home() {
     <div className="space-y-24 pb-24">
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6">
-        {/* Futuristic Background with Neon Glows and Technical Patterns */}
+        {/* Futuristic Cyber-Mesh Background */}
         <div className="absolute inset-0 z-[-1]">
-          {/* Solid Base */}
-          <div className="absolute inset-0 bg-background" />
+          {/* Deep Base */}
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
           
-          {/* Large Primary Glow Orb */}
-          <div className="absolute top-[-15%] left-[-10%] w-[70%] h-[70%] bg-primary/15 rounded-full blur-[140px] animate-pulse" />
+          {/* Animated Mesh Glows */}
+          <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-yellow-500/10 rounded-full blur-[150px] animate-float" />
           
-          {/* Secondary Accent Orb */}
-          <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-yellow-500/10 rounded-full blur-[160px] animate-float" />
-          
-          {/* Subtle Technical Grid Overlay */}
+          {/* Scanning Lines Effect */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+               style={{ 
+                 backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 3px, transparent 4px)',
+                 backgroundSize: '100% 4px'
+               }} 
+          />
+
+          {/* Technical Perspective Grid */}
           <div 
-            className="absolute inset-0 opacity-[0.04]" 
+            className="absolute inset-0 opacity-[0.07]" 
             style={{ 
               backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-              backgroundSize: '60px 60px'
+              backgroundSize: '80px 80px',
+              perspective: '1000px',
+              transform: 'rotateX(60deg) translateY(-100px)'
             }} 
           />
 
-          {/* Center Glow for Depth */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-transparent via-primary/5 to-transparent opacity-50" />
+          {/* Dynamic Light Streaks */}
+          <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent blur-sm opacity-20 animate-pulse" />
+          <div className="absolute top-1/3 right-0 w-1/2 h-px bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent blur-sm opacity-20 animate-float" />
 
-          {/* Bottom Vignette to transition to content */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
+          {/* Bottom Vignette */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
         </div>
 
         <div className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
