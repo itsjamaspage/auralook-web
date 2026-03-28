@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, LayoutDashboard, Menu } from 'lucide-react';
+import { User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';

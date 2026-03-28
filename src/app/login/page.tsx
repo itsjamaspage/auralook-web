@@ -39,10 +39,10 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
-          // Check if this is the first user ever to grant admin roles
-          const usersQuery = query(collection(db, 'users'), limit(1));
-          const snapshot = await getDocs(usersQuery);
-          const isFirstUser = snapshot.empty;
+          // Check if any admin exists. If not, this user becomes the admin.
+          const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
+          const adminSnapshot = await getDocs(adminRolesQuery);
+          const noAdminsExist = adminSnapshot.empty;
 
           const userData = {
             id: newUser.uid,
@@ -52,15 +52,15 @@ export default function LoginPage() {
             updatedAt: new Date().toISOString(),
           };
 
-          // Store user profile
+          // Store/Update user profile
           await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
 
-          // If first user, grant admin roles immediately in Firestore
-          if (isFirstUser) {
+          // If first user or no admins exist, grant admin roles immediately
+          if (noAdminsExist) {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             toast({
               title: "Admin Huquqlari Berildi",
-              description: "Siz birinchi foydalanuvchi sifatida administrator deb belgilandingiz.",
+              description: "Siz administrator sifatida belgilandingiz.",
             });
           }
         } catch (e) {
@@ -69,7 +69,7 @@ export default function LoginPage() {
       }
     });
     return () => unsubscribe();
-  }, [auth, db, telegramUsername, isLogin, toast]);
+  }, [auth, db, telegramUsername, toast]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
