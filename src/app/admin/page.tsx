@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Table, 
@@ -16,16 +16,15 @@ import {
 import { 
   Plus, 
   Package, 
-  ExternalLink,
   CheckCircle,
   Truck,
   PackageCheck,
   Loader2,
   AlertCircle,
-  TrendingUp,
   LayoutGrid,
   Trash2,
-  Edit3
+  Edit3,
+  Box
 } from 'lucide-react';
 import Link from 'next/link';
 import { aiTelegramOrderStatusNotification } from '@/ai/flows/ai-telegram-order-status-notification';
@@ -34,13 +33,6 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis, ResponsiveContainer } from "recharts";
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -92,25 +84,12 @@ export default function AdminDashboard() {
     if (!confirm("Are you sure you want to delete this look?")) return;
     try {
       await deleteDoc(doc(db, 'looks', lookId));
-      toast({ title: "Look Deleted", description: "The item has been removed from the catalog." });
+      toast({ title: t(dictionary.lookSavedSuccess), description: "The item has been removed from the catalog." });
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Delete Failed" });
     }
   };
-
-  // Chart Data Preparation
-  const chartData = orders?.slice(0, 7).reverse().map(o => ({
-    date: new Date(o.orderDate).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' }),
-    amount: o.totalAmount
-  })) || [];
-
-  const chartConfig = {
-    amount: {
-      label: "Sales",
-      color: "hsl(var(--primary))",
-    },
-  } satisfies ChartConfig;
 
   if (ordersError) {
     return (
@@ -126,7 +105,7 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter neon-text">{t(dictionary.adminDashboard)}</h1>
+          <h1 className="text-4xl font-black tracking-tighter neon-text uppercase">{t(dictionary.adminDashboard)}</h1>
           <p className="text-muted-foreground">{t(dictionary.adminDashboardDesc)}</p>
         </div>
         <Link href="/admin/looks/new">
@@ -137,58 +116,15 @@ export default function AdminDashboard() {
         </Link>
       </div>
 
-      {/* Analytics & Stats */}
-      <div className="grid lg:grid-cols-12 gap-6">
-        <Card className="lg:col-span-8 glass-dark border-white/5 rounded-[2.5rem] p-6 overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between px-2 pb-6">
-            <div className="space-y-1">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 neon-text" />
-                Sales Analytics
-              </CardTitle>
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Past 7 Orders Performance</p>
-            </div>
-          </CardHeader>
-          <CardContent className="h-[250px] px-0">
-            <ChartContainer config={chartConfig} className="h-full w-full">
-              <AreaChart data={chartData} margin={{ left: 12, right: 12 }}>
-                <defs>
-                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsla(0,0%,100%,0.05)" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} 
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area 
-                  type="monotone" 
-                  dataKey="amount" 
-                  stroke="hsl(var(--primary))" 
-                  fillOpacity={1} 
-                  fill="url(#colorAmount)" 
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            </ChartContainer>
-          </CardContent>
+      {/* Simplified Stats Section - Only keeping Catalog */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="glass-dark border-white/5 rounded-[2rem] p-6 flex items-center justify-between group hover:border-primary/50 transition-colors">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t(dictionary.catalog)}</p>
+            <div className="text-4xl font-black neon-text">{looks?.length || 0}</div>
+          </div>
+          <Box className="w-8 h-8 text-muted-foreground group-hover:neon-text transition-colors" />
         </Card>
-
-        <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-6">
-          <Card className="glass-dark border-white/5 rounded-[2rem] p-6">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t(dictionary.totalSales)}</p>
-            <div className="text-4xl font-black neon-text">${orders?.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0).toLocaleString()}</div>
-          </Card>
-          <Card className="glass-dark border-white/5 rounded-[2rem] p-6">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t(dictionary.activeOrders)}</p>
-            <div className="text-4xl font-black">{orders?.filter(o => o.status !== 'Delivered').length || 0}</div>
-          </Card>
-        </div>
       </div>
 
       <Tabs defaultValue="orders" className="w-full">
@@ -204,124 +140,143 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="orders">
-          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
-            {ordersLoading ? (
-              <div className="p-24 flex justify-center">
-                <Loader2 className="animate-spin w-8 h-8 neon-text" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader className="bg-white/5">
-                  <TableRow className="border-white/5 hover:bg-transparent">
-                    <TableHead className="py-6 font-bold uppercase tracking-widest text-[10px]">{t(dictionary.orderId)}</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.customer)}</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.status)}</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.amount)}</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px] text-right">{t(dictionary.actions)}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders?.map((order) => (
-                    <TableRow key={order.id} className="border-white/5 hover:bg-white/5 transition-colors">
-                      <TableCell className="py-6 font-mono font-medium text-xs text-muted-foreground">#{order.id.substring(0, 8)}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-bold">{order.customerName}</span>
-                          <span className="text-[10px] neon-text font-mono">{order.telegramUsername}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={`rounded-full px-4 border-white/10 ${
-                          order.status === 'New' ? 'text-blue-400' : 
-                          order.status === 'Confirmed' ? 'text-yellow-400' :
-                          order.status === 'Shipped' ? 'text-purple-400' :
-                          'text-green-400'
-                        }`}>
-                          {order.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-black text-primary">${order.totalAmount}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {order.status === 'New' && (
-                            <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Confirmed')} className="hover:text-yellow-400 rounded-lg">
-                              <CheckCircle className="w-5 h-5" />
-                            </Button>
-                          )}
-                          {order.status === 'Confirmed' && (
-                            <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Shipped')} className="hover:text-purple-400 rounded-lg">
-                              <Truck className="w-5 h-5" />
-                            </Button>
-                          )}
-                          {order.status === 'Shipped' && (
-                            <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Delivered')} className="hover:text-green-400 rounded-lg">
-                              <PackageCheck className="w-5 h-5" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Package className="w-6 h-6 neon-text" />
+              <h2 className="text-2xl font-black tracking-tight uppercase">{t(dictionary.orders)}</h2>
+            </div>
+            <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
+              {ordersLoading ? (
+                <div className="p-24 flex justify-center">
+                  <Loader2 className="animate-spin w-8 h-8 neon-text" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead className="py-6 font-bold uppercase tracking-widest text-[10px]">{t(dictionary.orderId)}</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.customer)}</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.status)}</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px]">{t(dictionary.amount)}</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px] text-right">{t(dictionary.actions)}</TableHead>
                     </TableRow>
-                  ))}
-                  {(!orders || orders.length === 0) && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="py-24 text-center text-muted-foreground font-light">
-                        {t(dictionary.noOrders)}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
-          </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {orders?.map((order) => (
+                      <TableRow key={order.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                        <TableCell className="py-6 font-mono font-medium text-xs text-muted-foreground">#{order.id.substring(0, 8)}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-bold">{order.customerName}</span>
+                            <span className="text-[10px] neon-text font-mono">{order.telegramUsername}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={`rounded-full px-4 border-white/10 ${
+                            order.status === 'New' ? 'text-blue-400' : 
+                            order.status === 'Confirmed' ? 'text-yellow-400' :
+                            order.status === 'Shipped' ? 'text-purple-400' :
+                            'text-green-400'
+                          }`}>
+                            {order.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-black text-primary">${order.totalAmount}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            {order.status === 'New' && (
+                              <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Confirmed')} className="hover:text-yellow-400 rounded-lg group">
+                                <CheckCircle className="w-5 h-5 group-hover:neon-text" />
+                              </Button>
+                            )}
+                            {order.status === 'Confirmed' && (
+                              <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Shipped')} className="hover:text-purple-400 rounded-lg group">
+                                <Truck className="w-5 h-5 group-hover:neon-text" />
+                              </Button>
+                            )}
+                            {order.status === 'Shipped' && (
+                              <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, 'Delivered')} className="hover:text-green-400 rounded-lg group">
+                                <PackageCheck className="w-5 h-5 group-hover:neon-text" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!orders || orders.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="py-24 text-center text-muted-foreground font-light">
+                          {t(dictionary.noOrders)}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="catalog">
-          <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
-            {looksLoading ? (
-              <div className="p-24 flex justify-center">
-                <Loader2 className="animate-spin w-8 h-8 neon-text" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader className="bg-white/5">
-                  <TableRow className="border-white/5 hover:bg-transparent">
-                    <TableHead className="py-6 font-bold uppercase tracking-widest text-[10px]">Preview</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px]">Name</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px]">Price</TableHead>
-                    <TableHead className="font-bold uppercase tracking-widest text-[10px] text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {looks?.map((look) => (
-                    <TableRow key={look.id} className="border-white/5 hover:bg-white/5 transition-colors">
-                      <TableCell className="py-4">
-                        <img src={look.imageUrl} className="w-12 h-16 object-cover rounded-lg border border-white/10" alt={look.name} />
-                      </TableCell>
-                      <TableCell className="font-bold">{look.name}</TableCell>
-                      <TableCell className="font-black neon-text">
-                        {look.price} {look.currency || 'USD'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm" className="hover:neon-text rounded-lg">
-                            <Edit3 className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleDeleteLook(look.id)}
-                            className="hover:text-destructive rounded-lg"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <LayoutGrid className="w-6 h-6 neon-text" />
+              <h2 className="text-2xl font-black tracking-tight uppercase">{t(dictionary.catalog)}</h2>
+            </div>
+            <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
+              {looksLoading ? (
+                <div className="p-24 flex justify-center">
+                  <Loader2 className="animate-spin w-8 h-8 neon-text" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead className="py-6 font-bold uppercase tracking-widest text-[10px]">Preview</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px]">Name</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px]">Price</TableHead>
+                      <TableHead className="font-bold uppercase tracking-widest text-[10px] text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {looks?.map((look) => (
+                      <TableRow key={look.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                        <TableCell className="py-4">
+                          <img src={look.imageUrl} className="w-12 h-16 object-cover rounded-lg border border-white/10" alt={look.name} />
+                        </TableCell>
+                        <TableCell className="font-bold">{look.name}</TableCell>
+                        <TableCell className="font-black neon-text">
+                          {look.price} {look.currency || 'USD'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="sm" className="hover:neon-text rounded-lg">
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleDeleteLook(look.id)}
+                              className="hover:text-destructive rounded-lg"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!looks || looks.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-24 text-center text-muted-foreground font-light">
+                          Katalogda hozircha liboslar yo'q.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
