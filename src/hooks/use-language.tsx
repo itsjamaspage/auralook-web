@@ -115,56 +115,138 @@ const dictionary = {
     en: 'Processing...'
   },
 
-  // Home Page Content
-  curatedLooks: { 
-    uz: 'Tanlangan Liboslar',
-    ru: 'Курируемые образы',
-    en: 'Curated Looks'
+  // Admin Dashboard
+  adminDashboard: {
+    uz: 'Boshqaruv Paneli',
+    ru: 'Панель управления',
+    en: 'Admin Dashboard'
   },
-  curatedLooksSub: { 
-    uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.',
-    ru: 'Наши стилисты и ИИ-алгоритмы вручную отобрали эти наряды для лучшего футуристического образа.',
-    en: 'Our stylists and AI algorithms hand-picked these outfits for the best futuristic look.'
+  adminDashboardDesc: {
+    uz: 'Buyurtmalar va liboslar katalogini boshqarish.',
+    ru: 'Управление заказами и каталогом одежды.',
+    en: 'Manage orders and the clothing catalog.'
   },
-  all: { 
-    uz: 'Hammasi',
-    ru: 'Все',
-    en: 'All'
+  newLook: {
+    uz: 'Yangi Libos',
+    ru: 'Новый образ',
+    en: 'New Look'
   },
-  viewDetails: { 
-    uz: 'Batafsil ko\'rish',
-    ru: 'Посмотреть детали',
-    en: 'View Details'
+  totalSales: {
+    uz: 'Jami savdo',
+    ru: 'Общие продажи',
+    en: 'Total Sales'
   },
-  aiSizeEngine: { 
-    uz: 'AI o\'lcham mexanizmi',
-    ru: 'ИИ-движок размеров',
-    en: 'AI Size Engine'
+  activeOrders: {
+    uz: 'Faol buyurtmalar',
+    ru: 'Активные заказы',
+    en: 'Active Orders'
   },
-  aiSizeEngineSub: { 
-    uz: 'O\'lchamingizni taxmin qilishni to\'xtating. Bizning ilg\'or neyron tarmoqlarimiz tana o\'lchamingizga qarab mukammal moslikni hisoblab chiqadi.',
-    ru: 'Перестаньте угадывать свой размер. Наши передовые нейронные сети рассчитают идеальную посадку на основе ваших параметров.',
-    en: 'Stop guessing your size. Our advanced neural networks calculate the perfect fit based on your body dimensions.'
+  catalog: {
+    uz: 'Katalog',
+    ru: 'Каталог',
+    en: 'Catalog'
   },
-  quickLogistics: { 
-    uz: 'Tezkor Logistika',
-    ru: 'Быстрая логистика',
-    en: 'Quick Logistics'
+  newItems: {
+    uz: 'Yangilar',
+    ru: 'Новые',
+    en: 'New'
   },
-  quickLogisticsSub: { 
-    uz: 'O\'zbekiston bo\'ylab tezkor yetkazib berish va Telegram integratsiyamiz orqali real vaqt rejimida holat yangilanishi.',
-    ru: 'Быстрая доставка по всему Узбекистану и обновления статуса в реальном времени через нашу интеграцию с Telegram.',
-    en: 'Fast delivery across Uzbekistan and real-time status updates via our Telegram integration.'
+  orders: {
+    uz: 'Buyurtmalar',
+    ru: 'Заказы',
+    en: 'Orders'
   },
-  globalAesthetics: { 
-    uz: 'Global Estetika',
-    ru: 'Глобальная эстетика',
-    en: 'Global Aesthetics'
+  orderId: {
+    uz: 'ID',
+    ru: 'ID',
+    en: 'ID'
   },
-  globalAestheticsSub: { 
-    uz: 'Dunyo bo\'ylab eng yaxshi dizaynerlardan saralangan, zamonaviy Toshkentning o\'ziga xos uslubiga moslashtirilgan.',
-    ru: 'Отобрано у лучших дизайнеров со всего мира, адаптировано под уникальный стиль современного Ташкента.',
-    en: 'Curated from the best designers worldwide, adapted to the unique style of modern Tashkent.'
+  customer: {
+    uz: 'Mijoz',
+    ru: 'Клиент',
+    en: 'Customer'
+  },
+  status: {
+    uz: 'Holat',
+    ru: 'Статус',
+    en: 'Status'
+  },
+  amount: {
+    uz: 'Summa',
+    ru: 'Сумма',
+    en: 'Amount'
+  },
+  actions: {
+    uz: 'Amallar',
+    ru: 'Действия',
+    en: 'Actions'
+  },
+  noOrders: {
+    uz: "Hozircha buyurtmalar yo'q.",
+    ru: 'Заказов пока нет.',
+    en: 'No orders yet.'
+  },
+
+  // New Look Page
+  createNewLook: {
+    uz: 'Yangi Libos Yaratish',
+    ru: 'Создать новый образ',
+    en: 'Create New Look'
+  },
+  createNewLookDesc: {
+    uz: 'Yuqori sifatli media va AI tomonidan yaratilgan tavsiflarni qo\'shing.',
+    ru: 'Добавьте высококачественные медиа и описания, созданные ИИ.',
+    en: 'Add high-quality media and AI-generated descriptions.'
+  },
+  uploadImage: {
+    uz: 'Rasm yuklash',
+    ru: 'Загрузить фото',
+    en: 'Upload Photo'
+  },
+  lookName: {
+    uz: 'Libos nomi',
+    ru: 'Название образа',
+    en: 'Look Name'
+  },
+  lookPrice: {
+    uz: 'Narxi (USD)',
+    ru: 'Цена (USD)',
+    en: 'Price (USD)'
+  },
+  aiDescGenerator: {
+    uz: 'AI Tavsif Yaratuvchi',
+    ru: 'ИИ Генератор описаний',
+    en: 'AI Description Generator'
+  },
+  keywordsPlaceholder: {
+    uz: 'Kalit so\'zlar (masalan, techwear, neon)',
+    ru: 'Ключевые слова (например, techwear, neon)',
+    en: 'Keywords (e.g., techwear, neon)'
+  },
+  generate: {
+    uz: 'Yaratish',
+    ru: 'Создать',
+    en: 'Generate'
+  },
+  aiUzbekHint: {
+    uz: 'AI professional matn yaratadi',
+    ru: 'ИИ создаст профессиональный текст',
+    en: 'AI creates professional text'
+  },
+  lookDescription: {
+    uz: 'Tavsif',
+    ru: 'Описание',
+    en: 'Description'
+  },
+  cancel: {
+    uz: 'Bekor qilish',
+    ru: 'Отмена',
+    en: 'Cancel'
+  },
+  publish: {
+    uz: 'Nashr qilish',
+    ru: 'Опубликовать',
+    en: 'Publish'
   },
 
   // Footer

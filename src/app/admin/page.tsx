@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -28,10 +29,12 @@ import { aiTelegramOrderStatusNotification } from '@/ai/flows/ai-telegram-order-
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc } from 'firebase/firestore';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function AdminDashboard() {
   const db = useFirestore();
   const { toast } = useToast();
+  const { t, dictionary } = useLanguage();
 
   // Fetch real orders from Firestore
   const ordersQuery = useMemoFirebase(() => collection(db, 'orders'), [db]);
@@ -58,8 +61,8 @@ export default function AdminDashboard() {
         });
         
         toast({
-          title: `Holat yangilandi: ${newStatus}`,
-          description: `Mijoz uchun xabar tayyorlandi.`,
+          title: `Status updated: ${newStatus}`,
+          description: `AI message prepared for customer.`,
         });
       }
     } catch (e) {
@@ -86,13 +89,13 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter neon-text">Boshqaruv Paneli</h1>
-          <p className="text-muted-foreground">Buyurtmalar va liboslar katalogini boshqarish.</p>
+          <h1 className="text-4xl font-black tracking-tighter neon-text">{t(dictionary.adminDashboard)}</h1>
+          <p className="text-muted-foreground">{t(dictionary.adminDashboardDesc)}</p>
         </div>
         <Link href="/admin/looks/new">
           <Button className="rounded-2xl neon-bg border-none text-black font-bold px-8 transition-transform hover:scale-105">
             <Plus className="w-4 h-4 mr-2" />
-            Yangi Libos
+            {t(dictionary.newLook)}
           </Button>
         </Link>
       </div>
@@ -101,7 +104,7 @@ export default function AdminDashboard() {
       <div className="grid md:grid-cols-4 gap-6">
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Jami savdo</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{t(dictionary.totalSales)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
@@ -111,7 +114,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Faol buyurtmalar</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{t(dictionary.activeOrders)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{orders?.filter(o => o.status !== 'Delivered').length || 0}</div>
@@ -119,7 +122,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Katalog</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{t(dictionary.catalog)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{MOCK_LOOKS.length}</div>
@@ -127,7 +130,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="glass-dark border-white/5 rounded-[2rem]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Yangilar</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{t(dictionary.newItems)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold neon-text">
@@ -140,7 +143,7 @@ export default function AdminDashboard() {
       <div className="space-y-8">
         <div className="flex items-center gap-2">
           <Package className="w-6 h-6 neon-text" />
-          <h2 className="text-2xl font-bold neon-text">Buyurtmalar</h2>
+          <h2 className="text-2xl font-bold neon-text">{t(dictionary.orders)}</h2>
         </div>
         
         <Card className="glass-dark border-white/5 rounded-[2.5rem] overflow-hidden">
@@ -152,11 +155,11 @@ export default function AdminDashboard() {
             <Table>
               <TableHeader className="bg-white/5">
                 <TableRow className="border-white/5 hover:bg-transparent">
-                  <TableHead className="py-6 font-bold">ID</TableHead>
-                  <TableHead className="font-bold">Mijoz</TableHead>
-                  <TableHead className="font-bold">Holat</TableHead>
-                  <TableHead className="font-bold">Summa</TableHead>
-                  <TableHead className="font-bold text-right">Amallar</TableHead>
+                  <TableHead className="py-6 font-bold">{t(dictionary.orderId)}</TableHead>
+                  <TableHead className="font-bold">{t(dictionary.customer)}</TableHead>
+                  <TableHead className="font-bold">{t(dictionary.status)}</TableHead>
+                  <TableHead className="font-bold">{t(dictionary.amount)}</TableHead>
+                  <TableHead className="font-bold text-right">{t(dictionary.actions)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -207,7 +210,7 @@ export default function AdminDashboard() {
                 {(!orders || orders.length === 0) && (
                   <TableRow>
                     <TableCell colSpan={5} className="py-24 text-center text-muted-foreground">
-                      Hozircha buyurtmalar yo'q.
+                      {t(dictionary.noOrders)}
                     </TableCell>
                   </TableRow>
                 )}
