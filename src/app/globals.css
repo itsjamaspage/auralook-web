@@ -10,20 +10,20 @@
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 95%;
-    --primary: 45 100% 51%;
+    --primary: 180 100% 50%; /* Electric Cyan */
     --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 20%;
+    --secondary: 300 100% 50%; /* Magenta */
     --secondary-foreground: 0 0% 95%;
     --muted: 0 0% 25%;
     --muted-foreground: 0 0% 70%;
-    --accent: 45 100% 51%;
+    --accent: 45 100% 51%; /* Neon Yellow */
     --accent-foreground: 0 0% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 45 100% 51%;
-    --radius: 1rem;
+    --ring: 180 100% 50%;
+    --radius: 1.5rem;
   }
 }
 
@@ -36,33 +36,67 @@
   }
 }
 
-.glass {
-  @apply bg-white/5 backdrop-blur-md border border-white/10;
-}
-
 .glass-dark {
   @apply bg-black/40 backdrop-blur-xl border border-white/5;
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-yellow-300;
+/* Moving Signal Lane Animation */
+@keyframes signal-flow {
+  0% { left: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
 }
 
-.hero-glow {
+.signal-lane {
   position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, hsla(45, 100%, 51%, 0.15) 0%, transparent 70%);
-  filter: blur(40px);
-  z-index: -1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  filter: drop-shadow(0 0 8px var(--primary));
+  animation: signal-flow 4s infinite linear;
+}
+
+/* Button Color Pulse Sync */
+@keyframes neon-cycle {
+  0%, 100% { 
+    background-color: hsl(45 100% 51%); /* Yellow */
+    box-shadow: 0 0 20px hsla(45, 100%, 51%, 0.3);
+  }
+  33% { 
+    background-color: hsl(180 100% 50%); /* Cyan */
+    box-shadow: 0 0 20px hsla(180, 100%, 50%, 0.3);
+  }
+  66% { 
+    background-color: hsl(300 100% 50%); /* Magenta */
+    box-shadow: 0 0 20px hsla(300, 100%, 50%, 0.3);
+  }
+}
+
+.animate-neon-cycle {
+  animation: neon-cycle 8s infinite alternate ease-in-out;
+}
+
+/* Floating Vertical Data Streams */
+@keyframes stream-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.data-stream {
+  position: absolute;
+  width: 1px;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+  animation: stream-down 10s infinite linear;
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-20px) translateX(10px); }
+  100% { transform: translateY(0px) translateX(0px); }
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 6s ease-in-out infinite;
 }
