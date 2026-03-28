@@ -59,21 +59,22 @@
 }
 
 /* Sync Color Cycle for Backgrounds */
+/* Updated to ensure text color (color: #000) is always high contrast black */
 @keyframes neon-cycle-bg {
   0%, 100% { 
     background-color: hsl(150 100% 50%); /* Emerald */
     box-shadow: 0 0 30px hsla(150, 100%, 50%, 0.5);
-    color: black;
+    color: #000000 !important;
   }
   33% { 
     background-color: hsl(200 100% 50%); /* Azure */
     box-shadow: 0 0 30px hsla(200, 100%, 50%, 0.5);
-    color: white;
+    color: #000000 !important;
   }
   66% { 
     background-color: hsl(330 100% 50%); /* Rose */
     box-shadow: 0 0 30px hsla(330, 100%, 50%, 0.5);
-    color: white;
+    color: #000000 !important;
   }
 }
 
