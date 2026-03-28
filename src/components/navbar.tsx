@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from 'next/link';
@@ -22,15 +21,12 @@ export function Navbar() {
   const auth = useAuth();
   const db = useFirestore();
 
-  // Check if current user is an admin by looking at roles_order_managers collection
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_order_managers', user.uid);
   }, [db, user]);
 
   const { data: adminRole } = useDoc(adminRoleRef);
-  
-  // Failsafe: if doc exists OR the user email matches the owner
   const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
 
   const handleLogout = () => {
@@ -51,16 +47,16 @@ export function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/looks" className="hover:text-primary transition-colors">{t(dictionary.browseLooks)}</Link>
+          <Link href="/looks" className="text-white/80 hover:neon-text transition-colors">{t(dictionary.browseLooks)}</Link>
           {user && (
-            <Link href="/orders" className="hover:text-primary transition-colors">{t(dictionary.myOrders)}</Link>
+            <Link href="/orders" className="text-white/80 hover:neon-text transition-colors">{t(dictionary.myOrders)}</Link>
           )}
         </div>
 
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase text-foreground">
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase text-white">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -69,7 +65,7 @@ export function Navbar() {
                 <DropdownMenuItem 
                   key={l.code} 
                   onClick={() => setLang(l.code)}
-                  className={lang === l.code ? "bg-white/10 text-primary" : "text-foreground"}
+                  className={lang === l.code ? "bg-white/10 neon-text" : "text-white"}
                 >
                   {l.label}
                 </DropdownMenuItem>
@@ -83,7 +79,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-foreground"
+                    className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-white"
                   >
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
@@ -91,7 +87,7 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[220px] p-2">
                   <div className="px-3 py-2">
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    <p className="text-xs text-white/40 truncate">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/5" />
                   
@@ -99,8 +95,8 @@ export function Navbar() {
                     <>
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="flex items-center w-full cursor-pointer py-3 px-3 rounded-xl hover:bg-white/5 transition-colors">
-                          <LayoutDashboard className="w-5 h-5 mr-3 text-primary" />
-                          <span className="font-bold text-sm">{t(dictionary.adminPanel)}</span>
+                          <LayoutDashboard className="w-5 h-5 mr-3 neon-text" />
+                          <span className="font-bold text-sm text-white">{t(dictionary.adminPanel)}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-white/5" />
@@ -117,7 +113,7 @@ export function Navbar() {
               <Link href="/login">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-foreground"
+                  className="rounded-full font-bold border border-white/20 hover:bg-white/5 transition-colors bg-transparent px-4 h-10 text-white"
                 >
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}

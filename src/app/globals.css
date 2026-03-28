@@ -24,46 +24,31 @@
     --input: 0 0% 20%;
     --ring: 150 100% 50%;
     --radius: 1.5rem;
+    --sync-color: hsl(150 100% 50%);
+    --sync-shadow: hsla(150, 100%, 50%, 0.4);
   }
 }
 
-/* MASTER NEON SYNC - Controlled at the root level for perfect synchronization */
 @keyframes master-sync-cycle {
   0%, 100% { 
     --sync-color: hsl(150 100% 50%); 
     --sync-shadow: hsla(150, 100%, 50%, 0.4);
   }
-  12.5% { 
+  25% { 
     --sync-color: hsl(200 100% 50%); 
     --sync-shadow: hsla(200, 100%, 50%, 0.4);
   }
-  25% { 
+  50% { 
     --sync-color: hsl(330 100% 50%); 
     --sync-shadow: hsla(330, 100%, 50%, 0.4);
   }
-  37.5% { 
+  75% { 
     --sync-color: hsl(270 100% 60%); 
     --sync-shadow: hsla(270, 100%, 60%, 0.4);
   }
-  50% { 
-    --sync-color: hsl(45 100% 50%); 
-    --sync-shadow: hsla(45, 100%, 50%, 0.4);
-  }
-  62.5% { 
-    --sync-color: hsl(180 100% 50%); 
-    --sync-shadow: hsla(180, 100%, 50%, 0.4);
-  }
-  75% { 
-    --sync-color: hsl(25 100% 50%); 
-    --sync-shadow: hsla(25, 100%, 50%, 0.4);
-  }
-  87.5% { 
-    --sync-color: hsl(80 100% 50%); 
-    --sync-shadow: hsla(80, 100%, 50%, 0.4);
-  }
 }
 
-:root {
+body {
   animation: master-sync-cycle 12s infinite linear;
 }
 
@@ -81,21 +66,6 @@
   background-color: var(--sync-color) !important;
   box-shadow: 0 0 30px var(--sync-shadow);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-@keyframes energy-flow {
-  0% { stroke-dashoffset: 1000; opacity: 0; }
-  20% { opacity: 0.8; }
-  80% { opacity: 0.8; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
-}
-
-.energy-line {
-  stroke: var(--sync-color);
-  stroke-dasharray: 500;
-  stroke-dashoffset: 1000;
-  animation: energy-flow 10s infinite linear;
-  filter: drop-shadow(0 0 8px var(--sync-color));
 }
 
 @layer base {
@@ -123,16 +93,6 @@
   height: 150px;
   background: linear-gradient(to bottom, transparent, var(--sync-color), transparent);
   animation: stream-down 12s infinite linear;
-}
-
-@keyframes float {
-  0% { transform: translateY(0px) translateX(0px); }
-  50% { transform: translateY(-20px) translateX(10px); }
-  100% { transform: translateY(0px) translateX(0px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
 }
 
 .hero-glow {

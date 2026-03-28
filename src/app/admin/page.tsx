@@ -52,39 +52,35 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-6 py-12 space-y-12 max-w-6xl">
       {/* Terminal Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-white/10 pb-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-4 neon-bg rounded-full" />
-            <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
-              {t(dictionary.adminDashboard)}
-            </h1>
-          </div>
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-4 neon-bg rounded-full" />
+          <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
+            {t(dictionary.adminDashboard)}
+          </h1>
         </div>
       </div>
 
-      {/* Grid Quick Access */}
+      {/* Action Area */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Inventory Counter */}
-        <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-primary/40 transition-all duration-500 bg-white/[0.02]">
+        <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between group hover:border-white/20 transition-all duration-500">
           <div className="space-y-2">
             <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{t(dictionary.catalog)}</p>
-            <div className="text-5xl font-black text-white group-hover:neon-text transition-colors">
+            <div className="text-5xl font-black text-white">
               {looks?.length || 0}
             </div>
             <p className="text-xs text-white/40 font-medium">{t(dictionary.activeItems)}</p>
           </div>
           <div className="bg-white/5 p-5 rounded-3xl border border-white/5 group-hover:neon-border transition-all">
-            <Box className="w-10 h-10 text-white group-hover:neon-text" />
+            <Box className="w-10 h-10 neon-text" />
           </div>
         </Card>
 
-        {/* Create Button */}
-        <Card className="md:col-span-2 glass-dark border-white/10 rounded-[2.5rem] p-2 relative overflow-hidden group bg-white/[0.02]">
+        <Card className="md:col-span-2 glass-dark border-white/10 rounded-[2.5rem] p-2 relative overflow-hidden group">
           <Link href="/admin/looks/new" className="block w-full h-full">
             <div className="flex items-center justify-center w-full h-full bg-white/[0.02] hover:bg-white/[0.05] transition-all rounded-[2rem] p-10 group/btn">
               <div className="flex flex-col items-center gap-3">
                 <div className="p-4 rounded-full bg-white/5 group-hover/btn:neon-border transition-all">
-                  <Plus className="w-8 h-8 text-white group-hover/btn:neon-text" />
+                  <Plus className="w-8 h-8 neon-text" />
                 </div>
                 <span className="text-xl font-black text-white uppercase tracking-widest group-hover/btn:neon-text">
                   {t(dictionary.newLook)}
@@ -100,10 +96,10 @@ export default function AdminDashboard() {
       <div className="space-y-8">
         <div className="flex items-center gap-4">
           <LayoutGrid className="w-8 h-8 neon-text" />
-          <h2 className="text-3xl font-black tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
+          <h2 className="text-2xl font-black tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
         </div>
 
-        <Card className="glass-dark border-white/10 rounded-[3rem] overflow-hidden shadow-2xl bg-white/[0.02]">
+        <Card className="glass-dark border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
           {looksLoading ? (
             <div className="p-32 flex flex-col items-center gap-6">
               <Loader2 className="animate-spin w-12 h-12 neon-text" />
@@ -113,10 +109,10 @@ export default function AdminDashboard() {
             <Table>
               <TableHeader className="bg-white/5 border-b border-white/5">
                 <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="py-8 pl-10 font-black uppercase tracking-[0.2em] text-[10px] text-white/40">{t(dictionary.visual)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/40">{t(dictionary.productName)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/40">{t(dictionary.marketValue)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/40 text-right pr-10">{t(dictionary.operations)}</TableHead>
+                  <TableHead className="py-8 pl-10 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
+                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>
+                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.marketValue)}</TableHead>
+                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-10">{t(dictionary.operations)}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -152,7 +148,7 @@ export default function AdminDashboard() {
                     <TableCell className="text-right pr-10">
                       <div className="flex justify-end gap-3">
                         <Link href={`/looks/${look.id}`}>
-                          <Button variant="ghost" size="icon" className="text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                          <Button variant="ghost" size="icon" className="text-white/60 hover:neon-text hover:bg-white/5 rounded-xl transition-all">
                             <ExternalLink className="w-5 h-5" />
                           </Button>
                         </Link>
@@ -180,7 +176,7 @@ export default function AdminDashboard() {
                           {t(dictionary.emptyCatalog)}
                         </p>
                         <Link href="/admin/looks/new">
-                          <Button variant="outline" className="border-white/10 text-white rounded-xl hover:bg-white/5 hover:text-primary transition-all">
+                          <Button variant="outline" className="border-white/10 text-white rounded-xl hover:bg-white/5 hover:neon-text transition-all">
                             {t(dictionary.createFirstLook)}
                           </Button>
                         </Link>
