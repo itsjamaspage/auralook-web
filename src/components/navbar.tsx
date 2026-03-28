@@ -27,13 +27,13 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-2xl px-6 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-black tracking-tighter animate-neon-text">Auralook.uz</span>
+          <span className="text-2xl font-black tracking-tighter neon-text">Auralook.uz</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/" className="hover:animate-neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
+          <Link href="/" className="hover:neon-text transition-colors duration-500">{t(dictionary.browseLooks)}</Link>
           {user && (
-            <Link href="/orders" className="hover:animate-neon-text transition-colors duration-500">{t(dictionary.myOrders)}</Link>
+            <Link href="/orders" className="hover:neon-text transition-colors duration-500">{t(dictionary.myOrders)}</Link>
           )}
         </div>
 
@@ -45,13 +45,13 @@ export function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-dark border-white/10">
-              <DropdownMenuItem onClick={() => changeLanguage('en')} className={lang === 'en' ? 'text-primary' : ''}>
+              <DropdownMenuItem onClick={() => changeLanguage('en')} className={lang === 'en' ? 'neon-text' : ''}>
                 English
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('ru')} className={lang === 'ru' ? 'text-primary' : ''}>
+              <DropdownMenuItem onClick={() => changeLanguage('ru')} className={lang === 'ru' ? 'neon-text' : ''}>
                 Русский
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('uz')} className={lang === 'uz' ? 'text-primary' : ''}>
+              <DropdownMenuItem onClick={() => changeLanguage('uz')} className={lang === 'uz' ? 'neon-text' : ''}>
                 O'zbek
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -63,7 +63,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="rounded-full animate-neon-border animate-neon-text border-2 bg-transparent hover:bg-white/5 transition-none"
+                    className="rounded-full neon-border neon-text border-2 bg-transparent hover:bg-white/5 transition-none"
                   >
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
@@ -82,7 +82,7 @@ export function Navbar() {
               <Link href="/login">
                 <Button 
                   variant="outline" 
-                  className="rounded-full animate-neon-border animate-neon-text border-2 bg-transparent hover:bg-white/5 transition-none"
+                  className="rounded-full neon-border neon-text border-2 bg-transparent hover:bg-white/5 transition-none"
                 >
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}

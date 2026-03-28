@@ -46,11 +46,11 @@ export default function LoginPage() {
   return (
     <div className="flex-grow flex items-center justify-center px-6 min-h-[calc(100vh-160px)] relative overflow-hidden bg-background">
       {/* Centered Ambient Glow */}
-      <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20" />
+      <div className="hero-glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px]" />
       
-      <Card className="w-full max-w-md glass-dark border-2 animate-neon-border rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">
+      <Card className="w-full max-w-md glass-dark border-2 neon-border rounded-[2.5rem] p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10 shadow-2xl">
         <CardHeader className="text-center p-0 space-y-2">
-          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center animate-neon-text mx-auto mb-4">
+          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center neon-text mx-auto mb-4">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <CardTitle className="text-3xl font-black tracking-tighter">
@@ -117,7 +117,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit"
-              className="w-full h-12 rounded-xl text-black font-black text-lg animate-neon-bg border-none transition-none"
+              className="w-full h-12 rounded-xl text-black font-black text-lg neon-bg border-none transition-none"
               disabled={isLoading}
             >
               {isLoading ? t(dictionary.processing) : (isLogin ? t(dictionary.login) : t(dictionary.getStarted))}
@@ -127,7 +127,7 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <button 
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:animate-neon-text transition-colors underline-offset-4 hover:underline"
+              className="text-sm text-muted-foreground hover:neon-text transition-colors underline-offset-4 hover:underline"
             >
               {isLogin ? t(dictionary.dontHaveAccount) : t(dictionary.alreadyHaveAccount)}
             </button>

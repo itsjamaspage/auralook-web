@@ -9,12 +9,9 @@ import Link from 'next/link';
 export default function Home() {
   const { t, dictionary } = useLanguage();
   const [mounted, setMounted] = useState(false);
-  const [randomDurations, setRandomDurations] = useState<number[]>([]);
 
   useEffect(() => {
     setMounted(true);
-    // Safe duration generation for hydration
-    setRandomDurations([...Array(12)].map(() => 7 + Math.random() * 5));
   }, []);
 
   return (
@@ -27,14 +24,13 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[140px] animate-float" />
 
         {/* Vertical Data Streams */}
-        {mounted && randomDurations.length > 0 && [...Array(12)].map((_, i) => (
+        {mounted && [...Array(12)].map((_, i) => (
           <div 
             key={i} 
             className="data-stream" 
             style={{ 
               left: `${(i + 1) * 8}%`, 
-              animationDelay: `${i * 0.8}s`,
-              animationDuration: `${randomDurations[i]}s`
+              animationDelay: `${i * 0.8}s`
             }} 
           />
         ))}
@@ -47,7 +43,7 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
         <div className="max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
           
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent animate-neon-text">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none bg-clip-text text-transparent neon-text">
             {t(dictionary.heroTitle)}
           </h1>
           
@@ -65,7 +61,7 @@ export default function Home() {
               <Link href="/looks" className="w-full">
                 <Button 
                   size="lg" 
-                  className="animate-neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none text-black"
+                  className="neon-bg w-full h-16 px-12 text-xl font-black rounded-2xl hover:scale-105 transition-all duration-500 shadow-2xl border-none text-black"
                 >
                   {t(dictionary.browseLooks)}
                   <ArrowRight className="ml-2 w-6 h-6" />
@@ -75,7 +71,7 @@ export default function Home() {
 
             {/* The Moving Lane Interaction - Bottom */}
             <div className="absolute -bottom-12 left-0 right-0 h-[12px] overflow-hidden">
-              <div className="signal-lane" style={{ animationDelay: '2s' }} />
+              <div className="signal-lane" style={{ animationDelay: '2.5s' }} />
             </div>
           </div>
         </div>
