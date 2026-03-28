@@ -39,7 +39,7 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       if (newUser) {
         try {
-          // Check if any admin exists. If not, this user becomes the admin.
+          // Check if any admin exists.
           const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
           const adminSnapshot = await getDocs(adminRolesQuery);
           const noAdminsExist = adminSnapshot.empty;
@@ -55,12 +55,12 @@ export default function LoginPage() {
           // Store/Update user profile
           await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
 
-          // If first user or no admins exist, grant admin roles immediately
-          if (noAdminsExist) {
+          // Grant admin if no admins exist OR if this is the specific owner email
+          if (noAdminsExist || newUser.email === 'jkhakimjonov8@gmail.com') {
             await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
             toast({
-              title: "Admin Huquqlari Berildi",
-              description: "Siz administrator sifatida belgilandingiz.",
+              title: "Admin Huquqlari",
+              description: "Siz administrator sifatida tasdiqlandingiz.",
             });
           }
         } catch (e) {
@@ -108,11 +108,11 @@ export default function LoginPage() {
                 <Label htmlFor="email">{t(dictionary.email)}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input 
+                  <input 
                     id="email"
                     type="email" 
                     placeholder={t(dictionary.emailPlaceholder)}
-                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
+                    className="w-full pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all outline-none text-sm px-4"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -125,11 +125,11 @@ export default function LoginPage() {
                   <Label htmlFor="telegram">{t(dictionary.telegramUsername)}</Label>
                   <div className="relative">
                     <Send className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input 
+                    <input 
                       id="telegram"
                       type="text" 
                       placeholder={t(dictionary.telegramPlaceholder)}
-                      className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
+                      className="w-full pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all outline-none text-sm px-4"
                       value={telegramUsername}
                       onChange={(e) => setTelegramUsername(e.target.value)}
                       required={!isLogin}
@@ -142,11 +142,11 @@ export default function LoginPage() {
                 <Label htmlFor="password">{t(dictionary.password)}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input 
+                  <input 
                     id="password"
                     type="password" 
                     placeholder={t(dictionary.passwordPlaceholder)}
-                    className="pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all"
+                    className="w-full pl-10 bg-white/5 border-white/10 h-11 rounded-xl focus:ring-primary focus:border-primary transition-all outline-none text-sm px-4"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

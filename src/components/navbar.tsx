@@ -29,7 +29,9 @@ export function Navbar() {
   }, [db, user]);
 
   const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole;
+  
+  // Failsafe: if doc exists OR the user email matches the owner
+  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
 
   const handleLogout = () => {
     signOut(auth);
@@ -87,8 +89,8 @@ export function Navbar() {
                     {user.email?.split('@')[0]}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[200px] p-2">
-                  <div className="px-2 py-1.5 mb-1">
+                <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[220px] p-2">
+                  <div className="px-3 py-2">
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/5" />
@@ -96,18 +98,18 @@ export function Navbar() {
                   {isAdmin && (
                     <>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center w-full cursor-pointer py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
-                          <LayoutDashboard className="w-4 h-4 mr-2 text-primary" />
-                          <span className="font-bold">{t(dictionary.adminPanel)}</span>
+                        <Link href="/admin" className="flex items-center w-full cursor-pointer py-3 px-3 rounded-xl hover:bg-white/5 transition-colors">
+                          <LayoutDashboard className="w-5 h-5 mr-3 text-primary" />
+                          <span className="font-bold text-sm">{t(dictionary.adminPanel)}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-white/5" />
                     </>
                   )}
 
-                  <DropdownMenuItem onClick={handleLogout} className="flex items-center w-full cursor-pointer py-2 px-3 rounded-lg hover:bg-destructive/10 text-destructive focus:text-destructive">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    <span className="font-medium">{t(dictionary.logout)}</span>
+                  <DropdownMenuItem onClick={handleLogout} className="flex items-center w-full cursor-pointer py-3 px-3 rounded-xl hover:bg-destructive/10 text-destructive focus:text-destructive">
+                    <LogOut className="w-5 h-5 mr-3" />
+                    <span className="font-bold text-sm">{t(dictionary.logout)}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
