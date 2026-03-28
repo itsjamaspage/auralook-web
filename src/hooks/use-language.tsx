@@ -150,6 +150,16 @@ const dictionary = {
     ru: 'БЕЗОПАСНАЯ ОПЛАТА // ЗАШИФРОВАННАЯ СЕССИЯ',
     en: 'SECURE CHECKOUT // ENCRYPTED SESSION'
   },
+  estDelivery: {
+    uz: 'TAXMINIY: 2-3 KUN',
+    ru: 'ОЖИДАНИЕ: 2-3 ДНЯ',
+    en: 'EST: 2-3 DAYS'
+  },
+  freeDeliveryLabel: {
+    uz: 'BEPUL YETKAZIB BERISH',
+    ru: 'БЕСПЛАТНАЯ ДОСТАВКА',
+    en: 'FREE DELIVERY'
+  },
 
   // Admin Dashboard
   adminDashboard: {
