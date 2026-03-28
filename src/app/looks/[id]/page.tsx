@@ -142,20 +142,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="relative aspect-square rounded-3xl overflow-hidden glass-dark border border-white/10 group cursor-pointer">
-                  <Image 
-                    src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
-                    alt="sub" 
-                    fill 
-                    className="object-cover opacity-40 group-hover:opacity-100 transition-all group-hover:scale-110" 
-                  />
-                  <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Intel & Actions */}
