@@ -4,7 +4,17 @@ import { use, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Loader2, Sparkles, Zap } from 'lucide-react';
+import { 
+  ShoppingCart, 
+  Loader2, 
+  ChevronLeft, 
+  MoreHorizontal, 
+  Shirt, 
+  Zap, 
+  Thermometer, 
+  Droplets, 
+  Package 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
@@ -86,130 +96,136 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
+  const specs = [
+    { icon: <Shirt className="w-5 h-5" />, label: "Premium Fabric", sub: "Cotton Blend" },
+    { icon: <Zap className="w-5 h-5" />, label: "Fit Type", sub: "Athletic Slim" },
+    { icon: <Thermometer className="w-5 h-5" />, label: "Optimal Season", sub: "All Season" },
+    { icon: <Droplets className="w-5 h-5" />, label: "Care Instructions", sub: "Washable" },
+    { icon: <Package className="w-5 h-5" />, label: "Availability", sub: "In Stock" },
+  ];
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0a0a]">
-      {/* Dynamic Background Energy Paths */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Dynamic Background Energy */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
         {mounted && (
-          <svg className="absolute inset-0 w-full h-full opacity-20">
+          <svg className="absolute inset-0 w-full h-full">
             <path 
-              d="M -100,200 Q 400,100 800,500 T 1400,300" 
+              d="M -100,300 Q 400,100 800,600 T 1400,400" 
               fill="none" 
               strokeWidth="1" 
               className="energy-line"
-              style={{ animationDelay: '0s' }}
-            />
-            <path 
-              d="M 1200,0 Q 800,400 400,800" 
-              fill="none" 
-              strokeWidth="1" 
-              className="energy-line"
-              style={{ animationDelay: '3s' }}
             />
           </svg>
         )}
       </div>
 
-      <div className="container mx-auto px-6 pb-24 relative z-10 max-w-7xl">
-        <div className="grid lg:grid-cols-[40%_60%] gap-12 lg:gap-20 items-start pt-12">
+      <div className="relative z-10 container mx-auto px-6 pt-4 pb-32 max-w-lg lg:max-w-5xl lg:grid lg:grid-cols-2 gap-12 items-center">
+        
+        {/* TOP NAV BAR */}
+        <div className="flex items-center justify-between w-full mb-12 lg:col-span-2">
+          <button 
+            onClick={() => router.back()}
+            className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <span className="font-bold tracking-tight text-white/80 uppercase text-sm">Look Info</span>
+          <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors">
+            <MoreHorizontal className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* LEFT COLUMN: TITLE & SPECS */}
+        <div className="space-y-12">
+          {/* MAIN TITLE */}
+          <div className="space-y-4">
+            <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-tight neon-text">
+              {t(look.name) || 'Aura Look'}
+              <br />
+              <span className="text-white/40">REF // {look.id.substring(0, 4).toUpperCase()}</span>
+            </h1>
+          </div>
+
+          {/* SPECS LIST */}
+          <div className="space-y-8">
+            {specs.map((spec, i) => (
+              <div key={i} className="flex items-center gap-6 animate-in fade-in slide-in-from-left duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+                <div className="w-14 h-14 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60">
+                  {spec.icon}
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-lg font-bold text-white">{spec.label}</p>
+                  <p className="text-sm font-medium text-white/40 uppercase tracking-widest">{spec.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: MAIN IMAGE (Overlapping style) */}
+        <div className="hidden lg:block relative h-[700px] w-full">
+           <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full animate-pulse" />
+           <div className="relative w-full h-full transform scale-125 translate-x-12">
+             <Image 
+                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
+                alt={t(look.name) || 'Look'} 
+                fill 
+                className="object-contain"
+                priority
+              />
+           </div>
+        </div>
+
+        {/* MOBILE IMAGE SHOWCASE */}
+        <div className="lg:hidden relative aspect-square w-full mt-8 overflow-visible">
+           <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full" />
+           <div className="relative w-full h-full transform scale-110 translate-x-4">
+             <Image 
+                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
+                alt={t(look.name) || 'Look'} 
+                fill 
+                className="object-contain"
+                priority
+              />
+           </div>
+        </div>
+
+        {/* PRICE & DESCRIPTION SECTION */}
+        <div className="mt-12 lg:col-span-2 space-y-6">
+          <div className="glass-dark p-6 rounded-[2rem] border border-white/5">
+            <p className="text-sm font-black text-white/40 uppercase tracking-[0.3em] mb-4">Description</p>
+            <p className="text-lg text-white/80 leading-relaxed whitespace-pre-line font-medium italic">
+              {t(look.description)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* BOTTOM ACTION BAR */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <div className="container mx-auto max-w-lg lg:max-w-5xl flex flex-col sm:flex-row items-center gap-6">
+          <div className="hidden sm:block">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Current Value</p>
+            <p className="text-3xl font-black text-white">
+              {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+            </p>
+          </div>
           
-          {/* LEFT: Visual Showcase (Scaled & Styled per reference) */}
-          <div className="relative group animate-in fade-in slide-in-from-left-12 duration-1000 max-w-sm mx-auto lg:mx-0 w-full">
-            {/* Corner Bracket Accents */}
-            <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 neon-border rounded-tl-3xl z-20" />
-            <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 neon-border rounded-br-3xl z-20" />
-            
-            <div className="relative aspect-[3/4] rounded-[4rem] overflow-hidden bg-[#6a8a8a] border border-white/5 shadow-2xl flex items-center justify-center p-8">
-              {/* Floating ID Tag */}
-              <div className="absolute top-8 left-8 glass-dark px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md z-30">
-                <span className="text-[8px] font-black tracking-widest uppercase text-white/50">REF // {look.id.substring(0, 8).toUpperCase()}</span>
+          <Button 
+            className="w-full h-16 rounded-[2rem] neon-bg text-black font-black text-xl border-none shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handlePurchase}
+            disabled={isOrdering}
+          >
+            {isOrdering ? (
+              <Loader2 className="animate-spin w-8 h-8" />
+            ) : (
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-6 h-6" />
+                Book Now
               </div>
-
-              {/* Centered Large Price Tag Overlay - EXACT REFERENCE STYLE */}
-              <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 text-center">
-                <span className="text-4xl font-black text-white drop-shadow-2xl">
-                  {look.currency === 'USD' ? `${look.price}$` : `${look.price} UZS`}
-                </span>
-                <span className="block text-white/40 font-black text-sm blur-[1px] -mt-2">
-                  {look.currency === 'USD' ? `${look.price}$` : `${look.price} UZS`}
-                </span>
-              </div>
-
-              <div className="relative w-full h-full scale-90 group-hover:scale-95 transition-transform duration-700">
-                <Image 
-                  src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'} 
-                  alt={t(look.name) || 'Look'} 
-                  fill 
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT: Content Section */}
-          <div className="space-y-10 py-6 animate-in fade-in slide-in-from-right-12 duration-1000 delay-300">
-            
-            <div className="space-y-6">
-              {/* Limited Production Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-[0.2em] text-white/40">
-                <Sparkles className="w-3 h-3 neon-text" />
-                LIMITED PRODUCTION
-              </div>
-              
-              {/* Massive Stylized Title (Slightly smaller for better balance) */}
-              <div className="space-y-4">
-                <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[0.9] italic uppercase neon-text drop-shadow-2xl">
-                  {t(look.name) || 'Unnamed Look'}
-                </h1>
-                <div className="w-32 h-1.5 neon-bg rounded-full" />
-              </div>
-              
-              {/* Description with newline support as requested */}
-              <p className="text-lg text-white/70 leading-relaxed font-medium max-w-xl whitespace-pre-line">
-                {t(look.description)}
-              </p>
-            </div>
-
-            {/* Current Valuation Glass Card (More compact) */}
-            <div className="space-y-8 glass-dark p-8 rounded-[3rem] border border-white/10 relative overflow-hidden shadow-2xl max-w-md">
-              <div className="absolute top-0 right-0 p-8">
-                <Zap className="w-8 h-8 text-white/5" />
-              </div>
-              
-              <div className="space-y-1">
-                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">CURRENT VALUATION</span>
-                <div className="text-6xl font-black neon-text tabular-nums">
-                  {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <Button 
-                  size="lg" 
-                  className="w-full rounded-2xl h-16 neon-bg text-black font-black text-lg border-none shadow-[0_0_60px_-15px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] group/btn"
-                  onClick={handlePurchase}
-                  disabled={isOrdering}
-                >
-                  {isOrdering ? (
-                    <Loader2 className="animate-spin w-8 h-8" />
-                  ) : (
-                    <div className="flex items-center justify-center gap-3">
-                      <ShoppingCart className="w-5 h-5 transition-transform group-hover/btn:-translate-y-1" />
-                      Complete Order
-                    </div>
-                  )}
-                </Button>
-                
-                <div className="text-center">
-                  <span className="text-[9px] font-bold text-white/20 uppercase tracking-[0.3em]">
-                    SECURED VIA BIOMETRIC VERIFICATION // 2026 TERMINAL
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+            )}
+          </Button>
         </div>
       </div>
     </div>
