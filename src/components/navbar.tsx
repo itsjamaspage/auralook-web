@@ -46,8 +46,8 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold">
-                {lang.toUpperCase()}
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 hover:bg-white/5 h-10 px-4 font-bold uppercase">
+                {lang}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-dark border-white/10">

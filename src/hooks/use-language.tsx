@@ -7,14 +7,14 @@ export type Language = 'uz' | 'ru' | 'en';
 const dictionary = {
   // Hero & Navigation
   heroTitle: { 
-    uz: 'Yangi Avlod kiyimlari',
+    uz: 'Yangi avlod kiyimlari',
     ru: 'Одежды Нового Поколения',
     en: 'New Generation Clothes'
   },
   heroSub: { 
-    uz: 'Kelajakni kiying, merosni his qiling.',
-    ru: 'Носите будущее, чувствуйте наследие.',
-    en: 'Wear the Future, Feel the Heritage.'
+    uz: 'Kelajak kiyimlarini kiying, merosni his qiling',
+    ru: 'Одевай одежду будущего, почувсвтуй наследие',
+    en: 'Wear clothes of the future, feel the heritage'
   },
   browseLooks: { 
     uz: 'Liboslarni Ko\'rish',
