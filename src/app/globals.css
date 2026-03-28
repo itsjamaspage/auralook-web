@@ -56,7 +56,7 @@
 }
 
 body {
-  animation: master-sync-cycle 15s infinite linear;
+  animation: master-sync-cycle 10s infinite linear;
   @apply bg-background text-foreground font-body antialiased;
 }
 

@@ -82,7 +82,7 @@ export default function AdminDashboard() {
                 <div className="p-4 rounded-full bg-white/5 group-hover/btn:neon-border transition-all">
                   <Plus className="w-8 h-8 neon-text" />
                 </div>
-                <span className="text-xl font-black text-white uppercase tracking-widest group-hover/btn:neon-text">
+                <span className="text-xl font-black neon-text uppercase tracking-widest">
                   {t(dictionary.newLook)}
                 </span>
                 <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.2em]">{t(dictionary.deployNewApparel)}</p>
