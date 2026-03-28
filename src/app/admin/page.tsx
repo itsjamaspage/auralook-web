@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -59,12 +60,12 @@ export default function AdminDashboard() {
           </h1>
         </div>
         
-        <Link href="/admin/looks/new">
-          <Button className="neon-bg text-black font-black px-6 rounded-xl h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs">
+        <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer">
+          <Link href="/admin/looks/new">
             <Plus className="w-4 h-4 mr-2" />
             {t(dictionary.newLook)}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       {/* Main Catalog View */}
@@ -148,11 +149,11 @@ export default function AdminDashboard() {
                         <p className="text-white/40 font-light text-base">
                           {t(dictionary.emptyCatalog)}
                         </p>
-                        <Link href="/admin/looks/new">
-                          <Button variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
+                        <Button asChild variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
+                          <Link href="/admin/looks/new">
                             {t(dictionary.createFirstLook)}
-                          </Button>
-                        </Link>
+                          </Link>
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

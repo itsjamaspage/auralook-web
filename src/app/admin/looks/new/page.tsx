@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -56,6 +57,17 @@ export default function NewLookPage() {
       setLoading(false);
     }
   }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = async () => {
     if (!name || !description || !price) {
@@ -116,20 +128,29 @@ export default function NewLookPage() {
                 className="w-full h-full object-cover opacity-80 transition-opacity"
               />
             )}
-            <div className={`absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 ${imageUrl ? 'border-white/20' : 'border-white/10'} m-4 rounded-[2rem] hover:neon-border transition-colors group`}>
+            <label className={`absolute inset-0 flex flex-col items-center justify-center p-8 border-dashed border-2 ${imageUrl ? 'border-white/20' : 'border-white/10'} m-4 rounded-[2rem] hover:neon-border transition-colors group cursor-pointer`}>
               {!imageUrl && (
                 <div className="bg-white/5 p-6 rounded-full mb-4 group-hover:neon-border transition-all">
                   <Plus className="w-12 h-12 neon-text" />
                 </div>
               )}
               <p className="text-xs font-bold text-center text-white/80 uppercase tracking-widest">{t(dictionary.uploadImage)}</p>
-              <Input 
-                className="mt-4 bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20" 
-                placeholder="Image URL" 
-                value={imageUrl} 
-                onChange={(e) => setImageUrl(e.target.value)}
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleFileChange} 
               />
-            </div>
+              <div className="mt-4 w-full px-4">
+                <Input 
+                  className="bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20 pointer-events-auto" 
+                  placeholder="Or enter Image URL" 
+                  value={imageUrl.startsWith('data:') ? '' : imageUrl} 
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </label>
           </Card>
         </div>
 
