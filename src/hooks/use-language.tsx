@@ -7,7 +7,7 @@ export type Language = 'uz' | 'ru' | 'en';
 const dictionary = {
   // Hero & Navigation
   heroTitle: { 
-    uz: 'Yangi avlod kiyimlari',
+    uz: 'Yangi Avlod kiyimlari',
     ru: 'Одежды Нового Поколения',
     en: 'New Generation Clothes'
   },
@@ -164,38 +164,6 @@ const dictionary = {
     uz: 'Dunyo bo\'ylab eng yaxshi dizaynerlardan saralangan, zamonaviy Toshkentning o\'ziga xos uslubiga moslashtirilgan.',
     ru: 'Отобрано у лучших дизайнеров со всего мира, адаптировано под уникальный стиль современного Ташкента.',
     en: 'Curated from the best designers worldwide, adapted to the unique style of modern Tashkent.'
-  },
-
-  // Product Detail
-  sizeAdvisor: { 
-    uz: 'Aqlli O\'lcham Maslahatchisi',
-    ru: 'Умный советник по размерам',
-    en: 'Smart Size Advisor'
-  },
-  buyNow: { 
-    uz: 'Sotib Olish',
-    ru: 'Купить сейчас',
-    en: 'Buy Now'
-  },
-  price: { 
-    uz: 'Narxi',
-    ru: 'Цена',
-    en: 'Price'
-  },
-  freeDelivery: { 
-    uz: 'Toshkent bo\'ylab bepul yetkazib berish',
-    ru: 'Бесплатная доставка по Ташкенту',
-    en: 'Free Delivery in Tashkent'
-  },
-  authenticity: { 
-    uz: 'Haqiqiyligi kafolatlangan',
-    ru: 'Гарантия подлинности',
-    en: 'Authenticity Guaranteed'
-  },
-  returns: { 
-    uz: '14 kunlik bepul qaytarish',
-    ru: '14 дней бесплатного возврата',
-    en: '14-Day Free Returns'
   },
 
   // Footer

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -35,12 +34,12 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  // Listen for auth state changes specifically for the signup flow
+  // Handle first user logic and user profile creation
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
-      if (newUser && !isLogin) {
+      if (newUser) {
         try {
-          // Check if this is the first user ever
+          // Check if this is the first user ever in the system
           const usersQuery = query(collection(db, 'users'), limit(1));
           const snapshot = await getDocs(usersQuery);
           const isFirstUser = snapshot.empty;
@@ -48,25 +47,27 @@ export default function LoginPage() {
           const userData = {
             id: newUser.uid,
             email: newUser.email,
-            telegramUsername: telegramUsername.startsWith('@') ? telegramUsername : `@${telegramUsername}`,
+            telegramUsername: telegramUsername ? (telegramUsername.startsWith('@') ? telegramUsername : `@${telegramUsername}`) : 'Pending',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
 
-          // Save user document
-          await setDoc(doc(db, 'users', newUser.uid), userData);
+          // For login, we only update if missing, but for signup we always create
+          if (!isLogin || isFirstUser) {
+            await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
+          }
 
-          // If first user, automatically make admin
+          // Grant admin roles if first user
           if (isFirstUser) {
-            await setDoc(doc(db, 'roles_order_managers', newUser.uid), userData);
-            await setDoc(doc(db, 'roles_look_creators', newUser.uid), userData);
+            await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
+            await setDoc(doc(db, 'roles_look_creators', newUser.uid), { userId: newUser.uid });
             toast({
-              title: "Admin Assigned",
-              description: "You are the first user and have been granted admin privileges.",
+              title: "Admin Privileges Granted",
+              description: "You are the primary administrator for Auralook.uz.",
             });
           }
         } catch (e) {
-          console.error("Error saving user data:", e);
+          console.error("Error managing user roles:", e);
         }
       }
     });
