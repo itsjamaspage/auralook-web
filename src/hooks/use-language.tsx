@@ -25,7 +25,7 @@ const dictionary = {
   passwordPlaceholder: { en: '••••••••', ru: '••••••••', uz: '••••••••' },
   telegramPlaceholder: { en: '@username', ru: '@имя_пользователя', uz: '@foydalanuvchi' },
   getStarted: { en: 'Get Started', ru: 'Начать', uz: 'Boshlash' },
-  dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: 'Akkauntingiz yo\'qmi? Yaratish' },
+  dontHaveAccount: { en: "Don't have an account? Sign up", ru: 'Нет аккаунта? Зарегистрироваться', uz: "Akkauntingiz yo'qmi? Yaratish" },
   alreadyHaveAccount: { en: 'Already have an account? Login', ru: 'Уже есть аккаунт? Войти', uz: 'Hisobingiz bormi? Kirish' },
   processing: { en: 'Processing...', ru: 'Обработка...', uz: 'Ishlanmoqda...' },
 

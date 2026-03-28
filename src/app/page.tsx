@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -14,7 +13,6 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // Generate random durations only on the client to avoid hydration mismatch
     setRandomDurations([...Array(12)].map(() => 7 + Math.random() * 5));
   }, []);
 

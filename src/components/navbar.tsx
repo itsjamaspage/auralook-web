@@ -61,7 +61,7 @@ export function Navbar() {
             user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="rounded-full border-primary/20 animate-neon-border border-2">
+                  <Button variant="outline" className="rounded-full animate-neon-border border-2 bg-transparent text-foreground hover:bg-white/5">
                     <User className="w-4 h-4 mr-2" />
                     {user.email?.split('@')[0]}
                   </Button>
@@ -77,7 +77,7 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <Button variant="outline" className="rounded-full border-primary/20 animate-neon-border border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                <Button variant="outline" className="rounded-full animate-neon-border border-2 bg-transparent text-foreground hover:bg-white/5 transition-all duration-300">
                   <User className="w-4 h-4 mr-2" />
                   {t(dictionary.login)}
                 </Button>
