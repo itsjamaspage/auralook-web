@@ -1,5 +1,7 @@
+
 "use client"
 
+import { useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
@@ -11,6 +13,7 @@ import { Loader2, ShoppingCart } from 'lucide-react';
 export default function LooksPage() {
   const db = useFirestore();
   const { t, dictionary } = useLanguage();
+  const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -30,44 +33,55 @@ export default function LooksPage() {
   return (
     <div className="container mx-auto px-6 py-12">
       <div className="space-y-2 mb-12">
-        <h1 className="text-4xl font-black tracking-tighter neon-text uppercase italic">
+        <h1 className="text-5xl font-black tracking-tighter neon-text uppercase italic">
           {t(dictionary.browseLooks)}
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
         {looks?.map((look) => (
-          <Link key={look.id} href={`/looks/${look.id}`}>
-            <Card className="glass-dark border-white/10 overflow-hidden group hover:neon-border transition-all duration-500 rounded-[2rem]">
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <Image
-                  src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                  alt={t(look.name) || 'Look'}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                  <div className="w-full h-12 neon-bg rounded-xl flex items-center justify-center text-black font-black uppercase text-xs gap-2">
-                    <ShoppingCart className="w-4 h-4" />
-                    {t(dictionary.viewDetails)}
-                  </div>
+          <Card key={look.id} className="bg-[#111] border-none overflow-hidden group rounded-[2.5rem] shadow-2xl relative">
+            <div className="relative aspect-[3/4] overflow-hidden p-4">
+              <Image
+                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
+                alt={t(look.name) || 'Look'}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[2rem]"
+              />
+              
+              {/* Bottom Action Overlay */}
+              <div className="absolute inset-x-0 bottom-6 px-6 z-10">
+                <Link 
+                  href={`/looks/${look.id}`} 
+                  onClick={() => setNavigatingId(look.id)}
+                  className="w-full h-14 neon-bg rounded-2xl flex items-center justify-center text-black font-black uppercase text-xs gap-3 shadow-[0_0_30px_rgba(0,255,100,0.3)] hover:scale-105 transition-all"
+                >
+                  {navigatingId === look.id ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      {t(dictionary.viewDetails)}
+                    </>
+                  )}
+                </Link>
+              </div>
+            </div>
+
+            <div className="p-8 pt-2 bg-black/40 backdrop-blur-sm space-y-2">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">REF: {look.id.substring(0, 8).toUpperCase()}</p>
+                  <p className="text-sm font-bold text-white/60 line-clamp-1 italic">{look.description}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-black text-white">
+                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                  </span>
                 </div>
               </div>
-              <div className="p-6 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <p className="text-xs font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</p>
-                    <p className="text-sm font-light text-white/80 line-clamp-1 italic">{t(look.description)}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-black neon-text block">
-                      {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </Link>
+            </div>
+          </Card>
         ))}
 
         {(!looks || looks.length === 0) && (
