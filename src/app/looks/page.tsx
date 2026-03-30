@@ -33,14 +33,14 @@ export default function LooksPage() {
   return (
     <div className="container mx-auto px-6 py-12">
       <div className="space-y-2 mb-12">
-        <h1 className="text-5xl font-black tracking-tighter neon-text uppercase italic">
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter neon-text uppercase italic">
           {t(dictionary.browseLooks)}
         </h1>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
         {looks?.map((look) => (
-          <Card key={look.id} className="bg-[#111] border-none overflow-hidden group rounded-[2.5rem] shadow-2xl relative">
+          <Card key={look.id} className="bg-[#080808] border-none overflow-hidden group rounded-[2.5rem] shadow-2xl relative">
             <div className="relative aspect-[3/4] overflow-hidden p-4">
               <Image
                 src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
@@ -54,7 +54,7 @@ export default function LooksPage() {
                 <Link 
                   href={`/looks/${look.id}`} 
                   onClick={() => setNavigatingId(look.id)}
-                  className="w-full h-14 neon-bg rounded-2xl flex items-center justify-center text-black font-black uppercase text-xs gap-3 shadow-[0_0_30px_rgba(0,255,100,0.3)] hover:scale-105 transition-all"
+                  className="w-full h-14 neon-bg rounded-2xl flex items-center justify-center text-black font-black uppercase text-xs gap-3 transition-[transform,opacity] hover:scale-105"
                 >
                   {navigatingId === look.id ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
