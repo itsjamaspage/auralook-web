@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -19,16 +20,13 @@ import {
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
   const { user, isUserLoading } = useUser();
-  const auth = authInstance();
+  const auth = useAuth();
   const db = useFirestore();
+  const [mounted, setMounted] = useState(false);
 
-  function authInstance() {
-    try {
-      return useAuth();
-    } catch {
-      return null;
-    }
-  }
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Admin Check
   const adminRoleRef = useMemoFirebase(() => {
@@ -90,7 +88,7 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {!isUserLoading && (
+          {mounted && !isUserLoading && (
             user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

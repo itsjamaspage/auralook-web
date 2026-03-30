@@ -72,7 +72,6 @@ export default function LooksPage() {
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">REF: {look.id.substring(0, 8).toUpperCase()}</p>
-                  <p className="text-sm font-bold text-white/60 line-clamp-1 italic">{look.description}</p>
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-black text-white">
