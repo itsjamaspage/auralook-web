@@ -182,16 +182,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               
               <div className="flex justify-between items-end relative z-10">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-7xl font-black text-white tracking-tighter">
+                  <span className="text-6xl font-black text-white tracking-tighter">
                     {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                   </span>
                   <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">USD</span>
                 </div>
                 <div className="text-right mb-2">
                   <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{t(dictionary.status)}</p>
-                  <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">
-                    {t(dictionary.readyForDispatch)}
-                  </p>
                 </div>
               </div>
             </div>
