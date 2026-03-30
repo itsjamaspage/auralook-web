@@ -11,6 +11,16 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Plus, 
   Loader2,
@@ -18,39 +28,38 @@ import {
   Trash2,
   Edit3,
   ExternalLink,
-  Package,
-  Share2
+  Package
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
-import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const db = useFirestore();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
-  const router = useRouter();
+  const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  const handleDeleteLook = (lookId: string) => {
-    if (!confirm("Are you sure you want to delete this item?")) return;
+  const confirmDelete = async () => {
+    if (!lookToDelete) return;
     
-    deleteDoc(doc(db, 'looks', lookId))
-      .then(() => {
-        toast({ 
-          title: "Deleted", 
-          description: "The look has been permanently removed." 
-        });
-      })
-      .catch((e) => {
-        console.error(e);
-        toast({ variant: "destructive", title: "Delete Failed" });
+    try {
+      await deleteDoc(doc(db, 'looks', lookToDelete));
+      toast({ 
+        title: "Deleted", 
+        description: "The item has been removed from your catalog." 
       });
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Delete Failed" });
+    } finally {
+      setLookToDelete(null);
+    }
   };
 
   const handleShare = async (look: any) => {
@@ -65,21 +74,19 @@ export default function AdminDashboard() {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('Share cancelled or failed', err);
+        console.log('Share cancelled', err);
       }
     } else {
-      // Fallback: Copy to clipboard
       try {
         await navigator.clipboard.writeText(shareUrl);
         toast({
           title: "Link Copied",
-          description: "Share link has been copied to your clipboard.",
+          description: "Share link copied to clipboard.",
         });
       } catch (err) {
         toast({
           variant: "destructive",
           title: "Share Failed",
-          description: "Could not copy link to clipboard.",
         });
       }
     }
@@ -168,7 +175,7 @@ export default function AdminDashboard() {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => handleDeleteLook(look.id)}
+                          onClick={() => setLookToDelete(look.id)}
                           className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -199,6 +206,26 @@ export default function AdminDashboard() {
           )}
         </Card>
       </div>
+
+      <AlertDialog open={!!lookToDelete} onOpenChange={() => setLookToDelete(null)}>
+        <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic tracking-tighter">Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60 font-medium">
+              Are you sure you want to permanently remove this item from the catalog? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10 rounded-xl px-6 h-12">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-white hover:bg-destructive/90 rounded-xl px-8 h-12 font-bold"
+            >
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
