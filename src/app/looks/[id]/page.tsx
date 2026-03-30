@@ -30,7 +30,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     setMounted(true);
   }, []);
 
-  // Firestore Data
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
 
@@ -133,32 +132,26 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-background text-foreground flex items-center justify-center py-4 overflow-hidden">
-      <div className="container mx-auto px-4 max-w-6xl relative">
+    <div className="min-h-[calc(100vh-80px)] bg-background text-foreground flex items-center justify-center py-6 overflow-hidden">
+      <div className="container mx-auto px-4 max-w-5xl relative">
         
-        {/* Dynamic Header - Sits high above photo */}
-        <div className="grid lg:grid-cols-12 gap-8 items-end relative z-10">
+        <div className="grid lg:grid-cols-12 gap-10 items-end relative z-10">
           
-          <div className="lg:col-span-7 relative">
-            {/* High Positioned Title */}
-            <div className="absolute -top-24 left-0 space-y-1">
-              <h1 className="text-6xl lg:text-8xl font-black neon-text uppercase italic tracking-tighter leading-none">
-                {look.name}
-              </h1>
-              <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] pl-2">COLLECTION 2026 // REF: {look.id.substring(0, 8)}</p>
+          {/* Left Column: Image */}
+          <div className="lg:col-span-6 relative">
+            {/* High-Positioned Back Button */}
+            <div className="absolute -top-12 left-0 z-20">
+              <Button 
+                variant="ghost" 
+                onClick={() => router.back()}
+                className="rounded-full w-9 h-9 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
             </div>
 
-            {/* Back Button */}
-            <Button 
-              variant="ghost" 
-              onClick={() => router.back()}
-              className="absolute -top-36 left-0 rounded-full w-10 h-10 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all z-20"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-
-            {/* Product Image */}
-            <div className="relative aspect-[4/5] lg:aspect-[3.5/4] max-h-[70vh] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group mt-12">
+            {/* Product Image with exact bottom alignment */}
+            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group">
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
@@ -167,39 +160,46 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 priority
               />
               
-              {/* Like Button inside Photo */}
+              {/* Integrated Like Button */}
               <button 
                 onClick={handleToggleLike}
-                className={`absolute bottom-6 right-6 w-14 h-14 rounded-full glass-dark border flex items-center justify-center transition-[transform,opacity] shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
+                className={`absolute bottom-6 right-6 w-12 h-12 rounded-full glass-dark border flex items-center justify-center transition-[transform,opacity] shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
               >
-                <Heart className={`w-7 h-7 ${isLiked ? 'fill-current' : ''}`} />
+                <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
               </button>
             </div>
           </div>
 
-          {/* Details Column */}
-          <div className="lg:col-span-5 flex flex-col justify-end space-y-6">
+          {/* Right Column: Details */}
+          <div className="lg:col-span-6 flex flex-col justify-end space-y-6">
             
-            {/* Status & Price labels - Aligned higher */}
-            <div className="flex justify-between items-end mb-4">
-              <div className="flex items-baseline gap-2">
-                <span className="text-6xl lg:text-7xl font-black text-white tracking-tighter">
-                  ${look.price}
-                </span>
-                <span className="text-xs font-bold text-white/30 uppercase tracking-widest">USD</span>
+            {/* Price & Status Area - Elevated */}
+            <div className="relative pb-2">
+              {/* Collection Watermark */}
+              <div className="absolute -top-16 right-0 text-8xl font-black text-white/5 italic select-none pointer-events-none tracking-tighter">
+                01/2026
               </div>
-              <div className="text-right">
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{t(dictionary.status)}</p>
-                <p className="text-xs font-black text-primary uppercase tracking-widest leading-tight">
-                  {t(dictionary.readyForDispatch)}
-                </p>
+              
+              <div className="flex justify-between items-end relative z-10">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl font-black text-white tracking-tighter">
+                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                  </span>
+                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">USD</span>
+                </div>
+                <div className="text-right mb-2">
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{t(dictionary.status)}</p>
+                  <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">
+                    {t(dictionary.readyForDispatch)}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Technical Box - Aligned with photo bottom */}
-            <div className="glass-dark border border-white/10 rounded-[2.5rem] p-8 lg:p-10 space-y-8 shadow-2xl">
+            {/* Technical Box - Aligned at bottom */}
+            <div className="glass-dark border border-white/10 rounded-[2.5rem] p-8 space-y-8 shadow-2xl">
               
-              {/* Technical Details */}
+              {/* Description */}
               <div className="space-y-3">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
                 <div className="text-base lg:text-lg text-white font-bold italic leading-relaxed whitespace-pre-line">
@@ -215,7 +215,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 rounded-xl text-xs font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                      className={`w-11 h-11 rounded-xl text-xs font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-105' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
                     >
                       {size}
                     </button>
@@ -223,12 +223,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 </div>
               </div>
 
-              {/* Action Button */}
-              <div className="pt-4">
+              {/* Primary Action */}
+              <div className="pt-2">
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
-                  className="w-full h-16 lg:h-20 rounded-3xl neon-bg text-black font-black text-lg lg:text-xl uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-16 rounded-3xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
                 </Button>

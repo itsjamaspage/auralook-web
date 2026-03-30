@@ -32,25 +32,28 @@ export default function LooksPage() {
 
   return (
     <div className="container mx-auto px-6 py-12">
-      <div className="space-y-2 mb-12">
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter neon-text uppercase italic">
+      <div className="space-y-2 mb-12 text-center lg:text-left">
+        <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tighter neon-text uppercase italic">
           {t(dictionary.browseLooks)}
         </h1>
+        <p className="text-white/40 font-black uppercase tracking-[0.3em] text-xs max-w-2xl">
+          {t(dictionary.curatedLooksSub)}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
         {looks?.map((look) => (
-          <Card key={look.id} className="bg-[#080808] border-none overflow-hidden group rounded-[2.5rem] shadow-2xl relative">
-            <div className="relative aspect-[3/4] overflow-hidden p-4">
+          <Card key={look.id} className="bg-[#080808] border-none overflow-hidden group rounded-[3rem] shadow-2xl relative">
+            <div className="relative aspect-[3/4] overflow-hidden p-3">
               <Image
                 src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
                 alt={t(look.name) || 'Look'}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[2rem]"
+                className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[2.5rem]"
               />
               
-              {/* Bottom Action Overlay */}
-              <div className="absolute inset-x-0 bottom-6 px-6 z-10">
+              {/* High-Fidelity Action Overlay */}
+              <div className="absolute inset-x-0 bottom-6 px-6 z-10 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                 <Link 
                   href={`/looks/${look.id}`} 
                   onClick={() => setNavigatingId(look.id)}
@@ -68,7 +71,7 @@ export default function LooksPage() {
               </div>
             </div>
 
-            <div className="p-8 pt-2 bg-black/40 backdrop-blur-sm space-y-2">
+            <div className="p-8 pt-2 bg-transparent space-y-2">
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">REF: {look.id.substring(0, 8).toUpperCase()}</p>
