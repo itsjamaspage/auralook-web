@@ -33,7 +33,8 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, deleteDoc } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function AdminDashboard() {
@@ -45,28 +46,25 @@ export default function AdminDashboard() {
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (!lookToDelete) return;
     
-    try {
-      await deleteDoc(doc(db, 'looks', lookToDelete));
-      toast({ 
-        title: "Deleted", 
-        description: "The item has been removed from your catalog." 
-      });
-    } catch (e) {
-      console.error(e);
-      toast({ variant: "destructive", title: "Delete Failed" });
-    } finally {
-      setLookToDelete(null);
-    }
+    const lookRef = doc(db, 'looks', lookToDelete);
+    deleteDocumentNonBlocking(lookRef);
+    
+    toast({ 
+      title: "Deletion Initiated", 
+      description: "The item is being removed from the catalog." 
+    });
+    
+    setLookToDelete(null);
   };
 
   const handleShare = async (look: any) => {
     const shareUrl = `${window.location.origin}/looks/${look.id}`;
     const shareData = {
-      title: look.name || 'Futuristic Look',
-      text: look.description || 'Check out this look on Auralook.uz',
+      title: look.name || 'Auralook.uz Catalog',
+      text: look.description || 'Check out this futuristic look on Auralook.uz',
       url: shareUrl,
     };
 
@@ -74,21 +72,29 @@ export default function AdminDashboard() {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('Share cancelled', err);
+        // Handle cancellation or failure silently or with a fallback
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(shareUrl);
+        }
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link Copied",
-          description: "Share link copied to clipboard.",
-        });
-      } catch (err) {
-        toast({
-          variant: "destructive",
-          title: "Share Failed",
-        });
-      }
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link Copied",
+        description: "Catalog link saved to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Share Failed",
+        description: "Could not copy link to clipboard.",
+      });
     }
   };
 
@@ -162,19 +168,21 @@ export default function AdminDashboard() {
                         <Button 
                           variant="ghost" 
                           size="icon" 
+                          type="button"
                           onClick={() => handleShare(look)}
                           className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Button>
                         <Link href={`/admin/looks/${look.id}/edit`}>
-                          <Button variant="ghost" size="icon" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
+                          <Button variant="ghost" size="icon" type="button" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
                             <Edit3 className="w-4 h-4" />
                           </Button>
                         </Link>
                         <Button 
                           variant="ghost" 
                           size="icon" 
+                          type="button"
                           onClick={() => setLookToDelete(look.id)}
                           className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
                         >
@@ -207,8 +215,8 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <AlertDialog open={!!lookToDelete} onOpenChange={() => setLookToDelete(null)}>
-        <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem]">
+      <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
+        <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem] text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic tracking-tighter">Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription className="text-white/60 font-medium">
@@ -219,7 +227,7 @@ export default function AdminDashboard() {
             <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10 rounded-xl px-6 h-12">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90 rounded-xl px-8 h-12 font-bold"
+              className="bg-destructive text-white hover:bg-destructive/90 rounded-xl px-8 h-12 font-bold border-none"
             >
               Delete Permanently
             </AlertDialogAction>
