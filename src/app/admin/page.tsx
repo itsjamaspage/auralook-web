@@ -18,33 +18,70 @@ import {
   Trash2,
   Edit3,
   ExternalLink,
-  Package
+  Package,
+  Share2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const db = useFirestore();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
+  const router = useRouter();
 
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  const handleDeleteLook = async (lookId: string) => {
+  const handleDeleteLook = (lookId: string) => {
     if (!confirm("Are you sure you want to delete this item?")) return;
-    try {
-      await deleteDoc(doc(db, 'looks', lookId));
-      toast({ 
-        title: "Deleted", 
-        description: "The look has been permanently removed from your catalog." 
+    
+    deleteDoc(doc(db, 'looks', lookId))
+      .then(() => {
+        toast({ 
+          title: "Deleted", 
+          description: "The look has been permanently removed." 
+        });
+      })
+      .catch((e) => {
+        console.error(e);
+        toast({ variant: "destructive", title: "Delete Failed" });
       });
-    } catch (e) {
-      console.error(e);
-      toast({ variant: "destructive", title: "Delete Failed" });
+  };
+
+  const handleShare = async (look: any) => {
+    const shareUrl = `${window.location.origin}/looks/${look.id}`;
+    const shareData = {
+      title: look.name || 'Futuristic Look',
+      text: look.description || 'Check out this look on Auralook.uz',
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Share cancelled or failed', err);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Link Copied",
+          description: "Share link has been copied to your clipboard.",
+        });
+      } catch (err) {
+        toast({
+          variant: "destructive",
+          title: "Share Failed",
+          description: "Could not copy link to clipboard.",
+        });
+      }
     }
   };
 
@@ -115,14 +152,19 @@ export default function AdminDashboard() {
                     </TableCell>
                     <TableCell className="text-right pr-8">
                       <div className="flex justify-end gap-2">
-                        <Link href={`/looks/${look.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleShare(look)}
+                          className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                        <Link href={`/admin/looks/${look.id}/edit`}>
                           <Button variant="ghost" size="icon" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
-                            <ExternalLink className="w-4 h-4" />
+                            <Edit3 className="w-4 h-4" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
