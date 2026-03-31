@@ -149,18 +149,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             <div className="relative flex-grow aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#080808]">
-              {/* Image Price Watermark */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <span className="text-3xl font-black text-white/90 uppercase italic tracking-tighter">
-                  {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                </span>
-              </div>
-
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
                 fill 
-                className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
               
@@ -183,9 +176,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </span>
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{look.currency || 'USD'}</span>
-              </div>
-              <div className="text-right mb-1">
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{t(dictionary.status)}</p>
               </div>
             </div>
 
