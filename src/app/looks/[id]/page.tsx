@@ -82,6 +82,30 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   const handlePurchase = async () => {
+    // 1. Detect Telegram Mini App Context
+    const tg = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
+
+    if (tg && tg.initData) {
+      // We are inside Telegram Mini App
+      try {
+        const orderPayload = {
+          outfit_id: id,
+          outfit_name: look.name,
+          price: look.price,
+          currency: look.currency || 'USD',
+          size: selectedSize,
+          customer: tg.initDataUnsafe?.user || {}
+        };
+        
+        // This sends data to your Telegram Bot and closes the Mini App
+        tg.sendData(JSON.stringify(orderPayload));
+        return;
+      } catch (e) {
+        console.error("Telegram sendData failed", e);
+      }
+    }
+
+    // 2. Standard Web Flow (Fallback)
     if (!user) {
       toast({
         title: t(dictionary.registrationRequiredTitle),
@@ -136,7 +160,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         
         <div className="grid lg:grid-cols-12 gap-8 items-stretch relative z-10">
           
-          {/* Left Column: Image */}
           <div className="lg:col-span-6 flex flex-col relative h-full">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
@@ -166,20 +189,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
 
-          {/* Right Column: Details */}
           <div className="lg:col-span-6 flex flex-col h-full">
             
-            {/* Header labels above the card */}
             <div className="flex justify-between items-end mb-4 px-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white tracking-tighter">
+                <span className="text-2xl font-black text-white tracking-tighter">
                   {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </span>
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{look.currency || 'USD'}</span>
               </div>
             </div>
 
-            {/* Main Content Card - Stretches to match image height */}
             <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02]">
               
               <div className="space-y-6">
