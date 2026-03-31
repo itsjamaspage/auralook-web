@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -89,11 +90,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       // We are inside Telegram Mini App
       try {
         const orderPayload = {
+          type: 'OUT_STORE_ORDER',
           outfit_id: id,
           outfit_name: look.name,
           price: look.price,
           currency: look.currency || 'USD',
           size: selectedSize,
+          timestamp: new Date().toISOString(),
           customer: tg.initDataUnsafe?.user || {}
         };
         
@@ -157,10 +160,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-center justify-center py-4">
       <div className="container mx-auto px-4 max-w-5xl relative">
-        
         <div className="grid lg:grid-cols-12 gap-8 items-stretch relative z-10">
           
-          <div className="lg:col-span-6 flex flex-col relative h-full">
+          <div className="lg:col-span-6 flex flex-col relative">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
@@ -182,7 +184,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               
               <button 
                 onClick={handleToggleLike}
-                className={`absolute bottom-6 right-6 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-[transform,opacity] shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
+                className={`absolute bottom-6 right-6 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
               >
                 <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
               </button>
@@ -190,10 +192,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
 
           <div className="lg:col-span-6 flex flex-col h-full">
-            
             <div className="flex justify-between items-end mb-4 px-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-white tracking-tighter">
+                <span className="text-xl font-black text-white tracking-tighter">
                   {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </span>
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{look.currency || 'USD'}</span>
@@ -201,7 +202,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02]">
-              
               <div className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
@@ -217,7 +217,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`w-10 h-10 rounded-full text-[10px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                        className={`w-10 h-10 rounded-full text-[10px] font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
                       >
                         {size}
                       </button>
@@ -230,7 +230,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
-                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.1em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
                 </Button>
