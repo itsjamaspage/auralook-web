@@ -161,6 +161,38 @@ const dictionary = {
     en: 'FREE DELIVERY'
   },
 
+  // Toast Notifications
+  orderProcessedTitle: {
+    uz: 'Buyurtma qabul qilindi',
+    ru: 'Заказ обработан',
+    en: 'Order Processed'
+  },
+  orderProcessedDesc: {
+    uz: 'Tez orada menejerimiz siz bilan Telegram orqali bog\'lanadi.',
+    ru: 'Наш менеджер скоро свяжется с вами в Telegram.',
+    en: 'Our manager will contact you on Telegram shortly.'
+  },
+  orderFailedTitle: {
+    uz: 'Xatolik yuz berdi',
+    ru: 'Ошибка заказа',
+    en: 'Order Failed'
+  },
+  orderFailedDesc: {
+    uz: 'Tizimda xatolik yuz berdi. Iltimos qaytadan urunib ko\'ring.',
+    ru: 'Системная ошибка. Пожалуйста, попробуйте еще раз.',
+    en: 'System error. Please retry.'
+  },
+  registrationRequiredTitle: {
+    uz: 'Ro\'yxatdan o\'tish kerak',
+    ru: 'Требуется регистрация',
+    en: 'Registration Required'
+  },
+  registrationRequiredDesc: {
+    uz: 'Buyurtma berish uchun iltimos hisobingizga kiring.',
+    ru: 'Пожалуйста, войдите, чтобы оформить заказ.',
+    en: 'Please log in to place an order.'
+  },
+
   // Admin Dashboard
   adminDashboard: {
     uz: 'Boshqaruv Paneli',

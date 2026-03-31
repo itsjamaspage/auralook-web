@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -58,8 +57,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     
     if (!user) {
       toast({
-        title: "Registration Required",
-        description: "Please log in to save looks to your favorites.",
+        title: t(dictionary.registrationRequiredTitle),
+        description: t(dictionary.registrationRequiredDesc),
         variant: "destructive"
       });
       router.push('/login');
@@ -85,8 +84,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const handlePurchase = async () => {
     if (!user) {
       toast({
-        title: "Registration Required",
-        description: "Please log in to place an order.",
+        title: t(dictionary.registrationRequiredTitle),
+        description: t(dictionary.registrationRequiredDesc),
         variant: "destructive"
       });
       router.push('/login');
@@ -114,15 +113,15 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       await addDoc(collection(db, 'orders'), orderData);
 
       toast({
-        title: "Order Processed",
-        description: "Our manager will contact you on Telegram shortly.",
+        title: t(dictionary.orderProcessedTitle),
+        description: t(dictionary.orderProcessedDesc),
       });
     } catch (e) {
       console.error(e);
       toast({
         variant: "destructive",
-        title: "Order Failed",
-        description: "System error. Please retry.",
+        title: t(dictionary.orderFailedTitle),
+        description: t(dictionary.orderFailedDesc),
       });
     } finally {
       setIsOrdering(false);
@@ -149,11 +148,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </Button>
             </div>
 
-            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#3b4b4d]">
+            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#080808]">
               {/* Image Price Watermark */}
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <span className="text-4xl font-black text-white/90 uppercase italic tracking-tighter">
-                  {look.price}{look.currency === 'UZS' ? 's' : '$'}
+                <span className="text-3xl font-black text-white/90 uppercase italic tracking-tighter">
+                  {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </span>
               </div>
 
@@ -180,12 +179,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             {/* Header labels above the card */}
             <div className="flex justify-between items-end mb-4 px-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-white tracking-tighter">
+                <span className="text-3xl font-black text-white tracking-tighter">
                   {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                 </span>
-                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">{look.currency || 'USD'}</span>
+                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{look.currency || 'USD'}</span>
               </div>
-              <div className="text-right mb-2">
+              <div className="text-right mb-1">
                 <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{t(dictionary.status)}</p>
               </div>
             </div>
@@ -196,7 +195,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                  <div className="text-base lg:text-lg text-white font-bold italic leading-relaxed whitespace-pre-line">
+                  <div className="text-sm lg:text-base text-white font-bold italic leading-relaxed whitespace-pre-line">
                     {look.description}
                   </div>
                 </div>
@@ -208,7 +207,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`w-12 h-12 rounded-full text-[11px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                        className={`w-10 h-10 rounded-full text-[10px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
                       >
                         {size}
                       </button>
@@ -221,7 +220,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
-                  className="w-full h-16 rounded-2xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
                 </Button>
