@@ -132,13 +132,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-center justify-center py-4 overflow-hidden">
+    <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-center justify-center py-4">
       <div className="container mx-auto px-4 max-w-5xl relative">
         
-        <div className="grid lg:grid-cols-12 gap-8 items-end relative z-10">
+        <div className="grid lg:grid-cols-12 gap-8 items-stretch relative z-10">
           
           {/* Left Column: Image */}
-          <div className="lg:col-span-6 relative">
+          <div className="lg:col-span-6 flex flex-col relative h-full">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
@@ -149,12 +149,19 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </Button>
             </div>
 
-            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group">
+            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#3b4b4d]">
+              {/* Image Price Watermark */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                <span className="text-4xl font-black text-white/90 uppercase italic tracking-tighter">
+                  {look.price}{look.currency === 'UZS' ? 's' : '$'}
+                </span>
+              </div>
+
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
                 fill 
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                 priority
               />
               
@@ -168,55 +175,57 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
 
           {/* Right Column: Details */}
-          <div className="lg:col-span-6 flex flex-col justify-end space-y-4">
+          <div className="lg:col-span-6 flex flex-col h-full">
             
-            <div className="relative pb-2">
-              <div className="flex justify-between items-end relative z-10">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-white tracking-tighter">
-                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                  </span>
-                  <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">USD</span>
-                </div>
-                <div className="text-right mb-2">
-                  <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">{t(dictionary.status)}</p>
-                </div>
+            {/* Header labels above the card */}
+            <div className="flex justify-between items-end mb-4 px-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black text-white tracking-tighter">
+                  {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                </span>
+                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">{look.currency || 'USD'}</span>
+              </div>
+              <div className="text-right mb-2">
+                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{t(dictionary.status)}</p>
               </div>
             </div>
 
-            <div className="glass-dark border border-white/10 rounded-[2rem] p-6 space-y-6 shadow-2xl">
+            {/* Main Content Card - Stretches to match image height */}
+            <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02]">
               
-              <div className="space-y-2">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-sm lg:text-base text-white font-bold italic leading-relaxed whitespace-pre-line">
-                  {look.description}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                  <div className="text-base lg:text-lg text-white font-bold italic leading-relaxed whitespace-pre-line">
+                    {look.description}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.selectSizeMatrix)}</p>
+                  <div className="flex flex-wrap gap-3">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`w-12 h-12 rounded-full text-[11px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.selectSizeMatrix)}</p>
-                <div className="flex flex-wrap gap-2">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-10 h-10 rounded-lg text-[10px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-105' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2">
+              <div className="space-y-4 mt-8">
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
-                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-base uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.01] active:scale-[0.99]"
+                  className="w-full h-16 rounded-2xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
                 </Button>
-                <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] text-center mt-3">
+                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] text-center">
                   {t(dictionary.secureCheckout)}
                 </p>
               </div>
