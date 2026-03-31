@@ -132,26 +132,24 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-background text-foreground flex items-center justify-center py-6 overflow-hidden">
+    <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-center justify-center py-4 overflow-hidden">
       <div className="container mx-auto px-4 max-w-5xl relative">
         
-        <div className="grid lg:grid-cols-12 gap-10 items-end relative z-10">
+        <div className="grid lg:grid-cols-12 gap-8 items-end relative z-10">
           
           {/* Left Column: Image */}
           <div className="lg:col-span-6 relative">
-            {/* High-Positioned Back Button */}
-            <div className="absolute -top-12 left-0 z-20">
+            <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
-                className="rounded-full w-9 h-9 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
+                className="rounded-full w-8 h-8 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </Button>
             </div>
 
-            {/* Product Image with exact bottom alignment */}
-            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group">
+            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group">
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
@@ -160,59 +158,49 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 priority
               />
               
-              {/* Integrated Like Button */}
               <button 
                 onClick={handleToggleLike}
-                className={`absolute bottom-6 right-6 w-12 h-12 rounded-full glass-dark border flex items-center justify-center transition-[transform,opacity] shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
+                className={`absolute bottom-6 right-6 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-[transform,opacity] shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
               >
-                <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
+                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
               </button>
             </div>
           </div>
 
           {/* Right Column: Details */}
-          <div className="lg:col-span-6 flex flex-col justify-end space-y-6">
+          <div className="lg:col-span-6 flex flex-col justify-end space-y-4">
             
-            {/* Price & Status Area - Elevated */}
             <div className="relative pb-2">
-              {/* Collection Watermark */}
-              <div className="absolute -top-16 right-0 text-8xl font-black text-white/5 italic select-none pointer-events-none tracking-tighter">
-                01/2026
-              </div>
-              
               <div className="flex justify-between items-end relative z-10">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-black text-white tracking-tighter">
+                  <span className="text-4xl font-black text-white tracking-tighter">
                     {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
                   </span>
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">USD</span>
+                  <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">USD</span>
                 </div>
                 <div className="text-right mb-2">
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{t(dictionary.status)}</p>
+                  <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">{t(dictionary.status)}</p>
                 </div>
               </div>
             </div>
 
-            {/* Technical Box - Aligned at bottom */}
-            <div className="glass-dark border border-white/10 rounded-[2.5rem] p-8 space-y-8 shadow-2xl">
+            <div className="glass-dark border border-white/10 rounded-[2rem] p-6 space-y-6 shadow-2xl">
               
-              {/* Description */}
-              <div className="space-y-3">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-base lg:text-lg text-white font-bold italic leading-relaxed whitespace-pre-line">
+              <div className="space-y-2">
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-sm lg:text-base text-white font-bold italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>
               </div>
 
-              {/* Size Select */}
-              <div className="space-y-4">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.selectSizeMatrix)}</p>
+              <div className="space-y-3">
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.selectSizeMatrix)}</p>
                 <div className="flex flex-wrap gap-2">
                   {sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-11 h-11 rounded-xl text-xs font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-105' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                      className={`w-10 h-10 rounded-lg text-[10px] font-black transition-[transform,opacity] border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-105' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
                     >
                       {size}
                     </button>
@@ -220,15 +208,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 </div>
               </div>
 
-              {/* Primary Action */}
               <div className="pt-2">
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
-                  className="w-full h-16 rounded-3xl neon-bg text-black font-black text-lg uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-base uppercase tracking-[0.1em] border-none transition-[transform,opacity] hover:scale-[1.01] active:scale-[0.99]"
                 >
                   {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
                 </Button>
+                <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] text-center mt-3">
+                  {t(dictionary.secureCheckout)}
+                </p>
               </div>
             </div>
           </div>

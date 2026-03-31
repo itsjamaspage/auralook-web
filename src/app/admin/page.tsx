@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -72,7 +73,6 @@ export default function AdminDashboard() {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // Handle cancellation or failure silently or with a fallback
         if ((err as Error).name !== 'AbortError') {
           copyToClipboard(shareUrl);
         }
