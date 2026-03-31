@@ -37,6 +37,15 @@ export default function RootLayout({
             </main>
             <Toaster />
             <Footer />
+            <Script id="tg-init" strategy="afterInteractive">
+              {`
+                if (window.Telegram && window.Telegram.WebApp) {
+                  const tg = window.Telegram.WebApp;
+                  tg.ready();
+                  tg.expand();
+                }
+              `}
+            </Script>
           </LanguageProvider>
         </FirebaseClientProvider>
       </body>
