@@ -67,7 +67,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     const unsubscribe = onAuthStateChanged(
       auth,
       async (firebaseUser) => {
-        // Handle Telegram Auto-Login if no user is found
+        // Handle Telegram Auto-Login if no user is found and we are in a Telegram environment
         if (!firebaseUser && typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
           const tg = (window as any).Telegram.WebApp;
           if (tg.initDataUnsafe?.user) {
@@ -89,7 +89,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
             const userRef = doc(firestore, 'users', firebaseUser.uid);
             setDoc(userRef, {
               id: firebaseUser.uid,
-              email: firebaseUser.email || 'anonymous@telegram.user',
+              email: firebaseUser.email || `${tgUser.id}@telegram.user`,
               telegramId: tgUser.id,
               telegramUsername: tgUser.username ? `@${tgUser.username}` : 'Not provided',
               firstName: tgUser.first_name || 'User',
