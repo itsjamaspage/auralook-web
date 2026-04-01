@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed, real-time order status updates for Telegram.
@@ -69,7 +70,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
   const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
   if (!token || !adminChatId) {
-    console.warn("Telegram Bot Token or Admin Chat ID is not configured in environment variables.");
+    console.warn("Telegram configuration is missing. Check your .env file.");
     return;
   }
 
