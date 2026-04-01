@@ -41,12 +41,14 @@
 
 @keyframes master-sync-pulse {
   0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
-  50% { --sync-color: hsl(180 100% 60%); --sync-shadow: hsla(180, 100%, 60%, 0.4); }
+  25% { --sync-color: hsl(190 100% 50%); --sync-shadow: hsla(190, 100%, 50%, 0.4); }
+  50% { --sync-color: hsl(280 100% 65%); --sync-shadow: hsla(280, 100%, 65%, 0.4); }
+  75% { --sync-color: hsl(320 100% 60%); --sync-shadow: hsla(320, 100%, 60%, 0.4); }
   100% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
 }
 
 :root {
-  animation: master-sync-pulse 4s infinite ease-in-out;
+  animation: master-sync-pulse 8s infinite ease-in-out;
 }
 
 body {

@@ -24,6 +24,7 @@ export function BottomNav() {
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
+    { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
     { label: t(dictionary.advisor), icon: Zap, href: '/advisor' },
     { label: t(dictionary.profile), icon: isAdmin ? LayoutDashboard : User, href: isAdmin ? '/admin' : '/profile' },
   ];
@@ -34,7 +35,7 @@ export function BottomNav() {
     return (
       <Link 
         href={item.href}
-        className="flex flex-col items-center gap-1 group relative py-2 px-1"
+        className="flex flex-col items-center gap-1 group relative py-2 px-1 flex-1"
       >
         <div className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500",
@@ -48,7 +49,7 @@ export function BottomNav() {
           )} />
         </div>
         <span className={cn(
-          "text-[8px] font-black uppercase tracking-[0.15em] font-mono transition-colors",
+          "text-[8px] font-black uppercase tracking-[0.15em] font-mono transition-colors text-center whitespace-nowrap",
           isActive ? "neon-text" : "text-white/20"
         )}>
           {item.label}
@@ -57,60 +58,14 @@ export function BottomNav() {
     );
   };
 
-  const isCartActive = pathname === '/orders';
-
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-8 pointer-events-none">
       <div className="max-w-md mx-auto relative flex items-end justify-center pointer-events-auto">
-        
         {/* Futuristic Floating Command Bridge */}
-        <div className="glass-dark border border-white/10 rounded-[2.5rem] h-20 w-full flex items-center justify-around relative px-2 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-visible">
-          
-          {/* Left Wing */}
-          <div className="flex flex-1 justify-around items-center h-full">
-            {navItems.slice(0, 2).map((item) => (
-              <NavButton key={item.href} item={item} />
-            ))}
-          </div>
-
-          {/* Central Module (Cart) */}
-          <div className="relative -top-10 mx-2">
-            <Link href="/orders" className="flex flex-col items-center gap-1 group">
-              <div className="relative">
-                {/* Active Glow Ring - only shows when active */}
-                {isCartActive && (
-                  <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 animate-pulse" />
-                )}
-                
-                <div className={cn(
-                  "w-14 h-14 rounded-full flex items-center justify-center relative z-10 transition-all duration-500 group-hover:scale-110 active:scale-95",
-                  isCartActive 
-                    ? "neon-bg shadow-[0_0_30px_rgba(var(--sync-color),0.5)]" 
-                    : "bg-white/5 border border-white/10 group-hover:border-white/30"
-                )}>
-                  <ShoppingBag className={cn(
-                    "w-6 h-6 transition-colors",
-                    isCartActive ? "text-black stroke-[2.5px]" : "text-white/40 group-hover:text-white/60"
-                  )} />
-                </div>
-              </div>
-              
-              <span className={cn(
-                "text-[8px] font-black uppercase tracking-[0.2em] font-mono transition-colors",
-                isCartActive ? "neon-text" : "text-white/20"
-              )}>
-                {t(dictionary.cart)}
-              </span>
-            </Link>
-          </div>
-
-          {/* Right Wing */}
-          <div className="flex flex-1 justify-around items-center h-full">
-            {navItems.slice(2, 4).map((item) => (
-              <NavButton key={item.href} item={item} />
-            ))}
-          </div>
-
+        <div className="glass-dark border border-white/10 rounded-[2.5rem] h-20 w-full flex items-center justify-between relative px-2 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+          {navItems.map((item) => (
+            <NavButton key={item.href} item={item} />
+          ))}
         </div>
       </div>
     </div>
