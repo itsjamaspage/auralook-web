@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -7,22 +8,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
-import { Ruler, Loader2, Sparkles, CheckCircle2, Zap } from 'lucide-react';
+import { Ruler, Loader2, Sparkles, CheckCircle2, Zap, Send, UserCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
+import { useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdvisorPage() {
   const { t, dictionary } = useLanguage();
+  const db = useFirestore();
+  const { user } = useUser();
+  const { toast } = useToast();
+  
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SmartSizeRecommendationOutput | null>(null);
   
   const [formData, setFormData] = useState({
     height: 175,
     weight: 70,
     gender: 'male' as 'male' | 'female' | 'other',
-    fit: 'regular' as 'tight' | 'regular' | 'loose'
+    fit: 'regular' as 'tight' | 'regular' | 'loose',
+    knownSize: ''
   });
 
-  async function handleRecommend() {
+  async function handleAIRecommend() {
     setLoading(true);
     try {
       const recommendation = await smartSizeRecommendation({
@@ -39,10 +49,50 @@ export default function AdvisorPage() {
     }
   }
 
+  async function handleSendToAdmin() {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Tizimga kiring",
+        description: "Murojaat yuborish uchun tizimga kirishingiz kerak."
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await addDoc(collection(db, 'consultations'), {
+        userId: user.uid,
+        customerName: user.displayName || user.email?.split('@')[0] || 'Mijoz',
+        telegramUsername: (user as any).telegramUsername || 'Not provided',
+        heightCm: formData.height,
+        weightKg: formData.weight,
+        gender: formData.gender,
+        desiredFit: formData.fit,
+        knownSize: formData.knownSize || 'Noma\'lum',
+        createdAt: new Date().toISOString()
+      });
+
+      toast({
+        title: "Yuborildi",
+        description: "Sizning ma'lumotlaringiz menejerga yuborildi. Tez orada bog'lanamiz."
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Xatolik",
+        description: "Ma'lumotlarni yuborishda xatolik yuz berdi."
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
-        <Zap className="w-6 h-6 neon-text" />
+        <Zap className="w-6 h-6 neon-text transition-none" />
         <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
           {t(dictionary.advisor)}
         </h1>
@@ -55,11 +105,11 @@ export default function AdvisorPage() {
 
         <div className="space-y-2 relative z-10">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <Sparkles className="w-5 h-5 neon-text" />
+            <Sparkles className="w-5 h-5 neon-text transition-none" />
             Smart Advisor
           </h2>
           <p className="text-sm text-white/40 font-medium">
-            Bizning AI sizning tanangizga mos keladigan mukammal o'lchamni hisoblab chiqadi.
+            Bizning AI va menejerlarimiz sizga mukammal o'lchamni tanlashda yordam beradi.
           </p>
         </div>
 
@@ -72,7 +122,7 @@ export default function AdvisorPage() {
                   type="number" 
                   value={formData.height} 
                   onChange={(e) => setFormData({...formData, height: parseInt(e.target.value)})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white transition-none"
                 />
               </div>
               <div className="space-y-3">
@@ -81,20 +131,30 @@ export default function AdvisorPage() {
                   type="number" 
                   value={formData.weight}
                   onChange={(e) => setFormData({...formData, weight: parseInt(e.target.value)})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white transition-none"
                 />
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">O'lchamingiz (agar bilsangiz)</Label>
+              <Input 
+                placeholder="Masalan: M yoki 48"
+                value={formData.knownSize}
+                onChange={(e) => setFormData({...formData, knownSize: e.target.value})}
+                className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white transition-none"
+              />
             </div>
 
             <div className="space-y-4">
               <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Jinsingiz</Label>
               <RadioGroup value={formData.gender} onValueChange={(val: any) => setFormData({...formData, gender: val})} className="flex gap-8">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="male" id="male" className="border-white/20 data-[state=checked]:neon-border" />
+                  <RadioGroupItem value="male" id="male" className="transition-none" />
                   <Label htmlFor="male" className="text-xs font-bold text-white/80">Erkak</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="female" id="female" className="border-white/20 data-[state=checked]:neon-border" />
+                  <RadioGroupItem value="female" id="female" className="transition-none" />
                   <Label htmlFor="female" className="text-xs font-bold text-white/80">Ayol</Label>
                 </div>
               </RadioGroup>
@@ -102,51 +162,75 @@ export default function AdvisorPage() {
 
             <div className="space-y-4">
               <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Kiyinish uslubingiz</Label>
-              <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex flex-wrap gap-6">
+              <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex flex-col gap-4">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="tight" id="tight" className="border-white/20 data-[state=checked]:neon-border" />
+                  <RadioGroupItem value="tight" id="tight" className="transition-none" />
                   <Label htmlFor="tight" className="text-xs font-bold text-white/80">Yopishib turadigan</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="regular" id="reg" className="border-white/20 data-[state=checked]:neon-border" />
+                  <RadioGroupItem value="regular" id="reg" className="transition-none" />
                   <Label htmlFor="reg" className="text-xs font-bold text-white/80">O'rtacha</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="loose" id="loose" className="border-white/20 data-[state=checked]:neon-border" />
+                  <RadioGroupItem value="loose" id="loose" className="transition-none" />
                   <Label htmlFor="loose" className="text-xs font-bold text-white/80">Kengroq</Label>
                 </div>
               </RadioGroup>
             </div>
 
-            <Button 
-              onClick={handleRecommend} 
-              disabled={loading}
-              className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-widest border-none shadow-2xl"
-            >
-              {loading ? <Loader2 className="animate-spin mr-2" /> : "Hisoblash"}
-            </Button>
+            <div className="grid grid-cols-1 gap-4 pt-4">
+              <Button 
+                onClick={handleAIRecommend} 
+                disabled={loading || submitting}
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-widest border-none shadow-2xl transition-none"
+              >
+                {loading ? <Loader2 className="animate-spin mr-2" /> : (
+                  <><Sparkles className="w-4 h-4 mr-2" /> AI Hisoblash</>
+                )}
+              </Button>
+              <Button 
+                onClick={handleSendToAdmin} 
+                disabled={loading || submitting}
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:neon-border hover:neon-text transition-none"
+              >
+                {submitting ? <Loader2 className="animate-spin mr-2" /> : (
+                  <><Send className="w-4 h-4 mr-2" /> Menejerga yuborish</>
+                )}
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="py-8 text-center space-y-8 relative z-10">
-            <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-white/5 border-2 neon-border animate-pulse mb-2">
-              <span className="text-5xl font-black neon-text">{result.recommendedSize}</span>
+            <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-white/5 border-2 neon-border animate-pulse mb-2 transition-none">
+              <span className="text-5xl font-black neon-text transition-none">{result.recommendedSize}</span>
             </div>
             <div className="space-y-4">
               <h3 className="text-xl font-bold flex items-center justify-center gap-2 text-white">
-                <CheckCircle2 className="w-6 h-6 neon-text" />
+                <CheckCircle2 className="w-6 h-6 neon-text transition-none" />
                 Tavsiya etilgan o'lcham: {result.recommendedSize}
               </h3>
               <p className="text-white/60 text-sm leading-relaxed px-6 italic font-medium">
                 "{result.explanation}"
               </p>
             </div>
-            <Button 
-                onClick={() => setResult(null)} 
-                variant="ghost" 
-                className="w-full rounded-xl border border-white/10 text-white/40 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
-            >
-              O'lchamlarni o'zgartirish
-            </Button>
+            
+            <div className="flex flex-col gap-4">
+              <Button 
+                onClick={handleSendToAdmin} 
+                disabled={submitting}
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-widest border-none transition-none"
+              >
+                <UserCheck className="w-4 h-4 mr-2" /> Menejer tasdiqlashi
+              </Button>
+              <Button 
+                  onClick={() => setResult(null)} 
+                  variant="ghost" 
+                  className="w-full rounded-xl border border-white/10 text-white/40 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
+              >
+                O'lchamlarni o'zgartirish
+              </Button>
+            </div>
           </div>
         )}
       </Card>

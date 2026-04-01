@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -38,12 +39,13 @@ import {
   CheckCircle2,
   Clock,
   User,
-  ShoppingBag
+  ShoppingBag,
+  Ruler
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
 import { format } from 'date-fns';
@@ -54,23 +56,20 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
+  const looksQuery = useMemoFirebase(() => query(collection(db, 'looks'), orderBy('createdAt', 'desc')), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  const ordersQuery = useMemoFirebase(() => collection(db, 'orders'), [db]);
+  const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('orderDate', 'desc')), [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
+
+  const consultationsQuery = useMemoFirebase(() => query(collection(db, 'consultations'), orderBy('createdAt', 'desc')), [db]);
+  const { data: consultations, isLoading: consultationsLoading } = useCollection(consultationsQuery);
 
   const confirmDelete = () => {
     if (!lookToDelete) return;
-    
     const lookRef = doc(db, 'looks', lookToDelete);
     deleteDocumentNonBlocking(lookRef);
-    
-    toast({ 
-      title: "Deletion Initiated", 
-      description: "The item is being removed from the catalog." 
-    });
-    
+    toast({ title: "Deletion Initiated" });
     setLookToDelete(null);
   };
 
@@ -81,58 +80,14 @@ export default function AdminDashboard() {
         status: 'Confirmed',
         updatedAt: new Date().toISOString()
       });
-      toast({
-        title: "Order Accepted",
-        description: "Status updated to Confirmed."
-      });
+      toast({ title: "Order Accepted" });
     } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Action Failed",
-        description: "Could not update order status."
-      });
-    }
-  };
-
-  const handleShare = async (look: any) => {
-    const shareUrl = `${window.location.origin}/looks/${look.id}`;
-    const shareData = {
-      title: look.name || 'Auralook.uz Catalog',
-      text: look.description || 'Check out this futuristic look on Auralook.uz',
-      url: shareUrl,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          copyToClipboard(shareUrl);
-        }
-      }
-    } else {
-      copyToClipboard(shareUrl);
-    }
-  };
-
-  const copyToClipboard = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: "Link Copied",
-        description: "Catalog link saved to clipboard.",
-      });
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Share Failed",
-        description: "Could not copy link to clipboard.",
-      });
+      toast({ variant: "destructive", title: "Action Failed" });
     }
   };
 
   return (
-    <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl">
+    <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl pb-32">
       <div className="flex items-center justify-between border-b border-white/10 pb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 neon-bg rounded-full" />
@@ -150,12 +105,15 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="inventory" className="space-y-6">
-        <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12">
-          <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black">
+        <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12 flex w-fit">
+          <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
             Inventory
           </TabsTrigger>
-          <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black">
+          <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
             Orders
+          </TabsTrigger>
+          <TabsTrigger value="consultations" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
+            Consultations
           </TabsTrigger>
         </TabsList>
 
@@ -164,94 +122,35 @@ export default function AdminDashboard() {
             <LayoutGrid className="w-5 h-5 neon-text" />
             <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
           </div>
-
           <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
             {looksLoading ? (
-              <div className="p-32 flex flex-col items-center gap-6">
-                <Loader2 className="animate-spin w-10 h-10 neon-text" />
-                <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Decrypting Catalog...</p>
-              </div>
+              <div className="p-32 flex flex-col items-center gap-6"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
             ) : (
               <Table>
-                <TableHeader className="bg-white/5 border-b border-white/10">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.marketValue)}</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">{t(dictionary.operations)}</TableHead>
+                <TableHeader className="bg-white/5">
+                  <TableRow className="border-none">
+                    <TableHead className="pl-8 text-[10px] uppercase tracking-widest">Visual</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Name</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Value</TableHead>
+                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">Ops</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {looks?.map((look) => (
-                    <TableRow key={look.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
-                      <TableCell className="py-5 pl-8">
-                        <div className="relative w-14 h-18 rounded-xl overflow-hidden border border-white/10 group-hover:neon-border transition-all">
-                          <img 
-                            src={look.imageUrl} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                            alt={look.name} 
-                          />
-                        </div>
+                    <TableRow key={look.id} className="border-white/5 hover:bg-white/[0.03]">
+                      <TableCell className="pl-8 py-4">
+                        <img src={look.imageUrl} className="w-12 h-16 object-cover rounded-lg border border-white/10" alt="" />
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-white text-base tracking-tight">{look.name}</span>
-                          <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-black neon-text">
-                            {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                          </span>
-                        </div>
-                      </TableCell>
+                      <TableCell className="font-bold">{look.name}</TableCell>
+                      <TableCell className="neon-text font-black">{look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}</TableCell>
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            type="button"
-                            onClick={() => handleShare(look)}
-                            className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                          <Link href={`/admin/looks/${look.id}/edit`}>
-                            <Button variant="ghost" size="icon" type="button" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
-                              <Edit3 className="w-4 h-4" />
-                            </Button>
-                          </Link>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            type="button"
-                            onClick={() => setLookToDelete(look.id)}
-                            className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon"><Edit3 className="w-4 h-4" /></Button></Link>
+                          <Button variant="ghost" size="icon" onClick={() => setLookToDelete(look.id)} className="hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))}
-                  {(!looks || looks.length === 0) && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="py-32 text-center">
-                        <div className="flex flex-col items-center gap-4">
-                          <Package className="w-10 h-10 text-white/10" />
-                          <p className="text-white/40 font-light text-base">
-                            {t(dictionary.emptyCatalog)}
-                          </p>
-                          <Button asChild variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
-                            <Link href="/admin/looks/new">
-                              {t(dictionary.createFirstLook)}
-                            </Link>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             )}
@@ -259,81 +158,67 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
-          <div className="flex items-center gap-3">
-            <ShoppingBag className="w-5 h-5 neon-text" />
-            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">Active Orders</h2>
-          </div>
-
-          <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
-            {ordersLoading ? (
-              <div className="p-32 flex flex-col items-center gap-6">
-                <Loader2 className="animate-spin w-10 h-10 neon-text" />
-                <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Retrieving Shipments...</p>
-              </div>
-            ) : (
+          <div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Active Orders</h2></div>
+          <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
+            {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>
-                <TableHeader className="bg-white/5 border-b border-white/10">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Customer</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Details</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Status</TableHead>
-                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">Actions</TableHead>
-                  </TableRow>
+                <TableHeader className="bg-white/5">
+                  <TableRow><TableHead className="pl-8">Customer</TableHead><TableHead>Amount</TableHead><TableHead>Status</TableHead><TableHead className="text-right pr-8">Action</TableHead></TableRow>
                 </TableHeader>
                 <TableBody>
                   {orders?.map((order) => (
-                    <TableRow key={order.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
-                      <TableCell className="py-5 pl-8">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                            <User className="w-5 h-5 text-white/40" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-bold text-white text-sm">{order.customerName}</span>
-                            <span className="text-[10px] font-mono text-white/40 uppercase">{order.telegramUsername}</span>
-                          </div>
-                        </div>
+                    <TableRow key={order.id} className="border-white/5">
+                      <TableCell className="pl-8">
+                        <div className="flex flex-col"><span className="font-bold">{order.customerName}</span><span className="text-[10px] text-white/40">{order.telegramUsername}</span></div>
                       </TableCell>
+                      <TableCell className="font-black">${order.totalAmount}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-white/80">${order.totalAmount}</span>
-                          <span className="text-[9px] font-mono text-white/30 uppercase">{order.orderDate ? format(new Date(order.orderDate), 'MMM dd HH:mm') : 'N/A'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {order.status === 'New' ? (
-                            <div className="flex items-center gap-1.5 text-amber-500">
-                              <Clock className="w-3 h-3" />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Pending</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-primary">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Accepted</span>
-                            </div>
-                          )}
-                        </div>
+                        <span className={`text-[10px] font-black uppercase ${order.status === 'New' ? 'text-amber-500' : 'text-primary'}`}>{order.status}</span>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        {order.status === 'New' && (
-                          <Button 
-                            onClick={() => handleAcceptOrder(order.id)}
-                            className="bg-primary/10 hover:neon-bg hover:text-black text-primary border border-primary/20 rounded-xl h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all"
-                          >
-                            Accept
-                          </Button>
-                        )}
+                        {order.status === 'New' && <Button onClick={() => handleAcceptOrder(order.id)} className="h-8 text-[10px] neon-bg text-black font-black uppercase">Accept</Button>}
                       </TableCell>
                     </TableRow>
                   ))}
-                  {(!orders || orders.length === 0) && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="py-32 text-center">
-                        <Package className="w-10 h-10 text-white/10 mx-auto mb-4" />
-                        <p className="text-white/40 font-bold uppercase tracking-widest italic">No pending orders</p>
+                </TableBody>
+              </Table>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="consultations" className="space-y-6">
+          <div className="flex items-center gap-3"><Ruler className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Customer Consultations</h2></div>
+          <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
+            {consultationsLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
+              <Table>
+                <TableHeader className="bg-white/5">
+                  <TableRow>
+                    <TableHead className="pl-8">Customer</TableHead>
+                    <TableHead>Measurements</TableHead>
+                    <TableHead>Preferred Fit</TableHead>
+                    <TableHead>Known Size</TableHead>
+                    <TableHead className="text-right pr-8">Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {consultations?.map((consult) => (
+                    <TableRow key={consult.id} className="border-white/5 hover:bg-white/[0.03]">
+                      <TableCell className="pl-8">
+                        <div className="flex flex-col"><span className="font-bold">{consult.customerName}</span><span className="text-[10px] text-white/40">{consult.telegramUsername}</span></div>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 text-xs">
+                          <span className="text-white/40">H:</span> <span className="font-bold">{consult.heightCm}cm</span>
+                          <span className="text-white/40 ml-2">W:</span> <span className="font-bold">{consult.weightKg}kg</span>
+                        </div>
+                      </TableCell>
+                      <TableCell><span className="text-xs font-bold uppercase tracking-wider text-primary">{consult.desiredFit}</span></TableCell>
+                      <TableCell><span className="text-xs font-black neon-text">{consult.knownSize}</span></TableCell>
+                      <TableCell className="text-right pr-8 text-[10px] text-white/30">{consult.createdAt ? format(new Date(consult.createdAt), 'MMM dd, HH:mm') : 'N/A'}</TableCell>
                     </TableRow>
+                  ))}
+                  {(!consultations || consultations.length === 0) && (
+                    <TableRow><TableCell colSpan={5} className="py-20 text-center text-white/20 italic uppercase tracking-widest">No active requests</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -345,19 +230,12 @@ export default function AdminDashboard() {
       <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
         <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem] text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic tracking-tighter">Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60 font-medium">
-              Are you sure you want to permanently remove this item from the catalog? This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">Are you sure you want to remove this item?</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-3">
-            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10 rounded-xl px-6 h-12">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90 rounded-xl px-8 h-12 font-bold border-none"
-            >
-              Delete Permanently
-            </AlertDialogAction>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

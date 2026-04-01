@@ -19,22 +19,23 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Owners and Admins can get their own/any profile
       allow get: if isOwner(userId) || isAdmin();
-      // Owners can create their own profile
       allow create: if isOwner(userId);
-      // Only Admins can list, update or delete user records
       allow list, update, delete: if isAdmin();
       
       match /liked_looks/{lookId} {
-        // Owners and Admins can read/write liked looks
         allow read, write: if isOwner(userId) || isAdmin();
       }
     }
 
+    match /consultations/{id} {
+      allow create: if isSignedIn();
+      allow read, list: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
     match /roles_order_managers/{userId} {
       allow get: if isSignedIn();
-      // Allow list for signed in users to enable the initial admin bootstrap check
       allow list: if isSignedIn();
       allow create, update, delete: if isAdmin();
     }

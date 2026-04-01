@@ -107,6 +107,21 @@
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
+    "Consultation": {
+      "type": "object",
+      "description": "A manual measurement request sent to the admin for personal styling.",
+      "properties": {
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "telegramUsername": { "type": "string" },
+        "heightCm": { "type": "number" },
+        "weightKg": { "type": "number" },
+        "gender": { "type": "string" },
+        "desiredFit": { "type": "string" },
+        "knownSize": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "LikedLook": {
       "type": "object",
       "description": "A look that a user has marked as favorite.",
@@ -142,6 +157,16 @@
             "$ref": "#/backend/entities/LikedLook"
           },
           "description": "Individual looks saved by the user."
+        }
+      },
+      {
+        "path": "/consultations/{id}",
+        "definition": {
+          "entityName": "Consultation",
+          "schema": {
+            "$ref": "#/backend/entities/Consultation"
+          },
+          "description": "Manual measurement requests for the admin."
         }
       },
       {
