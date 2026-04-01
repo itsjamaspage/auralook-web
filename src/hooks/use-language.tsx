@@ -130,7 +130,37 @@ const dictionary = {
     en: 'Processing...'
   },
 
-  // Look Detail Page
+  // Checkout Flow
+  knowSizeQuestion: {
+    uz: "O'lchamingizni bilasizmi?",
+    ru: "Вы знаете свой размер?",
+    en: "Do you know your size?"
+  },
+  yesIKnow: {
+    uz: "Ha, bilaman",
+    ru: "Да, знаю",
+    en: "Yes, I know"
+  },
+  noHelpMe: {
+    uz: "Yo'q, yordam bering",
+    ru: "Нет, помогите мне",
+    en: "No, help me"
+  },
+  selectSizeTitle: {
+    uz: "O'lchamni tanlang",
+    ru: "Выберите размер",
+    en: "Select Size"
+  },
+  enterMeasurementsTitle: {
+    uz: "O'lchamlaringizni kiriting",
+    ru: "Введите свои мерки",
+    en: "Enter Measurements"
+  },
+  nextStep: {
+    uz: "Keyingisi",
+    ru: "Далее",
+    en: "Next"
+  },
   shippingAddress: {
     uz: 'Yetkazib berish manzili',
     ru: 'Адрес доставки',

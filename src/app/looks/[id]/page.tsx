@@ -8,18 +8,30 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { 
   Loader2, 
   Heart,
   ChevronLeft,
   Ruler,
   Phone,
-  MapPin
+  MapPin,
+  CheckCircle2,
+  HelpCircle,
+  ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+
+type CheckoutStep = 'INITIAL' | 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -29,21 +41,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const db = useFirestore();
   const router = useRouter();
   
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
   const [isOrdering, setIsOrdering] = useState(false);
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [mounted, setMounted] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('');
   
   const [orderDetails, setOrderDetails] = useState({
     height: '',
     weight: '',
-    knownSize: '',
     phone: '',
     address: ''
   });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
@@ -56,11 +64,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const isLiked = !!likedLook;
 
-  if (lookLoading || !mounted) {
+  if (lookLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">LOADING REPOSITORY...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">SYNCING REPOSITORY...</p>
       </div>
     );
   }
@@ -97,7 +105,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
-  const handlePurchase = async () => {
+  const startCheckout = () => {
     if (!user) {
       toast({
         title: t(dictionary.registrationRequiredTitle),
@@ -107,45 +115,47 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       router.push('/login');
       return;
     }
+    setShowCheckout(true);
+    setStep('ASK_KNOWLEDGE');
+  };
 
-    if (!orderDetails.height || !orderDetails.weight || !orderDetails.phone || !orderDetails.address) {
+  const handlePurchase = async () => {
+    if (!orderDetails.phone) {
       toast({
         variant: "destructive",
-        title: "Ma'lumotlar to'liq emas",
-        description: "Iltimos, barcha maydonlarni to'ldiring."
+        title: "Telefon raqami zarur",
+        description: "Iltimos, bog'lanish uchun telefon raqamingizni kiriting."
       });
       return;
     }
 
     setIsOrdering(true);
     try {
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', user!.uid);
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data();
 
       const orderData = {
-        userId: user.uid,
-        customerName: userData?.firstName || user.email?.split('@')[0] || 'Customer',
+        userId: user!.uid,
+        customerName: userData?.firstName || user!.email?.split('@')[0] || 'Customer',
         telegramUsername: userData?.telegramUsername || 'Not provided',
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
         lookId: look.id,
         lookName: look.name,
-        size: selectedSize,
+        size: selectedSize || 'Unspecified',
         phoneNumber: orderDetails.phone,
-        shippingAddress: orderDetails.address,
+        shippingAddress: orderDetails.address || 'Pickup/TBD',
         measurements: {
-          height: orderDetails.height,
-          weight: orderDetails.weight,
-          knownSize: orderDetails.knownSize || selectedSize
+          height: orderDetails.height || 'N/A',
+          weight: orderDetails.weight || 'N/A',
         },
         updatedAt: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram Notification to Admin
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -163,6 +173,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         title: t(dictionary.orderProcessedTitle),
         description: t(dictionary.orderProcessedDesc),
       });
+      setShowCheckout(false);
       router.push('/orders');
     } catch (e) {
       console.error(e);
@@ -212,100 +223,32 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
 
-          <div className="lg:col-span-6 flex flex-col h-full">
-            <div className="flex justify-between items-end mb-4 px-2">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-black text-white tracking-tighter">
-                  {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                </span>
-                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{look.currency || 'USD'}</span>
-              </div>
-            </div>
-
-            <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02] space-y-6">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                  <div className="text-sm lg:text-base text-white font-bold italic leading-relaxed whitespace-pre-line">
-                    {look.description}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.selectSizeMatrix)}</p>
-                  <div className="flex flex-wrap gap-3">
-                    {sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`w-10 h-10 rounded-full text-[10px] font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none scale-110' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t border-white/5">
-                  <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 neon-text" />
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">O'lchamlar</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-[9px] font-bold uppercase text-white/40">Bo'y (cm)</Label>
-                      <Input 
-                        type="number" 
-                        placeholder="175"
-                        value={orderDetails.height}
-                        onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})}
-                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-[9px] font-bold uppercase text-white/40">Vazn (kg)</Label>
-                      <Input 
-                        type="number" 
-                        placeholder="70"
-                        value={orderDetails.weight}
-                        onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})}
-                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t border-white/5">
-                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 neon-text" />
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.shippingAddress)}</p>
-                  </div>
-                  <Input 
-                    placeholder={t(dictionary.addressPlaceholder)}
-                    value={orderDetails.address}
-                    onChange={(e) => setOrderDetails({...orderDetails, address: e.target.value})}
-                    className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 neon-text" />
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.phoneNumber)}</p>
-                  </div>
-                  <Input 
-                    placeholder={t(dictionary.phonePlaceholder)}
-                    value={orderDetails.phone}
-                    onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
-                    className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
-                  />
-                </div>
-              </div>
-
+          <div className="lg:col-span-6 flex flex-col h-full justify-center">
+            <div className="space-y-8 glass-dark border border-white/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl bg-white/[0.02]">
               <div className="space-y-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-white tracking-tighter">
+                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                  </span>
+                  <span className="text-xs font-black text-white/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
+                </div>
+                <h1 className="text-xl font-black neon-text italic uppercase tracking-tight">{look.name}</h1>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-sm lg:text-base text-white/80 font-medium italic leading-relaxed whitespace-pre-line">
+                  {look.description}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4">
                 <Button 
-                  onClick={handlePurchase}
-                  disabled={isOrdering}
-                  className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.1em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  onClick={startCheckout}
+                  className="w-full h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
+                  {t(dictionary.executePurchase)}
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] text-center">
                   {t(dictionary.secureCheckout)}
@@ -315,6 +258,139 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
         </div>
       </div>
+
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent className="glass-dark border-white/10 rounded-[2.5rem] text-white p-8 max-w-md">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-2">
+              <CheckCircle2 className="w-6 h-6" />
+              Checkout
+            </DialogTitle>
+          </DialogHeader>
+
+          {step === 'ASK_KNOWLEDGE' && (
+            <div className="space-y-8 py-4">
+              <h3 className="text-lg font-bold text-center italic">{t(dictionary.knowSizeQuestion)}</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <Button 
+                  onClick={() => setStep('CHOOSE_SIZE')}
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-xs"
+                >
+                  {t(dictionary.yesIKnow)}
+                </Button>
+                <Button 
+                  onClick={() => setStep('ENTER_MEASUREMENTS')}
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-xs"
+                >
+                  {t(dictionary.noHelpMe)}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 'CHOOSE_SIZE' && (
+            <div className="space-y-8 py-4">
+              <div className="flex items-center gap-2 text-white/40 mb-2">
+                <CheckCircle2 className="w-4 h-4 neon-text" />
+                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              <Button 
+                onClick={() => setStep('CONTACT')}
+                disabled={!selectedSize}
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
+              >
+                {t(dictionary.nextStep)}
+              </Button>
+            </div>
+          )}
+
+          {step === 'ENTER_MEASUREMENTS' && (
+            <div className="space-y-8 py-4">
+              <div className="flex items-center gap-2 text-white/40 mb-2">
+                <Ruler className="w-4 h-4 neon-text" />
+                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase font-black text-white/40">Bo'y (cm)</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="175"
+                    value={orderDetails.height}
+                    onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})}
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase font-black text-white/40">Vazn (kg)</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="70"
+                    value={orderDetails.weight}
+                    onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})}
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  />
+                </div>
+              </div>
+              <Button 
+                onClick={() => setStep('CONTACT')}
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
+              >
+                {t(dictionary.nextStep)}
+              </Button>
+            </div>
+          )}
+
+          {step === 'CONTACT' && (
+            <div className="space-y-6 py-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-white/40">
+                  <Phone className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
+                </div>
+                <Input 
+                  placeholder={t(dictionary.phonePlaceholder)}
+                  value={orderDetails.phone}
+                  onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-white/40">
+                  <MapPin className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.shippingAddress)}</p>
+                </div>
+                <Input 
+                  placeholder={t(dictionary.addressPlaceholder)}
+                  value={orderDetails.address}
+                  onChange={(e) => setOrderDetails({...orderDetails, address: e.target.value})}
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                />
+              </div>
+
+              <Button 
+                onClick={handlePurchase}
+                disabled={isOrdering || !orderDetails.phone}
+                className="w-full h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em]"
+              >
+                {isOrdering ? <Loader2 className="animate-spin" /> : "Tasdiqlash"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
