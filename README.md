@@ -25,11 +25,12 @@ To activate order notifications and AI features, you must add your keys to the b
     *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
 4.  Click **DEPLOY** at the bottom of the page.
 
-### 🧠 Why do I need a Gemini API Key?
-The `GEMINI_API_KEY` powers the "brain" of your store:
-- **Smart Size Advisor**: Calculates perfect fits for customers.
-- **AI Copywriter**: Generates professional product descriptions in the admin panel.
-- **Order Notifications**: Composes intelligent, context-aware messages for your Telegram bot.
+### 🧠 How to get the Gemini API Key
+1.  Go to [aistudio.google.com](https://aistudio.google.com/).
+2.  Click **"Get API key"** on the left.
+3.  Click **"Create API key"**.
+4.  Select a project (e.g., `ai-studio-applet-...`) and click **"Create API key in existing project"**.
+5.  **Copy** the key and paste it into the Cloud Run variable `GEMINI_API_KEY`.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
