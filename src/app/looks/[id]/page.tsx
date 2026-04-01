@@ -149,10 +149,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification flow
-      // Physique is only sent if height or weight is provided
-      const hasPhysique = orderDetails.height || orderDetails.weight || selectedSize;
-      
+      // Trigger Telegram notification
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -160,11 +157,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         productName: look.name,
         phoneNumber: orderData.phoneNumber,
         language: 'uz',
-        physique: hasPhysique ? {
-          height: orderDetails.height || 'N/A',
-          weight: orderDetails.weight || 'N/A',
+        physique: {
+          height: orderDetails.height || 'Noma\'lum',
+          weight: orderDetails.weight || 'Noma\'lum',
           size: selectedSize || 'Noma\'lum',
-        } : undefined
+        }
       });
 
       toast({

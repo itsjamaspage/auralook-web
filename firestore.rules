@@ -5,25 +5,18 @@ service cloud.firestore {
     /**
      * JamaStore Security Rules
      * 
-     * Core Philosophy:
-     * This ruleset implements a hybrid security model. User-specific data (profiles) follows a 
-     * strict path-based ownership model. E-commerce catalog data (products, looks, media) is 
-     * publicly accessible for reading but restricted to administrative accounts for any 
-     * modifications. Transactional data (orders) uses field-based authorization to ensure 
-     * customers can only access their own history.
+     * Implements a hybrid security model:
+     * 1. Path-based ownership for /users
+     * 2. Public read / Admin write for /products, /looks, /media_assets
+     * 3. Identity-based access for /orders (Owner or Admin)
      */
 
     // --- Helper Functions ---
 
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** 
-     * @description Checks if the authenticated user has a registered administrative role.
-     * Includes a hardcoded fallback for the primary developer and specified admin email.
-     */
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.email == 'jkhakimjonov8@gmail.com' ||
@@ -31,96 +24,67 @@ service cloud.firestore {
       );
     }
 
-    /** @description Checks if the provided ID matches the authenticated user's UID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     // --- Collection Rules ---
 
-    /**
-     * @description Rules for user profile documents. Enforces strict ownership.
-     */
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
-
+      allow read, write: if isOwner(userId) || isAdmin();
       match /{allSubcollections=**} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
     }
 
-    /**
-     * @description Public catalog for products.
-     */
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
-
       match /translations/{languageCode} {
         allow read: if true;
         allow write: if isAdmin();
       }
     }
 
-    /**
-     * @description Public lookbook for curated outfits.
-     */
     match /looks/{lookId} {
       allow read: if true;
       allow write: if isAdmin();
-
       match /translations/{languageCode} {
         allow read: if true;
         allow write: if isAdmin();
       }
     }
 
-    /**
-     * @description Public metadata for media assets.
-     */
     match /media_assets/{mediaAssetId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    /**
-     * @description Customer purchase records.
-     * Rules are separated for list and get to ensure robust evaluation for admins and users.
-     */
     match /orders/{orderId} {
-      // Allow individual access if admin or owner
+      // Admins can list and read all orders
+      // Users can list and read only their own orders
+      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100 && request.query.filters.userId == request.auth.uid);
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       
-      // Allow listing: Admins see all, users only theirs via query filters
-      allow list: if isAdmin();
-      allow list: if isSignedIn() && request.query.filters.userId == request.auth.uid;
-      
-      // Users can create orders for themselves.
+      // Anyone signed in can create an order for themselves
       allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
       
-      // Only admins can update status or delete orders.
+      // Updates and Deletes are admin-only
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
         allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
+        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
         allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
         allow update, delete: if isAdmin();
       }
     }
 
-    /**
-     * @description Administrative role registry.
-     */
     match /roles_admin/{uid} {
-      allow get: if isOwner(uid) || isAdmin();
-      allow list: if isAdmin();
-      allow create, update, delete: if false; 
+      allow read: if isSignedIn();
+      allow write: if false; 
     }
 
-    /**
-     * @description Generic consultations (advisor requests)
-     */
     match /consultations/{docId} {
       allow read: if isAdmin();
       allow create: if isSignedIn();

@@ -1,9 +1,6 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed, real-time order status updates for Telegram.
- *
- * - aiTelegramOrderStatusNotification - Generates the message text.
- * - notifyAdminOfOrder - Sends the generated message to the Admin via Telegram Bot API.
  */
 
 import {ai} from '@/ai/genkit';
@@ -51,10 +48,10 @@ Buyurtma ma'lumotlari:
 O'lcham ma'lumotlari:
 - Bo'yi: {{{physique.height}}} sm
 - Vazni: {{{physique.weight}}} kg
-- Mijoz tanlagan o'lcham: {{{physique.size}}}
+- Tanlangan o'lcham: {{{physique.size}}}
 {{/if}}
 
-Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar (ayniqsa bo'y va vazn) asosida mijozga eng mos libosni tasdiqlashi kerak.`,
+Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijozga eng mos libosni tasdiqlashi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
@@ -69,7 +66,6 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       return output!;
     } catch (error) {
       console.error('Flow execution error:', error);
-      // Enhanced fallback with all critical data for the admin
       let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
       fallbackMsg += `Mijoz: ${input.customerName}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
@@ -80,45 +76,32 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
         fallbackMsg += `Vazn: ${input.physique.weight}kg\n`;
         fallbackMsg += `O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
       }
-      fallbackMsg += `\nHolati: ${input.currentStatus}\n`;
-      fallbackMsg += `ID: ${input.orderId}`;
-      
+      fallbackMsg += `\nID: ${input.orderId}`;
       return { message: fallbackMsg };
     }
   }
 );
 
-/**
- * Sends a notification message to the Telegram Admin via the Bot API.
- */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   try {
     const { message } = await aiTelegramOrderStatusNotificationFlow(input);
-    
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
     if (!token || !adminChatId) {
-      console.warn("Telegram configuration is missing. Notification not sent.");
+      console.warn("Telegram configuration is missing.");
       return;
     }
 
-    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: adminChatId,
         text: message,
         parse_mode: 'HTML',
       }),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Telegram API Error:", errorData);
-    }
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);
   }
