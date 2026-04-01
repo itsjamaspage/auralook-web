@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -34,11 +33,6 @@ import {
   LayoutGrid,
   Trash2,
   Edit3,
-  ExternalLink,
-  Package,
-  CheckCircle2,
-  Clock,
-  User,
   ShoppingBag,
   Ruler
 } from 'lucide-react';
@@ -113,7 +107,7 @@ export default function AdminDashboard() {
             Orders
           </TabsTrigger>
           <TabsTrigger value="consultations" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            Consultations
+            {t(dictionary.razmeringiz)}
           </TabsTrigger>
         </TabsList>
 
@@ -163,13 +157,27 @@ export default function AdminDashboard() {
             {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>
                 <TableHeader className="bg-white/5">
-                  <TableRow><TableHead className="pl-8">Customer</TableHead><TableHead>Amount</TableHead><TableHead>Status</TableHead><TableHead className="text-right pr-8">Action</TableHead></TableRow>
+                  <TableRow>
+                    <TableHead className="pl-8">Customer</TableHead>
+                    <TableHead>Specs (H/W)</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right pr-8">Action</TableHead>
+                  </TableRow>
                 </TableHeader>
                 <TableBody>
                   {orders?.map((order) => (
                     <TableRow key={order.id} className="border-white/5">
                       <TableCell className="pl-8">
-                        <div className="flex flex-col"><span className="font-bold">{order.customerName}</span><span className="text-[10px] text-white/40">{order.telegramUsername}</span></div>
+                        <div className="flex flex-col">
+                          <span className="font-bold">{order.customerName}</span>
+                          <span className="text-[10px] text-white/40">{order.telegramUsername}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-[10px] font-mono">
+                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}
+                        </div>
                       </TableCell>
                       <TableCell className="font-black">${order.totalAmount}</TableCell>
                       <TableCell>
@@ -187,7 +195,7 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="consultations" className="space-y-6">
-          <div className="flex items-center gap-3"><Ruler className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Customer Consultations</h2></div>
+          <div className="flex items-center gap-3"><Ruler className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Razmeringiz Requests</h2></div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
             {consultationsLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>

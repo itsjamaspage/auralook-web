@@ -26,10 +26,10 @@ const dictionary = {
     ru: 'Избранное',
     en: 'Favorites'
   },
-  advisor: {
-    uz: 'Maslahatchi',
-    ru: 'Советник',
-    en: 'Advisor'
+  razmeringiz: {
+    uz: 'Razmeringiz',
+    ru: 'Ваш размер',
+    en: 'Your Size'
   },
   profile: {
     uz: 'Profil',

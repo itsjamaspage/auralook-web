@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -8,10 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
-import { Ruler, Loader2, Sparkles, CheckCircle2, Zap, Send, UserCheck } from 'lucide-react';
+import { Ruler, Loader2, Sparkles, Send, UserCheck, Zap } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useFirestore, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdvisorPage() {
@@ -92,24 +91,20 @@ export default function AdvisorPage() {
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
-        <Zap className="w-6 h-6 neon-text transition-none" />
+        <Ruler className="w-6 h-6 neon-text transition-none" />
         <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-          {t(dictionary.advisor)}
+          {t(dictionary.razmeringiz)}
         </h1>
       </div>
 
       <Card className="glass-dark border-white/10 p-8 space-y-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-            <Ruler className="w-32 h-32" />
-        </div>
-
         <div className="space-y-2 relative z-10">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Sparkles className="w-5 h-5 neon-text transition-none" />
-            Smart Advisor
+          <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-tighter">
+            <Zap className="w-5 h-5 neon-text transition-none" />
+            O'lcham Ma'lumotlari
           </h2>
           <p className="text-sm text-white/40 font-medium">
-            Bizning AI va menejerlarimiz sizga mukammal o'lchamni tanlashda yordam beradi.
+            Menejerga ma'lumotlaringizni yuboring va mukammal moslikni oling.
           </p>
         </div>
 
@@ -207,7 +202,6 @@ export default function AdvisorPage() {
             </div>
             <div className="space-y-4">
               <h3 className="text-xl font-bold flex items-center justify-center gap-2 text-white">
-                <CheckCircle2 className="w-6 h-6 neon-text transition-none" />
                 Tavsiya etilgan o'lcham: {result.recommendedSize}
               </h3>
               <p className="text-white/60 text-sm leading-relaxed px-6 italic font-medium">

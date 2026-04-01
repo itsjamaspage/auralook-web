@@ -4,10 +4,13 @@ import { use, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   Loader2, 
   Heart,
-  ChevronLeft
+  ChevronLeft,
+  Ruler
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -21,9 +24,15 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { user } = useUser();
   const db = useFirestore();
   const router = useRouter();
+  
   const [isOrdering, setIsOrdering] = useState(false);
   const [selectedSize, setSelectedSize] = useState('M');
   const [mounted, setMounted] = useState(false);
+  
+  const [measurements, setMeasurements] = useState({
+    height: '',
+    weight: ''
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -82,11 +91,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   const handlePurchase = async () => {
-    // 1. Detect Telegram Mini App Context
     const tg = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
 
     if (tg && tg.initData) {
-      // We are inside Telegram Mini App
       try {
         const orderPayload = {
           type: 'OUT_STORE_ORDER',
@@ -95,11 +102,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           price: look.price,
           currency: look.currency || 'USD',
           size: selectedSize,
+          measurements: measurements,
           timestamp: new Date().toISOString(),
           customer: tg.initDataUnsafe?.user || {}
         };
         
-        // This sends data to your Telegram Bot and closes the Mini App
         tg.sendData(JSON.stringify(orderPayload));
         return;
       } catch (e) {
@@ -107,7 +114,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       }
     }
 
-    // 2. Standard Web Flow (Fallback)
     if (!user) {
       toast({
         title: t(dictionary.registrationRequiredTitle),
@@ -133,6 +139,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         totalAmount: look.price,
         lookId: look.id,
         size: selectedSize,
+        measurements: measurements,
         updatedAt: new Date().toISOString(),
       };
 
@@ -142,6 +149,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         title: t(dictionary.orderProcessedTitle),
         description: t(dictionary.orderProcessedDesc),
       });
+      router.push('/orders');
     } catch (e) {
       console.error(e);
       toast({
@@ -200,7 +208,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
             </div>
 
-            <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02]">
+            <div className="flex-grow glass-dark border border-white/10 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl bg-white/[0.02] space-y-6">
               <div className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
@@ -223,9 +231,39 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                     ))}
                   </div>
                 </div>
+
+                {/* Measurements Integration */}
+                <div className="space-y-4 pt-4 border-t border-white/5">
+                  <div className="flex items-center gap-2">
+                    <Ruler className="w-4 h-4 neon-text" />
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">O'lchamlarni aniqlash</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-[9px] font-bold uppercase text-white/40">Bo'y (cm)</Label>
+                      <Input 
+                        type="number" 
+                        placeholder="175"
+                        value={measurements.height}
+                        onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
+                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[9px] font-bold uppercase text-white/40">Vazn (kg)</Label>
+                      <Input 
+                        type="number" 
+                        placeholder="70"
+                        value={measurements.weight}
+                        onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
+                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-4 mt-8">
+              <div className="space-y-4">
                 <Button 
                   onClick={handlePurchase}
                   disabled={isOrdering}
