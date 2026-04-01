@@ -40,15 +40,17 @@
 }
 
 @keyframes master-sync-pulse {
-  0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
-  25% { --sync-color: hsl(190 100% 50%); --sync-shadow: hsla(190, 100%, 50%, 0.4); }
-  50% { --sync-color: hsl(280 100% 65%); --sync-shadow: hsla(280, 100%, 65%, 0.4); }
-  75% { --sync-color: hsl(320 100% 60%); --sync-shadow: hsla(320, 100%, 60%, 0.4); }
+  0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); } /* Matrix Green */
+  16% { --sync-color: hsl(190 100% 50%); --sync-shadow: hsla(190, 100%, 50%, 0.4); } /* Cyber Cyan */
+  33% { --sync-color: hsl(220 100% 50%); --sync-shadow: hsla(220, 100%, 50%, 0.4); } /* Galactic Blue */
+  50% { --sync-color: hsl(280 100% 65%); --sync-shadow: hsla(280, 100%, 65%, 0.4); } /* Synth Purple */
+  66% { --sync-color: hsl(320 100% 60%); --sync-shadow: hsla(320, 100%, 60%, 0.4); } /* Neon Pink */
+  83% { --sync-color: hsl(0 100% 60%); --sync-shadow: hsla(0, 100%, 60%, 0.4); } /* Solar Red */
   100% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
 }
 
 :root {
-  animation: master-sync-pulse 8s infinite ease-in-out;
+  animation: master-sync-pulse 12s infinite linear;
 }
 
 body {
