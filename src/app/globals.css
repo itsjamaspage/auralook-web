@@ -49,6 +49,17 @@
   100% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
 :root {
   animation: master-sync-pulse 12s infinite linear;
 }
@@ -59,19 +70,19 @@ body {
 
 .neon-text {
   color: var(--sync-color) !important;
-  transition: none !important;
+  transition: color 0.3s ease !important;
 }
 
 .neon-border {
   border-color: var(--sync-color) !important;
-  transition: none !important;
+  transition: border-color 0.3s ease !important;
 }
 
 .neon-bg {
   background-color: var(--sync-color) !important;
   color: #000 !important;
   box-shadow: 0 0 30px var(--sync-shadow) !important;
-  transition: transform 0.3s ease, opacity 0.3s ease !important;
+  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease !important;
 }
 
 .glass-dark {
