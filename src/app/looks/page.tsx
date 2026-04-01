@@ -7,11 +7,13 @@ import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, Heart, Search, Filter, Grid2X2, List, CheckCircle2 } from 'lucide-react';
 
 export default function LooksPage() {
   const db = useFirestore();
   const { t, dictionary } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => {
@@ -20,72 +22,106 @@ export default function LooksPage() {
 
   const { data: looks, isLoading } = useCollection(looksQuery);
 
+  const filteredLooks = looks?.filter(look => 
+    look.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    look.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Loading Catalog...</p>
+        <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Scanning Catalog...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="mb-10 text-center lg:text-left">
-        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter neon-text uppercase italic leading-none">
-          {t(dictionary.browseLooks)}
-        </h1>
+    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8">
+      {/* Search Header */}
+      <div className="space-y-6">
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:neon-text transition-colors" />
+          <Input 
+            placeholder="Search futuristic styles..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-14 bg-white/[0.03] border-white/10 rounded-2xl pl-12 pr-12 text-white placeholder:text-white/20 focus:neon-border transition-all"
+          />
+          <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:neon-text text-white/20 transition-colors">
+            <Filter className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
+            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Listings Detected</span>
+          </div>
+          <div className="flex gap-2">
+            <button className="p-2 neon-bg rounded-lg text-black">
+              <Grid2X2 className="w-4 h-4" />
+            </button>
+            <button className="p-2 bg-white/5 rounded-lg text-white/40 hover:text-white transition-colors">
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {looks?.map((look) => (
-          <Card key={look.id} className="bg-[#080808] border-none overflow-hidden group rounded-[2.5rem] shadow-2xl relative">
-            <div className="relative aspect-[3/4] overflow-hidden p-2">
-              <Image
-                src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                alt={look.name || 'Look'}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[2rem]"
-              />
-              
-              {/* High-Fidelity Action Overlay */}
-              <div className="absolute inset-x-0 bottom-4 px-4 z-10 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                <Link 
-                  href={`/looks/${look.id}`} 
-                  onClick={() => setNavigatingId(look.id)}
-                  className="w-full h-12 neon-bg rounded-xl flex items-center justify-center text-black font-black uppercase text-[10px] gap-2 transition-[transform,opacity] hover:scale-105"
-                >
-                  {navigatingId === look.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" />
-                      {t(dictionary.viewDetails)}
-                    </>
-                  )}
-                </Link>
-              </div>
-            </div>
+      {/* Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {filteredLooks?.map((look) => (
+          <Link key={look.id} href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
+            <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden group rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
+              <div className="relative aspect-[4/5] overflow-hidden p-1">
+                <Image
+                  src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
+                  alt={look.name || 'Look'}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
+                />
+                
+                {/* Heart Overlay */}
+                <button className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 flex items-center justify-center text-white/60 hover:neon-text hover:neon-border transition-all">
+                  <Heart className="w-5 h-5" />
+                </button>
 
-            <div className="p-6 pt-0 bg-transparent space-y-1">
-              <div className="flex justify-between items-end">
+                {/* Loading Indicator */}
+                {navigatingId === look.id && (
+                  <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
+                    <Loader2 className="w-8 h-8 animate-spin neon-text" />
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 space-y-2">
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">REF: {look.id.substring(0, 8).toUpperCase()}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-black neon-text italic tracking-tighter">
+                      {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
+                    </span>
+                    <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
                 </div>
-                <div className="text-right">
-                  <span className="text-xl font-black text-white">
-                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                  </span>
+
+                <div className="flex flex-col gap-0.5 pt-1">
+                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
+                  <p className="text-[9px] font-mono text-white/20 uppercase">3/30/2026</p>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </Link>
         ))}
 
-        {(!looks || looks.length === 0) && (
-          <div className="col-span-full py-24 text-center">
-            <p className="text-white/40 font-light italic">
-              {t(dictionary.emptyCatalog)}
+        {(!filteredLooks || filteredLooks.length === 0) && (
+          <div className="col-span-full py-32 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
+              <Search className="w-8 h-8 text-white/10" />
+            </div>
+            <p className="text-white/40 font-bold uppercase tracking-[0.2em] italic">
+              No results found in the grid.
             </p>
           </div>
         )}

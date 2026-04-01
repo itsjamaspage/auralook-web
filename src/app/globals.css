@@ -4,59 +4,53 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 95%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
     --primary: 150 100% 50%;
     --primary-foreground: 0 0% 5%;
     --secondary: 150 100% 50%;
     --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
     --accent: 150 100% 50%;
     --accent-foreground: 0 0% 5%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
     --ring: 150 100% 50%;
     --radius: 1.5rem;
   }
 }
 
-/* Master Sync Animation - Controls everything pulse-wide */
 @property --sync-color {
   syntax: '<color>';
-  initial-value: hsl(0 100% 50%);
+  initial-value: hsl(150 100% 50%);
   inherits: true;
 }
 
 @property --sync-shadow {
   syntax: '<color>';
-  initial-value: hsla(0, 100%, 50%, 0.4);
+  initial-value: hsla(150, 100%, 50%, 0.4);
   inherits: true;
 }
 
 @keyframes master-sync-pulse {
-  0% { --sync-color: hsl(0 100% 50%); --sync-shadow: hsla(0, 100%, 50%, 0.4); }
-  15% { --sync-color: hsl(45 100% 50%); --sync-shadow: hsla(45, 100%, 50%, 0.4); }
-  30% { --sync-color: hsl(90 100% 50%); --sync-shadow: hsla(90, 100%, 50%, 0.4); }
-  45% { --sync-color: hsl(135 100% 50%); --sync-shadow: hsla(135, 100%, 50%, 0.4); }
-  60% { --sync-color: hsl(180 100% 50%); --sync-shadow: hsla(180, 100%, 50%, 0.4); }
-  75% { --sync-color: hsl(225 100% 50%); --sync-shadow: hsla(225, 100%, 50%, 0.4); }
-  90% { --sync-color: hsl(270 100% 50%); --sync-shadow: hsla(270, 100%, 50%, 0.4); }
-  100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
+  0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
+  50% { --sync-color: hsl(180 100% 60%); --sync-shadow: hsla(180, 100%, 60%, 0.4); }
+  100% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
 }
 
 :root {
-  animation: master-sync-pulse 10s infinite linear;
+  animation: master-sync-pulse 4s infinite ease-in-out;
 }
 
 body {
-  @apply bg-background text-foreground font-body antialiased;
+  @apply bg-[#050505] text-foreground font-body antialiased;
 }
 
 .neon-text {
@@ -74,12 +68,12 @@ body {
 }
 
 .glass-dark {
-  @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
+  @apply bg-white/[0.04] backdrop-blur-3xl border border-white/10;
 }
 
 .energy-line {
   stroke: var(--sync-color);
-  opacity: 0.3;
+  opacity: 0.2;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: energy-flow 15s linear infinite;
@@ -90,6 +84,12 @@ body {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+.hero-glow {
+  @apply absolute rounded-full pointer-events-none filter blur-[120px];
+  background: radial-gradient(circle, var(--sync-color) 0%, transparent 70%);
+  opacity: 0.15;
 }
 
 @layer base {
