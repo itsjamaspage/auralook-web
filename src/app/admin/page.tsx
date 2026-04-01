@@ -37,22 +37,36 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
-import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const db = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  const looksQuery = useMemoFirebase(() => query(collection(db, 'looks'), orderBy('createdAt', 'desc')), [db]);
+  // Determine admin status before running queries to avoid permission errors
+  const adminRoleRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'roles_admin', user.uid);
+  }, [db, user]);
+  const { data: adminRole } = useDoc(adminRoleRef);
+  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
+
+  const looksQuery = useMemoFirebase(() => {
+    if (!isAdmin) return null;
+    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
+  }, [db, isAdmin]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('orderDate', 'desc')), [db]);
+  const ordersQuery = useMemoFirebase(() => {
+    if (!isAdmin) return null;
+    return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
+  }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
   const confirmDelete = () => {
@@ -75,6 +89,18 @@ export default function AdminDashboard() {
       toast({ variant: "destructive", title: "Action Failed" });
     }
   };
+
+  if (!isAdmin && user) {
+    return (
+      <div className="container mx-auto px-6 py-24 text-center space-y-4">
+        <h2 className="text-2xl font-black text-white uppercase italic">Access Denied</h2>
+        <p className="text-white/40">You do not have administrative privileges to access this area.</p>
+        <Link href="/profile">
+          <Button variant="outline" className="mt-4">Return to Profile</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl pb-32">

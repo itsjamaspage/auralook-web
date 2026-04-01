@@ -26,8 +26,8 @@ service cloud.firestore {
      */
     function isAdmin() {
       return isSignedIn() && (
-        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
-        request.auth.token.email == 'jkhakimjonov8@gmail.com'
+        request.auth.token.email == 'jkhakimjonov8@gmail.com' ||
+        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))
       );
     }
 
@@ -45,13 +45,12 @@ service cloud.firestore {
 
     /**
      * @description Rules for user profile documents. Enforces strict ownership.
-     * Includes recursive rules for subcollections like 'liked_looks'.
      */
     match /users/{userId} {
       allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
 
       match /{allSubcollections=**} {
         allow read, write: if isOwner(userId);
@@ -59,66 +58,66 @@ service cloud.firestore {
     }
 
     /**
-     * @description Public catalog for products. Read access is open; write access is admin-only.
+     * @description Public catalog for products.
      */
     match /products/{productId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
 
       match /translations/{languageCode} {
-        allow get, list: if true;
-        allow create, update, delete: if isAdmin();
+        allow read: if true;
+        allow write: if isAdmin();
       }
     }
 
     /**
-     * @description Public lookbook for curated outfits. Read access is open; write access is admin-only.
+     * @description Public lookbook for curated outfits.
      */
     match /looks/{lookId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
 
       match /translations/{languageCode} {
-        allow get, list: if true;
-        allow create, update, delete: if isAdmin();
+        allow read: if true;
+        allow write: if isAdmin();
       }
     }
 
     /**
-     * @description Public metadata for media assets (images/videos).
+     * @description Public metadata for media assets.
      */
     match /media_assets/{mediaAssetId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     /**
-     * @description Customer purchase records. Users can read/list/create their own; admins manage all.
+     * @description Customer purchase records.
      */
     match /orders/{orderId} {
       // Admins can see all. Users can see/list only their own.
-      allow get, list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       
       // Users can create orders for themselves.
-      allow create: if isAdmin() || (isSignedIn() && request.resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
       
       // Only admins can update status or delete orders.
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow get, list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-        allow create: if isAdmin() || (isSignedIn() && request.resource.data.userId == request.auth.uid);
+        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
         allow update, delete: if isAdmin();
       }
     }
 
     /**
-     * @description Administrative role registry used for global RBAC.
+     * @description Administrative role registry.
      */
     match /roles_admin/{uid} {
       allow get: if isOwner(uid) || isAdmin();
       allow list: if isAdmin();
-      allow create, update, delete: if false; // Managed via console or cloud functions
+      allow create, update, delete: if false; 
     }
   }
 }
