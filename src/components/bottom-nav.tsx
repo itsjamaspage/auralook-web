@@ -22,7 +22,7 @@ export function BottomNav() {
 
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
-    return doc(db, 'roles_order_managers', user.uid);
+    return doc(db, 'roles_admin', user.uid);
   }, [db, user]);
   
   const { data: adminRole } = useDoc(adminRoleRef);

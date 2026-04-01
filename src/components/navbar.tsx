@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { User, LogOut, LayoutDashboard, Heart, Send, Maximize2 } from 'lucide-react';
-import { useUser, useAuth, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { doc, collection } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +36,7 @@ export function Navbar() {
 
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
-    return doc(db, 'roles_order_managers', user.uid);
+    return doc(db, 'roles_admin', user.uid);
   }, [db, user]);
   const { data: adminRole } = useDoc(adminRoleRef);
   const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
