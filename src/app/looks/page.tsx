@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +26,7 @@ export default function LooksPage() {
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 50000000]);
   const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
@@ -50,6 +51,10 @@ export default function LooksPage() {
       return matchesCurrency && matchesPrice;
     });
   }, [looks, filterCurrency, priceRange]);
+
+  const formatPrice = (val: number) => {
+    return new Intl.NumberFormat('uz-UZ').format(val);
+  };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
@@ -143,7 +148,7 @@ export default function LooksPage() {
         {showFilters && (
           <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-8 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Filter Parameters</h3>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
               <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white/40 hover:text-white">
                 <X className="w-5 h-5" />
               </Button>
@@ -151,10 +156,14 @@ export default function LooksPage() {
 
             <div className="grid md:grid-cols-2 gap-10">
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Currency Unit</Label>
+                <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
                 <RadioGroup 
                   value={filterCurrency} 
-                  onValueChange={(val: any) => setFilterCurrency(val)} 
+                  onValueChange={(val: any) => {
+                    setFilterCurrency(val);
+                    if (val === 'USD') setPriceRange([0, 5000]);
+                    else setPriceRange([0, 50000000]);
+                  }} 
                   className="flex gap-8"
                 >
                   <div className="flex items-center space-x-2">
@@ -170,15 +179,37 @@ export default function LooksPage() {
 
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Price Range</Label>
+                  <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.priceRange)}</Label>
                   <span className="text-xs font-black neon-text italic">
-                    {filterCurrency === 'USD' ? '$' : ''}{priceRange[0]} - {priceRange[1]}{filterCurrency === 'UZS' ? ' UZS' : ''}
+                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
                   </span>
                 </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.minPrice)}</Label>
+                    <Input 
+                      type="number"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.maxPrice)}</Label>
+                    <Input 
+                      type="number"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                    />
+                  </div>
+                </div>
+
                 <Slider 
                   value={priceRange} 
                   onValueChange={setPriceRange} 
-                  max={filterCurrency === 'USD' ? 2000 : 50000000} 
+                  max={filterCurrency === 'USD' ? 5000 : 50000000} 
                   step={filterCurrency === 'USD' ? 10 : 100000}
                   className="py-4"
                 />
@@ -245,7 +276,7 @@ export default function LooksPage() {
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-base font-black neon-text italic tracking-tighter">
-                          {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
+                          {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${formatPrice(look.price)}`}
                         </span>
                         <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
                       </div>

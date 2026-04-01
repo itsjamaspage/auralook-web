@@ -349,6 +349,33 @@ const dictionary = {
     en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.'
   },
 
+  // Filter Panel
+  filterParameters: {
+    uz: 'FILTR PARAMETRLARI',
+    ru: 'ПАРАМЕТРЫ ФИЛЬТРА',
+    en: 'FILTER PARAMETERS'
+  },
+  currencyUnit: {
+    uz: 'VALYUTA BIRLIGI',
+    ru: 'ВАЛЮТА',
+    en: 'CURRENCY UNIT'
+  },
+  priceRange: {
+    uz: 'NARX ORALIG\'I',
+    ru: 'ЦЕНОВОЙ ДИАПАЗОН',
+    en: 'PRICE RANGE'
+  },
+  minPrice: {
+    uz: 'Min narx',
+    ru: 'Мин. цена',
+    en: 'Min Price'
+  },
+  maxPrice: {
+    uz: 'Max narx',
+    ru: 'Макс. цена',
+    en: 'Max Price'
+  },
+
   // Footer
   allRightsReserved: { 
     uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.',
