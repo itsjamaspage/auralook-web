@@ -12,12 +12,12 @@ To activate order notifications and AI features, you must add your keys to the b
 1.  **DIRECT LINK**: [Click here to open your Backend Config](https://console.cloud.google.com/run/detail/us-central1/ssrstudio2916828899aeb9/revisions?project=studio-2916828899-aeb98)
 2.  **MANUAL FIND**:
     *   Open the [Google Cloud Console](https://console.cloud.google.com/).
-    *   **CRITICAL**: In the top-left project dropdown, click the project name and search for the ID: **`studio-2916828899-aeb98`**. Select it. (Do not use the project named "Auralook bot").
+    *   In the top project dropdown, select the project ID: **`studio-2916828899-aeb98`**.
     *   Go to **Cloud Run** -> **Services**.
-    *   Click on the service name: `ssrstudio2916828899aeb9`.
+    *   Click on the service: `ssrstudio2916828899aeb9`.
 
 ### 2. Enter Your Secret Keys
-1.  Click **EDIT & DEPLOY NEW REVISION** at the top of the service page.
+1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
 2.  Go to the **Variables & Secrets** tab.
 3.  Add the following three **Environment Variables**:
     *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
