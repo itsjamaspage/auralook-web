@@ -17,7 +17,7 @@ const dictionary = {
     en: 'Wear clothes of the future, feel the heritage'
   },
   browseLooks: { 
-    uz: 'Kashf qilish',
+    uz: 'Qidirish',
     ru: 'Поиск',
     en: 'Explore'
   },
