@@ -18,13 +18,20 @@ To activate order notifications and AI features, you must add your keys to the b
 
 ### 2. Enter Your Secret Keys
 1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
-2.  **⚠️ CRITICAL**: DO NOT change or type anything in the **"Container image URL"** box. If you see an error there, refresh the page and start over.
+2.  **⚠️ CRITICAL**: DO NOT change or type anything in the **"Container image URL"** box. If it is empty or shows an error, see the **Recovery** section below.
 3.  Go to the **Variables & Secrets** tab.
 4.  Add the following three **Environment Variables**:
     *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
     *   **TELEGRAM_ADMIN_CHAT_ID**: (Get your personal ID from [@userinfobot](https://t.me/userinfobot))
     *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
 5.  Click **DEPLOY** at the bottom of the page.
+
+### 🛠 Recovery: What if the Image URL is missing?
+If you accidentally deleted the Image URL and the "Deploy" button is disabled:
+1.  Go to the **REVISIONS** tab of your Cloud Run service.
+2.  Click the revision with the **green checkmark**.
+3.  Copy the **Image URL** from the details pane on the right.
+4.  Return to **EDIT & DEPLOY NEW REVISION** and paste that URL back into the box.
 
 ### 🧠 Why the Gemini API Key?
 Your store uses Gemini AI for:
@@ -39,11 +46,6 @@ The connection is established purely through the **API Key string**. When you pa
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
 2.  Set the URL to: `https://studio-2916828899-aeb98.web.app`
 3.  Set the Title to: `Open Store`
-
-## 🛠 Features
-- **AI Smart Size Advisor**: Uses Genkit for perfect fit recommendations.
-- **Telegram Notifications**: Real-time order alerts sent directly to you.
-- **Futuristic UI**: Neon-themed interface with shimmering skeleton loaders and global route transitions.
 
 ---
 *Created with Firebase Studio*
