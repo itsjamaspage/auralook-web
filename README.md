@@ -2,29 +2,37 @@
 
 This is a futuristic clothing store prototype built with Next.js, Firebase, and Genkit. It features an AI Smart Size Advisor and deep integration with Telegram.
 
-## 🚀 Deployment Status
-The app is configured for **Firebase Hosting** with Next.js SSR support.
+## 🚀 Live Deployment
+Your store is live at: **[https://studio-2916828899-aeb98.web.app](https://studio-2916828899-aeb98.web.app)**
 
-## 🤖 Telegram Bot Setup
-To finish the integration, follow these steps:
+## 🤖 Telegram Bot Final Setup
+Follow these steps to activate the AI order notifications:
 
-1. **Bot Token**: Get your token from [@BotFather](https://t.me/BotFather).
-2. **Admin ID**: Get your personal ID from [@userinfobot](https://t.me/userinfobot).
-3. **Environment Variables**: Add them to your `.env` file:
-   ```bash
-   TELEGRAM_BOT_TOKEN=your_token_here
-   TELEGRAM_ADMIN_CHAT_ID=your_id_here
-   ```
-4. **Mini App Connection**: 
-   - Open @BotFather -> `/mybots` -> Select your bot.
-   - **Bot Settings** > **Menu Button** > **Configure menu button**.
-   - Paste your Firebase Hosting URL (e.g., `https://your-project.web.app`).
-   - Title: `Open Store`
+### 1. Bot Creation
+1. Open [@BotFather](https://t.me/BotFather) on Telegram.
+2. Run `/newbot` and follow the prompts.
+3. **Copy the API Token** provided.
+
+### 2. Identify Admin
+1. Open [@userinfobot](https://t.me/userinfobot) on Telegram.
+2. Copy your **Id** (e.g., `123456789`).
+
+### 3. Connect the Web App
+1. In @BotFather, go to `/mybots` -> Select your bot.
+2. **Bot Settings** > **Menu Button** > **Configure menu button**.
+3. **URL**: `https://studio-2916828899-aeb98.web.app`
+4. **Title**: `Open Store`
+
+### 4. Configuration (Environment Variables)
+Add these to your project settings (in Google Cloud Console -> Cloud Functions -> SSR Function -> Configuration):
+- `TELEGRAM_BOT_TOKEN`: *Your Token from Step 1*
+- `TELEGRAM_ADMIN_CHAT_ID`: *Your Id from Step 2*
+- `GEMINI_API_KEY`: *Your Google AI API Key*
 
 ## 🛠 Features
-- **AI Smart Size Advisor**: Uses Genkit to recommend the perfect fit based on height, weight, and style.
-- **Telegram Notifications**: Real-time order alerts sent directly to the store manager.
-- **Futuristic UI**: High-performance, neon-themed interface with multi-language support (UZ/RU/EN).
+- **AI Smart Size Advisor**: Uses Genkit to recommend the perfect fit.
+- **Telegram Notifications**: Real-time order alerts sent directly to you.
+- **Futuristic UI**: High-performance, neon-themed interface with multi-language support.
 
 ---
 *Created in Firebase Studio*
