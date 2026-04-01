@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, getDoc, collection, addDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,7 +31,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   
   const [measurements, setMeasurements] = useState({
     height: '',
-    weight: ''
+    weight: '',
+    knownSize: ''
   });
 
   useEffect(() => {
@@ -91,29 +92,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   const handlePurchase = async () => {
-    const tg = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
-
-    if (tg && tg.initData) {
-      try {
-        const orderPayload = {
-          type: 'OUT_STORE_ORDER',
-          outfit_id: id,
-          outfit_name: look.name,
-          price: look.price,
-          currency: look.currency || 'USD',
-          size: selectedSize,
-          measurements: measurements,
-          timestamp: new Date().toISOString(),
-          customer: tg.initDataUnsafe?.user || {}
-        };
-        
-        tg.sendData(JSON.stringify(orderPayload));
-        return;
-      } catch (e) {
-        console.error("Telegram sendData failed", e);
-      }
-    }
-
     if (!user) {
       toast({
         title: t(dictionary.registrationRequiredTitle),
@@ -121,6 +99,15 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         variant: "destructive"
       });
       router.push('/login');
+      return;
+    }
+
+    if (!measurements.height || !measurements.weight) {
+      toast({
+        variant: "destructive",
+        title: "Ma'lumotlar to'liq emas",
+        description: "Iltimos, bo'yingiz va vazningizni kiriting."
+      });
       return;
     }
 
@@ -132,15 +119,20 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const orderData = {
         userId: user.uid,
-        customerName: user.email?.split('@')[0] || 'Customer',
+        customerName: userData?.firstName || user.email?.split('@')[0] || 'Customer',
         telegramUsername: userData?.telegramUsername || 'Not provided',
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
         lookId: look.id,
+        lookName: look.name,
         size: selectedSize,
-        measurements: measurements,
-        updatedAt: new Date().toISOString(),
+        measurements: {
+          height: measurements.height,
+          weight: measurements.weight,
+          knownSize: measurements.knownSize || selectedSize
+        },
+        updatedAt: serverTimestamp(),
       };
 
       await addDoc(collection(db, 'orders'), orderData);
@@ -232,7 +224,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   </div>
                 </div>
 
-                {/* Measurements Integration */}
                 <div className="space-y-4 pt-4 border-t border-white/5">
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 neon-text" />
@@ -246,7 +237,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                         placeholder="175"
                         value={measurements.height}
                         onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
-                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl"
+                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -256,9 +247,19 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                         placeholder="70"
                         value={measurements.weight}
                         onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
-                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl"
+                        className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
                       />
                     </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-bold uppercase text-white/40">O'lchamingiz (S, M, L...)</Label>
+                    <Input 
+                      type="text" 
+                      placeholder="M"
+                      value={measurements.knownSize}
+                      onChange={(e) => setMeasurements({...measurements, knownSize: e.target.value})}
+                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                    />
                   </div>
                 </div>
               </div>

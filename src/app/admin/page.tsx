@@ -33,8 +33,7 @@ import {
   LayoutGrid,
   Trash2,
   Edit3,
-  ShoppingBag,
-  Ruler
+  ShoppingBag
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -55,9 +54,6 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('orderDate', 'desc')), [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
-
-  const consultationsQuery = useMemoFirebase(() => query(collection(db, 'consultations'), orderBy('createdAt', 'desc')), [db]);
-  const { data: consultations, isLoading: consultationsLoading } = useCollection(consultationsQuery);
 
   const confirmDelete = () => {
     if (!lookToDelete) return;
@@ -105,9 +101,6 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
             Orders
-          </TabsTrigger>
-          <TabsTrigger value="consultations" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            {t(dictionary.razmeringiz)}
           </TabsTrigger>
         </TabsList>
 
@@ -159,7 +152,8 @@ export default function AdminDashboard() {
                 <TableHeader className="bg-white/5">
                   <TableRow>
                     <TableHead className="pl-8">Customer</TableHead>
-                    <TableHead>Specs (H/W)</TableHead>
+                    <TableHead>Physique (H/W/S)</TableHead>
+                    <TableHead>Look</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right pr-8">Action</TableHead>
@@ -176,10 +170,11 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="text-[10px] font-mono">
-                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}
+                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}/{order.measurements?.knownSize || order.size || '?'}
                         </div>
                       </TableCell>
-                      <TableCell className="font-black">${order.totalAmount}</TableCell>
+                      <TableCell><span className="text-xs font-bold">{order.lookName || 'Outfit'}</span></TableCell>
+                      <TableCell className="font-black text-primary">${order.totalAmount}</TableCell>
                       <TableCell>
                         <span className={`text-[10px] font-black uppercase ${order.status === 'New' ? 'text-amber-500' : 'text-primary'}`}>{order.status}</span>
                       </TableCell>
@@ -188,46 +183,6 @@ export default function AdminDashboard() {
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody>
-              </Table>
-            )}
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="consultations" className="space-y-6">
-          <div className="flex items-center gap-3"><Ruler className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Razmeringiz Requests</h2></div>
-          <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
-            {consultationsLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
-              <Table>
-                <TableHeader className="bg-white/5">
-                  <TableRow>
-                    <TableHead className="pl-8">Customer</TableHead>
-                    <TableHead>Measurements</TableHead>
-                    <TableHead>Preferred Fit</TableHead>
-                    <TableHead>Known Size</TableHead>
-                    <TableHead className="text-right pr-8">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {consultations?.map((consult) => (
-                    <TableRow key={consult.id} className="border-white/5 hover:bg-white/[0.03]">
-                      <TableCell className="pl-8">
-                        <div className="flex flex-col"><span className="font-bold">{consult.customerName}</span><span className="text-[10px] text-white/40">{consult.telegramUsername}</span></div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2 text-xs">
-                          <span className="text-white/40">H:</span> <span className="font-bold">{consult.heightCm}cm</span>
-                          <span className="text-white/40 ml-2">W:</span> <span className="font-bold">{consult.weightKg}kg</span>
-                        </div>
-                      </TableCell>
-                      <TableCell><span className="text-xs font-bold uppercase tracking-wider text-primary">{consult.desiredFit}</span></TableCell>
-                      <TableCell><span className="text-xs font-black neon-text">{consult.knownSize}</span></TableCell>
-                      <TableCell className="text-right pr-8 text-[10px] text-white/30">{consult.createdAt ? format(new Date(consult.createdAt), 'MMM dd, HH:mm') : 'N/A'}</TableCell>
-                    </TableRow>
-                  ))}
-                  {(!consultations || consultations.length === 0) && (
-                    <TableRow><TableCell colSpan={5} className="py-20 text-center text-white/20 italic uppercase tracking-widest">No active requests</TableCell></TableRow>
-                  )}
                 </TableBody>
               </Table>
             )}
