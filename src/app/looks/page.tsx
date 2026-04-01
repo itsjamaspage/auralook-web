@@ -1,14 +1,17 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Loader2, Heart, Search, Filter, Grid2X2, List, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -19,7 +22,11 @@ export default function LooksPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { t, dictionary } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => {
@@ -28,19 +35,21 @@ export default function LooksPage() {
 
   const { data: looks, isLoading } = useCollection(looksQuery);
 
-  // Subscribe to liked looks for real-time reactivity
   const likedLooksQuery = useMemoFirebase(() => {
     if (!user) return null;
     return collection(db, 'users', user.uid, 'liked_looks');
   }, [db, user]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery);
-  const likedLookIds = new Set(likedLooksData?.map(l => l.lookId) || []);
+  const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
-  const filteredLooks = looks?.filter(look => 
-    look.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    look.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredLooks = useMemo(() => {
+    return looks?.filter(look => {
+      const matchesCurrency = look.currency === filterCurrency;
+      const matchesPrice = look.price >= priceRange[0] && look.price <= priceRange[1];
+      return matchesCurrency && matchesPrice;
+    });
+  }, [looks, filterCurrency, priceRange]);
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
@@ -84,68 +93,144 @@ export default function LooksPage() {
 
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8">
-      {/* Search Header */}
+      {/* Action Header */}
       <div className="space-y-6">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:neon-text transition-colors" />
-          <Input 
-            placeholder="Search futuristic styles..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-14 bg-white/[0.03] border-white/10 rounded-2xl pl-12 pr-12 text-white placeholder:text-white/20 focus:neon-border transition-all"
-          />
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:neon-text text-white/20 transition-colors">
-            <Filter className="w-5 h-5" />
-          </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={() => setShowFilters(!showFilters)} 
+              variant="outline" 
+              className={cn(
+                "h-12 px-6 rounded-2xl border-white/10 text-white/60 hover:neon-border hover:neon-text transition-all",
+                showFilters && "neon-border neon-text"
+              )}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+            
+            <div className="hidden sm:flex items-baseline gap-2">
+              <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Listings Detected</span>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setViewMode('grid')} 
+              variant="ghost" 
+              className={cn(
+                "h-12 w-12 rounded-2xl transition-all",
+                viewMode === 'grid' ? "neon-bg text-black" : "bg-white/5 text-white/40"
+              )}
+            >
+              <Grid2X2 className="w-5 h-5" />
+            </Button>
+            <Button 
+              onClick={() => setViewMode('list')} 
+              variant="ghost" 
+              className={cn(
+                "h-12 w-12 rounded-2xl transition-all",
+                viewMode === 'list' ? "neon-bg text-black" : "bg-white/5 text-white/40"
+              )}
+            >
+              <List className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
-            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Listings Detected</span>
-          </div>
-          <div className="flex gap-2">
-            <button className="p-2 neon-bg rounded-lg text-black">
-              <Grid2X2 className="w-4 h-4" />
-            </button>
-            <button className="p-2 bg-white/5 rounded-lg text-white/40 hover:text-white transition-colors">
-              <List className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* Filter Panel */}
+        {showFilters && (
+          <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-8 animate-in slide-in-from-top-4 duration-300">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Filter Parameters</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white/40 hover:text-white">
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Currency Unit</Label>
+                <RadioGroup 
+                  value={filterCurrency} 
+                  onValueChange={(val: any) => setFilterCurrency(val)} 
+                  className="flex gap-8"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="USD" id="usd" className="transition-none" />
+                    <Label htmlFor="usd" className="text-xs font-bold text-white/80">USD ($)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="UZS" id="uzs" className="transition-none" />
+                    <Label htmlFor="uzs" className="text-xs font-bold text-white/80">UZS (so'm)</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Price Range</Label>
+                  <span className="text-xs font-black neon-text italic">
+                    {filterCurrency === 'USD' ? '$' : ''}{priceRange[0]} - {priceRange[1]}{filterCurrency === 'UZS' ? ' UZS' : ''}
+                  </span>
+                </div>
+                <Slider 
+                  value={priceRange} 
+                  onValueChange={setPriceRange} 
+                  max={filterCurrency === 'USD' ? 2000 : 50000000} 
+                  step={filterCurrency === 'USD' ? 10 : 100000}
+                  className="py-4"
+                />
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-32">
+      {/* Results Rendering */}
+      <div className={cn(
+        "pb-32 gap-6",
+        viewMode === 'grid' 
+          ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+          : "flex flex-col"
+      )}>
         {filteredLooks?.map((look) => {
           const isLiked = likedLookIds.has(look.id);
           
           return (
             <div key={look.id} className="relative group">
               <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
-                <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
-                  <div className="relative aspect-[4/5] overflow-hidden p-1">
+                <Card className={cn(
+                  "bg-[#080808]/40 border border-white/5 overflow-hidden transition-all hover:border-white/20",
+                  viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
+                )}>
+                  <div className={cn(
+                    "relative overflow-hidden p-1",
+                    viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0"
+                  )}>
                     <Image
                       src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
                       alt={look.name || 'Look'}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
+                      className={cn(
+                        "object-cover transition-transform duration-700 group-hover:scale-105",
+                        viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]"
+                      )}
                     />
                     
-                    {/* Heart Overlay */}
                     <button 
                       onClick={(e) => handleToggleLike(e, look.id)}
                       className={cn(
                         "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
                         isLiked 
-                          ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.4)]" 
+                          ? "neon-border neon-text bg-primary/10" 
                           : "border-white/10 text-white/60 hover:neon-text hover:neon-border"
                       )}
                     >
                       <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
                     </button>
 
-                    {/* Loading Indicator */}
                     {navigatingId === look.id && (
                       <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
                         <Loader2 className="w-8 h-8 animate-spin neon-text" />
@@ -153,7 +238,10 @@ export default function LooksPage() {
                     )}
                   </div>
 
-                  <div className="p-4 space-y-2">
+                  <div className={cn(
+                    "space-y-2",
+                    viewMode === 'grid' ? "p-4" : "p-2 flex-grow"
+                  )}>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-base font-black neon-text italic tracking-tighter">
@@ -163,6 +251,12 @@ export default function LooksPage() {
                       </div>
                       <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
                     </div>
+
+                    {viewMode === 'list' && (
+                      <p className="text-xs text-white/40 line-clamp-2 italic font-medium">
+                        {look.description}
+                      </p>
+                    )}
 
                     <div className="flex flex-col gap-0.5 pt-1">
                       <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
@@ -178,10 +272,10 @@ export default function LooksPage() {
         {(!filteredLooks || filteredLooks.length === 0) && (
           <div className="col-span-full py-32 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-              <Search className="w-8 h-8 text-white/10" />
+              <Filter className="w-8 h-8 text-white/10" />
             </div>
             <p className="text-white/40 font-bold uppercase tracking-[0.2em] italic">
-              No results found in the grid.
+              No results match your criteria.
             </p>
           </div>
         )}
