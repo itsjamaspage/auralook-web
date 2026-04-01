@@ -5,26 +5,23 @@ This is a futuristic clothing store prototype built with Next.js, Firebase, and 
 ## 🚀 Live Deployment
 Your store is live at: **[https://studio-2916828899-aeb98.web.app](https://studio-2916828899-aeb98.web.app)**
 
-## 🤖 Telegram Bot & AI Setup (Critical Final Steps)
-To activate order notifications and AI features, you must add your keys to the backend service.
+## 🤖 Telegram Bot & AI Setup (Final Steps)
+To activate order notifications and AI features, you must add your keys to the backend service in the Google Cloud Console.
 
-### 1. Identify Your Keys
-*   **TELEGRAM_BOT_TOKEN**: Get this from [@BotFather](https://t.me/BotFather).
-*   **TELEGRAM_ADMIN_CHAT_ID**: Get your personal ID from [@userinfobot](https://t.me/userinfobot).
-*   **GEMINI_API_KEY**: Your Google AI API key (from [Google AI Studio](https://aistudio.google.com/)).
-
-### 2. Configure the Backend Service (Google Cloud)
+### 1. Find Your Backend Service
 1.  Open the [Google Cloud Console](https://console.cloud.google.com/).
-2.  **CRITICAL STEP**: Look at the top-left dropdown (next to the "Google Cloud" logo). 
-    *   If it says **"Auralook bot"**, click it.
-    *   Search for **"2916828899"** and select the project **"studio-2916828899-aeb98"**.
-3.  Search for **"Cloud Run"** in the top search bar.
-4.  On the left sidebar, click **"Services"**.
-5.  Click on the service name: `ssrstudio2916828899aeb9...`.
-6.  Click **EDIT & DEPLOY NEW REVISION** at the top.
-7.  Go to the **Variables & Secrets** tab.
-8.  Add the three keys listed above as environment variables.
-9.  Click **DEPLOY** at the bottom.
+2.  **CRITICAL**: In the top-left project dropdown, select the project with ID **`studio-2916828899-aeb98`** (It may be labeled **JamaStore**).
+3.  Search for **"Cloud Run"** in the top search bar and click it.
+4.  Click on the service name: `ssrstudio2916828899aeb...`.
+
+### 2. Enter Your Secret Keys
+1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
+2.  Go to the **Variables & Secrets** tab.
+3.  Add the following three **Environment Variables**:
+    *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
+    *   **TELEGRAM_ADMIN_CHAT_ID**: (Get your personal ID from [@userinfobot](https://t.me/userinfobot))
+    *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
+4.  Click **DEPLOY** at the bottom of the page.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
@@ -33,8 +30,8 @@ To activate order notifications and AI features, you must add your keys to the b
 
 ## 🛠 Features
 - **AI Smart Size Advisor**: Uses Genkit for perfect fit recommendations.
-- **Telegram Notifications**: Real-time order alerts for the administrator.
-- **Futuristic UI**: High-performance, neon-themed interface with shimmering skeleton loaders.
+- **Telegram Notifications**: Real-time order alerts sent directly to you.
+- **Futuristic UI**: Neon-themed interface with shimmering skeleton loaders and global route transitions.
 
 ---
-*Created in Firebase Studio*
+*Created with Firebase Studio*
