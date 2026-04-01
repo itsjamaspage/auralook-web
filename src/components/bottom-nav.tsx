@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ export function BottomNav() {
     return (
       <Link 
         href={item.href}
-        className="flex flex-col items-center gap-1.5 group relative py-2 flex-1"
+        className="flex flex-col items-center gap-1.5 group relative py-2 flex-1 min-w-0"
       >
         <div className={cn(
           "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
@@ -60,7 +59,7 @@ export function BottomNav() {
           )} />
         </div>
         <span className={cn(
-          "text-[8px] font-black uppercase tracking-[0.15em] font-mono transition-colors text-center whitespace-nowrap",
+          "text-[8px] font-black uppercase tracking-[0.1em] font-mono transition-colors text-center truncate w-full px-1",
           isActive ? "neon-text" : "text-white/20"
         )}>
           {item.label}
@@ -75,7 +74,7 @@ export function BottomNav() {
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-8 pointer-events-none">
       <div className="max-w-md mx-auto relative pointer-events-auto">
         {/* Futuristic Unified Command Bridge */}
-        <div className="glass-dark border border-white/10 rounded-[2.5rem] h-24 w-full flex items-center justify-between px-3 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+        <div className="glass-dark border border-white/10 rounded-[2.5rem] h-24 w-full flex items-center justify-between px-2 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
           {navItems.map((item) => (
             <NavButton key={item.href} item={item} />
           ))}

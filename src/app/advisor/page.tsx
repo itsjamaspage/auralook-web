@@ -55,7 +55,7 @@ export default function AdvisorPage() {
 
         <div className="space-y-2 relative z-10">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <Sparkles className="w-5 h-5 neon-text" />
             Smart Advisor
           </h2>
           <p className="text-sm text-white/40 font-medium">
@@ -128,12 +128,12 @@ export default function AdvisorPage() {
           </div>
         ) : (
           <div className="py-8 text-center space-y-8 relative z-10">
-            <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary/10 border-2 neon-border animate-pulse mb-2">
+            <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-white/5 border-2 neon-border animate-pulse mb-2">
               <span className="text-5xl font-black neon-text">{result.recommendedSize}</span>
             </div>
             <div className="space-y-4">
               <h3 className="text-xl font-bold flex items-center justify-center gap-2 text-white">
-                <CheckCircle2 className="w-6 h-6 text-green-500" />
+                <CheckCircle2 className="w-6 h-6 neon-text" />
                 Tavsiya etilgan o'lcham: {result.recommendedSize}
               </h3>
               <p className="text-white/60 text-sm leading-relaxed px-6 italic font-medium">
