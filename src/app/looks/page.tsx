@@ -26,7 +26,7 @@ export default function LooksPage() {
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 50000000]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
@@ -98,7 +98,6 @@ export default function LooksPage() {
 
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8">
-      {/* Action Header */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -144,7 +143,6 @@ export default function LooksPage() {
           </div>
         </div>
 
-        {/* Filter Panel */}
         {showFilters && (
           <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-8 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center">
@@ -190,18 +188,26 @@ export default function LooksPage() {
                     <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.minPrice)}</Label>
                     <Input 
                       type="number"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                      placeholder="0"
+                      value={priceRange[0] || ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value);
+                        setPriceRange([val, priceRange[1]]);
+                      }}
+                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.maxPrice)}</Label>
                     <Input 
                       type="number"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                      placeholder="0"
+                      value={priceRange[1] || ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : parseInt(e.target.value);
+                        setPriceRange([priceRange[0], val]);
+                      }}
+                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
                     />
                   </div>
                 </div>
@@ -219,7 +225,6 @@ export default function LooksPage() {
         )}
       </div>
 
-      {/* Results Rendering */}
       <div className={cn(
         "pb-32 gap-6",
         viewMode === 'grid' 
