@@ -57,6 +57,8 @@ export function BottomNav() {
     );
   };
 
+  const isCartActive = pathname === '/orders';
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-8 pointer-events-none">
       <div className="max-w-md mx-auto relative flex items-end justify-center pointer-events-auto">
@@ -71,31 +73,34 @@ export function BottomNav() {
             ))}
           </div>
 
-          {/* Plasma Core (Cart Button) */}
-          <div className="relative -top-12 mx-2">
-            <Link href="/orders">
-              <div className="relative group">
-                {/* Energy Rings */}
-                <div className={cn(
-                  "absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 animate-pulse transition-opacity",
-                  pathname === '/orders' ? "opacity-100" : "opacity-40"
-                )} />
-                <div className="absolute inset-[-4px] border border-primary/20 rounded-full animate-[spin_4s_linear_infinite]" />
+          {/* Central Module (Cart) */}
+          <div className="relative -top-10 mx-2">
+            <Link href="/orders" className="flex flex-col items-center gap-1 group">
+              <div className="relative">
+                {/* Active Glow Ring - only shows when active */}
+                {isCartActive && (
+                  <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 animate-pulse" />
+                )}
                 
                 <div className={cn(
-                  "w-16 h-16 neon-bg rounded-full flex items-center justify-center relative z-10 shadow-[0_0_40px_rgba(var(--sync-color),0.5)] transition-all duration-500 group-hover:scale-110 group-active:scale-90 border-t border-white/40",
-                  pathname === '/orders' && "ring-4 ring-white/10"
+                  "w-14 h-14 rounded-full flex items-center justify-center relative z-10 transition-all duration-500 group-hover:scale-110 active:scale-95",
+                  isCartActive 
+                    ? "neon-bg shadow-[0_0_30px_rgba(var(--sync-color),0.5)]" 
+                    : "bg-white/5 border border-white/10 group-hover:border-white/30"
                 )}>
-                  <ShoppingBag className="w-7 h-7 text-black stroke-[2.5px]" />
-                </div>
-                
-                <div className={cn(
-                  "absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-colors",
-                  pathname === '/orders' ? "neon-text opacity-100" : "text-white/20"
-                )}>
-                  {t(dictionary.cart)}
+                  <ShoppingBag className={cn(
+                    "w-6 h-6 transition-colors",
+                    isCartActive ? "text-black stroke-[2.5px]" : "text-white/40 group-hover:text-white/60"
+                  )} />
                 </div>
               </div>
+              
+              <span className={cn(
+                "text-[8px] font-black uppercase tracking-[0.2em] font-mono transition-colors",
+                isCartActive ? "neon-text" : "text-white/20"
+              )}>
+                {t(dictionary.cart)}
+              </span>
             </Link>
           </div>
 
