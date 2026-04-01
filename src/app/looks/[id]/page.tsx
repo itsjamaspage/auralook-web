@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState } from 'react';
@@ -20,7 +21,8 @@ import {
   Phone,
   MapPin,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -153,6 +155,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         orderId: docRef.id,
         currentStatus: 'New',
         productName: look.name,
+        phoneNumber: orderData.phoneNumber,
         language: 'uz',
         physique: {
           height: orderDetails.height,
@@ -309,9 +312,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
           {step === 'ENTER_MEASUREMENTS' && (
             <div className="space-y-8 py-4">
-              <div className="flex items-center gap-2 text-white/40 mb-2">
-                <Ruler className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)} (Ixtiyoriy)</p>
+              <div className="flex flex-col gap-2 mb-2">
+                <div className="flex items-center gap-2 text-white/40">
+                  <Ruler className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+                </div>
+                <div className="flex items-start gap-2 bg-white/5 p-4 rounded-xl border border-white/10">
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-white/70 italic leading-relaxed">
+                    Menejerimiz ushbu ma'lumotlar asosida sizga eng mos keladigan o'lchamni tanlab beradi.
+                  </p>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

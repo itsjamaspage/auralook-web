@@ -15,6 +15,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   orderId: z.string().describe("The unique identifier for the order."),
   currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered']).describe("The current status of the order."),
   productName: z.string().describe("The name of the product(s) in the order."),
+  phoneNumber: z.string().optional().describe("Customer's phone number."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
   physique: z.object({
@@ -39,13 +40,17 @@ const prompt = ai.definePrompt({
 Buyurtma ma'lumotlari:
 - Mijoz ismi: {{{customerName}}}
 - Buyurtma ID: {{{orderId}}}
+- Telefon: {{{phoneNumber}}}
 - Holati: {{{currentStatus}}}
 - Mahsulot: {{{productName}}}
 {{#if physique}}
-- O'lchamlari: Bo'y: {{{physique.height}}}cm, Vazn: {{{physique.weight}}}kg, Tanlangan o'lcham: {{{physique.size}}}
+- O'lchamlari: 
+  * Bo'y: {{{physique.height}}} cm
+  * Vazn: {{{physique.weight}}} kg
+  * Tanlangan o'lcham: {{{physique.size}}}
 {{/if}}
 
-Xabar qisqa va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijozga libos tanlab beradi.`,
+Xabar qisqa, jozibali va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar (ayniqsa bo'y/vazn) asosida mijozga eng mos libosni tavsiya qilishi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
@@ -60,9 +65,18 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       return output!;
     } catch (error) {
       console.error('Flow execution error:', error);
-      return {
-        message: `Yangi Buyurtma!\nMijoz: ${input.customerName}\nID: ${input.orderId}\nMahsulot: ${input.productName}\nHolati: ${input.currentStatus}`
-      };
+      // Enhanced fallback with all critical data
+      let fallbackMsg = `<b>Yangi Buyurtma!</b>\n`;
+      fallbackMsg += `Mijoz: ${input.customerName}\n`;
+      fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
+      fallbackMsg += `Mahsulot: ${input.productName}\n`;
+      if (input.physique) {
+        fallbackMsg += `O'lchamlar: B: ${input.physique.height}cm, V: ${input.physique.weight}kg, O': ${input.physique.size || 'Tanlanmagan'}\n`;
+      }
+      fallbackMsg += `Holati: ${input.currentStatus}\n`;
+      fallbackMsg += `ID: ${input.orderId}`;
+      
+      return { message: fallbackMsg };
     }
   }
 );
