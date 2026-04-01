@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -44,18 +44,24 @@ import { useLanguage } from '@/hooks/use-language';
 
 export default function AdminDashboard() {
   const db = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Determine admin status before running queries to avoid permission errors
+  // Determine admin status
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_admin', user.uid);
   }, [db, user]);
-  const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
+  
+  const { data: adminRole, isLoading: roleLoading } = useDoc(adminRoleRef);
+  
+  const isAdmin = useMemo(() => {
+    if (!user) return false;
+    if (user.email === 'jkhakimjonov8@gmail.com') return true;
+    return !!adminRole;
+  }, [user, adminRole]);
 
   const looksQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
@@ -73,7 +79,7 @@ export default function AdminDashboard() {
     if (!lookToDelete) return;
     const lookRef = doc(db, 'looks', lookToDelete);
     deleteDocumentNonBlocking(lookRef);
-    toast({ title: "Deletion Initiated" });
+    toast({ title: "O'chirish boshlandi" });
     setLookToDelete(null);
   };
 
@@ -84,19 +90,28 @@ export default function AdminDashboard() {
         status: 'Confirmed',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Order Accepted" });
+      toast({ title: "Buyurtma qabul qilindi" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed" });
+      toast({ variant: "destructive", title: "Xatolik yuz berdi" });
     }
   };
+
+  if (isUserLoading || (user && roleLoading && !isAdmin)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 animate-spin neon-text" />
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Checking Authorization...</p>
+      </div>
+    );
+  }
 
   if (!isAdmin && user) {
     return (
       <div className="container mx-auto px-6 py-24 text-center space-y-4">
         <h2 className="text-2xl font-black text-white uppercase italic">Access Denied</h2>
-        <p className="text-white/40">You do not have administrative privileges to access this area.</p>
+        <p className="text-white/40">Sizda administrator ruxsati yo'q.</p>
         <Link href="/profile">
-          <Button variant="outline" className="mt-4">Return to Profile</Button>
+          <Button variant="outline" className="mt-4">Profilga qaytish</Button>
         </Link>
       </div>
     );
@@ -123,10 +138,10 @@ export default function AdminDashboard() {
       <Tabs defaultValue="inventory" className="space-y-6">
         <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12 flex w-fit">
           <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            Inventory
+            Inventar
           </TabsTrigger>
           <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            Orders
+            Buyurtmalar
           </TabsTrigger>
         </TabsList>
 
@@ -143,9 +158,9 @@ export default function AdminDashboard() {
                 <TableHeader className="bg-white/5">
                   <TableRow className="border-none">
                     <TableHead className="pl-8 text-[10px] uppercase tracking-widest">Visual</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Name</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Value</TableHead>
-                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">Ops</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Nomi</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Narxi</TableHead>
+                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">Amallar</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -171,18 +186,18 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
-          <div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Active Orders</h2></div>
+          <div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Buyurtmalar</h2></div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
             {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>
                 <TableHeader className="bg-white/5">
                   <TableRow>
-                    <TableHead className="pl-8">Customer</TableHead>
-                    <TableHead>Physique (H/W/S)</TableHead>
-                    <TableHead>Look</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right pr-8">Action</TableHead>
+                    <TableHead className="pl-8">Mijoz</TableHead>
+                    <TableHead>O'lcham (B/V/O')</TableHead>
+                    <TableHead>Libos</TableHead>
+                    <TableHead>Summa</TableHead>
+                    <TableHead>Holati</TableHead>
+                    <TableHead className="text-right pr-8">Amal</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -191,21 +206,21 @@ export default function AdminDashboard() {
                       <TableCell className="pl-8">
                         <div className="flex flex-col">
                           <span className="font-bold">{order.customerName}</span>
-                          <span className="text-[10px] text-white/40">{order.telegramUsername}</span>
+                          <span className="text-[10px] text-white/40">{order.phoneNumber}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-[10px] font-mono">
-                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}/{order.measurements?.knownSize || order.size || '?'}
+                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}/{order.size || '?'}
                         </div>
                       </TableCell>
                       <TableCell><span className="text-xs font-bold">{order.lookName || 'Outfit'}</span></TableCell>
-                      <TableCell className="font-black text-primary">${order.totalAmount}</TableCell>
+                      <TableCell className="font-black text-primary">{order.totalAmount}</TableCell>
                       <TableCell>
                         <span className={`text-[10px] font-black uppercase ${order.status === 'New' ? 'text-amber-500' : 'text-primary'}`}>{order.status}</span>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        {order.status === 'New' && <Button onClick={() => handleAcceptOrder(order.id)} className="h-8 text-[10px] neon-bg text-black font-black uppercase">Accept</Button>}
+                        {order.status === 'New' && <Button onClick={() => handleAcceptOrder(order.id)} className="h-8 text-[10px] neon-bg text-black font-black uppercase">Qabul qilish</Button>}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -217,14 +232,14 @@ export default function AdminDashboard() {
       </Tabs>
 
       <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
-        <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem] text-foreground">
+        <AlertDialogContent className="glass-dark border-white/10 rounded-[2.5rem] text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">Are you sure you want to remove this item?</AlertDialogDescription>
+            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">O'chirishni tasdiqlang</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">Ushbu elementni katalogni olib tashlamoqchimisiz?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive">Delete</AlertDialogAction>
+            <AlertDialogCancel className="bg-white/5">Bekor qilish</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive">O'chirish</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

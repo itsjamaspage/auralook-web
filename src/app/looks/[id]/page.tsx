@@ -1,7 +1,6 @@
-
 "use client"
 
-import { use, useState, useEffect } from 'react';
+import { use, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { 
   Loader2, 
@@ -22,16 +20,15 @@ import {
   Phone,
   MapPin,
   CheckCircle2,
-  HelpCircle,
   ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, getDoc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
-type CheckoutStep = 'INITIAL' | 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
+type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -131,14 +128,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
     setIsOrdering(true);
     try {
-      const userRef = doc(db, 'users', user!.uid);
-      const userSnap = await getDoc(userRef);
-      const userData = userSnap.data();
-
       const orderData = {
         userId: user!.uid,
-        customerName: userData?.firstName || user!.email?.split('@')[0] || 'Customer',
-        telegramUsername: userData?.telegramUsername || 'Not provided',
+        customerName: user!.displayName || user!.email?.split('@')[0] || 'Customer',
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
@@ -146,7 +138,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookName: look.name,
         size: selectedSize || 'Unspecified',
         phoneNumber: orderDetails.phone,
-        shippingAddress: orderDetails.address || 'Pickup/TBD',
+        shippingAddress: orderDetails.address || 'Tashkent',
         measurements: {
           height: orderDetails.height || 'N/A',
           weight: orderDetails.weight || 'N/A',
@@ -308,7 +300,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <Button 
                 onClick={() => setStep('CONTACT')}
                 disabled={!selectedSize}
-                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest mt-4"
               >
                 {t(dictionary.nextStep)}
               </Button>
@@ -319,7 +311,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             <div className="space-y-8 py-4">
               <div className="flex items-center gap-2 text-white/40 mb-2">
                 <Ruler className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)} (Ixtiyoriy)</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -370,7 +362,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white/40">
                   <MapPin className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.shippingAddress)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.shippingAddress)} (Ixtiyoriy)</p>
                 </div>
                 <Input 
                   placeholder={t(dictionary.addressPlaceholder)}

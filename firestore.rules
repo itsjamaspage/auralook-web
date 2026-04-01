@@ -36,21 +36,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Combines ownership check with a verification that the document exists. */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
     // --- Collection Rules ---
 
     /**
      * @description Rules for user profile documents. Enforces strict ownership.
      */
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow read, write: if isOwner(userId);
 
       match /{allSubcollections=**} {
         allow read, write: if isOwner(userId);
@@ -95,8 +87,9 @@ service cloud.firestore {
      * @description Customer purchase records.
      */
     match /orders/{orderId} {
-      // Admins can see all. Users can see/list only their own.
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Split rules to ensure 'list' operations work correctly for admins
+      allow read: if isAdmin();
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       // Users can create orders for themselves.
       allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
@@ -105,7 +98,8 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow read: if isAdmin();
+        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
         allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
         allow update, delete: if isAdmin();
       }
@@ -118,6 +112,15 @@ service cloud.firestore {
       allow get: if isOwner(uid) || isAdmin();
       allow list: if isAdmin();
       allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Generic consultations (advisor requests)
+     */
+    match /consultations/{docId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
   }
 }
