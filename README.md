@@ -5,7 +5,7 @@ This is a futuristic clothing store prototype built with Next.js, Firebase, and 
 ## 🚀 Live Deployment
 Your store is live at: **[https://studio-2916828899-aeb98.web.app](https://studio-2916828899-aeb98.web.app)**
 
-## 🤖 Telegram Bot & AI Setup (Critical)
+## 🤖 Telegram Bot & AI Setup (Critical Final Steps)
 To activate order notifications and AI features, you must add your keys to the backend service.
 
 ### 1. Identify Your Keys
