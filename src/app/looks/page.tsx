@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -26,8 +27,9 @@ export default function LooksPage() {
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  
   const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => {
@@ -47,7 +49,8 @@ export default function LooksPage() {
   const filteredLooks = useMemo(() => {
     return looks?.filter(look => {
       const matchesCurrency = look.currency === filterCurrency;
-      const matchesPrice = look.price >= priceRange[0] && look.price <= priceRange[1];
+      const price = Number(look.price || 0);
+      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
       return matchesCurrency && matchesPrice;
     });
   }, [looks, filterCurrency, priceRange]);
@@ -86,6 +89,8 @@ export default function LooksPage() {
       console.error(e);
     }
   };
+
+  const maxPossiblePrice = filterCurrency === 'USD' ? 5000 : 50000000;
 
   if (isLoading) {
     return (
@@ -189,10 +194,10 @@ export default function LooksPage() {
                     <Input 
                       type="number"
                       placeholder="0"
-                      value={priceRange[0] || ''}
+                      value={priceRange[0] === 0 ? '' : priceRange[0]}
                       onChange={(e) => {
                         const val = e.target.value === '' ? 0 : parseInt(e.target.value);
-                        setPriceRange([val, priceRange[1]]);
+                        setPriceRange([isNaN(val) ? 0 : val, priceRange[1]]);
                       }}
                       className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
                     />
@@ -201,11 +206,11 @@ export default function LooksPage() {
                     <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.maxPrice)}</Label>
                     <Input 
                       type="number"
-                      placeholder="0"
-                      value={priceRange[1] || ''}
+                      placeholder={maxPossiblePrice.toString()}
+                      value={priceRange[1] === maxPossiblePrice ? '' : priceRange[1]}
                       onChange={(e) => {
-                        const val = e.target.value === '' ? 0 : parseInt(e.target.value);
-                        setPriceRange([priceRange[0], val]);
+                        const val = e.target.value === '' ? maxPossiblePrice : parseInt(e.target.value);
+                        setPriceRange([priceRange[0], isNaN(val) ? maxPossiblePrice : val]);
                       }}
                       className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
                     />
@@ -213,10 +218,10 @@ export default function LooksPage() {
                 </div>
 
                 <Slider 
-                  value={priceRange} 
-                  onValueChange={setPriceRange} 
-                  max={filterCurrency === 'USD' ? 5000 : 50000000} 
-                  step={filterCurrency === 'USD' ? 10 : 100000}
+                  value={[priceRange[0], priceRange[1]]} 
+                  onValueChange={(val: number[]) => setPriceRange([val[0], val[1]])} 
+                  max={maxPossiblePrice} 
+                  step={filterCurrency === 'USD' ? 1 : 1000}
                   className="py-4"
                 />
               </div>
