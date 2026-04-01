@@ -6,30 +6,32 @@ This is a futuristic clothing store prototype built with Next.js, Firebase, and 
 Your store is live at: **[https://studio-2916828899-aeb98.web.app](https://studio-2916828899-aeb98.web.app)**
 
 ## 🤖 Telegram Bot & AI Setup (Critical)
-To activate order notifications and AI features, you must add your keys to the Cloud Function:
+To activate order notifications and AI features, you must add your keys to the **Cloud Run** service:
 
 ### 1. Identify Your Keys
 *   **TELEGRAM_BOT_TOKEN**: Get this from [@BotFather](https://t.me/BotFather).
 *   **TELEGRAM_ADMIN_CHAT_ID**: Get your personal ID from [@userinfobot](https://t.me/userinfobot).
-*   **GEMINI_API_KEY**: Your Google AI API key (from Google AI Studio).
+*   **GEMINI_API_KEY**: Your Google AI API key (from [Google AI Studio](https://aistudio.google.com/)).
 
-### 2. Configure the SSR Function
+### 2. Configure the Cloud Run Service
 1.  Open the [Google Cloud Console](https://console.cloud.google.com/).
 2.  Select project: **studio-2916828899-aeb98**.
-3.  Search for **"Cloud Functions"** and click it.
-4.  Click on the function starting with: `ssrstudio2916828899aeb9`.
-5.  Click **EDIT** -> **Runtime, build, connections and security settings**.
-6.  Under **Environment variables**, add the three keys listed above.
-7.  Click **NEXT** -> **DEPLOY**.
+3.  Search for **"Cloud Run"** in the top bar and click it.
+4.  Click on the service name starting with: `ssrstudio2916828899aeb9...`.
+5.  Click **EDIT & DEPLOY NEW REVISION** at the top.
+6.  Go to the **Variables & Secrets** tab.
+7.  Add the three keys listed above as environment variables.
+8.  Click **DEPLOY** at the bottom.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
 2.  Set the URL to: `https://studio-2916828899-aeb98.web.app`
+3.  Set the Title to: `Open Store`
 
 ## 🛠 Features
 - **AI Smart Size Advisor**: Uses Genkit for perfect fit recommendations.
 - **Telegram Notifications**: Real-time order alerts for the administrator.
-- **Futuristic UI**: High-performance, neon-themed interface.
+- **Futuristic UI**: High-performance, neon-themed interface with shimmering skeleton loaders.
 
 ---
 *Created in Firebase Studio*
