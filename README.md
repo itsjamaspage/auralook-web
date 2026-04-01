@@ -13,9 +13,11 @@ To activate order notifications and AI features, you must add your keys to the b
 *   **TELEGRAM_ADMIN_CHAT_ID**: Get your personal ID from [@userinfobot](https://t.me/userinfobot).
 *   **GEMINI_API_KEY**: Your Google AI API key (from [Google AI Studio](https://aistudio.google.com/)).
 
-### 2. Configure the Backend Service
+### 2. Configure the Backend Service (Google Cloud)
 1.  Open the [Google Cloud Console](https://console.cloud.google.com/).
-2.  **CRITICAL**: Check the top project dropdown. Ensure **"studio-2916828899-aeb98"** is selected.
+2.  **CRITICAL STEP**: Look at the top-left dropdown (next to the "Google Cloud" logo). 
+    *   If it says **"Auralook bot"**, click it.
+    *   Search for **"2916828899"** and select the project **"studio-2916828899-aeb98"**.
 3.  Search for **"Cloud Run"** in the top search bar.
 4.  On the left sidebar, click **"Services"**.
 5.  Click on the service name: `ssrstudio2916828899aeb9...`.
@@ -23,8 +25,6 @@ To activate order notifications and AI features, you must add your keys to the b
 7.  Go to the **Variables & Secrets** tab.
 8.  Add the three keys listed above as environment variables.
 9.  Click **DEPLOY** at the bottom.
-
-*Note: If you don't see the service in Cloud Run, check the **Cloud Functions** section instead, as it is a 2nd Gen Function.*
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
