@@ -1,59 +1,147 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    /**
+     * JamaStore Security Rules
+     * 
+     * Core Philosophy:
+     * This ruleset implements a hybrid security model. User-specific data (profiles) follows a 
+     * strict path-based ownership model. E-commerce catalog data (products, looks, media) is 
+     * publicly accessible for reading but restricted to administrative accounts for any 
+     * modifications. Transactional data (orders) uses field-based authorization to ensure 
+     * customers can only access their own history.
+     * 
+     * Data Structure:
+     * - /users/{userId}: Private user profiles and AI sizing preferences.
+     * - /products, /looks, /media_assets: Public catalog and assets.
+     * - /orders: Customer purchase records, secured by denormalized user IDs.
+     * - /roles_admin: A specialized collection for Role-Based Access Control (RBAC).
+     * 
+     * Key Security Decisions:
+     * - Administrative access is determined by the existence of a record in /roles_admin/{uid}.
+     * - Orders and OrderItems utilize denormalized 'userId' fields to allow for 
+     *   performant authorization checks without traversing document hierarchies.
+     * - Public list access is granted only to non-sensitive catalog collections.
+     * - Destructive operations (update/delete) explicitly verify document existence.
+     */
+
+    // --- Helper Functions ---
+
+    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
+    /** @description Checks if the authenticated user has a registered administrative role. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /** @description Checks if the provided ID matches the authenticated user's UID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isAdmin() {
-      return isSignedIn() && (
-        exists(/databases/$(database)/documents/roles_order_managers/$(request.auth.uid)) ||
-        request.auth.token.email == 'jkhakimjonov8@gmail.com'
-      );
+    /** @description Combines ownership check with a verification that the document exists. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
     }
 
+    // The function 'isDocumentOwner' was removed as it was unused and caused a warning.
+    // Its logic is handled inline where needed (e.g., in /orders) or by other helper functions.
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for user profile documents. Enforces strict ownership.
+     * @path /users/{userId}
+     * @allow (get) Authenticated user 'abc' reads document /users/abc.
+     * @deny (create) Authenticated user 'abc' attempts to create document /users/xyz.
+     * @principle Restricts access to a user's own data tree and validates path consistency.
+     */
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId);
-      allow list, update, delete: if isAdmin();
-      
-      match /liked_looks/{lookId} {
-        allow read, write: if isOwner(userId) || isAdmin();
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Public catalog for products. Read access is open; write access is admin-only.
+     * @path /products/{productId}
+     * @allow (get) Any visitor views a product description.
+     * @deny (update) Authenticated non-admin user attempts to change a product price.
+     * @principle Uses RBAC for catalog management while maintaining public visibility.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+
+      match /translations/{languageCode} {
+        allow get, list: if true;
+        allow create, update, delete: if isAdmin();
       }
     }
 
-    match /consultations/{id} {
-      allow create: if isSignedIn();
-      allow read, list: if isAdmin();
-      allow delete: if isAdmin();
+    /**
+     * @description Public lookbook for curated outfits. Read access is open; write access is admin-only.
+     * @path /looks/{lookId}
+     * @allow (list) Any visitor browses the lookbook.
+     * @deny (delete) Authenticated non-admin user attempts to remove a look.
+     * @principle Uses RBAC for catalog management while maintaining public visibility.
+     */
+    match /looks/{lookId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+
+      match /translations/{languageCode} {
+        allow get, list: if true;
+        allow create, update, delete: if isAdmin();
+      }
     }
 
-    match /roles_order_managers/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+    /**
+     * @description Public metadata for media assets (images/videos).
+     * @path /media_assets/{mediaAssetId}
+     * @allow (get) Any visitor retrieves image metadata.
+     * @deny (create) Anonymous user attempts to upload asset metadata.
+     * @principle Restricts asset management to administrators.
+     */
+    match /media_assets/{mediaAssetId} {
+      allow get, list: if true;
       allow create, update, delete: if isAdmin();
     }
 
-    match /roles_look_creators/{userId} {
-      allow get: if isSignedIn();
-      allow list, create, update, delete: if isAdmin();
-    }
-
+    /**
+     * @description Customer purchase records. Users can read their own; admins manage all.
+     * @path /orders/{orderId}
+     * @allow (get) User 'abc' reads their order where 'userId' is 'abc'.
+     * @deny (list) Authenticated user attempts to list all orders (not permitted for security).
+     * @principle Enforces authorization via denormalized identity fields.
+     */
     match /orders/{orderId} {
-      allow create: if isSignedIn();
-      allow get, list, update: if isAdmin() || (resource != null && resource.data.userId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow list: if isAdmin(); // TODO: User listing requires path-based scoping or resource-based filtering (restricted by P6).
+      allow create, update, delete: if isAdmin();
+
+      match /items/{orderItemId} {
+        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow list: if isAdmin();
+        allow create, update, delete: if isAdmin();
+      }
     }
 
-    match /looks/{lookId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    /**
+     * @description Administrative role registry used for global RBAC.
+     * @path /roles_admin/{uid}
+     * @allow (get) User 'abc' checks their own admin status.
+     * @deny (create) User 'abc' attempts to grant themselves admin rights.
+     * @principle Restricts role assignment to system-level operations or external triggers.
+     */
+    match /roles_admin/{uid} {
+      allow get, list: if isOwner(uid);
+      allow create, update, delete: if false;
     }
   }
 }

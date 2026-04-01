@@ -1,11 +1,10 @@
-
 {
   "entities": {
     "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a customer account in the JamaStore application.",
+      "description": "Represents a user account in the JamaStore application, storing profile information and preferences for features like the size advisor and Telegram notifications.",
       "properties": {
         "id": {
           "type": "string",
@@ -13,12 +12,30 @@
         },
         "email": {
           "type": "string",
-          "description": "The user's email address, used for account creation and notifications.",
+          "description": "User's unique email address used for account creation.",
           "format": "email"
         },
         "telegramUsername": {
           "type": "string",
-          "description": "The user's Telegram username, linked for receiving automated order status notifications."
+          "description": "User's Telegram username for receiving automated notifications. (Relationship: User 1:1 TelegramBot)"
+        },
+        "heightCm": {
+          "type": "number",
+          "description": "User's height in centimeters, used by the AI Smart Size Advisor."
+        },
+        "weightKg": {
+          "type": "number",
+          "description": "User's weight in kilograms, used by the AI Smart Size Advisor."
+        },
+        "gender": {
+          "type": "string",
+          "description": "User's self-declared gender, used by the AI Smart Size Advisor. (Possible values: 'male', 'female', 'other')",
+          "format": "enum"
+        },
+        "desiredFit": {
+          "type": "string",
+          "description": "User's preferred clothing fit, used by the AI Smart Size Advisor. (Possible values: 'loose', 'regular', 'tight')",
+          "format": "enum"
         },
         "createdAt": {
           "type": "string",
@@ -38,56 +55,163 @@
         "updatedAt"
       ]
     },
-    "Order": {
+    "MediaAsset": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Order",
+      "title": "MediaAsset",
       "type": "object",
-      "description": "Represents a customer's purchase order, with status management and notification capabilities.",
+      "description": "Represents a media file, such as an image, uploaded for products or looks, with its metadata and public URL.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Order entity."
+          "description": "Unique identifier for the MediaAsset entity."
         },
-        "userId": {
+        "url": {
           "type": "string",
-          "description": "Reference to the User who placed the order."
+          "description": "Public URL where the media asset can be accessed.",
+          "format": "uri"
         },
-        "customerName": {
+        "altText": {
           "type": "string",
-          "description": "Name of the customer for quick access."
+          "description": "Alternative text for the media asset, used for accessibility and SEO."
         },
-        "telegramUsername": {
+        "fileType": {
           "type": "string",
-          "description": "Telegram handle for order updates."
+          "description": "MIME type of the media file (e.g., 'image/jpeg', 'image/png')."
         },
-        "orderDate": {
-          "type": "string",
-          "description": "The date and time when the order was placed.",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "The current status of the order (e.g., 'New', 'Confirmed', 'Shipped', 'Delivered')."
-        },
-        "totalAmount": {
+        "width": {
           "type": "number",
-          "description": "The total monetary amount of the order."
+          "description": "Width of the image in pixels."
         },
-        "lookId": {
-          "type": "string",
-          "description": "Reference to the Look purchased."
+        "height": {
+          "type": "number",
+          "description": "Height of the image in pixels."
         },
-        "updatedAt": {
+        "sizeBytes": {
+          "type": "number",
+          "description": "Size of the file in bytes."
+        },
+        "uploadedAt": {
           "type": "string",
-          "description": "Timestamp when the order record was last updated.",
+          "description": "Timestamp when the media asset was uploaded.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
-        "userId",
-        "status",
-        "totalAmount",
+        "url",
+        "fileType",
+        "uploadedAt"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a distinct sellable clothing item available in the JamaStore catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "sku": {
+          "type": "string",
+          "description": "Stock Keeping Unit, a unique code for the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Current selling price of the product."
+        },
+        "availableSizes": {
+          "type": "array",
+          "description": "An array of available sizes for this product (e.g., 'S', 'M', 'L').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stockQuantity": {
+          "type": "number",
+          "description": "Current number of units of this product available in stock."
+        },
+        "mediaAssetIds": {
+          "type": "array",
+          "description": "References to MediaAsset entities associated with this product. (Relationship: Product 1:N MediaAsset)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the product was first added.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the product information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "sku",
+        "price",
+        "availableSizes",
+        "stockQuantity",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ProductTranslation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProductTranslation",
+      "type": "object",
+      "description": "Provides localized details for a specific product in a given language.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ProductTranslation entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product entity this translation belongs to. (Relationship: Product 1:N ProductTranslation)"
+        },
+        "languageCode": {
+          "type": "string",
+          "description": "The language code for this translation (e.g., 'en' for English, 'uz' for Uzbek, 'ru' for Russian)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Translated name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "Translated and SEO-friendly description of the product, generated by AI."
+        },
+        "material": {
+          "type": "string",
+          "description": "Translated description of the product's material composition (e.g., '100% Cotton')."
+        },
+        "careInstructions": {
+          "type": "string",
+          "description": "Translated care instructions for the product."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when this translation was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when this translation was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "languageCode",
+        "name",
+        "description",
+        "createdAt",
         "updatedAt"
       ]
     },
@@ -95,40 +219,215 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Look",
       "type": "object",
-      "description": "Represents a fashion outfit (Look) available in the store.",
+      "description": "Represents a curated outfit or style, often comprising multiple products, displayed in the lookbook.",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "price": { "type": "number" },
-        "discount": { "type": "number", "description": "Discount percentage (0-100)" },
-        "currency": { "type": "string", "enum": ["USD", "UZS"] },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Look entity."
+        },
+        "slug": {
+          "type": "string",
+          "description": "A URL-friendly, unique identifier for the look, used for SEO and direct linking."
+        },
+        "mediaAssetIds": {
+          "type": "array",
+          "description": "References to MediaAsset entities showcasing this look. (Relationship: Look 1:N MediaAsset)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productIds": {
+          "type": "array",
+          "description": "References to Product entities included in this look. (Relationship: Look N:N Product)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the look was created by an admin.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the look information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "slug",
+        "mediaAssetIds",
+        "productIds",
+        "createdAt",
+        "updatedAt"
+      ]
     },
-    "Consultation": {
+    "LookTranslation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LookTranslation",
       "type": "object",
-      "description": "A manual measurement request sent to the admin for personal styling.",
+      "description": "Provides localized display information for a specific look in a given language.",
       "properties": {
-        "userId": { "type": "string" },
-        "customerName": { "type": "string" },
-        "telegramUsername": { "type": "string" },
-        "heightCm": { "type": "number" },
-        "weightKg": { "type": "number" },
-        "gender": { "type": "string" },
-        "desiredFit": { "type": "string" },
-        "knownSize": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LookTranslation entity."
+        },
+        "lookId": {
+          "type": "string",
+          "description": "Reference to the Look entity this translation belongs to. (Relationship: Look 1:N LookTranslation)"
+        },
+        "languageCode": {
+          "type": "string",
+          "description": "The language code for this translation (e.g., 'en' for English, 'uz' for Uzbek, 'ru' for Russian)."
+        },
+        "title": {
+          "type": "string",
+          "description": "Translated title or name of the look."
+        },
+        "description": {
+          "type": "string",
+          "description": "Translated description of the look, adapting UI and content for each language, generated by AI."
+        },
+        "seoKeywords": {
+          "type": "string",
+          "description": "SEO-friendly keywords for the look, generated by AI for better discoverability."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when this translation was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when this translation was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "lookId",
+        "languageCode",
+        "title",
+        "description",
+        "createdAt",
+        "updatedAt"
+      ]
     },
-    "LikedLook": {
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
       "type": "object",
-      "description": "A look that a user has marked as favorite.",
+      "description": "Represents a customer's purchase transaction, tracking its status and details.",
       "properties": {
-        "lookId": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who placed this order. (Relationship: User 1:N Order)"
+        },
+        "orderNumber": {
+          "type": "string",
+          "description": "A human-readable, unique identifier for the order."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary amount of the order."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the order (e.g., 'New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled').",
+          "format": "enum"
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "The full shipping address for the order."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "The status of the payment for this order (e.g., 'Pending', 'Paid', 'Failed').",
+          "format": "enum"
+        },
+        "telegramNotificationSent": {
+          "type": "boolean",
+          "description": "Indicates if a Telegram notification for this order's status update has been sent."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the order was placed.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the order information or status was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "orderNumber",
+        "totalAmount",
+        "status",
+        "shippingAddress",
+        "paymentStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents a single product item included within a customer's order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to the Order this item belongs to. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product purchased in this order item. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The number of units of the product purchased."
+        },
+        "priceAtPurchase": {
+          "type": "number",
+          "description": "The price of a single unit of the product at the time the order was placed."
+        },
+        "size": {
+          "type": "string",
+          "description": "The specific size of the product ordered (e.g., 'M', 'L')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the order item was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the order item was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "priceAtPurchase",
+        "size",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   "auth": {
@@ -146,50 +445,43 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores core user profile information."
+          "description": "Stores individual user profiles and preferences for features like the AI Smart Size Advisor. Authorization is strictly path-based; only the authenticated user (`request.auth.uid`) can read or write their own user document."
         }
       },
       {
-        "path": "/users/{userId}/liked_looks/{lookId}",
+        "path": "/products/{productId}",
         "definition": {
-          "entityName": "LikedLook",
+          "entityName": "Product",
           "schema": {
-            "$ref": "#/backend/entities/LikedLook"
+            "$ref": "#/backend/entities/Product"
           },
-          "description": "Individual looks saved by the user."
-        }
-      },
-      {
-        "path": "/consultations/{id}",
-        "definition": {
-          "entityName": "Consultation",
-          "schema": {
-            "$ref": "#/backend/entities/Consultation"
-          },
-          "description": "Manual measurement requests for the admin."
-        }
-      },
-      {
-        "path": "/roles_order_managers/{userId}",
-        "definition": {
-          "entityName": "AdminRole",
-          "schema": {
-            "type": "object",
-            "properties": {
-              "userId": { "type": "string" }
+          "description": "Contains the main catalog of sellable clothing items. Documents in this collection are publicly readable by all users. Write access (create, update, delete) is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier for a specific product."
             }
-          },
-          "description": "Presence of a UID here grants Admin privileges."
+          ]
         }
       },
       {
-        "path": "/orders/{orderId}",
+        "path": "/products/{productId}/translations/{languageCode}",
         "definition": {
-          "entityName": "Order",
+          "entityName": "ProductTranslation",
           "schema": {
-            "$ref": "#/backend/entities/Order"
+            "$ref": "#/backend/entities/ProductTranslation"
           },
-          "description": "Customer orders visible to owners and admins."
+          "description": "Stores localized details (name, description, material, care instructions) for a specific product. These documents are publicly readable. Write access is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the parent product."
+            },
+            {
+              "name": "languageCode",
+              "description": "The language code (e.g., 'en', 'uz', 'ru') for this translation."
+            }
+          ]
         }
       },
       {
@@ -199,9 +491,104 @@
           "schema": {
             "$ref": "#/backend/entities/Look"
           },
-          "description": "Clothing items available for purchase."
+          "description": "Represents curated outfits or styles for the lookbook. Documents are publicly readable by all users. Write access is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "lookId",
+              "description": "The unique identifier for a specific curated look."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/looks/{lookId}/translations/{languageCode}",
+        "definition": {
+          "entityName": "LookTranslation",
+          "schema": {
+            "$ref": "#/backend/entities/LookTranslation"
+          },
+          "description": "Provides localized display information (title, description, SEO keywords) for a specific look. These documents are publicly readable. Write access is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "lookId",
+              "description": "The unique identifier of the parent look."
+            },
+            {
+              "name": "languageCode",
+              "description": "The language code (e.g., 'en', 'uz', 'ru') for this translation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/media_assets/{mediaAssetId}",
+        "definition": {
+          "entityName": "MediaAsset",
+          "schema": {
+            "$ref": "#/backend/entities/MediaAsset"
+          },
+          "description": "Stores metadata for uploaded media files (images). These documents are publicly readable. Write access (for uploads and management) is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "mediaAssetId",
+              "description": "The unique identifier for a specific media asset."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Records customer purchase transactions. Users can only read their own orders by verifying that `resource.data.userId` matches `request.auth.uid`. Write access is restricted to authenticated administrators. The `userId` field is denormalized to allow for Authorization Independence and QAPs for users.",
+          "params": [
+            {
+              "name": "orderId",
+              "description": "The unique identifier for a specific order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/orders/{orderId}/items/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Details a single product item within an order. Each document MUST include the `userId` field denormalized from its parent `Order` document to ensure Authorization Independence. Users can only read their own order items by verifying `resource.data.userId` matches `request.auth.uid`. Write access is restricted to authenticated administrators.",
+          "params": [
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the parent order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "The unique identifier for a specific order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{uid}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A collection used for Database Access Control (DBAC) to designate global administrators. The existence of a document at `/roles_admin/{uid}` grants administrative privileges to the user with that UID. Read access is restricted to authenticated users to check their own role; write access should be tightly controlled (e.g., via Cloud Functions or a restricted admin UI) to assign/revoke roles.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The unique user ID (UID) of an administrator."
+            }
+          ]
         }
       }
-    ]
+    ],
+    "reasoning": "The proposed Firestore structure prioritizes secure, scalable, and debuggable authorization by strictly adhering to the core design principles and mandates. \n\n**Authorization Independence:**\n1.  **User Data:** User profiles are stored at `/users/{userId}`, leveraging path-based ownership where `request.auth.uid` directly corresponds to `userId`. This ensures authorization is self-contained within the path and document, requiring no external `get()` calls.\n2.  **Public/Admin Data (Products, Looks, Media Assets, and their Translations):** Collections like `/products/{productId}`, `/looks/{lookId}`, and `/media_assets/{mediaAssetId}` (and their respective subcollections for translations) are designed for public read access and admin write access. Admin authorization is handled by checking for the existence of a document in the global `/roles_admin/{uid}` collection, which is an independent check.\n3.  **Order-related Data:** Orders (`/orders/{orderId}`) and their items (`/orders/{orderId}/items/{orderItemId}`) present a common authorization challenge. To achieve Authorization Independence for users, each `Order` document explicitly includes `userId` of the purchasing user. For `OrderItem` documents, the `userId` from the parent `Order` *must be denormalized* and stored directly within each `OrderItem` document. This allows security rules for `OrderItem` to evaluate `resource.data.userId == request.auth.uid` without performing a `get()` operation on the parent `Order` document, making transactions and batch writes atomic and rules simpler to debug. This denormalization is critical for order items and enables secure `list` operations.\n\n**Query-based Access Patterns (QAPs):**\n1.  **Public Data:** `products`, `looks`, and `media_assets` collections are designed for straightforward public `list` operations with `allow read` rules.\n2.  **User-Owned Data:** The `/users/{userId}` path intrinsically supports QAPs as `list` operations on this path for an authenticated user will only return their own data. \n3.  **Orders:** For users to query their orders, rules will enforce that any `list` operation on `/orders` *must* include a `where('userId', '==', request.auth.uid)` filter. The presence of the `userId` field in the `Order` documents directly supports this QAP, preventing unauthorized `list` access by users attempting to query all orders.\n4.  **Order Items:** Similarly, `list` operations on `/orders/{orderId}/items` for a regular user will be secured by ensuring the denormalized `userId` within the `OrderItem` document matches `request.auth.uid`. This allows the user to query items only for orders they own, while admins can list all items.\n\n**Structural Segregation and Access Modeling:**\n*   Collections like `users`, `products`, `looks`, `media_assets`, and `orders` maintain a homogeneous security posture within their primary level, simplifying rules. Translations are nested as subcollections, continuing the hierarchical pattern.\n*   Path-based ownership is utilized for `users`.\n*   For `products` and `looks`, translation subcollections (`/translations/{languageCode}`) allow for multi-language support without mixing different security concerns within the parent entity. Both parent and child collections have public read/admin write access.\n*   Admin roles are handled via a dedicated top-level collection (`/roles_admin/{uid}`), using `exists()` checks for efficient and clear role-based access control."
   }
 }
