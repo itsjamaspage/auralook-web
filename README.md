@@ -18,22 +18,22 @@ To activate order notifications and AI features, you must add your keys to the b
 
 ### 2. Enter Your Secret Keys
 1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
-2.  Go to the **Variables & Secrets** tab.
-3.  Add the following three **Environment Variables**:
+2.  **⚠️ CRITICAL**: DO NOT change or type anything in the **"Container image URL"** box. If you see an error there, refresh the page and start over.
+3.  Go to the **Variables & Secrets** tab.
+4.  Add the following three **Environment Variables**:
     *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
     *   **TELEGRAM_ADMIN_CHAT_ID**: (Get your personal ID from [@userinfobot](https://t.me/userinfobot))
     *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
-4.  Click **DEPLOY** at the bottom of the page.
+5.  Click **DEPLOY** at the bottom of the page.
 
-### 🧠 How to get the Gemini API Key
-1.  Go to [aistudio.google.com](https://aistudio.google.com/).
-2.  Click **"Get API key"** on the left.
-3.  Select any existing project (like `ai-studio-applet-...`) and click **"Create API key in existing project"**.
-4.  **Copy** the long string of letters and numbers.
-5.  **Paste** it into the Cloud Run variable `GEMINI_API_KEY`.
+### 🧠 Why the Gemini API Key?
+Your store uses Gemini AI for:
+- **Smart Size Advisor**: Calculating the perfect fit for customers.
+- **AI Product Descriptions**: Generating professional Uzbek content for your catalog.
+- **Smart Order Alerts**: Personalized Telegram notifications.
 
 ### 🔗 How is this "connected" to my app?
-The connection is established purely through the **API Key string**. When you paste that key into your Cloud Run "Variables", your app's code uses it to authenticate with Google's AI servers. It doesn't matter which AI Studio project you use; the key is the "digital bridge" that activates the AI features in your store.
+The connection is established purely through the **API Key string**. When you paste that key into your Cloud Run "Variables", your app's code uses it to authenticate with Google's AI servers.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
