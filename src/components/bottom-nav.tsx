@@ -1,5 +1,7 @@
+
 "use client"
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Compass, Heart, ShoppingBag, Zap, User, LayoutDashboard } from 'lucide-react';
@@ -13,13 +15,22 @@ export function BottomNav() {
   const { user } = useUser();
   const db = useFirestore();
   const { t, dictionary } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by waiting for client-side mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_order_managers', user.uid);
   }, [db, user]);
+  
   const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
+  
+  // During SSR, we default to the standard user view to maintain consistency
+  const isAdmin = mounted && (!!adminRole || user?.email === 'jkhakimjonov8@gmail.com');
 
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
@@ -57,6 +68,8 @@ export function BottomNav() {
       </Link>
     );
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-8 pointer-events-none">
