@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed, real-time order status updates for Telegram.
@@ -65,13 +64,13 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       return output!;
     } catch (error) {
       console.error('Flow execution error:', error);
-      // Enhanced fallback with all critical data
+      // Enhanced fallback with all critical data for the admin
       let fallbackMsg = `<b>Yangi Buyurtma!</b>\n`;
       fallbackMsg += `Mijoz: ${input.customerName}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
-        fallbackMsg += `O'lchamlar: B: ${input.physique.height}cm, V: ${input.physique.weight}kg, O': ${input.physique.size || 'Tanlanmagan'}\n`;
+        fallbackMsg += `O'lchamlar: Bo'y: ${input.physique.height}cm, Vazn: ${input.physique.weight}kg, O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
       }
       fallbackMsg += `Holati: ${input.currentStatus}\n`;
       fallbackMsg += `ID: ${input.orderId}`;

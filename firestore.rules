@@ -87,9 +87,11 @@ service cloud.firestore {
      * @description Customer purchase records.
      */
     match /orders/{orderId} {
-      // Split rules to ensure 'list' operations work correctly for admins
-      allow read: if isAdmin();
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Allow reading individual orders if admin or owner
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // Allow listing orders: admins see everything, users only see theirs (via query filters)
+      allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
       
       // Users can create orders for themselves.
       allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
@@ -98,8 +100,8 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow read: if isAdmin();
-        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
         allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
         allow update, delete: if isAdmin();
       }

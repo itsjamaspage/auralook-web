@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState } from 'react';
@@ -150,6 +149,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
+      // Trigger Telegram notification
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
