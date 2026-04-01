@@ -161,6 +161,43 @@ const dictionary = {
     en: 'FREE DELIVERY'
   },
 
+  // Cart & Orders
+  cart: {
+    uz: 'Savatcha',
+    ru: 'Корзина',
+    en: 'Cart'
+  },
+  orderPending: {
+    uz: 'Tasdiqlanish kutilmoqda',
+    ru: 'Ожидает подтверждения',
+    en: 'Pending Acceptance'
+  },
+  orderAccepted: {
+    uz: 'Tasdiqlandi',
+    ru: 'Принято',
+    en: 'Accepted'
+  },
+  orderShipped: {
+    uz: 'Yuborildi',
+    ru: 'Отправлено',
+    en: 'Shipped'
+  },
+  orderDelivered: {
+    uz: 'Yetkazildi',
+    ru: 'Доставлено',
+    en: 'Delivered'
+  },
+  activeOrders: {
+    uz: 'Faol buyurtmalar',
+    ru: 'Активные заказы',
+    en: 'Active Orders'
+  },
+  acceptOrder: {
+    uz: 'Qabul qilish',
+    ru: 'Принять',
+    en: 'Accept'
+  },
+
   // Toast Notifications
   orderProcessedTitle: {
     uz: 'Buyurtma qabul qilindi',

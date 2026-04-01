@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -23,20 +22,31 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { 
   Plus, 
   Loader2,
   LayoutGrid,
   Trash2,
   Edit3,
   ExternalLink,
-  Package
+  Package,
+  CheckCircle2,
+  Clock,
+  User,
+  ShoppingBag
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
+import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -46,6 +56,9 @@ export default function AdminDashboard() {
 
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
+
+  const ordersQuery = useMemoFirebase(() => collection(db, 'orders'), [db]);
+  const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
   const confirmDelete = () => {
     if (!lookToDelete) return;
@@ -59,6 +72,26 @@ export default function AdminDashboard() {
     });
     
     setLookToDelete(null);
+  };
+
+  const handleAcceptOrder = async (orderId: string) => {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, {
+        status: 'Confirmed',
+        updatedAt: new Date().toISOString()
+      });
+      toast({
+        title: "Order Accepted",
+        description: "Status updated to Confirmed."
+      });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Action Failed",
+        description: "Could not update order status."
+      });
+    }
   };
 
   const handleShare = async (look: any) => {
@@ -116,104 +149,198 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <LayoutGrid className="w-5 h-5 neon-text" />
-          <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
-        </div>
+      <Tabs defaultValue="inventory" className="space-y-6">
+        <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12">
+          <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black">
+            Inventory
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black">
+            Orders
+          </TabsTrigger>
+        </TabsList>
 
-        <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
-          {looksLoading ? (
-            <div className="p-32 flex flex-col items-center gap-6">
-              <Loader2 className="animate-spin w-10 h-10 neon-text" />
-              <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Decrypting Catalog...</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader className="bg-white/5 border-b border-white/10">
-                <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.marketValue)}</TableHead>
-                  <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">{t(dictionary.operations)}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {looks?.map((look) => (
-                  <TableRow key={look.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
-                    <TableCell className="py-5 pl-8">
-                      <div className="relative w-14 h-18 rounded-xl overflow-hidden border border-white/10 group-hover:neon-border transition-all">
-                        <img 
-                          src={look.imageUrl} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                          alt={look.name} 
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-white text-base tracking-tight">{look.name}</span>
-                        <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-black neon-text">
-                          {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right pr-8">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          type="button"
-                          onClick={() => handleShare(look)}
-                          className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                        <Link href={`/admin/looks/${look.id}/edit`}>
-                          <Button variant="ghost" size="icon" type="button" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
-                            <Edit3 className="w-4 h-4" />
+        <TabsContent value="inventory" className="space-y-6">
+          <div className="flex items-center gap-3">
+            <LayoutGrid className="w-5 h-5 neon-text" />
+            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
+          </div>
+
+          <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
+            {looksLoading ? (
+              <div className="p-32 flex flex-col items-center gap-6">
+                <Loader2 className="animate-spin w-10 h-10 neon-text" />
+                <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Decrypting Catalog...</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-white/5 border-b border-white/10">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.visual)}</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.productName)}</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">{t(dictionary.marketValue)}</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">{t(dictionary.operations)}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {looks?.map((look) => (
+                    <TableRow key={look.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
+                      <TableCell className="py-5 pl-8">
+                        <div className="relative w-14 h-18 rounded-xl overflow-hidden border border-white/10 group-hover:neon-border transition-all">
+                          <img 
+                            src={look.imageUrl} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                            alt={look.name} 
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold text-white text-base tracking-tight">{look.name}</span>
+                          <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">REF: {look.id.substring(0, 8)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-black neon-text">
+                            {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-8">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            type="button"
+                            onClick={() => handleShare(look)}
+                            className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all"
+                          >
+                            <ExternalLink className="w-4 h-4" />
                           </Button>
-                        </Link>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          type="button"
-                          onClick={() => setLookToDelete(look.id)}
-                          className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {(!looks || looks.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="py-32 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <Package className="w-10 h-10 text-white/10" />
-                        <p className="text-white/40 font-light text-base">
-                          {t(dictionary.emptyCatalog)}
-                        </p>
-                        <Button asChild variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
-                          <Link href="/admin/looks/new">
-                            {t(dictionary.createFirstLook)}
+                          <Link href={`/admin/looks/${look.id}/edit`}>
+                            <Button variant="ghost" size="icon" type="button" className="text-white/40 hover:neon-text hover:bg-white/5 rounded-lg transition-all">
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
                           </Link>
-                        </Button>
-                      </div>
-                    </TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            type="button"
+                            onClick={() => setLookToDelete(look.id)}
+                            className="text-white/40 hover:text-destructive hover:bg-destructive/5 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {(!looks || looks.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-32 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                          <Package className="w-10 h-10 text-white/10" />
+                          <p className="text-white/40 font-light text-base">
+                            {t(dictionary.emptyCatalog)}
+                          </p>
+                          <Button asChild variant="outline" className="border-white/10 text-white rounded-lg hover:bg-white/5 hover:neon-text transition-all">
+                            <Link href="/admin/looks/new">
+                              {t(dictionary.createFirstLook)}
+                            </Link>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="orders" className="space-y-6">
+          <div className="flex items-center gap-3">
+            <ShoppingBag className="w-5 h-5 neon-text" />
+            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">Active Orders</h2>
+          </div>
+
+          <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
+            {ordersLoading ? (
+              <div className="p-32 flex flex-col items-center gap-6">
+                <Loader2 className="animate-spin w-10 h-10 neon-text" />
+                <p className="text-white/40 font-mono tracking-widest text-[10px] uppercase">Retrieving Shipments...</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-white/5 border-b border-white/10">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="py-6 pl-8 font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Customer</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Details</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60">Status</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] text-white/60 text-right pr-8">Actions</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </Card>
-      </div>
+                </TableHeader>
+                <TableBody>
+                  {orders?.map((order) => (
+                    <TableRow key={order.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-all group">
+                      <TableCell className="py-5 pl-8">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                            <User className="w-5 h-5 text-white/40" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-white text-sm">{order.customerName}</span>
+                            <span className="text-[10px] font-mono text-white/40 uppercase">{order.telegramUsername}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-white/80">${order.totalAmount}</span>
+                          <span className="text-[9px] font-mono text-white/30 uppercase">{order.orderDate ? format(new Date(order.orderDate), 'MMM dd HH:mm') : 'N/A'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {order.status === 'New' ? (
+                            <div className="flex items-center gap-1.5 text-amber-500">
+                              <Clock className="w-3 h-3" />
+                              <span className="text-[10px] font-black uppercase tracking-widest">Pending</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-primary">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span className="text-[10px] font-black uppercase tracking-widest">Accepted</span>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-8">
+                        {order.status === 'New' && (
+                          <Button 
+                            onClick={() => handleAcceptOrder(order.id)}
+                            className="bg-primary/10 hover:neon-bg hover:text-black text-primary border border-primary/20 rounded-xl h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all"
+                          >
+                            Accept
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {(!orders || orders.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-32 text-center">
+                        <Package className="w-10 h-10 text-white/10 mx-auto mb-4" />
+                        <p className="text-white/40 font-bold uppercase tracking-widest italic">No pending orders</p>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
         <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem] text-foreground">

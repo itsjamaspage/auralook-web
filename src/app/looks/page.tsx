@@ -1,17 +1,22 @@
 "use client"
 
 import { useState } from 'react';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import { collection, query, orderBy, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Loader2, Heart, Search, Filter, Grid2X2, List, CheckCircle2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function LooksPage() {
   const db = useFirestore();
+  const { user } = useUser();
+  const { toast } = useToast();
+  const router = useRouter();
   const { t, dictionary } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
@@ -26,6 +31,37 @@ export default function LooksPage() {
     look.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     look.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: t(dictionary.registrationRequiredTitle),
+        description: t(dictionary.registrationRequiredDesc),
+        variant: "destructive"
+      });
+      router.push('/login');
+      return;
+    }
+
+    const likedLookRef = doc(db, 'users', user.uid, 'liked_looks', lookId);
+    
+    try {
+      const docSnap = await getDoc(likedLookRef);
+      if (docSnap.exists()) {
+        await deleteDoc(likedLookRef);
+      } else {
+        await setDoc(likedLookRef, {
+          lookId: lookId,
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -72,47 +108,52 @@ export default function LooksPage() {
       {/* Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {filteredLooks?.map((look) => (
-          <Link key={look.id} href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
-            <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden group rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
-              <div className="relative aspect-[4/5] overflow-hidden p-1">
-                <Image
-                  src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                  alt={look.name || 'Look'}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
-                />
-                
-                {/* Heart Overlay */}
-                <button className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 flex items-center justify-center text-white/60 hover:neon-text hover:neon-border transition-all">
-                  <Heart className="w-5 h-5" />
-                </button>
+          <div key={look.id} className="relative group">
+            <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
+              <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
+                <div className="relative aspect-[4/5] overflow-hidden p-1">
+                  <Image
+                    src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
+                    alt={look.name || 'Look'}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
+                  />
+                  
+                  {/* Heart Overlay */}
+                  <button 
+                    onClick={(e) => handleToggleLike(e, look.id)}
+                    className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 flex items-center justify-center text-white/60 hover:neon-text hover:neon-border transition-all z-10"
+                  >
+                    <Heart className="w-5 h-5" />
+                  </button>
 
-                {/* Loading Indicator */}
-                {navigatingId === look.id && (
-                  <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
-                    <Loader2 className="w-8 h-8 animate-spin neon-text" />
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 space-y-2">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-black neon-text italic tracking-tighter">
-                      {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
-                    </span>
-                    <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
-                  </div>
-                  <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                  {/* Loading Indicator */}
+                  {navigatingId === look.id && (
+                    <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
+                      <Loader2 className="w-8 h-8 animate-spin neon-text" />
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-col gap-0.5 pt-1">
-                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
-                  <p className="text-[9px] font-mono text-white/20 uppercase">3/30/2026</p>
+                <div className="p-4 space-y-2">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-black neon-text italic tracking-tighter">
+                        {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
+                      </span>
+                      <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
+                    </div>
+                    <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 pt-1">
+                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
+                    <p className="text-[9px] font-mono text-white/20 uppercase">Available Now</p>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </Link>
+              </Card>
+            </Link>
+          </div>
         ))}
 
         {(!filteredLooks || filteredLooks.length === 0) && (

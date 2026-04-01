@@ -2,15 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Heart, Plus, MessageCircle, User, LayoutDashboard } from 'lucide-react';
+import { Search, Heart, ShoppingCart, MessageCircle, User, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { useLanguage } from '@/hooks/use-language';
 
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
   const db = useFirestore();
+  const { t, dictionary } = useLanguage();
 
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -47,14 +49,14 @@ export function BottomNav() {
           ))}
         </div>
 
-        {/* Central Sell Button */}
+        {/* Central Cart Button */}
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
-          <Link href={isAdmin ? "/admin/looks/new" : "/looks"}>
+          <Link href="/orders">
             <div className="w-16 h-16 neon-bg rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(var(--sync-color),0.4)] hover:scale-110 active:scale-95 transition-transform">
-              <Plus className="w-8 h-8 text-black" />
+              <ShoppingCart className="w-8 h-8 text-black" />
             </div>
             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase neon-text tracking-widest">
-              SELL
+              {t(dictionary.cart)}
             </span>
           </Link>
         </div>
