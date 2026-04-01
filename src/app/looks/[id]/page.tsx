@@ -137,19 +137,22 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         totalAmount: look.price,
         lookId: look.id,
         lookName: look.name,
-        size: selectedSize || 'Unspecified',
+        size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
         shippingAddress: orderDetails.address || 'Tashkent',
         measurements: {
-          height: orderDetails.height || 'N/A',
-          weight: orderDetails.weight || 'N/A',
+          height: orderDetails.height || 'Noma\'lum',
+          weight: orderDetails.weight || 'Noma\'lum',
         },
         updatedAt: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification
+      // Trigger Telegram notification flow
+      // Physique is only sent if height or weight is provided
+      const hasPhysique = orderDetails.height || orderDetails.weight || selectedSize;
+      
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -157,11 +160,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         productName: look.name,
         phoneNumber: orderData.phoneNumber,
         language: 'uz',
-        physique: {
-          height: orderDetails.height,
-          weight: orderDetails.weight,
-          size: selectedSize,
-        }
+        physique: hasPhysique ? {
+          height: orderDetails.height || 'N/A',
+          weight: orderDetails.weight || 'N/A',
+          size: selectedSize || 'Noma\'lum',
+        } : undefined
       });
 
       toast({

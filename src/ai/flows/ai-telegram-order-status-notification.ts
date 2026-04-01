@@ -9,6 +9,12 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const PhysiqueSchema = z.object({
+  height: z.string().optional().describe("Customer's height in cm"),
+  weight: z.string().optional().describe("Customer's weight in kg"),
+  size: z.string().optional().describe("Customer's preferred size"),
+});
+
 const AiTelegramOrderStatusNotificationInputSchema = z.object({
   customerName: z.string().describe("The name of the customer."),
   orderId: z.string().describe("The unique identifier for the order."),
@@ -17,11 +23,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   phoneNumber: z.string().optional().describe("Customer's phone number."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
-  physique: z.object({
-    height: z.string().optional(),
-    weight: z.string().optional(),
-    size: z.string().optional(),
-  }).optional().describe("Customer's physical measurements."),
+  physique: PhysiqueSchema.optional().describe("Customer's physical measurements for size advisory."),
 });
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
@@ -36,20 +38,23 @@ const prompt = ai.definePrompt({
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
   prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Yangi buyurtma haqida Admin uchun o'zbek tilida hisobot tayyorlang.
 
+MUHIM: Quyidagi barcha ma'lumotlarni xabarda aniq ko'rsating.
+
 Buyurtma ma'lumotlari:
 - Mijoz ismi: {{{customerName}}}
 - Buyurtma ID: {{{orderId}}}
-- Telefon: {{{phoneNumber}}}
-- Holati: {{{currentStatus}}}
+- Telefon raqami: {{{phoneNumber}}}
+- Buyurtma holati: {{{currentStatus}}}
 - Mahsulot: {{{productName}}}
+
 {{#if physique}}
-- O'lchamlari: 
-  * Bo'y: {{{physique.height}}} cm
-  * Vazn: {{{physique.weight}}} kg
-  * Tanlangan o'lcham: {{{physique.size}}}
+O'lcham ma'lumotlari:
+- Bo'yi: {{{physique.height}}} sm
+- Vazni: {{{physique.weight}}} kg
+- Mijoz tanlagan o'lcham: {{{physique.size}}}
 {{/if}}
 
-Xabar qisqa, jozibali va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar (ayniqsa bo'y/vazn) asosida mijozga eng mos libosni tavsiya qilishi kerak.`,
+Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar (ayniqsa bo'y va vazn) asosida mijozga eng mos libosni tasdiqlashi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
@@ -65,14 +70,17 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
     } catch (error) {
       console.error('Flow execution error:', error);
       // Enhanced fallback with all critical data for the admin
-      let fallbackMsg = `<b>Yangi Buyurtma!</b>\n`;
+      let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
       fallbackMsg += `Mijoz: ${input.customerName}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
-        fallbackMsg += `O'lchamlar: Bo'y: ${input.physique.height}cm, Vazn: ${input.physique.weight}kg, O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
+        fallbackMsg += `\n<b>O'lchamlar:</b>\n`;
+        fallbackMsg += `Bo'y: ${input.physique.height}cm\n`;
+        fallbackMsg += `Vazn: ${input.physique.weight}kg\n`;
+        fallbackMsg += `O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
       }
-      fallbackMsg += `Holati: ${input.currentStatus}\n`;
+      fallbackMsg += `\nHolati: ${input.currentStatus}\n`;
       fallbackMsg += `ID: ${input.orderId}`;
       
       return { message: fallbackMsg };
