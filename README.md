@@ -12,7 +12,7 @@ To activate order notifications and AI features, you must add your keys to the b
 1.  **DIRECT LINK**: [Click here to open your Backend Config](https://console.cloud.google.com/run/detail/us-central1/ssrstudio2916828899aeb9/revisions?project=studio-2916828899-aeb98)
 2.  **MANUAL FIND**:
     *   Open the [Google Cloud Console](https://console.cloud.google.com/).
-    *   **CRITICAL**: In the top-left project dropdown, click the project name and search for the ID: **`studio-2916828899-aeb98`**. Select it.
+    *   **CRITICAL**: In the top-left project dropdown, click the project name and search for the ID: **`studio-2916828899-aeb98`**. Select it. (Do not use the project named "Auralook bot").
     *   Go to **Cloud Run** -> **Services**.
     *   Click on the service name: `ssrstudio2916828899aeb9`.
 
