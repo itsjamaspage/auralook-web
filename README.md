@@ -12,7 +12,7 @@ To activate order notifications and AI features, you must add your keys to the b
 1.  **DIRECT LINK**: [Click here to open your Backend Config](https://console.cloud.google.com/run/detail/us-central1/ssrstudio2916828899aeb9/revisions?project=studio-2916828899-aeb98)
 2.  **MANUAL FIND**:
     *   Open the [Google Cloud Console](https://console.cloud.google.com/).
-    *   In the top project dropdown, select the project ID: **`studio-2916828899-aeb98`**.
+    *   Ensure the project ID **`studio-2916828899-aeb98`** is selected at the top.
     *   Go to **Cloud Run** -> **Services**.
     *   Click on the service: `ssrstudio2916828899aeb9`.
 
@@ -24,6 +24,12 @@ To activate order notifications and AI features, you must add your keys to the b
     *   **TELEGRAM_ADMIN_CHAT_ID**: (Get your personal ID from [@userinfobot](https://t.me/userinfobot))
     *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
 4.  Click **DEPLOY** at the bottom of the page.
+
+### 🧠 Why do I need a Gemini API Key?
+The `GEMINI_API_KEY` powers the "brain" of your store:
+- **Smart Size Advisor**: Calculates perfect fits for customers.
+- **AI Copywriter**: Generates professional product descriptions in the admin panel.
+- **Order Notifications**: Composes intelligent, context-aware messages for your Telegram bot.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
