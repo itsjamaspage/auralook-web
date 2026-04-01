@@ -40,12 +40,12 @@
 }
 
 @keyframes master-sync-pulse {
-  0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); } /* Matrix Green */
-  16% { --sync-color: hsl(190 100% 50%); --sync-shadow: hsla(190, 100%, 50%, 0.4); } /* Cyber Cyan */
-  33% { --sync-color: hsl(220 100% 50%); --sync-shadow: hsla(220, 100%, 50%, 0.4); } /* Galactic Blue */
-  50% { --sync-color: hsl(280 100% 65%); --sync-shadow: hsla(280, 100%, 65%, 0.4); } /* Synth Purple */
-  66% { --sync-color: hsl(320 100% 60%); --sync-shadow: hsla(320, 100%, 60%, 0.4); } /* Neon Pink */
-  83% { --sync-color: hsl(0 100% 60%); --sync-shadow: hsla(0, 100%, 60%, 0.4); } /* Solar Red */
+  0% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
+  16% { --sync-color: hsl(190 100% 50%); --sync-shadow: hsla(190, 100%, 50%, 0.4); }
+  33% { --sync-color: hsl(220 100% 50%); --sync-shadow: hsla(220, 100%, 50%, 0.4); }
+  50% { --sync-color: hsl(280 100% 65%); --sync-shadow: hsla(280, 100%, 65%, 0.4); }
+  66% { --sync-color: hsl(320 100% 60%); --sync-shadow: hsla(320, 100%, 60%, 0.4); }
+  83% { --sync-color: hsl(0 100% 60%); --sync-shadow: hsla(0, 100%, 60%, 0.4); }
   100% { --sync-color: hsl(150 100% 50%); --sync-shadow: hsla(150, 100%, 50%, 0.4); }
 }
 
@@ -59,16 +59,19 @@ body {
 
 .neon-text {
   color: var(--sync-color) !important;
+  transition: none !important;
 }
 
 .neon-border {
   border-color: var(--sync-color) !important;
+  transition: none !important;
 }
 
 .neon-bg {
   background-color: var(--sync-color) !important;
   color: #000 !important;
   box-shadow: 0 0 30px var(--sync-shadow) !important;
+  transition: transform 0.3s ease, opacity 0.3s ease !important;
 }
 
 .glass-dark {
