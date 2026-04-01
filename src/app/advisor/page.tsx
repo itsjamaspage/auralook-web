@@ -90,11 +90,11 @@ export default function AdvisorPage() {
               <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Jinsingiz</Label>
               <RadioGroup value={formData.gender} onValueChange={(val: any) => setFormData({...formData, gender: val})} className="flex gap-8">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="male" id="male" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                  <RadioGroupItem value="male" id="male" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
                   <Label htmlFor="male" className="text-xs font-bold text-white/80">Erkak</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="female" id="female" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                  <RadioGroupItem value="female" id="female" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
                   <Label htmlFor="female" className="text-xs font-bold text-white/80">Ayol</Label>
                 </div>
               </RadioGroup>
@@ -104,15 +104,15 @@ export default function AdvisorPage() {
               <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Kiyinish uslubingiz</Label>
               <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex flex-wrap gap-6">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="tight" id="tight" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                  <RadioGroupItem value="tight" id="tight" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
                   <Label htmlFor="tight" className="text-xs font-bold text-white/80">Yopishib turadigan</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="regular" id="reg" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                  <RadioGroupItem value="regular" id="reg" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
                   <Label htmlFor="reg" className="text-xs font-bold text-white/80">O'rtacha</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="loose" id="loose" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
+                  <RadioGroupItem value="loose" id="loose" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
                   <Label htmlFor="loose" className="text-xs font-bold text-white/80">Kengroq</Label>
                 </div>
               </RadioGroup>

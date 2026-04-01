@@ -47,7 +47,7 @@ export function SizeAdvisorModal() {
   return (
     <Dialog onOpenChange={(open) => !open && setResult(null)}>
       <DialogTrigger asChild>
-        <Button variant="secondary" className="w-full rounded-2xl glass-dark border-white/5 hover:border-primary/50 text-foreground transition-all">
+        <Button variant="secondary" className="w-full rounded-2xl glass-dark border-white/5 hover:neon-border text-foreground transition-all">
           <Ruler className="w-4 h-4 mr-2" />
           AI Size Advisor
         </Button>
@@ -55,7 +55,7 @@ export function SizeAdvisorModal() {
       <DialogContent className="glass-dark border-white/10 max-w-md text-foreground">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
-            <Sparkles className="w-6 h-6 text-primary" />
+            <Sparkles className="w-6 h-6 neon-text" />
             Smart Advisor
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -90,12 +90,12 @@ export function SizeAdvisorModal() {
               <Label>Gender</Label>
               <RadioGroup value={formData.gender} onValueChange={(val: any) => setFormData({...formData, gender: val})} className="flex gap-4">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="male" id="male" />
-                  <Label htmlFor="male">Male</Label>
+                  <RadioGroupItem value="male" id="male-modal" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
+                  <Label htmlFor="male-modal">Male</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="female" id="female" />
-                  <Label htmlFor="female">Female</Label>
+                  <RadioGroupItem value="female" id="female-modal" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
+                  <Label htmlFor="female-modal">Female</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -104,16 +104,16 @@ export function SizeAdvisorModal() {
               <Label>Desired Fit</Label>
               <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex gap-4">
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="tight" id="tight" />
-                  <Label htmlFor="tight">Tight</Label>
+                  <RadioGroupItem value="tight" id="tight-modal" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
+                  <Label htmlFor="tight-modal">Tight</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="regular" id="reg" />
-                  <Label htmlFor="reg">Regular</Label>
+                  <RadioGroupItem value="regular" id="reg-modal" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
+                  <Label htmlFor="reg-modal">Regular</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="loose" id="loose" />
-                  <Label htmlFor="loose">Loose</Label>
+                  <RadioGroupItem value="loose" id="loose-modal" className="border-white/20 data-[state=checked]:neon-border data-[state=checked]:neon-text" />
+                  <Label htmlFor="loose-modal">Loose</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -121,26 +121,26 @@ export function SizeAdvisorModal() {
             <Button 
               onClick={handleRecommend} 
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-6 text-lg rounded-2xl"
+              className="w-full neon-bg text-black font-black py-6 text-lg rounded-2xl border-none"
             >
               {loading ? <Loader2 className="animate-spin mr-2" /> : "Calculate Size"}
             </Button>
           </div>
         ) : (
           <div className="py-8 text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/20 border-2 border-primary animate-pulse mb-2">
-              <span className="text-4xl font-black text-primary">{result.recommendedSize}</span>
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/5 border-2 neon-border animate-pulse mb-2">
+              <span className="text-4xl font-black neon-text">{result.recommendedSize}</span>
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-bold flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <CheckCircle2 className="w-5 h-5 neon-text" />
                 Recommended Size: {result.recommendedSize}
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed px-4 italic">
                 "{result.explanation}"
               </p>
             </div>
-            <Button onClick={() => setResult(null)} variant="outline" className="w-full rounded-xl border-white/10">
+            <Button onClick={() => setResult(null)} variant="outline" className="w-full rounded-xl border-white/10 hover:neon-text transition-all">
               Adjust Measurements
             </Button>
           </div>
