@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Heart, Search, Filter, Grid2X2, List, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function LooksPage() {
   const db = useFirestore();
@@ -26,6 +27,15 @@ export default function LooksPage() {
   }, [db]);
 
   const { data: looks, isLoading } = useCollection(looksQuery);
+
+  // Subscribe to liked looks for real-time reactivity
+  const likedLooksQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(db, 'users', user.uid, 'liked_looks');
+  }, [db, user]);
+  
+  const { data: likedLooksData } = useCollection(likedLooksQuery);
+  const likedLookIds = new Set(likedLooksData?.map(l => l.lookId) || []);
 
   const filteredLooks = looks?.filter(look => 
     look.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,8 +59,8 @@ export default function LooksPage() {
     const likedLookRef = doc(db, 'users', user.uid, 'liked_looks', lookId);
     
     try {
-      const docSnap = await getDoc(likedLookRef);
-      if (docSnap.exists()) {
+      const isLiked = likedLookIds.has(lookId);
+      if (isLiked) {
         await deleteDoc(likedLookRef);
       } else {
         await setDoc(likedLookRef, {
@@ -106,55 +116,64 @@ export default function LooksPage() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {filteredLooks?.map((look) => (
-          <div key={look.id} className="relative group">
-            <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
-              <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
-                <div className="relative aspect-[4/5] overflow-hidden p-1">
-                  <Image
-                    src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                    alt={look.name || 'Look'}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
-                  />
-                  
-                  {/* Heart Overlay */}
-                  <button 
-                    onClick={(e) => handleToggleLike(e, look.id)}
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 flex items-center justify-center text-white/60 hover:neon-text hover:neon-border transition-all z-10"
-                  >
-                    <Heart className="w-5 h-5" />
-                  </button>
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-32">
+        {filteredLooks?.map((look) => {
+          const isLiked = likedLookIds.has(look.id);
+          
+          return (
+            <div key={look.id} className="relative group">
+              <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
+                <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden rounded-[2rem] shadow-2xl relative transition-all hover:border-white/20">
+                  <div className="relative aspect-[4/5] overflow-hidden p-1">
+                    <Image
+                      src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
+                      alt={look.name || 'Look'}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]"
+                    />
+                    
+                    {/* Heart Overlay */}
+                    <button 
+                      onClick={(e) => handleToggleLike(e, look.id)}
+                      className={cn(
+                        "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
+                        isLiked 
+                          ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.4)]" 
+                          : "border-white/10 text-white/60 hover:neon-text hover:neon-border"
+                      )}
+                    >
+                      <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+                    </button>
 
-                  {/* Loading Indicator */}
-                  {navigatingId === look.id && (
-                    <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
-                      <Loader2 className="w-8 h-8 animate-spin neon-text" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 space-y-2">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-black neon-text italic tracking-tighter">
-                        {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
-                      </span>
-                      <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
-                    </div>
-                    <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                    {/* Loading Indicator */}
+                    {navigatingId === look.id && (
+                      <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
+                        <Loader2 className="w-8 h-8 animate-spin neon-text" />
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex flex-col gap-0.5 pt-1">
-                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
-                    <p className="text-[9px] font-mono text-white/20 uppercase">Available Now</p>
+                  <div className="p-4 space-y-2">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-black neon-text italic tracking-tighter">
+                          {look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}
+                        </span>
+                        <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
+                      </div>
+                      <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                    </div>
+
+                    <div className="flex flex-col gap-0.5 pt-1">
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
+                      <p className="text-[9px] font-mono text-white/20 uppercase">Available Now</p>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </Link>
-          </div>
-        ))}
+                </Card>
+              </Link>
+            </div>
+          );
+        })}
 
         {(!filteredLooks || filteredLooks.length === 0) && (
           <div className="col-span-full py-32 text-center">
