@@ -5,3 +5,12 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  minInstances: 0
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+# Environment variables that will be available to the app at runtime.
+# env:
+#   - name: NEXT_PUBLIC_BASE_URL
+#     value: https://your-app-name.web.app
