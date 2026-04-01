@@ -55,8 +55,15 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
     outputSchema: AiTelegramOrderStatusNotificationOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (error) {
+      console.error('Flow execution error:', error);
+      return {
+        message: `Yangi Buyurtma!\nMijoz: ${input.customerName}\nID: ${input.orderId}\nMahsulot: ${input.productName}\nHolati: ${input.currentStatus}`
+      };
+    }
   }
 );
 
@@ -64,17 +71,17 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
  * Sends a notification message to the Telegram Admin via the Bot API.
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
-  const { message } = await aiTelegramOrderStatusNotificationFlow(input);
-  
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-
-  if (!token || !adminChatId) {
-    console.warn("Telegram configuration is missing. Check your .env file.");
-    return;
-  }
-
   try {
+    const { message } = await aiTelegramOrderStatusNotificationFlow(input);
+    
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+
+    if (!token || !adminChatId) {
+      console.warn("Telegram configuration is missing. Notification not sent.");
+      return;
+    }
+
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: {

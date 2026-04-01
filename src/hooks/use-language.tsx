@@ -1,6 +1,7 @@
+
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export type Language = 'uz' | 'ru' | 'en';
 
@@ -165,16 +166,6 @@ const dictionary = {
     ru: 'БЕЗОПАСНАЯ ОПЛАТА // ЗАШИФРОВАННАЯ СЕССИЯ',
     en: 'SECURE CHECKOUT // ENCRYPTED SESSION'
   },
-  estDelivery: {
-    uz: 'TAXMINIY: 2-3 KUN',
-    ru: 'ОЖИДАНИЕ: 2-3 ДНЯ',
-    en: 'EST: 2-3 DAYS'
-  },
-  freeDeliveryLabel: {
-    uz: 'BEPUL YETKAZIB BERISH',
-    ru: 'БЕСПЛАТНАЯ ДОСТАВКА',
-    en: 'FREE DELIVERY'
-  },
 
   // Cart & Orders
   cart: {
@@ -202,16 +193,6 @@ const dictionary = {
     ru: 'Доставлено',
     en: 'Delivered'
   },
-  activeOrders: {
-    uz: 'Faol buyurtmalar',
-    ru: 'Активные заказы',
-    en: 'Active Orders'
-  },
-  acceptOrder: {
-    uz: 'Qabul qilish',
-    ru: 'Принять',
-    en: 'Accept'
-  },
 
   // Toast Notifications
   orderProcessedTitle: {
@@ -234,27 +215,12 @@ const dictionary = {
     ru: 'Системная ошибка. Пожалуйста, попробуйте еще раз.',
     en: 'System error. Please retry.'
   },
-  registrationRequiredTitle: {
-    uz: 'Ro\'yxatdan o\'tish kerak',
-    ru: 'Требуется регистрация',
-    en: 'Registration Required'
-  },
-  registrationRequiredDesc: {
-    uz: 'Buyurtma berish uchun iltimos hisobingizga kiring.',
-    ru: 'Пожалуйста, войдите, чтобы оформить заказ.',
-    en: 'Please log in to place an order.'
-  },
 
   // Admin Dashboard
   adminDashboard: {
     uz: 'Boshqaruv Paneli',
     ru: 'Панель управления',
     en: 'Admin Dashboard'
-  },
-  adminDashboardDesc: {
-    uz: 'Buyurtmalar va liboslar katalogini boshqarish.',
-    ru: 'Управление заказами и каталогом одежды.',
-    en: 'Manage orders and the clothing catalog.'
   },
   newLook: {
     uz: 'Yangi Libos',
@@ -265,115 +231,6 @@ const dictionary = {
     uz: 'Faol inventar',
     ru: 'Активный инвентарь',
     en: 'Active Inventory'
-  },
-  visual: {
-    uz: 'Rasm',
-    ru: 'Изображение',
-    en: 'Visual'
-  },
-  productName: {
-    uz: 'Mahsulot nomi',
-    ru: 'Название товара',
-    en: 'Product Name'
-  },
-  marketValue: {
-    uz: 'Bozor qiymati',
-    ru: 'Рыночная стоимость',
-    en: 'Market Value'
-  },
-  operations: {
-    uz: 'Amallar',
-    ru: 'Операции',
-    en: 'Operations'
-  },
-  emptyCatalog: {
-    uz: 'Katalogingiz hozirda bo\'sh.',
-    ru: 'Ваш каталог сейчас пуст.',
-    en: 'Your catalog is currently empty.'
-  },
-  createFirstLook: {
-    uz: 'Birinchi libosni yarating',
-    ru: 'Создать первый образ',
-    en: 'Create First Look'
-  },
-
-  // New Look Page
-  createNewLook: {
-    uz: 'Yangi Libos Yaratish',
-    ru: 'Создать новый образ',
-    en: 'Create New Look'
-  },
-  createNewLookDesc: {
-    uz: 'Yuqori sifatli media va tavsiflarni qo\'shing.',
-    ru: 'Добавьте высококачественные медиа и описания.',
-    en: 'Add high-quality media and descriptions.'
-  },
-  uploadImage: {
-    uz: 'Rasm yuklash',
-    ru: 'Загрузить фото',
-    en: 'Upload Photo'
-  },
-  lookPrice: {
-    uz: 'Narxi',
-    ru: 'Цена',
-    en: 'Price'
-  },
-  lookDescription: {
-    uz: 'Tavsif',
-    ru: 'Описание',
-    en: 'Description'
-  },
-  cancel: {
-    uz: 'Bekor qilish',
-    ru: 'Отмена',
-    en: 'Cancel'
-  },
-  publish: {
-    uz: 'Nashr qilish',
-    ru: 'Опубликовать',
-    en: 'Publish'
-  },
-  lookSavedSuccess: {
-    uz: 'Libos muvaffaqiyatli saqlandi!',
-    ru: 'Образ успешно сохранен!',
-    en: 'Look saved successfully!'
-  },
-  viewDetails: {
-    uz: 'Batafsil ko\'rish',
-    ru: 'Посмотреть детали',
-    en: 'View Details'
-  },
-  curatedLooksSub: {
-    uz: 'Bizning stilistlarimiz va AI algoritmlarimiz ushbu kiyimlarni eng yaxshi futuristik ko\'rinish uchun qo\'lda tanlab olishdi.',
-    ru: 'Наши стилисты и алгоритмы ИИ вручную отобрали эти наряды для лучшего футуристического образа.',
-    en: 'Our stylists and AI algorithms have hand-picked these outfits for the ultimate futuristic look.'
-  },
-
-  // Filter Panel
-  filterParameters: {
-    uz: 'FILTR PARAMETRLARI',
-    ru: 'ПАРАМЕТРЫ ФИЛЬТРА',
-    en: 'FILTER PARAMETERS'
-  },
-  currencyUnit: {
-    uz: 'VALYUTA BIRLIGI',
-    ru: 'ВАЛЮТА',
-    en: 'CURRENCY UNIT'
-  },
-  priceRange: {
-    uz: 'NARX ORALIG\'I',
-    ru: 'ЦЕНОВОЙ ДИАПАЗОН',
-    en: 'PRICE RANGE'
-  },
-  minPrice: {
-    uz: 'Min narx',
-    ru: 'Мин. цена',
-    en: 'Min Price'
-  },
-  maxPrice: {
-    uz: 'Max narx',
-    ru: 'Макс. цена',
-    en: 'Max Price'
   },
 
   // Footer
@@ -409,7 +266,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         ? (translations[lang] || translations['uz'] || translations['en'] || '')
         : String(translations || '');
     } catch (e) {
-      return String(translations || '');
+      return '';
     }
   };
 

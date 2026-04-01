@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A Genkit flow for an AI Smart Size Advisor.
@@ -25,7 +26,16 @@ const SmartSizeRecommendationOutputSchema = z.object({
 export type SmartSizeRecommendationOutput = z.infer<typeof SmartSizeRecommendationOutputSchema>;
 
 export async function smartSizeRecommendation(input: SmartSizeRecommendationInput): Promise<SmartSizeRecommendationOutput> {
-  return smartSizeRecommendationFlow(input);
+  try {
+    return await smartSizeRecommendationFlow(input);
+  } catch (error) {
+    console.error('AI Size Recommendation Error:', error);
+    // Fallback logic if AI fails
+    return {
+      recommendedSize: 'M',
+      explanation: 'Tizimda vaqtinchalik xatolik yuz berdi. Standart o\'lcham tavsiya etiladi. Iltimos, menejer bilan maslahatlashing.'
+    };
+  }
 }
 
 const prompt = ai.definePrompt({
