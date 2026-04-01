@@ -1,10 +1,11 @@
+
 "use client"
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, MapPin, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function UserOrdersPage() {
@@ -57,7 +58,7 @@ export default function UserOrdersPage() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl">
+    <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
         <ShoppingBag className="w-6 h-6 neon-text" />
         <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
@@ -72,8 +73,9 @@ export default function UserOrdersPage() {
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Ref: {order.id.substring(0, 8)}</p>
                 <h3 className="text-lg font-bold text-white italic">
-                  Look Purchase
+                  {order.lookName || 'Look Purchase'}
                 </h3>
+                <p className="text-[10px] font-bold text-primary uppercase">Size: {order.size}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10">
@@ -85,10 +87,25 @@ export default function UserOrdersPage() {
               </div>
             </div>
 
-            <div className="flex justify-between items-end pt-4 border-t border-white/5">
+            <div className="grid grid-cols-1 gap-3 py-4 border-y border-white/5">
+              {order.shippingAddress && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-3 h-3 text-white/40 mt-0.5" />
+                  <p className="text-xs text-white/60 font-medium leading-tight">{order.shippingAddress}</p>
+                </div>
+              )}
+              {order.phoneNumber && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3 h-3 text-white/40" />
+                  <p className="text-xs text-white/60 font-medium">{order.phoneNumber}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between items-end pt-2">
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Transaction Date</p>
-                <p className="text-sm font-medium text-white/80">
+                <p className="text-[10px] font-medium text-white/80">
                   {order.orderDate ? format(new Date(order.orderDate), 'MMM dd, yyyy HH:mm') : 'Unknown'}
                 </p>
               </div>

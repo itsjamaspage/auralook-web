@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -10,7 +11,9 @@ import {
   Loader2, 
   Heart,
   ChevronLeft,
-  Ruler
+  Ruler,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -30,10 +33,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const [selectedSize, setSelectedSize] = useState('M');
   const [mounted, setMounted] = useState(false);
   
-  const [measurements, setMeasurements] = useState({
+  const [orderDetails, setOrderDetails] = useState({
     height: '',
     weight: '',
-    knownSize: ''
+    knownSize: '',
+    phone: '',
+    address: ''
   });
 
   useEffect(() => {
@@ -103,11 +108,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       return;
     }
 
-    if (!measurements.height || !measurements.weight) {
+    if (!orderDetails.height || !orderDetails.weight || !orderDetails.phone || !orderDetails.address) {
       toast({
         variant: "destructive",
         title: "Ma'lumotlar to'liq emas",
-        description: "Iltimos, bo'yingiz va vazningizni kiriting."
+        description: "Iltimos, barcha maydonlarni to'ldiring."
       });
       return;
     }
@@ -128,10 +133,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookId: look.id,
         lookName: look.name,
         size: selectedSize,
+        phoneNumber: orderDetails.phone,
+        shippingAddress: orderDetails.address,
         measurements: {
-          height: measurements.height,
-          weight: measurements.weight,
-          knownSize: measurements.knownSize || selectedSize
+          height: orderDetails.height,
+          weight: orderDetails.weight,
+          knownSize: orderDetails.knownSize || selectedSize
         },
         updatedAt: serverTimestamp(),
       };
@@ -146,8 +153,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         productName: look.name,
         language: 'uz',
         physique: {
-          height: measurements.height,
-          weight: measurements.weight,
+          height: orderDetails.height,
+          weight: orderDetails.weight,
           size: selectedSize,
         }
       });
@@ -242,7 +249,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 <div className="space-y-4 pt-4 border-t border-white/5">
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 neon-text" />
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">O'lchamlarni aniqlash</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">O'lchamlar</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
@@ -250,8 +257,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                       <Input 
                         type="number" 
                         placeholder="175"
-                        value={measurements.height}
-                        onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
+                        value={orderDetails.height}
+                        onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})}
                         className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
                       />
                     </div>
@@ -260,22 +267,35 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                       <Input 
                         type="number" 
                         placeholder="70"
-                        value={measurements.weight}
-                        onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
+                        value={orderDetails.weight}
+                        onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})}
                         className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
                       />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[9px] font-bold uppercase text-white/40">O'lchamingiz (S, M, L...)</Label>
-                    <Input 
-                      type="text" 
-                      placeholder="M"
-                      value={measurements.knownSize}
-                      onChange={(e) => setMeasurements({...measurements, knownSize: e.target.value})}
-                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
-                    />
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-white/5">
+                   <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 neon-text" />
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.shippingAddress)}</p>
                   </div>
+                  <Input 
+                    placeholder={t(dictionary.addressPlaceholder)}
+                    value={orderDetails.address}
+                    onChange={(e) => setOrderDetails({...orderDetails, address: e.target.value})}
+                    className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 neon-text" />
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.phoneNumber)}</p>
+                  </div>
+                  <Input 
+                    placeholder={t(dictionary.phonePlaceholder)}
+                    value={orderDetails.phone}
+                    onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
+                    className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white"
+                  />
                 </div>
               </div>
 

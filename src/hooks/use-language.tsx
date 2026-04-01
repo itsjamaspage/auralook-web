@@ -131,20 +131,25 @@ const dictionary = {
   },
 
   // Look Detail Page
-  catalog: {
-    uz: 'KATALOG',
-    ru: 'КАТАЛОГ',
-    en: 'CATALOG'
+  shippingAddress: {
+    uz: 'Yetkazib berish manzili',
+    ru: 'Адрес доставки',
+    en: 'Shipping Address'
   },
-  status: {
-    uz: 'HOLATI',
-    ru: 'СТАТУС',
-    en: 'STATUS'
+  phoneNumber: {
+    uz: 'Telefon raqami',
+    ru: 'Номер телефона',
+    en: 'Phone Number'
   },
-  readyForDispatch: {
-    uz: 'YUBORISHGA TAYYOR',
-    ru: 'ГОТОВ К ОТПРАВКЕ',
-    en: 'READY FOR DISPATCH'
+  addressPlaceholder: {
+    uz: 'Shahar, tuman, ko\'cha...',
+    ru: 'Город, район, улица...',
+    en: 'City, district, street...'
+  },
+  phonePlaceholder: {
+    uz: '+998 90 123 45 67',
+    ru: '+998 90 123 45 67',
+    en: '+998 90 123 45 67'
   },
   technicalDetails: {
     uz: 'TEXNIK TAFSILOTLAR',
@@ -176,22 +181,12 @@ const dictionary = {
   orderPending: {
     uz: 'Tasdiqlanish kutilmoqda',
     ru: 'Ожидает подтверждения',
-    en: 'Pending Acceptance'
+    en: 'Pending'
   },
   orderAccepted: {
     uz: 'Tasdiqlandi',
     ru: 'Принято',
     en: 'Accepted'
-  },
-  orderShipped: {
-    uz: 'Yuborildi',
-    ru: 'Отправлено',
-    en: 'Shipped'
-  },
-  orderDelivered: {
-    uz: 'Yetkazildi',
-    ru: 'Доставлено',
-    en: 'Delivered'
   },
 
   // Toast Notifications
