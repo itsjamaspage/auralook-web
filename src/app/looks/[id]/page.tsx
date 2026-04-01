@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getDoc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -135,7 +136,21 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         updatedAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, 'orders'), orderData);
+      const docRef = await addDoc(collection(db, 'orders'), orderData);
+
+      // Trigger Telegram Notification to Admin
+      notifyAdminOfOrder({
+        customerName: orderData.customerName,
+        orderId: docRef.id,
+        currentStatus: 'New',
+        productName: look.name,
+        language: 'uz',
+        physique: {
+          height: measurements.height,
+          weight: measurements.weight,
+          size: selectedSize,
+        }
+      });
 
       toast({
         title: t(dictionary.orderProcessedTitle),

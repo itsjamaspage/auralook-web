@@ -27,7 +27,8 @@ export function BottomNav() {
   
   const { data: adminRole } = useDoc(adminRoleRef);
   
-  const isAdmin = mounted && (!!adminRole || user?.email === 'jkhakimjonov8@gmail.com');
+  // Use a stable check for admin to avoid hydration mismatch
+  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
 
   const navItems = [
     { label: "Qidirish", icon: Compass, href: '/looks' },
@@ -65,6 +66,7 @@ export function BottomNav() {
     );
   };
 
+  // Only render on the client to ensure hydration matches
   if (!mounted) return null;
 
   return (
