@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, use } from 'react';
@@ -108,8 +109,8 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
   return (
     <div className="container mx-auto px-6 py-12 max-w-5xl space-y-12">
       <div className="space-y-1">
-        <h1 className="text-3xl font-black tracking-tighter neon-text uppercase italic">Edit Catalog Item</h1>
-        <p className="text-white/60 font-medium">Modify technical specifications and visual assets.</p>
+        <h1 className="text-3xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.editCatalogItem)}</h1>
+        <p className="text-white/60 font-medium">{t(dictionary.editCatalogItemDesc)}</p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
@@ -138,7 +139,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
               <div className="mt-4 w-full px-4" onClick={(e) => e.stopPropagation()}>
                 <Input 
                   className="bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20 pointer-events-auto" 
-                  placeholder="Or enter Image URL" 
+                  placeholder={t(dictionary.imageUrlPlaceholder)}
                   value={imageUrl.startsWith('data:') ? '' : imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
                 />
@@ -150,7 +151,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-dark rounded-[2.5rem] p-10 space-y-8 border-white/10">
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Item Name</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">{t(dictionary.itemName)}</Label>
               <Input 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -193,7 +194,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <Percent className="w-4 h-4 neon-text" />
-                  Discount (%)
+                  {t(dictionary.discountLabel)}
                 </Label>
                 <Input 
                   type="number" 
@@ -211,7 +212,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
                 className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border placeholder:text-white/20" 
                 value={description} 
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the aesthetic..."
+                placeholder={t(dictionary.lookDescriptionPlaceholder)}
               />
             </div>
 
@@ -226,7 +227,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
               >
                 {saving ? <Loader2 className="animate-spin" /> : <>
                   <Save className="w-4 h-4 mr-2" />
-                  Update Catalog
+                  {t(dictionary.updateCatalog)}
                 </>}
               </Button>
             </div>

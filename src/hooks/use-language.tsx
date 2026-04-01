@@ -227,6 +227,81 @@ const dictionary = {
     ru: 'Активный инвентарь',
     en: 'Active Inventory'
   },
+  createNewLook: {
+    uz: "Yangi Libos Yaratish",
+    ru: "Создать новый образ",
+    en: "Create New Look"
+  },
+  createNewLookDesc: {
+    uz: "Katalog uchun yangi texnik ko'rinish qo'shing.",
+    ru: "Добавьте новый технический образ в каталог.",
+    en: "Add a new technical specification to the catalog."
+  },
+  editCatalogItem: {
+    uz: "Katalog elementini tahrirlash",
+    ru: "Редактировать элемент каталога",
+    en: "Edit Catalog Item"
+  },
+  editCatalogItemDesc: {
+    uz: "Texnik spetsifikatsiyalar va vizual aktivlarni o'zgartiring.",
+    ru: "Измените технические характеристики и визуальные ресурсы.",
+    en: "Modify technical specifications and visual assets."
+  },
+  uploadImage: {
+    uz: "Rasm Yuklash",
+    ru: "Загрузить изображение",
+    en: "Upload Image"
+  },
+  imageUrlPlaceholder: {
+    uz: "Yoki rasm URL manzilini kiriting",
+    ru: "Или введите URL изображения",
+    en: "Or enter Image URL"
+  },
+  itemName: {
+    uz: "Element nomi",
+    ru: "Название элемента",
+    en: "Item Name"
+  },
+  lookPrice: {
+    uz: "Narxi",
+    ru: "Цена",
+    en: "Price"
+  },
+  discountLabel: {
+    uz: "Chegirma (%)",
+    ru: "Скидка (%)",
+    en: "Discount (%)"
+  },
+  lookDescription: {
+    uz: "Tavsif",
+    ru: "Описание",
+    en: "Description"
+  },
+  lookDescriptionPlaceholder: {
+    uz: "Estetikani tasvirlab bering...",
+    ru: "Опишите эстетику...",
+    en: "Describe the aesthetic..."
+  },
+  cancel: {
+    uz: "Bekor qilish",
+    ru: "Отмена",
+    en: "Cancel"
+  },
+  publish: {
+    uz: "Qo'shish",
+    ru: "Nashr qilish",
+    en: "Publish"
+  },
+  updateCatalog: {
+    uz: "Yangilash",
+    ru: "Обновить каталог",
+    en: "Update Catalog"
+  },
+  lookSavedSuccess: {
+    uz: "Libos muvaffaqiyatli saqlandi",
+    ru: "Образ успешно сохранен",
+    en: "Look saved successfully"
+  },
 
   // Footer
   allRightsReserved: { 

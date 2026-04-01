@@ -112,7 +112,7 @@ export default function NewLookPage() {
               <div className="mt-4 w-full px-4" onClick={(e) => e.stopPropagation()}>
                 <Input 
                   className="bg-white/5 border-white/10 text-xs text-white placeholder:text-white/20 pointer-events-auto" 
-                  placeholder="Or enter Image URL" 
+                  placeholder={t(dictionary.imageUrlPlaceholder)}
                   value={imageUrl.startsWith('data:') ? '' : imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
                 />
@@ -157,7 +157,7 @@ export default function NewLookPage() {
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] text-white/40">
                   <Percent className="w-4 h-4 neon-text" />
-                  Discount (%)
+                  {t(dictionary.discountLabel)}
                 </Label>
                 <Input 
                   type="number" 
@@ -175,7 +175,7 @@ export default function NewLookPage() {
                 className="min-h-[200px] bg-white/5 border-white/10 rounded-[2rem] p-6 leading-relaxed font-light text-white text-lg focus:neon-border placeholder:text-white/20" 
                 value={description} 
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the aesthetic..."
+                placeholder={t(dictionary.lookDescriptionPlaceholder)}
               />
             </div>
 
