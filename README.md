@@ -9,13 +9,15 @@ Your store is live at: **[https://studio-2916828899-aeb98.web.app](https://studi
 To activate order notifications and AI features, you must add your keys to the backend service in the Google Cloud Console.
 
 ### 1. Find Your Backend Service
-1.  Open the [Google Cloud Console](https://console.cloud.google.com/).
-2.  **CRITICAL**: In the top-left project dropdown, select the project with ID **`studio-2916828899-aeb98`** (It may be labeled **JamaStore**).
-3.  Search for **"Cloud Run"** in the top search bar and click it.
-4.  Click on the service name: `ssrstudio2916828899aeb...`.
+1.  **DIRECT LINK**: [Click here to open your Backend Config](https://console.cloud.google.com/run/detail/us-central1/ssrstudio2916828899aeb9/revisions?project=studio-2916828899-aeb98)
+2.  **MANUAL FIND**:
+    *   Open the [Google Cloud Console](https://console.cloud.google.com/).
+    *   **CRITICAL**: In the top-left project dropdown, click the project name and search for the ID: **`studio-2916828899-aeb98`**. Select it.
+    *   Go to **Cloud Run** -> **Services**.
+    *   Click on the service name: `ssrstudio2916828899aeb9`.
 
 ### 2. Enter Your Secret Keys
-1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
+1.  Click **EDIT & DEPLOY NEW REVISION** at the top of the service page.
 2.  Go to the **Variables & Secrets** tab.
 3.  Add the following three **Environment Variables**:
     *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
