@@ -1,11 +1,10 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, LayoutDashboard, Heart } from 'lucide-react';
+import { User, LogOut, LayoutDashboard, Heart, Send } from 'lucide-react';
 import { useUser, useAuth, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc, collection } from 'firebase/firestore';
@@ -16,6 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
@@ -27,6 +27,13 @@ export function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch Full User Profile (including Telegram details)
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userProfileRef);
 
   // Admin Check
   const adminRoleRef = useMemoFirebase(() => {
@@ -52,6 +59,9 @@ export function Navbar() {
     { code: 'ru', label: 'RU' },
     { code: 'en', label: 'EN' },
   ];
+
+  const displayName = profile?.firstName || user?.email?.split('@')[0] || 'User';
+  const isTelegram = !!profile?.telegramId;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
@@ -94,21 +104,20 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="rounded-full font-black border border-white/20 hover:bg-white/5 transition-all bg-transparent px-5 lg:px-7 h-11 lg:h-12 text-white text-sm flex items-center gap-3"
+                    className="rounded-full font-black border border-white/20 hover:bg-white/5 transition-all bg-transparent px-3 lg:px-5 h-11 lg:h-12 text-white text-sm flex items-center gap-3"
                   >
-                    <User className="w-5 h-5 text-primary" />
-                    <span className="hidden lg:inline">{user.email?.split('@')[0]}</span>
-                    {likedLooks && likedLooks.length > 0 && (
-                      <div className="flex items-center gap-1.5 bg-primary/20 px-2.5 py-1 rounded-lg border border-primary/30 ml-1">
-                        <Heart className="w-4 h-4 fill-primary text-primary" />
-                        <span className="text-xs font-black neon-text">{likedLooks.length}</span>
-                      </div>
-                    )}
+                    <Avatar className="w-8 h-8 border border-white/10">
+                      <AvatarImage src={profile?.photoUrl} />
+                      <AvatarFallback className="bg-white/5 text-[10px]"><User className="w-4 h-4 text-primary" /></AvatarFallback>
+                    </Avatar>
+                    <span className="hidden lg:inline">{displayName}</span>
+                    {isTelegram && <Send className="w-3 h-3 text-primary animate-pulse" />}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[220px] lg:min-w-[260px] p-2">
                   <div className="px-4 py-3">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{user.email}</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{profile?.telegramUsername || user.email}</p>
+                    <p className="text-[8px] font-bold text-primary uppercase mt-1">Status: Fully Linked</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/5" />
                   

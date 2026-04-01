@@ -1,13 +1,12 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, Mail, Lock, Send } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Send, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { setDoc, doc, collection, getDocs, limit, query } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -24,58 +23,23 @@ export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
   const db = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
 
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+  const { data: profile } = useDoc(userProfileRef);
+
   useEffect(() => {
-    if (user) {
+    // If the user is already authenticated (either via email or Telegram auto-login),
+    // redirect them to the home page immediately.
+    if (user && !isUserLoading) {
       router.push('/');
     }
-  }, [user, router]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
-      if (newUser) {
-        try {
-          // Check if any admins exist to handle the bootstrap case
-          let noAdminsExist = false;
-          try {
-            const adminRolesQuery = query(collection(db, 'roles_order_managers'), limit(1));
-            const adminSnapshot = await getDocs(adminRolesQuery);
-            noAdminsExist = adminSnapshot.empty;
-          } catch (e) {
-            console.warn("Bootstrap check failed, assuming first user is admin or skipping.", e);
-            // If the query fails due to permissions, it might be because the user isn't an admin yet.
-            // But our updated rules allow list for signed-in users.
-          }
-
-          const userData = {
-            id: newUser.uid,
-            email: newUser.email,
-            telegramUsername: telegramUsername ? (telegramUsername.startsWith('@') ? telegramUsername : `@${telegramUsername}`) : 'Not Provided',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-
-          // Update user profile
-          await setDoc(doc(db, 'users', newUser.uid), userData, { merge: true });
-
-          // Grant Admin role if bootstrap or specific email
-          if (noAdminsExist || newUser.email === 'jkhakimjonov8@gmail.com') {
-            await setDoc(doc(db, 'roles_order_managers', newUser.uid), { userId: newUser.uid });
-            toast({
-              title: "Administrator Access",
-              description: "You have been granted administrative privileges.",
-            });
-          }
-        } catch (e) {
-          console.error("Error managing user roles:", e);
-        }
-      }
-    });
-    return () => unsubscribe();
-  }, [auth, db, telegramUsername, toast]);
+  }, [user, isUserLoading, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +53,19 @@ export default function LoginPage() {
     
     setTimeout(() => setIsLoading(false), 2000); 
   };
+
+  const isTelegramEnv = typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+
+  if (isUserLoading || (user && isTelegramEnv)) {
+    return (
+      <div className="flex-grow flex items-center justify-center min-h-[calc(100vh-160px)]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin neon-text" />
+          <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Identifying Session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-grow flex items-center justify-center px-6 min-h-[calc(100vh-160px)] relative overflow-hidden bg-background">
