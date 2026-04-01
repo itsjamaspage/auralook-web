@@ -18,7 +18,7 @@ To activate order notifications and AI features, you must add your keys to the b
 
 ### 2. Enter Your Secret Keys
 1.  Click **EDIT & DEPLOY NEW REVISION** at the top.
-2.  **⚠️ CRITICAL**: DO NOT change or type anything in the **"Container image URL"** box. If it is empty or shows an error, see the **Recovery** section below.
+2.  **⚠️ CRITICAL**: DO NOT change or type anything in the **"Container image URL"** box. If you accidentally deleted it, see the **Recovery** section below.
 3.  Go to the **Variables & Secrets** tab.
 4.  Add the following three **Environment Variables**:
     *   **TELEGRAM_BOT_TOKEN**: (Get this from [@BotFather](https://t.me/BotFather))
@@ -26,26 +26,14 @@ To activate order notifications and AI features, you must add your keys to the b
     *   **GEMINI_API_KEY**: (Your Google AI API key from [AI Studio](https://aistudio.google.com/))
 5.  Click **DEPLOY** at the bottom of the page.
 
-### 🛠 Recovery: What if the Image URL is missing?
-If you accidentally deleted the Image URL and the "Deploy" button is disabled:
-1.  Go to the **REVISIONS** tab of your Cloud Run service.
-2.  Click the revision with the **green checkmark**.
-3.  Copy the **Image URL** from the details pane on the right.
-4.  Return to **EDIT & DEPLOY NEW REVISION** and paste that URL back into the box.
-
-### 🧠 Why the Gemini API Key?
-Your store uses Gemini AI for:
-- **Smart Size Advisor**: Calculating the perfect fit for customers.
-- **AI Product Descriptions**: Generating professional Uzbek content for your catalog.
-- **Smart Order Alerts**: Personalized Telegram notifications.
-
-### 🔗 How is this "connected" to my app?
-The connection is established purely through the **API Key string**. When you paste that key into your Cloud Run "Variables", your app's code uses it to authenticate with Google's AI servers.
-
-### 3. Connect to Telegram
-1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
-2.  Set the URL to: `https://studio-2916828899-aeb98.web.app`
-3.  Set the Title to: `Open Store`
+### 🛠 Recovery: If the Image URL is missing or showing an error
+If you see "Expected an image path..." and the Deploy button is disabled:
+1.  Click the **Select** button next to the "Container image URL" box.
+2.  In the sidebar, click the arrow next to `firebaseapphosting-images`.
+3.  Click the sub-folder that appears.
+4.  Select the **most recent image** (top of the list).
+5.  Click **Select**. The technical URL will be restored.
+6.  You can now click **Deploy**.
 
 ---
 *Created with Firebase Studio*
