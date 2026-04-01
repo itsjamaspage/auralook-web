@@ -36,4 +36,20 @@ If you see "Expected an image path..." and the Deploy button is disabled:
 6.  You can now click **Deploy**.
 
 ---
+
+## 📖 Technical Glossary (What are these things?)
+
+### 📦 Container Image URL
+**What is it?** A "digital snapshot" of your entire app.
+**Why?** Cloud Run uses this URL to load your code. Without it, the server doesn't know what app to run.
+
+### 🔑 Environment Variables
+**What are they?** Secure settings like API keys (passwords).
+**Why?** We keep them here instead of in the code so they stay secret and can be changed without rebuilding the whole app.
+
+### 🤖 Gemini API Key
+**What is it?** Your "license" to use Google's most powerful AI.
+**Why?** It powers the Size Advisor and the automatic product descriptions in your store.
+
+---
 *Created with Firebase Studio*
