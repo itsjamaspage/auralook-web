@@ -17,9 +17,24 @@ const dictionary = {
     en: 'Wear clothes of the future, feel the heritage'
   },
   browseLooks: { 
-    uz: 'Liboslarni Ko\'rish',
-    ru: 'Посмотреть образы',
-    en: 'Browse Looks'
+    uz: 'Kashf qilish',
+    ru: 'Поиск',
+    en: 'Explore'
+  },
+  favorites: {
+    uz: 'Saralanganlar',
+    ru: 'Избранное',
+    en: 'Favorites'
+  },
+  advisor: {
+    uz: 'Maslahatchi',
+    ru: 'Советник',
+    en: 'Advisor'
+  },
+  profile: {
+    uz: 'Profil',
+    ru: 'Профиль',
+    en: 'Profile'
   },
   myOrders: { 
     uz: 'Mening buyurtmalarim',
