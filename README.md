@@ -28,9 +28,12 @@ To activate order notifications and AI features, you must add your keys to the b
 ### 🧠 How to get the Gemini API Key
 1.  Go to [aistudio.google.com](https://aistudio.google.com/).
 2.  Click **"Get API key"** on the left.
-3.  Click **"Create API key"**.
-4.  Select a project (e.g., `ai-studio-applet-...`) and click **"Create API key in existing project"**.
-5.  **Copy** the key and paste it into the Cloud Run variable `GEMINI_API_KEY`.
+3.  Select any existing project (like `ai-studio-applet-...`) and click **"Create API key in existing project"**.
+4.  **Copy** the long string of letters and numbers.
+5.  **Paste** it into the Cloud Run variable `GEMINI_API_KEY`.
+
+### 🔗 How is this "connected" to my app?
+The connection is established purely through the **API Key string**. When you paste that key into your Cloud Run "Variables", your app's code uses it to authenticate with Google's AI servers. It doesn't matter which AI Studio project you use; the key is the "digital bridge" that activates the AI features in your store.
 
 ### 3. Connect to Telegram
 1.  In @BotFather, select your bot -> **Bot Settings** -> **Menu Button**.
