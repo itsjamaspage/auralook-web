@@ -3,12 +3,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // - userId: Path-based UID
+    // - liked_looks: Subcollection of favorited outfits
+    //
+    // Collection: orders
+    // - orderId: Unique ID
+    // - userId: Owner UID (denormalized)
+    //
+    // Collection: looks / products
+    // - Publicly readable catalog items
+    // ===============================================================
+
     function isSignedIn() {
       return request.auth != null;
     }
     
     function isAdmin() {
-      // Priority UID/Email checks followed by role document check
+      // Hardcoded Admin Access for the Developer and Owner
       return isSignedIn() && (
         request.auth.uid == 'THfzlOXNHLUYmwjVLArDlUhoRo63' ||
         request.auth.uid == '0JVf0DDPZtXyw6diJZsnfk3EasD2' ||
@@ -21,67 +36,61 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    match /users/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
-
-      // Explicit rules for subcollections to prevent 'list' errors
-      match /liked_looks/{lookId} {
-        allow read, write: if isOwner(userId) || isAdmin();
-      }
-      
-      match /{allPaths=**} {
-        allow read, write: if isOwner(userId) || isAdmin();
-      }
+    // UNIVERSAL ADMIN OVERRIDE
+    // This allows administrators full access to ALL documents and subcollections
+    match /{document=**} {
+      allow read, write: if isAdmin();
     }
 
+    // --- PUBLIC ACCESS ---
+    
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
       match /translations/{languageCode} {
         allow read: if true;
-        allow write: if isAdmin();
       }
     }
 
     match /looks/{lookId} {
       allow read: if true;
-      allow write: if isAdmin();
       match /translations/{languageCode} {
         allow read: if true;
-        allow write: if isAdmin();
       }
     }
 
     match /media_assets/{mediaAssetId} {
       allow read: if true;
-      allow write: if isAdmin();
     }
 
-    match /orders/{orderId} {
-      // Administrators can list and manage ALL orders
-      allow list, get, write: if isAdmin();
-      
-      // Regular users can create and manage ONLY their own orders
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+    // --- USER PRIVATE ACCESS ---
 
-      match /items/{orderItemId} {
-        allow read, write: if isAdmin();
-        allow read: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    match /users/{userId} {
+      // Users can manage their own profile and all its subcollections
+      allow read, write: if isOwner(userId);
+      match /{allPaths=**} {
+        allow read, write: if isOwner(userId);
       }
     }
 
-    match /roles_admin/{uid} {
-      allow read: if isSignedIn();
-      allow write: if false;
+    match /orders/{orderId} {
+      // Users can create orders and view their own order history
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      match /items/{orderItemId} {
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      }
     }
 
     match /consultations/{docId} {
-      allow read: if isAdmin();
+      // Anyone signed in can request a consultation
       allow create: if isSignedIn();
-      allow update, delete: if isAdmin();
+    }
+
+    match /roles_admin/{uid} {
+      // Users can check their own role status
+      allow read: if isSignedIn() && request.auth.uid == uid;
     }
   }
 }

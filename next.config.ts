@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Benign flag to force a configuration refresh and clear Turbopack runtime chunks
+  // Benign flag toggle to force build artifact refresh and clear Turbopack runtime chunks
   productionBrowserSourceMaps: false,
   images: {
     remotePatterns: [

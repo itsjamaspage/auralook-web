@@ -297,6 +297,10 @@ const dictionary = {
   createNewLook: { uz: 'Yangi libos yaratish', ru: 'Создать новый образ', en: 'Create New Look' },
   createNewLookDesc: { uz: 'Katalogga yangi techwear to\'plamini qo\'shing.', ru: 'Добавьте новый комплект в каталог.', en: 'Add a new techwear set to the catalog.' },
   publish: { uz: 'Nashr qilish', ru: 'Опубликовать', en: 'Publish' },
+  orderPending: { uz: 'Kutilmoqda', ru: 'Ожидается', en: 'Pending' },
+  orderAccepted: { uz: 'Tasdiqlandi', ru: 'Принято', en: 'Accepted' },
+  orderShipped: { uz: 'Yuborildi', ru: 'Отправлено', en: 'Shipped' },
+  orderDelivered: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
 
   // Footer
   allRightsReserved: { 
