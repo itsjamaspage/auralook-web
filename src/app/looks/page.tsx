@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -30,7 +29,6 @@ export default function LooksPage() {
   
   const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
-  const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -44,7 +42,7 @@ export default function LooksPage() {
   }, [db, user]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery);
-  const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.id) || []), [likedLooksData]);
+  const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
   const filteredLooks = useMemo(() => {
     return looks?.filter(look => {
@@ -244,12 +242,12 @@ export default function LooksPage() {
             ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
             : "flex flex-col"
         )}>
-          {filteredLooks?.map((look) => {
+          {filteredLooks?.map((look, index) => {
             const isLiked = likedLookIds.has(look.id);
             
             return (
               <div key={look.id} className="relative group">
-                <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
+                <Link href={`/looks/${look.id}`}>
                   <Card className={cn(
                     "bg-[#080808]/40 border border-white/5 overflow-hidden transition-all hover:border-white/20 active:scale-[0.98]",
                     viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
@@ -267,6 +265,7 @@ export default function LooksPage() {
                           "object-cover transition-transform duration-700 group-hover:scale-105",
                           viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]"
                         )}
+                        priority={index < 4}
                       />
                       
                       <button 
@@ -280,12 +279,6 @@ export default function LooksPage() {
                       >
                         <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
                       </button>
-
-                      {navigatingId === look.id && (
-                        <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
-                          <Loader2 className="w-8 h-8 animate-spin neon-text" />
-                        </div>
-                      )}
                     </div>
 
                     <div className={cn(
