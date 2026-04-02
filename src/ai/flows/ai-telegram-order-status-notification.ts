@@ -94,7 +94,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Always prioritize sending a photo if available
     const endpoint = input.imageUrl ? 'sendPhoto' : 'sendMessage';
     const body: any = {
       chat_id: adminChatId,
