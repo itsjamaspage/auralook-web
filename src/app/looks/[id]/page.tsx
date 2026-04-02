@@ -150,7 +150,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification
+      // Trigger Telegram notification with the outfit photo
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,

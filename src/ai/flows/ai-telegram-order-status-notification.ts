@@ -90,12 +90,15 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
     if (!token || !adminChatId) {
-      console.warn("Telegram configuration is missing.");
+      console.warn("Telegram configuration is missing (TELEGRAM_BOT_TOKEN or TELEGRAM_ADMIN_CHAT_ID). Notification skipped.");
       return;
     }
 
-    // Use sendPhoto if an image is available
-    const hasValidImage = input.imageUrl && !input.imageUrl.startsWith('data:');
+    // Determine if we should send a photo or just text
+    // We only send a photo if it's a valid external URL (not a base64 string)
+    const isBase64 = input.imageUrl?.startsWith('data:');
+    const hasValidImage = input.imageUrl && !isBase64;
+    
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
     
     const body: any = {
@@ -103,18 +106,23 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       parse_mode: 'HTML',
     };
 
-    if (endpoint === 'sendPhoto') {
+    if (hasValidImage) {
       body.photo = input.imageUrl;
       body.caption = message;
     } else {
       body.text = message;
     }
 
-    await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
+    const response = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Telegram API Error:", errorData);
+    }
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);
   }

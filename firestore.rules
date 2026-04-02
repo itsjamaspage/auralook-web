@@ -7,6 +7,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
+      // Comprehensive check for administrator privileges
       return isSignedIn() && (
         request.auth.token.email == 'jkhakimjonov8@gmail.com' ||
         request.auth.uid == '0JVf0DDPZtXyw6diJZsnfk3EasD2' ||
@@ -51,14 +52,16 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Allow global list for admins
-      allow list: if isAdmin();
+      // Separate rules for Admin vs User to ensure 'list' queries work correctly
       
-      // Allow specific document access for owners or admins
-      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // 1. Admins have full access to all orders (no filter required)
+      allow read: if isAdmin();
       
-      // Regular users can only list their own orders (must use filter in query)
+      // 2. Regular users can list their own orders (requires userId filter in query)
       allow list: if isSignedIn() && request.query.limit <= 100 && request.query.filters.userId == request.auth.uid;
+      
+      // 3. Regular users can get their specific order document
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
       allow update, delete: if isAdmin();
