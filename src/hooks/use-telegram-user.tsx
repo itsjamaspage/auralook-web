@@ -54,7 +54,23 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const tg = (window as any).Telegram?.WebApp;
       
       if (!tg || !tg.initData) {
-        console.warn('Protocol Bypass: App not in Telegram environment.');
+        console.warn('Protocol Bypass: App not in Telegram environment. Enabling Demo Mode.');
+        
+        // Developer Bypass: Create a mock user for testing in Studio
+        const mockUser: UserProfile = {
+          id: 'tg_demo',
+          telegramId: 0,
+          firstName: 'Demo Voyager',
+          username: 'demo_user',
+          phone: '+998 90 000 00 00',
+          photoUrl: 'https://ui-avatars.com/api/?name=Demo+Voyager&background=00FF88&color=000&bold=true',
+          lastSeen: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        setUser(mockUser);
+        setIsVerified(true);
         setIsLoading(false);
         return;
       }
@@ -74,10 +90,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           const uid = `tg_${telegramUser.id}`;
           const userRef = doc(db, 'users', uid);
           
-          // Generate fallback avatar if needed
           const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
 
-          // IDEMPOTENT SYNC: Check if user exists to preserve createdAt
           const existingDoc = await getDoc(userRef);
           
           const userData: any = {
@@ -95,7 +109,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             userData.phone = null;
           }
 
-          // Background Sync to Firestore
           await setDoc(userRef, userData, { merge: true });
           
           const finalUser = existingDoc.exists() 

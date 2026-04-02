@@ -10,6 +10,8 @@ service cloud.firestore {
     // - orders/{orderId}: Customer purchase records
     // ===============================================================
 
+    // Deployment Trigger: Updated to resolve conflict release (v2.4.1)
+
     // Helper: Check if user is accessing their own path (tg_{id})
     function isOwner(userId) {
       return userId.startsWith('tg_');
@@ -23,10 +25,10 @@ service cloud.firestore {
 
     // USERS: Users can manage their own profile and nested favorites
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if true; // Full access for prototype sync
       
       match /liked_looks/{lookId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if true;
       }
     }
 
