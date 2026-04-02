@@ -159,7 +159,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification
+      // Trigger Telegram notification via server flow
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,

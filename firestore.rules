@@ -4,93 +4,43 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ===============================================================
-    // Assumed Data Model
+    // GLOBAL PERMISSION OVERRIDE
     // ===============================================================
-    // Collection: users
-    // - userId: Path-based UID
-    // - liked_looks: Subcollection of favorited outfits
-    //
-    // Collection: orders
-    // - orderId: Unique ID
-    // - userId: Owner UID (denormalized)
-    //
-    // Collection: looks / products
-    // - Publicly readable catalog items
+    // As requested, this app is now in "Full Access" mode.
+    // This allows read and write operations for everything.
     // ===============================================================
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
-    function isAdmin() {
-      // Hardcoded Admin Access for the Developer and Owner
-      return isSignedIn() && (
-        request.auth.uid == 'THfzlOXNHLUYmwjVLArDlUhoRo63' ||
-        request.auth.uid == '0JVf0DDPZtXyw6diJZsnfk3EasD2' ||
-        request.auth.token.email == 'jkhakimjonov8@gmail.com' ||
-        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))
-      );
-    }
-    
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // UNIVERSAL ADMIN OVERRIDE
-    // This allows administrators full access to ALL documents and subcollections
     match /{document=**} {
-      allow read, write: if isAdmin();
+      allow read, write: if true;
     }
 
-    // --- PUBLIC ACCESS ---
-    
+    // Explicit definitions for indexing and clarity
     match /products/{productId} {
-      allow read: if true;
+      allow read, write: if true;
       match /translations/{languageCode} {
-        allow read: if true;
+        allow read, write: if true;
       }
     }
 
     match /looks/{lookId} {
-      allow read: if true;
+      allow read, write: if true;
       match /translations/{languageCode} {
-        allow read: if true;
-      }
-    }
-
-    match /media_assets/{mediaAssetId} {
-      allow read: if true;
-    }
-
-    // --- USER PRIVATE ACCESS ---
-
-    match /users/{userId} {
-      // Users can manage their own profile and all its subcollections
-      allow read, write: if isOwner(userId);
-      match /{allPaths=**} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if true;
       }
     }
 
     match /orders/{orderId} {
-      // Users can create orders and view their own order history
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-
+      allow read, write: if true;
       match /items/{orderItemId} {
-        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow read, write: if true;
       }
     }
 
-    match /consultations/{docId} {
-      // Anyone signed in can request a consultation
-      allow create: if isSignedIn();
-    }
-
-    match /roles_admin/{uid} {
-      // Users can check their own role status
-      allow read: if isSignedIn() && request.auth.uid == uid;
+    match /users/{userId} {
+      allow read, write: if true;
+      match /{allPaths=**} {
+        allow read, write: if true;
+      }
     }
   }
 }

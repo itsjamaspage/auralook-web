@@ -51,35 +51,25 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Hardcoded administrative identifiers for instant authorization
+  // Instant Admin Authorization for developer and owner
   const adminEmails = ['jkhakimjonov8@gmail.com'];
   const adminUids = ['THfzlOXNHLUYmwjVLArDlUhoRo63', '0JVf0DDPZtXyw6diJZsnfk3EasD2'];
 
-  const adminRoleRef = useMemoFirebase(() => {
-    if (!user) return null;
-    // Skip database check if user matches hardcoded admin credentials for performance
-    if (adminEmails.includes(user.email || '') || adminUids.includes(user.uid)) return null;
-    return doc(db, 'roles_admin', user.uid);
-  }, [db, user]);
-  
-  const { data: adminRole, isLoading: roleLoading } = useDoc(adminRoleRef);
-  
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    if (adminEmails.includes(user.email || '') || adminUids.includes(user.uid)) return true;
-    return !!adminRole;
-  }, [user, adminRole]);
+    return adminEmails.includes(user.email || '') || adminUids.includes(user.uid);
+  }, [user]);
 
+  // Load looks for inventory
   const looksQuery = useMemoFirebase(() => {
-    if (!isAdmin) return null;
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
-  }, [db, isAdmin]);
+  }, [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
+  // Load all orders for dashboard
   const ordersQuery = useMemoFirebase(() => {
-    if (!isAdmin) return null;
     return query(collection(db, 'orders'), orderBy('updatedAt', 'desc'));
-  }, [db, isAdmin]);
+  }, [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
   const confirmDelete = () => {
@@ -113,15 +103,15 @@ export default function AdminDashboard() {
     }
   };
 
-  const formatCurrencyValue = (val: number, curr: string) => {
+  const formatCurrencyValue = (val: number) => {
     return new Intl.NumberFormat('uz-UZ').format(val);
   };
 
-  if (isUserLoading || (user && !isAdmin && roleLoading)) {
+  if (isUserLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Verifying Node Status...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Validating Node Status...</p>
       </div>
     );
   }
@@ -192,7 +182,7 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell className="font-bold text-white/90">{look.name}</TableCell>
                       <TableCell className="neon-text font-black tracking-tighter">
-                        {look.currency === 'UZS' ? `${formatCurrencyValue(look.price, 'UZS')} UZS` : `$${formatCurrencyValue(look.price, 'USD')}`}
+                        {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
                       </TableCell>
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
@@ -247,7 +237,7 @@ export default function AdminDashboard() {
                         </div>
                       </TableCell>
                       <TableCell className="font-black text-primary italic">
-                        {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount, 'UZS')} UZS` : `$${formatCurrencyValue(order.totalAmount, 'USD')}`}
+                        {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount)} UZS` : `$${formatCurrencyValue(order.totalAmount)}`}
                       </TableCell>
                       <TableCell>
                         <span className={`text-[10px] font-black uppercase tracking-widest ${order.status === 'New' ? 'text-amber-500 animate-pulse' : 'text-primary'}`}>
