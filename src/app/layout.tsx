@@ -36,12 +36,12 @@ export default function RootLayout({
           <LanguageProvider>
             <TelegramUserProvider>
               <Navbar />
-              <main className="flex-grow pt-24 pb-24 lg:pb-0">
+              <main className="flex-grow pt-24 pb-32">
                 {children}
               </main>
               <BottomNav />
               <Toaster />
-              <Footer className="hidden lg:block" />
+              <Footer className="hidden lg:block pb-40" />
               <Script id="tg-init" strategy="afterInteractive">
                 {`
                   if (window.Telegram && window.Telegram.WebApp) {
