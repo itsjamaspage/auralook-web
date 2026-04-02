@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed order status updates for Telegram.
@@ -88,6 +89,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const { message } = await aiTelegramOrderStatusNotificationFlow(input);
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
 
     if (!token || !adminChatId) {
       console.warn("Telegram configuration is missing (TELEGRAM_BOT_TOKEN or TELEGRAM_ADMIN_CHAT_ID). Notification skipped.");
@@ -95,12 +97,15 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     }
 
     // Determine if we should send a photo or just text
-    // We only send a photo if it's a valid external URL (not a base64 string)
-    const isBase64 = input.imageUrl?.startsWith('data:');
-    const hasValidImage = input.imageUrl && !isBase64;
+    // Hardening: Ensure image is a valid HTTPS URL
+    const hasValidImage = input.imageUrl && input.imageUrl.startsWith('https://');
     
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
     
+    // Append view order link
+    const viewOrderLink = `${baseUrl}/admin`;
+    const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
+
     const body: any = {
       chat_id: adminChatId,
       parse_mode: 'HTML',
@@ -108,9 +113,9 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
 
     if (hasValidImage) {
       body.photo = input.imageUrl;
-      body.caption = message;
+      body.caption = finalCaption;
     } else {
-      body.text = message;
+      body.text = finalCaption;
     }
 
     const response = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
