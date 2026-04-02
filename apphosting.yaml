@@ -7,5 +7,5 @@ runConfig:
   memoryMiB: 512
 
 env:
-  - name: NEXT_PUBLIC_BASE_URL
+  - variable: NEXT_PUBLIC_BASE_URL
     value: https://studio-2916828899-aeb98.web.app
