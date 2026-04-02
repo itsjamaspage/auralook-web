@@ -38,20 +38,21 @@ const prompt = ai.definePrompt({
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
   prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Yangi buyurtma haqida Admin uchun o'zbek tilida batafsil hisobot tayyorlang.
 
-MUHIM: Quyidagi barcha ma'lumotlarni xabarda aniq ko'rsating.
+MUHIM: Quyidagi ma'lumotlarni HTML formatida (Telegram uchun) aniq ko'rsating. 
+Telegram username-ni mana bu formatda link qiling: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
 
 Buyurtma ma'lumotlari:
-- Telegram: {{{telegramUsername}}}
-- Buyurtma ID: {{{orderId}}}
+- Telegram: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
+- Buyurtma ID: <code>{{{orderId}}}</code>
 - Telefon raqami: {{{phoneNumber}}}
 - Buyurtma holati: {{{currentStatus}}}
-- Tanlangan Libos: {{{productName}}}
+- Tanlangan Libos: <b>{{{productName}}}</b>
 
 {{#if physique}}
 Mijoz o'lchamlari (Menejer maslahati uchun):
 - Bo'yi: {{{physique.height}}} sm
 - Vazni: {{{physique.weight}}} kg
-- Tanlangan o'lcham: {{{physique.size}}}
+- Tanlangan o'lcham: <b>{{{physique.size}}}</b>
 {{/if}}
 
 Xabar professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijoz bilan bog'lanishi va o'lchamni tasdiqlashi kerak.`,
@@ -65,12 +66,19 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const {output} = await prompt(input);
+      // Clean username for URL construction
+      const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
+      
+      const {output} = await prompt({
+        ...input,
+        telegramUsername: cleanUsername
+      });
       return output!;
     } catch (error) {
       console.error('Flow execution error:', error);
+      const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
       let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
-      fallbackMsg += `Telegram: ${input.telegramUsername || 'Noma\'lum'}\n`;
+      fallbackMsg += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
@@ -79,7 +87,7 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
         fallbackMsg += `Vazn: ${input.physique.weight} kg\n`;
         fallbackMsg += `O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
       }
-      fallbackMsg += `\nID: ${input.orderId}`;
+      fallbackMsg += `\nID: <code>${input.orderId}</code>`;
       return { message: fallbackMsg };
     }
   }
@@ -102,7 +110,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
 
     // Handle Image: Data URI vs Remote URL
     if (input.imageUrl && input.imageUrl.startsWith('data:')) {
-      // For Data URIs, we send as a multipart/form-data file
       const [meta, base64Data] = input.imageUrl.split(',');
       const buffer = Buffer.from(base64Data, 'base64');
       
@@ -117,7 +124,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
         body: formData,
       });
     } else if (input.imageUrl && (input.imageUrl.startsWith('http://') || input.imageUrl.startsWith('https://'))) {
-      // For remote URLs, send simple JSON
       await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -129,7 +135,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
         }),
       });
     } else {
-      // Fallback to text message
       await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
