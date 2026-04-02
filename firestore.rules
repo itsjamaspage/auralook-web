@@ -32,7 +32,6 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
       
-      // Explicitly allow access to liked_looks subcollection
       match /liked_looks/{lookId} {
         allow read, write: if isOwner(userId) || isAdmin();
       }
@@ -62,8 +61,14 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Allow list and get for admins or the owner of the order
-      allow list, get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Admins can see all orders
+      allow list: if isAdmin();
+      
+      // Regular users can only see their own orders (must use userId filter)
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // Direct access by ID
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       
       // Anyone signed in can create an order for themselves
       allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
@@ -72,7 +77,9 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow list: if isAdmin();
+        allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
         allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
         allow update, delete: if isAdmin();
       }

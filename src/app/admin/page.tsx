@@ -59,7 +59,11 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    if (user.email === 'jkhakimjonov8@gmail.com' || user.uid === '0JVf0DDPZtXyw6diJZsnfk3EasD2') return true;
+    // Explicit list of administrator identifiers
+    const adminEmails = ['jkhakimjonov8@gmail.com'];
+    const adminUids = ['0JVf0DDPZtXyw6diJZsnfk3EasD2', 'THfzlOXNHLUYmwjVLArDlUhoRo63'];
+    
+    if (adminEmails.includes(user.email || '') || adminUids.includes(user.uid)) return true;
     return !!adminRole;
   }, [user, adminRole]);
 
@@ -71,6 +75,7 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
+    // Admins query for ALL orders without userId filter
     return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed, real-time order status updates for Telegram.
@@ -94,13 +95,14 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    const endpoint = input.imageUrl ? 'sendPhoto' : 'sendMessage';
+    // Determine endpoint based on whether an image URL is provided
+    const endpoint = (input.imageUrl && !input.imageUrl.startsWith('data:')) ? 'sendPhoto' : 'sendMessage';
     const body: any = {
       chat_id: adminChatId,
       parse_mode: 'HTML',
     };
 
-    if (input.imageUrl) {
+    if (endpoint === 'sendPhoto') {
       body.photo = input.imageUrl;
       body.caption = message;
     } else {
