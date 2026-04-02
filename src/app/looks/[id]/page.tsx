@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
@@ -104,7 +104,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger bot with visual look
+      // Trigger bot with visual look photo
       notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,

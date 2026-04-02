@@ -5,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, MapPin, Phone } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function UserOrdersPage() {
@@ -15,7 +15,7 @@ export default function UserOrdersPage() {
   const ordersQuery = useMemoFirebase(() => {
     return query(
       collection(db, 'orders'),
-      orderBy('orderDate', 'desc')
+      orderBy('createdAt', 'desc')
     );
   }, [db]);
 
@@ -84,8 +84,9 @@ export default function UserOrdersPage() {
 
             <div className="grid grid-cols-1 gap-3 py-4 border-y border-white/5">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-white/40 uppercase">Ism:</span>
-                <p className="text-xs text-white/80 font-medium">{order.customerName}</p>
+                <Send className="w-3 h-3 text-white/40" />
+                <span className="text-[10px] font-bold text-white/40 uppercase">Telegram:</span>
+                <p className="text-xs text-white/80 font-medium">{order.telegramUsername || order.customerName}</p>
               </div>
               {order.phoneNumber && (
                 <div className="flex items-center gap-2">
@@ -99,7 +100,7 @@ export default function UserOrdersPage() {
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Transaction Date</p>
                 <p className="text-[10px] font-medium text-white/80">
-                  {order.orderDate ? format(new Date(order.orderDate), 'MMM dd, yyyy HH:mm') : 'Unknown'}
+                  {order.createdAt ? format(new Date(order.createdAt.seconds ? order.createdAt.toDate() : order.createdAt), 'MMM dd, yyyy HH:mm') : 'Recently'}
                 </p>
               </div>
               <div className="text-right">

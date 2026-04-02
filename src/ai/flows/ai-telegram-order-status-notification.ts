@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
 MUHIM: Quyidagi barcha ma'lumotlarni xabarda aniq ko'rsating.
 
 Buyurtma ma'lumotlari:
-- Mijoz (Telegram): {{{customerName}}}
+- Telegram: {{{telegramUsername}}}
 - Buyurtma ID: {{{orderId}}}
 - Telefon raqami: {{{phoneNumber}}}
 - Buyurtma holati: {{{currentStatus}}}
@@ -70,7 +70,7 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
     } catch (error) {
       console.error('Flow execution error:', error);
       let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
-      fallbackMsg += `Mijoz: ${input.customerName}\n`;
+      fallbackMsg += `Telegram: ${input.telegramUsername || 'Noma\'lum'}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
@@ -97,7 +97,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Ensure image is a valid absolute URL for Telegram. Base64 is not supported via simple URL param.
+    // Bot now sends photo if imageUrl is provided
     const hasValidImage = input.imageUrl && (input.imageUrl.startsWith('https://') || input.imageUrl.startsWith('http://'));
     
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
