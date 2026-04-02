@@ -96,7 +96,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Hardening: Ensure image is a valid absolute URL for Telegram
+    // Ensure image is a valid absolute URL for Telegram
     const hasValidImage = input.imageUrl && (input.imageUrl.startsWith('https://') || input.imageUrl.startsWith('http://'));
     
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';

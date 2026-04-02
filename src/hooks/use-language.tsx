@@ -177,8 +177,8 @@ const dictionary = {
     en: 'Synchronizing Profile...'
   },
   cyberVoyager: {
-    uz: 'Sayohat qiling',
-    ru: 'Путешествуйте',
+    uz: 'Cyber Voyager',
+    ru: 'Cyber Voyager',
     en: 'Cyber Voyager'
   },
 
