@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -282,6 +281,8 @@ const dictionary = {
   accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
   delete: { uz: "O'chirish", ru: 'Удалить', en: 'Delete' },
   cancel: { uz: "Bekor qilish", ru: "Отмена", en: "Cancel" },
+  cancelOrder: { uz: "Buyurtmani bekor qilish", ru: "Отменить заказ", en: "Cancel Order" },
+  orderCancelled: { uz: "Bekor qilindi", ru: "Отменено", en: "Cancelled" },
   confirmDeleteTitle: { uz: "O'chirishni tasdiqlang", ru: 'Подтвердите удаление', en: 'Confirm Deletion' },
   confirmDeleteDesc: { uz: "Ushbu elementni katalogni olib tashlamoqchimisiz?", ru: 'Вы хотите удалить этот элемент из каталога?', en: 'Are you sure you want to remove this item from the catalog?' },
   itemName: { uz: 'Element nomi', ru: 'Название элемента', en: 'Item Name' },

@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed order status updates for Telegram.
@@ -16,7 +15,7 @@ const PhysiqueSchema = z.object({
 const AiTelegramOrderStatusNotificationInputSchema = z.object({
   customerName: z.string().describe("The name of the customer."),
   orderId: z.string().describe("The unique identifier for the order."),
-  currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered']).describe("The current status of the order."),
+  currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']).describe("The current status of the order."),
   productName: z.string().describe("The name of the product(s) in the order."),
   phoneNumber: z.string().optional().describe("Customer's phone number."),
   telegramUsername: z.string().optional().describe("Customer's Telegram username."),
@@ -36,26 +35,27 @@ const prompt = ai.definePrompt({
   name: 'telegramOrderStatusPrompt',
   input: {schema: AiTelegramOrderStatusNotificationInputSchema},
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
-  prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Yangi buyurtma haqida Admin uchun o'zbek tilida batafsil hisobot tayyorlang.
+  prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Buyurtma holati o'zgarganda Admin uchun o'zbek tilida xabar tayyorlang.
 
-MUHIM: Quyidagi ma'lumotlarni HTML formatida (Telegram uchun) aniq ko'rsating. 
+MUHIM: Agar buyurtma holati "Cancelled" bo'lsa, xabarni "⚠️ BUYURTMA BEKOR QILINDI" deb boshlang va adminni ogohlantiring.
+Quyidagi ma'lumotlarni HTML formatida (Telegram uchun) aniq ko'rsating. 
 Telegram username-ni mana bu formatda link qiling: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
 
-Buyurtma ma'lumotlari:
+Ma'lumotlar:
 - Telegram: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
 - Buyurtma ID: <code>{{{orderId}}}</code>
 - Telefon raqami: {{{phoneNumber}}}
-- Buyurtma holati: {{{currentStatus}}}
+- Buyurtma holati: <b>{{{currentStatus}}}</b>
 - Tanlangan Libos: <b>{{{productName}}}</b>
 
 {{#if physique}}
-Mijoz o'lchamlari (Menejer maslahati uchun):
+O'lchamlar:
 - Bo'yi: {{{physique.height}}} sm
 - Vazni: {{{physique.weight}}} kg
 - Tanlangan o'lcham: <b>{{{physique.size}}}</b>
 {{/if}}
 
-Xabar professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijoz bilan bog'lanishi va o'lchamni tasdiqlashi kerak.`,
+Xabar professional va tushunarli bo'lishi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
@@ -77,16 +77,12 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
     } catch (error) {
       console.error('Flow execution error:', error);
       const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
-      let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
+      const statusIcon = input.currentStatus === 'Cancelled' ? '⚠️' : '📦';
+      let fallbackMsg = `<b>${statusIcon} Buyurtma Yangilandi!</b>\n\n`;
       fallbackMsg += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
-      if (input.physique) {
-        fallbackMsg += `\n<b>O'lchamlar:</b>\n`;
-        fallbackMsg += `Bo'y: ${input.physique.height} cm\n`;
-        fallbackMsg += `Vazn: ${input.physique.weight} kg\n`;
-        fallbackMsg += `O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
-      }
+      fallbackMsg += `Holat: <b>${input.currentStatus}</b>\n`;
       fallbackMsg += `\nID: <code>${input.orderId}</code>`;
       return { message: fallbackMsg };
     }

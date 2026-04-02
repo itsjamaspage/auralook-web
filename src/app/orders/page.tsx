@@ -1,16 +1,21 @@
-
 "use client"
 
+import { useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
 export default function UserOrdersPage() {
   const db = useFirestore();
   const { t, dictionary } = useLanguage();
+  const { toast } = useToast();
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
     return query(
@@ -20,6 +25,48 @@ export default function UserOrdersPage() {
   }, [db]);
 
   const { data: orders, isLoading } = useCollection(ordersQuery);
+
+  const handleCancelOrder = async (order: any) => {
+    setCancellingId(order.id);
+    try {
+      const orderRef = doc(db, 'orders', order.id);
+      await updateDoc(orderRef, {
+        status: 'Cancelled',
+        updatedAt: serverTimestamp()
+      });
+
+      // Notify admin about cancellation
+      await notifyAdminOfOrder({
+        customerName: order.telegramUsername || order.customerName,
+        orderId: order.id,
+        currentStatus: 'Cancelled',
+        productName: order.lookName || 'Outfit',
+        phoneNumber: order.phoneNumber,
+        telegramUsername: order.telegramUsername,
+        imageUrl: order.lookImageUrl,
+        language: 'uz',
+        physique: {
+          height: order.measurements?.height,
+          weight: order.measurements?.weight,
+          size: order.size,
+        }
+      });
+
+      toast({
+        title: t(dictionary.orderCancelled),
+        description: "Buyurtma muvaffaqiyatli bekor qilindi."
+      });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Xatolik",
+        description: "Bekor qilishda xatolik yuz berdi."
+      });
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -36,6 +83,7 @@ export default function UserOrdersPage() {
       case 'Confirmed': return t(dictionary.orderAccepted);
       case 'Shipped': return t(dictionary.orderShipped);
       case 'Delivered': return t(dictionary.orderDelivered);
+      case 'Cancelled': return t(dictionary.orderCancelled);
       default: return status;
     }
   };
@@ -44,6 +92,7 @@ export default function UserOrdersPage() {
     switch (status) {
       case 'New': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'Confirmed': return <CheckCircle2 className="w-4 h-4 text-primary" />;
+      case 'Cancelled': return <XCircle className="w-4 h-4 text-destructive" />;
       default: return <Package className="w-4 h-4 text-white/40" />;
     }
   };
@@ -63,7 +112,7 @@ export default function UserOrdersPage() {
 
       <div className="space-y-4">
         {orders?.map((order) => (
-          <Card key={order.id} className="glass-dark border-white/5 p-6 rounded-[2rem] space-y-4">
+          <Card key={order.id} className={`glass-dark border-white/5 p-6 rounded-[2rem] space-y-4 transition-opacity ${order.status === 'Cancelled' ? 'opacity-60' : 'opacity-100'}`}>
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Ref: {order.id.substring(0, 8)}</p>
@@ -73,9 +122,9 @@ export default function UserOrdersPage() {
                 <p className="text-[10px] font-bold text-primary uppercase">Size: {order.size}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                <div className={`flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-white/10'}`}>
                   {getStatusIcon(order.status)}
-                  <span className="text-[10px] font-black uppercase tracking-widest">
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-white/80'}`}>
                     {getStatusLabel(order.status)}
                   </span>
                 </div>
@@ -103,11 +152,25 @@ export default function UserOrdersPage() {
                   {order.createdAt ? format(new Date(order.createdAt.seconds ? order.createdAt.toDate() : order.createdAt), 'MMM dd, yyyy HH:mm') : 'Recently'}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total</p>
-                <p className="text-xl font-black neon-text italic">
-                  {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
-                </p>
+              <div className="text-right space-y-3">
+                <div>
+                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Total</p>
+                  <p className="text-xl font-black neon-text italic">
+                    {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
+                  </p>
+                </div>
+                
+                {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleCancelOrder(order)}
+                    disabled={cancellingId === order.id}
+                    className="h-8 rounded-lg border border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive text-[10px] font-black uppercase tracking-widest"
+                  >
+                    {cancellingId === order.id ? <Loader2 className="animate-spin w-3 h-3" /> : t(dictionary.cancelOrder)}
+                  </Button>
+                )}
               </div>
             </div>
           </Card>
