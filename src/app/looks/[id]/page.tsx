@@ -1,7 +1,7 @@
 
 "use client"
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Loader2, 
   ChevronLeft,
@@ -21,7 +28,8 @@ import {
   CheckCircle2,
   ArrowRight,
   Sparkles,
-  Send
+  Send,
+  Globe
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -42,11 +50,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
   const [isOrdering, setIsOrdering] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
+  const [country, setCountry] = useState('UZB');
   
   const [orderDetails, setOrderDetails] = useState({
     height: '',
     weight: '',
-    phone: '',
+    phone: '+998 ',
     telegram: ''
   });
 
@@ -56,6 +65,41 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
+
+  // Phone number formatter for Uzbekistan
+  const formatUzbekPhone = (val: string) => {
+    const digits = val.replace(/\D/g, '');
+    let d = digits;
+    // If user typed 998 at start, ignore it for the rest of the logic
+    if (d.startsWith('998')) d = d.substring(3);
+    // Limit to 9 digits
+    d = d.substring(0, 9);
+    
+    let res = '+998';
+    if (d.length > 0) res += ' ' + d.substring(0, 2);
+    if (d.length > 2) res += ' ' + d.substring(2, 5);
+    if (d.length > 5) res += ' ' + d.substring(5, 7);
+    if (d.length > 7) res += ' ' + d.substring(7, 9);
+    return res;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (country === 'UZB') {
+      const formatted = formatUzbekPhone(val);
+      setOrderDetails(prev => ({ ...prev, phone: formatted }));
+    } else {
+      setOrderDetails(prev => ({ ...prev, phone: val }));
+    }
+  };
+
+  useEffect(() => {
+    if (country === 'UZB') {
+      setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
+    } else {
+      setOrderDetails(prev => ({ ...prev, phone: '+' }));
+    }
+  }, [country]);
 
   if (lookLoading) {
     return (
@@ -93,6 +137,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
+        country: country,
         shippingAddress: 'Tashkent (Direct Contact)',
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
@@ -104,7 +149,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger bot with visual look photo
       notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
@@ -262,7 +306,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="flex flex-col gap-2 mb-2">
                 <div className="flex items-center gap-2 text-white/40">
                   <Ruler className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+                  <p className="text-[10px) font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
                 <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -306,13 +350,29 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             <div className="space-y-5 sm:space-y-6 py-2">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white/40">
+                  <Globe className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Mamlakat</p>
+                </div>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm uppercase font-bold tracking-widest">
+                    <SelectValue placeholder="Tanlang" />
+                  </SelectTrigger>
+                  <SelectContent className="glass-dark border-white/10 text-white">
+                    <SelectItem value="UZB">O'zbekiston (+998)</SelectItem>
+                    <SelectItem value="OTHER">Boshqa (+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-white/40">
                   <Phone className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
                 </div>
                 <Input 
-                  placeholder={t(dictionary.phonePlaceholder)}
+                  placeholder={country === 'UZB' ? '+998 90 123 45 67' : '+'}
                   value={orderDetails.phone}
-                  onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
+                  onChange={handlePhoneChange}
                   className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
                 />
               </div>
@@ -332,7 +392,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
               <Button 
                 onClick={handlePurchase}
-                disabled={isOrdering || !orderDetails.phone || !orderDetails.telegram}
+                disabled={isOrdering || orderDetails.phone.length < 5 || !orderDetails.telegram}
                 className="w-full h-14 sm:h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em] mt-2"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
