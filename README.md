@@ -3,21 +3,21 @@
 This is a futuristic clothing store prototype built with Next.js, Firebase, and Genkit. It features an AI Smart Size Advisor and deep integration with Telegram.
 
 ## 🚀 LIVE DEPLOYMENT FIX (Action Required)
-Your build failed because the server is looking for "Secrets" that don't exist in your project yet. To fix this, run these commands in your local terminal **one by one**. 
+Your build requires "Secrets" to be present in your project. To fix this, run these commands in your local terminal **one by one**. 
 
 **Note:** These commands are interactive. Do not include your token in the command itself.
 
 1. **Set Bot Token**:
    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_BOT_TOKEN`
-   *(When prompted, paste your bot token)*
+   *(When prompted, paste your bot token and select **Production**)*
 
 2. **Set Admin ID**:
    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_ADMIN_CHAT_ID`
-   *(When prompted, paste your Telegram ID or Chat ID)*
+   *(When prompted, paste your Telegram ID and select **Production**)*
 
 3. **Set AI Key**:
    `npx -y firebase-tools@latest apphosting:secrets:set GEMINI_API_KEY`
-   *(When prompted, paste your Gemini API Key)*
+   *(When prompted, paste your Gemini API Key and select **Production**)*
 
 *After running these, trigger a new deployment in the Firebase Console. The build system will now be able to securely resolve these variables.*
 
@@ -39,8 +39,8 @@ Your build failed because the server is looking for "Secrets" that don't exist i
 ### 🔐 How identity works
 The app verifies the "Handshake" signature from Telegram using your `TELEGRAM_BOT_TOKEN`. This ensures that when someone clicks "Buy", they are exactly who they say they are.
 
-### 🛠 Developer Bypass
-While testing in Firebase Studio, the app enters **Demo Mode** because the Telegram environment is missing. This allows you to browse and test the UI without needing to be inside Telegram.
+### 🛠 Developer Bypass (Demo Mode)
+While testing in Firebase Studio or if secrets are not yet configured, the app enters **Demo Mode**. This allows you to browse and test the UI without needing to be inside Telegram.
 
 ---
 *Created with Firebase Studio*

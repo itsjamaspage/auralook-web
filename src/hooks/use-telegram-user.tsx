@@ -34,7 +34,8 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-const CACHE_KEY = 'auralook_user_protocol_v2.4.1';
+// Unique cache key to prevent collision with older versions
+const CACHE_KEY = 'auralook_user_protocol_v2.4.2';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -43,20 +44,25 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const db = useFirestore();
 
   useEffect(() => {
-    // 1. Initial Load from Cache for speed
+    // 1. Instant load from local cache
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
-      setUser(JSON.parse(cached));
-      setIsVerified(true);
+      try {
+        const parsed = JSON.parse(cached);
+        setUser(parsed);
+        setIsVerified(true);
+      } catch (e) {
+        localStorage.removeItem(CACHE_KEY);
+      }
     }
 
     async function authenticate() {
       const tg = (window as any).Telegram?.WebApp;
       
+      // Developer Bypass: If not in Telegram, use Demo User
       if (!tg || !tg.initData) {
         console.warn('Protocol Bypass: App not in Telegram environment. Enabling Demo Mode.');
         
-        // Developer Bypass: Create a mock user for testing in Studio
         const mockUser: UserProfile = {
           id: 'tg_demo',
           telegramId: 0,
@@ -92,6 +98,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           
           const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
 
+          // 2. Fetch existing data to preserve fields like 'phone'
           const existingDoc = await getDoc(userRef);
           
           const userData: any = {
@@ -104,11 +111,13 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             updatedAt: serverTimestamp(),
           };
 
+          // 3. Set defaults for new users
           if (!existingDoc.exists()) {
             userData.createdAt = serverTimestamp();
             userData.phone = null;
           }
 
+          // 4. Idempotent sync to Firestore
           await setDoc(userRef, userData, { merge: true });
           
           const finalUser = existingDoc.exists() 
@@ -119,26 +128,24 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
           setIsVerified(true);
         } else {
-          // If the server is still being configured (secrets missing), fallback to demo for testing
-          console.error('Server handshake failed. Falling back to Demo Mode for testing.');
           throw new Error('Handshake failed');
         }
       } catch (error) {
-        console.error('Handshake failed:', error);
-        // During testing, keep demo mode available if server fails
+        console.error('Handshake error:', error);
+        // Fallback to Demo Mode if server is still being configured (missing secrets)
         if (process.env.NODE_ENV !== 'production') {
-           const mockUser: UserProfile = {
+           const errorUser: UserProfile = {
             id: 'tg_demo_error',
             telegramId: 0,
-            firstName: 'Demo Voyager (Sync Error)',
+            firstName: 'Demo (Bypass Active)',
             username: 'demo_user',
             phone: '+998 90 000 00 00',
-            photoUrl: 'https://ui-avatars.com/api/?name=Error+Voyager&background=FF0000&color=fff&bold=true',
+            photoUrl: 'https://ui-avatars.com/api/?name=Sync+Error&background=FF3366&color=fff&bold=true',
             lastSeen: new Date().toISOString(),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
-          setUser(mockUser);
+          setUser(errorUser);
           setIsVerified(true);
         }
       } finally {
