@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -27,8 +28,8 @@ export default function LooksPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   
-  const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS'>('USD');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS' | 'ALL'>('ALL');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -46,7 +47,7 @@ export default function LooksPage() {
 
   const filteredLooks = useMemo(() => {
     return looks?.filter(look => {
-      const matchesCurrency = look.currency === filterCurrency;
+      const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
       const price = Number(look.price || 0);
       const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
       return matchesCurrency && matchesPrice;
@@ -88,7 +89,7 @@ export default function LooksPage() {
     }
   };
 
-  const maxPossiblePrice = filterCurrency === 'USD' ? 5000 : 50000000;
+  const maxPossiblePrice = filterCurrency === 'USD' ? 5000 : 100000000;
 
   const SkeletonCard = () => (
     <Card className="bg-white/5 border-white/10 rounded-[2rem] aspect-[4/5] animate-pulse overflow-hidden">
@@ -166,10 +167,14 @@ export default function LooksPage() {
                   onValueChange={(val: any) => {
                     setFilterCurrency(val);
                     if (val === 'USD') setPriceRange([0, 5000]);
-                    else setPriceRange([0, 50000000]);
+                    else setPriceRange([0, 100000000]);
                   }} 
-                  className="flex gap-8"
+                  className="flex gap-8 flex-wrap"
                 >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ALL" id="all" className="transition-none" />
+                    <Label htmlFor="all" className="text-xs font-bold text-white/80">{t(dictionary.all)}</Label>
+                  </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="USD" id="usd" className="transition-none" />
                     <Label htmlFor="usd" className="text-xs font-bold text-white/80">USD ($)</Label>

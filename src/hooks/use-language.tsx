@@ -264,6 +264,7 @@ const dictionary = {
   maxPrice: { uz: 'Maksimal narx', ru: 'Макс. цена', en: 'Max Price' },
   availableNow: { uz: 'Mavjud', ru: 'В наличии', en: 'Available Now' },
   locationTashkent: { uz: 'Toshkent, Mirzo Ulug\'bek', ru: 'Ташкент, Мирзо-Улугбек', en: 'Tashkent, Mirzo Ulugbek' },
+  all: { uz: 'Barchasi', ru: 'Все', en: 'All' },
 
   // Admin Dashboard
   adminDashboard: {
@@ -290,7 +291,7 @@ const dictionary = {
   lookDescriptionPlaceholder: { uz: 'Ushbu libos haqida batafsil ma\'lumot...', ru: 'Подробности об этом образе...', en: 'Details about this look...' },
   updateCatalog: { uz: 'Katalogni yangilash', ru: 'Обновить каталог', en: 'Update Catalog' },
   uploadImage: { uz: 'Rasm yuklash', ru: 'Загрузить фото', en: 'Upload Image' },
-  imageUrlPlaceholder: { uz: 'Yoki rasm URL manzilini kiriting...', ru: 'Или введите URL изображения...', en: 'Or enter image URL...' },
+  imageUrlPlaceholder: { uz: 'Yoki rasm URL manzilini kiriting...', ru: 'Иli введите URL изображения...', en: 'Or enter image URL...' },
   editCatalogItem: { uz: 'Katalog elementini tahrirlash', ru: 'Редактировать элемент каталога', en: 'Edit Catalog Item' },
   editCatalogItemDesc: { uz: 'Libos ma\'lumotlarini yangilang.', ru: 'Обновите информацию об образе.', en: 'Update look information.' },
   lookSavedSuccess: { uz: 'Muvaffaqiyatli saqlandi', ru: 'Успешно сохранено', en: 'Saved Successfully' },
