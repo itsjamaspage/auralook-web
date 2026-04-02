@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -19,12 +20,12 @@ export default function Home() {
       {/* Dynamic Background Grid & Energy Paths */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Ambient Hero Glows */}
-        <div className="absolute top-[-10%] left-[-5%] w-[80%] h-[60%] lg:w-[60%] lg:h-[60%] bg-primary/5 rounded-full blur-[80px] lg:blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[70%] h-[50%] lg:w-[50%] lg:h-[50%] bg-secondary/5 rounded-full blur-[100px] lg:blur-[140px]" />
+        <div className="absolute top-[-10%] left-[-5%] w-[100%] h-[60%] lg:w-[60%] lg:h-[60%] bg-primary/5 rounded-full blur-[60px] lg:blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[90%] h-[50%] lg:w-[50%] lg:h-[50%] bg-secondary/5 rounded-full blur-[80px] lg:blur-[140px]" />
 
         {/* Animated Energy Lanes */}
         {mounted && (
-          <svg className="absolute inset-0 w-full h-full">
+          <svg className="absolute inset-0 w-full h-full opacity-30 lg:opacity-100">
             <path 
               d="M 100,100 Q 200,400 500,450" 
               fill="none" 
@@ -49,22 +50,22 @@ export default function Home() {
         )}
       </div>
 
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 z-10 text-center">
-        <div className="max-w-4xl space-y-8 lg:space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+      <section className="relative min-h-[80vh] lg:min-h-[90vh] flex flex-col items-center justify-center px-6 z-10 text-center py-20 lg:py-0">
+        <div className="max-w-4xl space-y-6 lg:space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
           
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-none neon-text uppercase italic">
+          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.1] neon-text uppercase italic">
             {t(dictionary.heroTitle)}
           </h1>
           
-          <p className="text-lg sm:text-xl lg:text-2xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-base sm:text-xl lg:text-2xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed px-4 lg:px-0">
             {t(dictionary.heroSub)}
           </p>
 
-          <div className="relative group w-full max-w-md mx-auto pt-6 lg:pt-8">
+          <div className="relative group w-full max-w-xs sm:max-w-md mx-auto pt-6 lg:pt-8">
             <Link href="/looks" className="w-full">
               <Button 
                 size="lg" 
-                className="neon-bg w-full h-14 lg:h-16 px-8 lg:px-12 text-lg lg:text-xl font-black rounded-2xl transition-transform duration-500 hover:scale-105 active:scale-95 border-none"
+                className="neon-bg w-full h-14 lg:h-16 px-8 lg:px-12 text-base lg:text-xl font-black rounded-2xl transition-transform duration-500 hover:scale-105 active:scale-95 border-none uppercase tracking-widest shadow-2xl"
               >
                 {t(dictionary.browseLooks)}
                 <ArrowRight className="ml-2 w-5 h-5 lg:w-6 lg:h-6" />

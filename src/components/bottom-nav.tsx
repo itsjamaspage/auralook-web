@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Heart, ShoppingBag, User, LayoutDashboard } from 'lucide-react';
+import { Compass, Heart, ShoppingBag, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -30,21 +30,21 @@ export function BottomNav() {
     return (
       <Link 
         href={item.href}
-        className="flex flex-col items-center gap-1.5 group relative py-2 flex-1"
+        className="flex flex-col items-center gap-1 group relative py-2 flex-1 outline-none"
       >
         <div className={cn(
-          "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+          "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300",
           isActive 
-            ? "neon-bg scale-105" 
+            ? "neon-bg scale-110 sm:scale-105" 
             : "bg-white/5 border border-white/10 group-hover:border-white/30"
         )}>
           <item.icon className={cn(
-            "w-5 h-5 transition-colors duration-300",
+            "w-5 h-5 sm:w-5.5 sm:h-5.5 transition-colors duration-300",
             isActive ? "text-black stroke-[2.5px]" : "text-white/40 group-hover:text-white/60"
           )} />
         </div>
         <span className={cn(
-          "text-[8px] font-black uppercase tracking-[0.1em] font-mono transition-colors duration-300 text-center truncate w-full px-1",
+          "text-[7px] sm:text-[8px] font-black uppercase tracking-[0.1em] font-mono transition-colors duration-300 text-center truncate w-full px-1",
           isActive ? "neon-text" : "text-white/20"
         )}>
           {item.label}
@@ -56,9 +56,9 @@ export function BottomNav() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-8 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-6 sm:pb-8 pointer-events-none">
       <div className="max-w-md mx-auto relative pointer-events-auto">
-        <div className="glass-dark border border-white/10 rounded-[2.5rem] h-24 w-full flex items-center justify-between px-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+        <div className="glass-dark border border-white/10 rounded-[2rem] sm:rounded-[2.5rem] h-20 sm:h-24 w-full flex items-center justify-between px-3 sm:px-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
           {navItems.map((item) => (
             <NavButton key={item.href} item={item} />
           ))}

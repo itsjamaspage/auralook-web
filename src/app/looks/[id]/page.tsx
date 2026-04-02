@@ -72,7 +72,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!orderDetails.phone || !orderDetails.telegram) {
       toast({
         variant: "destructive",
-        title: "Ma'lumotlar yetarli emas",
+        title: "Ma'molutlar yetarli emas",
         description: "Telefon raqami va Telegram username majburiy."
       });
       return;
@@ -142,22 +142,22 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-center justify-center py-4">
-      <div className="container mx-auto px-4 max-w-5xl relative">
-        <div className="grid lg:grid-cols-12 gap-8 items-stretch relative z-10">
+    <div className="min-h-screen lg:min-h-[calc(100vh-100px)] bg-background text-foreground flex items-start lg:items-center justify-center py-6 lg:py-4">
+      <div className="container mx-auto px-4 max-w-5xl relative pb-32 lg:pb-0">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-stretch relative z-10">
           
           <div className="lg:col-span-6 flex flex-col relative">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
-                className="rounded-full w-8 h-8 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
+                className="rounded-full w-10 h-10 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </Button>
             </div>
 
-            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#080808]">
+            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#080808]">
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
@@ -169,20 +169,20 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
 
           <div className="lg:col-span-6 flex flex-col h-full justify-center">
-            <div className="space-y-8 glass-dark border border-white/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl bg-white/[0.02]">
+            <div className="space-y-6 lg:space-y-8 glass-dark border border-white/10 rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-12 shadow-2xl bg-white/[0.02]">
               <div className="space-y-4">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white tracking-tighter">
+                  <span className="text-2xl lg:text-3xl font-black text-white tracking-tighter">
                     {look.currency === 'UZS' ? `${formatPrice(look.price)}` : `$${formatPrice(look.price)}`}
                   </span>
-                  <span className="text-xs font-black text-white/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
+                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
                 </div>
-                <h1 className="text-xl font-black neon-text italic uppercase tracking-tight">{look.name}</h1>
+                <h1 className="text-lg lg:text-xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-sm lg:text-base text-white/80 font-medium italic leading-relaxed whitespace-pre-line">
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-sm text-white/80 font-medium italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>
               </div>
@@ -190,7 +190,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4 pt-4">
                 <Button 
                   onClick={() => setShowCheckout(true)}
-                  className="w-full h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-14 lg:h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {t(dictionary.executePurchase)}
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -202,27 +202,27 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       </div>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="glass-dark border-white/10 rounded-[2.5rem] text-white p-8 max-w-md">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6" />
+        <DialogContent className="glass-dark border-white/10 rounded-[2rem] lg:rounded-[2.5rem] text-white p-6 sm:p-8 max-w-[90vw] sm:max-w-md mx-auto">
+          <DialogHeader className="mb-4 sm:mb-6">
+            <DialogTitle className="text-xl sm:text-2xl font-black italic uppercase neon-text flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
               Checkout
             </DialogTitle>
           </DialogHeader>
 
           {step === 'ASK_KNOWLEDGE' && (
-            <div className="space-y-8 py-4">
-              <h3 className="text-lg font-bold text-center italic">{t(dictionary.knowSizeQuestion)}</h3>
-              <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-6 sm:space-y-8 py-2">
+              <h3 className="text-base sm:text-lg font-bold text-center italic">{t(dictionary.knowSizeQuestion)}</h3>
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <Button 
                   onClick={() => setStep('CHOOSE_SIZE')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-xs"
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs"
                 >
                   {t(dictionary.yesIKnow)}
                 </Button>
                 <Button 
                   onClick={() => setStep('ENTER_MEASUREMENTS')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-xs"
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs"
                 >
                   {t(dictionary.noHelpMe)}
                 </Button>
@@ -231,7 +231,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'CHOOSE_SIZE' && (
-            <div className="space-y-8 py-4">
+            <div className="space-y-6 sm:space-y-8 py-2">
               <div className="flex items-center gap-2 text-white/40 mb-2">
                 <CheckCircle2 className="w-4 h-4 neon-text" />
                 <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
@@ -258,7 +258,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'ENTER_MEASUREMENTS' && (
-            <div className="space-y-8 py-4">
+            <div className="space-y-6 sm:space-y-8 py-2">
               <div className="flex flex-col gap-2 mb-2">
                 <div className="flex items-center gap-2 text-white/40">
                   <Ruler className="w-4 h-4 neon-text" />
@@ -273,23 +273,23 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-white/40">Bo'y (cm)</Label>
+                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/40">Bo'y (cm)</Label>
                   <Input 
                     type="number" 
                     placeholder="175"
                     value={orderDetails.height}
                     onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-white/40">Vazn (kg)</Label>
+                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/40">Vazn (kg)</Label>
                   <Input 
                     type="number" 
                     placeholder="70"
                     value={orderDetails.weight}
                     onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
                   />
                 </div>
               </div>
@@ -303,7 +303,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'CONTACT' && (
-            <div className="space-y-6 py-4">
+            <div className="space-y-5 sm:space-y-6 py-2">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white/40">
                   <Phone className="w-4 h-4 neon-text" />
@@ -313,7 +313,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   placeholder={t(dictionary.phonePlaceholder)}
                   value={orderDetails.phone}
                   onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
                 />
               </div>
 
@@ -326,14 +326,14 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   placeholder={t(dictionary.telegramPlaceholder)}
                   value={orderDetails.telegram}
                   onChange={(e) => setOrderDetails({...orderDetails, telegram: e.target.value})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
                 />
               </div>
 
               <Button 
                 onClick={handlePurchase}
                 disabled={isOrdering || !orderDetails.phone || !orderDetails.telegram}
-                className="w-full h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em]"
+                className="w-full h-14 sm:h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em] mt-2"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
               </Button>
