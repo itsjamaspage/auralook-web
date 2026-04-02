@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
@@ -49,6 +50,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { toast } = useToast();
   const db = useFirestore();
   const router = useRouter();
+  const { user: tgUser } = useTelegramUser();
   
   const [showCheckout, setShowCheckout] = useState(false);
   const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
@@ -63,6 +65,16 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     telegram: ''
   });
 
+  useEffect(() => {
+    if (tgUser) {
+      setOrderDetails(prev => ({
+        ...prev,
+        telegram: tgUser.username || '',
+        phone: tgUser.phone || '+998 '
+      }));
+    }
+  }, [tgUser]);
+
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
 
@@ -73,7 +85,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const formatUzbekPhone = (val: string) => {
     const digits = val.replace(/\D/g, '');
     let d = digits;
-    // Strip 998 if it's already there to handle pasting or re-formatting
     if (d.startsWith('998')) d = d.substring(3);
     d = d.substring(0, 9);
     
@@ -90,11 +101,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     const formatted = formatUzbekPhone(val);
     setOrderDetails(prev => ({ ...prev, phone: formatted }));
   };
-
-  useEffect(() => {
-    // Prefill with +998 on mount/reset
-    setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
-  }, [country]);
 
   if (lookLoading) {
     return (
@@ -121,7 +127,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     try {
       const timestamp = new Date().toLocaleString('uz-UZ');
       const orderData = {
-        userId: 'guest',
+        userId: tgUser?.id || 'guest',
         customerName: orderDetails.telegram, 
         orderDate: new Date().toISOString(),
         status: 'New',

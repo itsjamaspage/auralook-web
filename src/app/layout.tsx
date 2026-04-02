@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -6,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Footer } from '@/components/footer';
 import { LanguageProvider } from '@/hooks/use-language';
+import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -32,22 +34,24 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">
         <FirebaseClientProvider>
           <LanguageProvider>
-            <Navbar />
-            <main className="flex-grow pt-24 pb-24 lg:pb-0">
-              {children}
-            </main>
-            <BottomNav />
-            <Toaster />
-            <Footer className="hidden lg:block" />
-            <Script id="tg-init" strategy="afterInteractive">
-              {`
-                if (window.Telegram && window.Telegram.WebApp) {
-                  const tg = window.Telegram.WebApp;
-                  tg.ready();
-                  tg.expand();
-                }
-              `}
-            </Script>
+            <TelegramUserProvider>
+              <Navbar />
+              <main className="flex-grow pt-24 pb-24 lg:pb-0">
+                {children}
+              </main>
+              <BottomNav />
+              <Toaster />
+              <Footer className="hidden lg:block" />
+              <Script id="tg-init" strategy="afterInteractive">
+                {`
+                  if (window.Telegram && window.Telegram.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                  }
+                `}
+              </Script>
+            </TelegramUserProvider>
           </LanguageProvider>
         </FirebaseClientProvider>
       </body>
