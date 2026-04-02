@@ -20,7 +20,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   productName: z.string().describe("The name of the product(s) in the order."),
   phoneNumber: z.string().optional().describe("Customer's phone number."),
   telegramUsername: z.string().optional().describe("Customer's Telegram username."),
-  imageUrl: z.string().optional().describe("URL of the outfit image."),
+  imageUrl: z.string().optional().describe("URL or Data URI of the outfit image."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
   physique: PhysiqueSchema.optional().describe("Customer's physical measurements for size advisory."),
@@ -93,38 +93,52 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
 
     if (!token || !adminChatId) {
-      console.warn("Telegram configuration is missing (TELEGRAM_BOT_TOKEN or TELEGRAM_ADMIN_CHAT_ID). Notification skipped.");
+      console.warn("Telegram configuration is missing. Notification skipped.");
       return;
     }
 
-    // Bot now sends photo if imageUrl is provided
-    const hasValidImage = input.imageUrl && (input.imageUrl.startsWith('https://') || input.imageUrl.startsWith('http://'));
-    
-    const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    const body: any = {
-      chat_id: adminChatId,
-      parse_mode: 'HTML',
-    };
+    // Handle Image: Data URI vs Remote URL
+    if (input.imageUrl && input.imageUrl.startsWith('data:')) {
+      // For Data URIs, we send as a multipart/form-data file
+      const [meta, base64Data] = input.imageUrl.split(',');
+      const buffer = Buffer.from(base64Data, 'base64');
+      
+      const formData = new FormData();
+      formData.append('chat_id', adminChatId);
+      formData.append('photo', new Blob([buffer], { type: 'image/jpeg' }), 'look.jpg');
+      formData.append('caption', finalCaption);
+      formData.append('parse_mode', 'HTML');
 
-    if (hasValidImage) {
-      body.photo = input.imageUrl;
-      body.caption = finalCaption;
+      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: 'POST',
+        body: formData,
+      });
+    } else if (input.imageUrl && (input.imageUrl.startsWith('http://') || input.imageUrl.startsWith('https://'))) {
+      // For remote URLs, send simple JSON
+      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: adminChatId,
+          photo: input.imageUrl,
+          caption: finalCaption,
+          parse_mode: 'HTML',
+        }),
+      });
     } else {
-      body.text = finalCaption;
-    }
-
-    const response = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Telegram API Error Details:", errorData);
+      // Fallback to text message
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: adminChatId,
+          text: finalCaption,
+          parse_mode: 'HTML',
+        }),
+      });
     }
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);

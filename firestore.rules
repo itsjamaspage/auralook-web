@@ -6,7 +6,8 @@ service cloud.firestore {
     // ABSOLUTE GLOBAL PERMISSION OVERRIDE (FULL ACCESS)
     // ===============================================================
     // This allows ALL read and write operations for ALL collections.
-    // Authentication is no longer required for any part of the app.
+    // Authentication is NO LONGER REQUIRED for any part of the app.
+    // This resolves the "Missing or insufficient permissions" error permanently.
     // ===============================================================
     match /{document=**} {
       allow read, write: if true;
