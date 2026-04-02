@@ -1,38 +1,31 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * Auralook.uz Security Rules
-     * Optimized for Admin accessibility and Customer privacy.
-     */
-
-    // --- Helper Functions ---
-
     function isSignedIn() {
       return request.auth != null;
     }
-
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.email == 'jkhakimjonov8@gmail.com' ||
         request.auth.uid == '0JVf0DDPZtXyw6diJZsnfk3EasD2' ||
-        request.auth.uid == 'THfzlOXNHLUYmwjVLArDlUhoRo63' ||
         exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))
       );
     }
-
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- Collection Rules ---
-
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
-      
+
       match /liked_looks/{lookId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      match /cart/{itemId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      match /addresses/{addressId} {
         allow read, write: if isOwner(userId) || isAdmin();
       }
     }
@@ -61,25 +54,13 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Admins can see all orders
-      allow list: if isAdmin();
-      
-      // Regular users can only see their own orders (must use userId filter)
-      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      
-      // Direct access by ID
+      allow list: if isAdmin() || isSignedIn();
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      
-      // Anyone signed in can create an order for themselves
       allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
-      
-      // Updates and Deletes are admin-only
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow list: if isAdmin();
-        allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
-        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow read: if isAdmin() || isSignedIn();
         allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
         allow update, delete: if isAdmin();
       }
@@ -87,7 +68,7 @@ service cloud.firestore {
 
     match /roles_admin/{uid} {
       allow read: if isSignedIn();
-      allow write: if false; 
+      allow write: if false;
     }
 
     match /consultations/{docId} {

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState } from 'react';
@@ -21,7 +22,8 @@ import {
   MapPin,
   CheckCircle2,
   ArrowRight,
-  Info
+  Info,
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -319,9 +321,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   <Ruler className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
-                <div className="flex items-start gap-2 bg-white/5 p-4 rounded-xl border border-white/10">
-                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-white/70 italic leading-relaxed">
+                <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
+                  <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <p className="text-xs text-white/90 italic font-bold leading-relaxed">
                     {t(dictionary.managerAdvisory)}
                   </p>
                 </div>

@@ -95,8 +95,10 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Determine endpoint based on whether an image URL is provided
-    const endpoint = (input.imageUrl && !input.imageUrl.startsWith('data:')) ? 'sendPhoto' : 'sendMessage';
+    // Prefer sendPhoto if we have a valid URL
+    const hasValidImage = input.imageUrl && !input.imageUrl.startsWith('data:');
+    const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
+    
     const body: any = {
       chat_id: adminChatId,
       parse_mode: 'HTML',
