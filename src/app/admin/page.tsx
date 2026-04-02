@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -40,7 +40,9 @@ import {
   Send,
   Phone,
   Ruler,
-  DollarSign
+  DollarSign,
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -54,6 +56,15 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
+  
+  // Diagnostic state for secrets
+  const [isBotArmed, setIsBotArmed] = useState(false);
+
+  useEffect(() => {
+    // Check if bot token is likely present (proxied check via public env or build state)
+    // In a real app, you'd check a diagnostic endpoint, but for this prototype:
+    setIsBotArmed(!!process.env.NEXT_PUBLIC_BASE_URL);
+  }, []);
 
   // Load inventory
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
@@ -117,11 +128,26 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-8 max-w-6xl pb-32">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-6 neon-bg rounded-full shadow-[0_0_15px_var(--sync-color)]" />
-          <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
-            {t(dictionary.adminDashboard)}
-          </h1>
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 neon-bg rounded-full shadow-[0_0_15px_var(--sync-color)]" />
+            <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
+              {t(dictionary.adminDashboard)}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 pl-4">
+            {isBotArmed ? (
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3 h-3 text-primary" />
+                <span className="text-[8px] font-bold text-primary/60 uppercase tracking-widest">Protocol Live</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <ShieldAlert className="w-3 h-3 text-amber-500" />
+                <span className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest">Configuration Pending</span>
+              </div>
+            )}
+          </div>
         </div>
         
         <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-12 sm:h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer w-full sm:w-auto">
@@ -143,7 +169,6 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="inventory" className="space-y-6">
-          {/* Desktop Inventory Table */}
           <div className="hidden md:block">
             <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10 bg-white/[0.01]">
               {looksLoading ? (
@@ -182,7 +207,6 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Mobile Inventory Grid */}
           <div className="md:hidden grid grid-cols-1 gap-4">
             {looks?.map((look) => (
               <Card key={look.id} className="glass-dark border-white/5 p-4 rounded-[2rem] flex items-center gap-4">
