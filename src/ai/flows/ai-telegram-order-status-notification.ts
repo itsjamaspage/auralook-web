@@ -1,111 +1,63 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed order status updates for Telegram.
+ * @fileOverview Template-based order notifications for Telegram.
+ * Removed Gemini dependency for guaranteed delivery and faster response.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { z } from 'genkit';
 
 const PhysiqueSchema = z.object({
-  height: z.string().optional().describe("Customer's height in cm"),
-  weight: z.string().optional().describe("Customer's weight in kg"),
-  size: z.string().optional().describe("Customer's selected size"),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  size: z.string().optional(),
 });
 
 const AiTelegramOrderStatusNotificationInputSchema = z.object({
-  customerName: z.string().describe("The name of the customer."),
-  orderId: z.string().describe("The unique identifier for the order."),
-  currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']).describe("The current status of the order."),
-  productName: z.string().describe("The name of the product(s) in the order."),
-  phoneNumber: z.string().optional().describe("Customer's phone number."),
-  telegramUsername: z.string().optional().describe("Customer's Telegram username."),
-  imageUrl: z.string().optional().describe("URL or Data URI of the outfit image."),
-  estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
-  language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
-  physique: PhysiqueSchema.optional().describe("Customer's physical measurements and size."),
-  timestamp: z.string().optional().describe("The time the action occurred."),
+  customerName: z.string(),
+  orderId: z.string(),
+  currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']),
+  productName: z.string(),
+  phoneNumber: z.string().optional(),
+  telegramUsername: z.string().optional(),
+  imageUrl: z.string().optional(),
+  estimatedDeliveryDate: z.string().nullable().optional(),
+  language: z.enum(['uz']),
+  physique: PhysiqueSchema.optional(),
+  timestamp: z.string().optional(),
 });
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
-const AiTelegramOrderStatusNotificationOutputSchema = z.object({
-  message: z.string().describe("The AI-composed order status notification message in Uzbek."),
-});
-export type AiTelegramOrderStatusNotificationOutput = z.infer<typeof AiTelegramOrderStatusNotificationOutputSchema>;
-
-const prompt = ai.definePrompt({
-  name: 'telegramOrderStatusPrompt',
-  input: {schema: AiTelegramOrderStatusNotificationInputSchema},
-  output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
-  prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Buyurtma holati o'zgarganda Admin uchun o'zbek tilida xabar tayyorlang.
-
-MUHIM: 
-- Agar buyurtma holati "New" bo'lsa, xabarni "📦 YANGI BUYURTMA" deb boshlang.
-- Agar buyurtma holati "Cancelled" bo'lsa, xabarni "⚠️ BUYURTMA BEKOR QILINDI" deb boshlang va adminni ogohlantiring.
-
-Quyidagi ma'lumotlarni HTML formatida (Telegram uchun) aniq ko'rsating. 
-Telegram username-ni mana bu formatda link qiling: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
-
-Ma'lumotlar:
-- Telegram: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
-- Buyurtma ID: <code>{{{orderId}}}</code>
-- Telefon: {{{phoneNumber}}}
-- Mahsulot: <b>{{{productName}}}</b>
-- Holat: <b>{{{currentStatus}}}</b>
-- Tanlangan O'lcham: <b>{{{physique.size}}}</b>
-- Vaqt: {{{timestamp}}}
-
-{{#if physique.height}}
-Qo'shimcha ma'lumotlar:
-- Bo'yi: {{{physique.height}}} sm
-- Vazni: {{{physique.weight}}} kg
-{{/if}}
-
-Xabar professional va tushunarli bo'lishi kerak.`,
-});
-
-const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
-  {
-    name: 'aiTelegramOrderStatusNotificationFlow',
-    inputSchema: AiTelegramOrderStatusNotificationInputSchema,
-    outputSchema: AiTelegramOrderStatusNotificationOutputSchema,
-  },
-  async (input) => {
-    try {
-      const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
-      
-      const {output} = await prompt({
-        ...input,
-        telegramUsername: cleanUsername
-      });
-      return output!;
-    } catch (error) {
-      console.error('Flow execution error:', error);
-      const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
-      
-      let statusIcon = '📦';
-      let statusTitle = 'YANGI BUYURTMA';
-      
-      if (input.currentStatus === 'Cancelled') {
-        statusIcon = '⚠️';
-        statusTitle = 'BUYURTMA BEKOR QILINDI';
-      }
-
-      let fallbackMsg = `<b>${statusIcon} ${statusTitle}</b>\n\n`;
-      fallbackMsg += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
-      fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
-      fallbackMsg += `Mahsulot: ${input.productName}\n`;
-      fallbackMsg += `O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
-      fallbackMsg += `Holat: <b>${input.currentStatus}</b>\n`;
-      fallbackMsg += `Vaqt: ${input.timestamp || new Date().toLocaleString('uz-UZ')}\n`;
-      fallbackMsg += `\nID: <code>${input.orderId}</code>`;
-      return { message: fallbackMsg };
-    }
-  }
-);
-
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   try {
-    const { message } = await aiTelegramOrderStatusNotificationFlow(input);
+    const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'user';
+    const timestamp = input.timestamp || new Date().toLocaleString('uz-UZ');
+    
+    let statusIcon = '📦';
+    let statusTitle = 'YANGI BUYURTMA';
+    
+    if (input.currentStatus === 'Cancelled') {
+      statusIcon = '⚠️';
+      statusTitle = 'BUYURTMA BEKOR QILINDI';
+    } else if (input.currentStatus === 'Confirmed') {
+      statusIcon = '✅';
+      statusTitle = 'BUYURTMA TASDIQLANDI';
+    }
+
+    let message = `<b>${statusIcon} ${statusTitle}</b>\n\n`;
+    message += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
+    message += `Buyurtma ID: <code>${input.orderId}</code>\n`;
+    message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
+    message += `Mahsulot: <b>${input.productName}</b>\n`;
+    message += `Tanlangan O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
+    message += `Holat: <b>${input.currentStatus}</b>\n`;
+    message += `Vaqt: ${timestamp}\n`;
+
+    if (input.physique?.height) {
+      message += `\nQo'shimcha ma'lumotlar:\n`;
+      message += `- Bo'yi: ${input.physique.height} sm\n`;
+      message += `- Vazni: ${input.physique.weight} kg\n`;
+    }
+
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
@@ -118,21 +70,8 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    if (input.imageUrl && input.imageUrl.startsWith('data:')) {
-      const [meta, base64Data] = input.imageUrl.split(',');
-      const buffer = Buffer.from(base64Data, 'base64');
-      
-      const formData = new FormData();
-      formData.append('chat_id', adminChatId);
-      formData.append('photo', new Blob([buffer], { type: 'image/jpeg' }), 'look.jpg');
-      formData.append('caption', finalCaption);
-      formData.append('parse_mode', 'HTML');
-
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-        method: 'POST',
-        body: formData,
-      });
-    } else if (input.imageUrl && (input.imageUrl.startsWith('http://') || input.imageUrl.startsWith('https://'))) {
+    // Send logic (Photo or Message)
+    if (input.imageUrl && !input.imageUrl.includes('picsum.photos')) {
       await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,8 +96,4 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);
   }
-}
-
-export async function aiTelegramOrderStatusNotification(input: AiTelegramOrderStatusNotificationInput): Promise<AiTelegramOrderStatusNotificationOutput> {
-  return aiTelegramOrderStatusNotificationFlow(input);
 }

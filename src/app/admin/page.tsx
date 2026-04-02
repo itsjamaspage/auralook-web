@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -40,7 +39,6 @@ import {
   Send,
   Phone,
   Ruler,
-  DollarSign,
   ShieldCheck,
   ShieldAlert
 } from 'lucide-react';
@@ -49,7 +47,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
-import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -57,20 +54,17 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
   
-  // Diagnostic state for secrets
+  // Diagnostic state for Telegram Protocol
   const [isBotArmed, setIsBotArmed] = useState(false);
 
   useEffect(() => {
-    // Check if bot token is likely present (proxied check via public env or build state)
-    // In a real app, you'd check a diagnostic endpoint, but for this prototype:
+    // Only check for the primary Telegram URL indicator to confirm "Live" status
     setIsBotArmed(!!process.env.NEXT_PUBLIC_BASE_URL);
   }, []);
 
-  // Load inventory
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  // Load orders
   const ordersQuery = useMemoFirebase(() => {
     return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
   }, [db]);
@@ -78,7 +72,6 @@ export default function AdminDashboard() {
 
   const confirmDelete = async () => {
     if (!itemToDelete) return;
-    
     try {
       const collectionName = itemToDelete.type === 'look' ? 'looks' : 'orders';
       await deleteDoc(doc(db, collectionName, itemToDelete.id));
@@ -92,8 +85,7 @@ export default function AdminDashboard() {
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const orderRef = doc(db, 'orders', orderId);
-      await updateDoc(orderRef, {
+      await updateDoc(doc(db, 'orders', orderId), {
         status: newStatus,
         updatedAt: new Date().toISOString()
       });
