@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -129,6 +130,48 @@ const dictionary = {
     en: 'Processing...'
   },
 
+  // Profile & Status
+  orderHistory: {
+    uz: 'Buyurtmalar tarixi',
+    ru: 'История заказов',
+    en: 'Order History'
+  },
+  securityProtocols: {
+    uz: 'Xavfsizlik protokollari',
+    ru: 'Протоколы безопасности',
+    en: 'Security Protocols'
+  },
+  systemPreferences: {
+    uz: 'Tizim sozlamalari',
+    ru: 'Системные настройки',
+    en: 'System Preferences'
+  },
+  terminateSession: {
+    uz: 'Seansni yakunlash',
+    ru: 'Завершить сессию',
+    en: 'Terminate Session'
+  },
+  profileControl: {
+    uz: 'Profil boshqaruvi',
+    ru: 'Управление профилем',
+    en: 'Profile Control'
+  },
+  activeNode: {
+    uz: 'Holat: Faol',
+    ru: 'Статус: Активен',
+    en: 'Status: Active Node'
+  },
+  identifyingSession: {
+    uz: 'Seans aniqlanmoqda...',
+    ru: 'Идентификация сеанса...',
+    en: 'Identifying Session...'
+  },
+  synchronizingProfile: {
+    uz: 'Profil sinxronizatsiya qilinmoqda...',
+    ru: 'Синхронизация профиля...',
+    en: 'Synchronizing Profile...'
+  },
+
   // Checkout Flow
   knowSizeQuestion: {
     uz: "O'lchamingizni bilasizmi?",
@@ -216,6 +259,26 @@ const dictionary = {
     uz: 'Tasdiqlandi',
     ru: 'Принято',
     en: 'Accepted'
+  },
+  orderRef: { 
+    uz: 'Buyurtma kodi', 
+    ru: 'Код заказа', 
+    en: 'Order Ref' 
+  },
+  transactionDate: { 
+    uz: 'Tranzaksiya sanasi', 
+    ru: 'Дата транзакции', 
+    en: 'Transaction Date' 
+  },
+  total: { 
+    uz: 'Jami', 
+    ru: 'Итого', 
+    en: 'Total' 
+  },
+  unknown: { 
+    uz: 'Noma\'lum', 
+    ru: 'Неизвестно', 
+    en: 'Unknown' 
   },
 
   // Toast Notifications
@@ -331,6 +394,16 @@ const dictionary = {
     ru: "Образ успешно сохранен",
     en: "Look saved successfully"
   },
+  inventory: { uz: 'Inventar', ru: 'Инвентарь', en: 'Inventory' },
+  orders: { uz: 'Buyurtmalar', ru: 'Заказы', en: 'Orders' },
+  customer: { uz: 'Mijoz', ru: 'Клиент', en: 'Customer' },
+  outfit: { uz: 'Libos', ru: 'Образ', en: 'Outfit' },
+  amount: { uz: 'Summa', ru: 'Сумма', en: 'Amount' },
+  action: { uz: 'Amal', ru: 'Действие', en: 'Action' },
+  accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
+  confirmDeleteTitle: { uz: "O'chirishni tasdiqlang", ru: 'Подтвердите удаление', en: 'Confirm Deletion' },
+  confirmDeleteDesc: { uz: "Ushbu elementni katalogni olib tashlamoqchimisiz?", ru: 'Вы хотите удалить этот элемент из каталога?', en: 'Are you sure you want to remove this item from the catalog?' },
+  delete: { uz: "O'chirish", ru: 'Удалить', en: 'Delete' },
 
   // Footer
   allRightsReserved: { 

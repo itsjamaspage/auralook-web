@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -34,8 +35,6 @@ export default function LoginPage() {
   const { data: profile } = useDoc(userProfileRef);
 
   useEffect(() => {
-    // If the user is already authenticated (either via email or Telegram auto-login),
-    // redirect them to the home page immediately.
     if (user && !isUserLoading) {
       router.push('/');
     }
@@ -61,7 +60,7 @@ export default function LoginPage() {
       <div className="flex-grow flex items-center justify-center min-h-[calc(100vh-160px)]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin neon-text" />
-          <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Identifying Session...</p>
+          <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{t(dictionary.identifyingSession)}</p>
         </div>
       </div>
     );

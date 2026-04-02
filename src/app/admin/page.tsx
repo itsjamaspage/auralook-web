@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -49,7 +50,6 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Determine admin status with fallback to specific email/UID
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_admin', user.uid);
@@ -59,7 +59,6 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    // Hardcoded safety for the owner
     if (user.email === 'jkhakimjonov8@gmail.com' || user.uid === '0JVf0DDPZtXyw6diJZsnfk3EasD2') return true;
     return !!adminRole;
   }, [user, adminRole]);
@@ -72,7 +71,6 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
-    // Only fetch if admin to prevent permission errors
     return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
@@ -81,7 +79,7 @@ export default function AdminDashboard() {
     if (!lookToDelete) return;
     const lookRef = doc(db, 'looks', lookToDelete);
     deleteDocumentNonBlocking(lookRef);
-    toast({ title: "O'chirish boshlandi" });
+    toast({ title: t(dictionary.delete) + "..." });
     setLookToDelete(null);
   };
 
@@ -92,9 +90,9 @@ export default function AdminDashboard() {
         status: 'Confirmed',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Buyurtma qabul qilindi" });
+      toast({ title: t(dictionary.orderAccepted) });
     } catch (e) {
-      toast({ variant: "destructive", title: "Xatolik yuz berdi" });
+      toast({ variant: "destructive", title: t(dictionary.orderFailedTitle) });
     }
   };
 
@@ -140,10 +138,10 @@ export default function AdminDashboard() {
       <Tabs defaultValue="inventory" className="space-y-6">
         <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12 flex w-fit">
           <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            Inventar
+            {t(dictionary.inventory)}
           </TabsTrigger>
           <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-none">
-            Buyurtmalar
+            {t(dictionary.orders)}
           </TabsTrigger>
         </TabsList>
 
@@ -160,9 +158,9 @@ export default function AdminDashboard() {
                 <TableHeader className="bg-white/5">
                   <TableRow className="border-none">
                     <TableHead className="pl-8 text-[10px] uppercase tracking-widest">Visual</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Nomi</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Narxi</TableHead>
-                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">Amallar</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.itemName)}</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.lookPrice)}</TableHead>
+                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">{t(dictionary.action)}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -188,18 +186,18 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
-          <div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">Buyurtmalar</h2></div>
+          <div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 neon-text" /><h2 className="text-lg font-bold text-white uppercase italic">{t(dictionary.orders)}</h2></div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10">
             {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>
                 <TableHeader className="bg-white/5">
                   <TableRow>
-                    <TableHead className="pl-8">Mijoz</TableHead>
+                    <TableHead className="pl-8">{t(dictionary.customer)}</TableHead>
                     <TableHead>O'lcham (B/V/O')</TableHead>
-                    <TableHead>Libos</TableHead>
-                    <TableHead>Summa</TableHead>
-                    <TableHead>Holati</TableHead>
-                    <TableHead className="text-right pr-8">Amal</TableHead>
+                    <TableHead>{t(dictionary.outfit)}</TableHead>
+                    <TableHead>{t(dictionary.amount)}</TableHead>
+                    <TableHead>{t(dictionary.status)}</TableHead>
+                    <TableHead className="text-right pr-8">{t(dictionary.action)}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -222,7 +220,7 @@ export default function AdminDashboard() {
                         <span className={`text-[10px] font-black uppercase ${order.status === 'New' ? 'text-amber-500' : 'text-primary'}`}>{order.status}</span>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        {order.status === 'New' && <Button onClick={() => handleAcceptOrder(order.id)} className="h-8 text-[10px] neon-bg text-black font-black uppercase">Qabul qilish</Button>}
+                        {order.status === 'New' && <Button onClick={() => handleAcceptOrder(order.id)} className="h-8 text-[10px] neon-bg text-black font-black uppercase">{t(dictionary.accept)}</Button>}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -236,12 +234,12 @@ export default function AdminDashboard() {
       <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
         <AlertDialogContent className="glass-dark border-white/10 rounded-[2.5rem] text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">O'chirishni tasdiqlang</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">Ushbu elementni katalogni olib tashlamoqchimisiz?</AlertDialogDescription>
+            <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">{t(dictionary.confirmDeleteTitle)}</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">{t(dictionary.confirmDeleteDesc)}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5">Bekor qilish</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive">O'chirish</AlertDialogAction>
+            <AlertDialogCancel className="bg-white/5">{t(dictionary.cancel)}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive">{t(dictionary.delete)}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

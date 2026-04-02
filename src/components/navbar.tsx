@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -111,7 +112,7 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="glass-dark border-white/10 min-w-[220px] lg:min-w-[260px] p-2">
                   <div className="px-4 py-3">
                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{profile?.telegramUsername || user.email}</p>
-                    <p className="text-[8px] font-bold text-primary uppercase mt-1">Status: Active Node</p>
+                    <p className="text-[8px] font-bold text-primary uppercase mt-1">{t(dictionary.activeNode)}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/5" />
                   
@@ -127,14 +128,14 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="flex items-center w-full cursor-pointer py-4 px-4 rounded-xl hover:bg-white/5 transition-colors">
                       <User className="w-6 h-6 mr-3 text-white/40" />
-                      <span className="font-bold text-sm text-white">Profile Control</span>
+                      <span className="font-bold text-sm text-white">{t(dictionary.profileControl)}</span>
                     </Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator className="bg-white/5" />
                   <DropdownMenuItem onClick={handleLogout} className="flex items-center w-full cursor-pointer py-4 px-4 rounded-xl hover:bg-destructive/10 text-destructive focus:text-destructive">
                     <LogOut className="w-6 h-6 mr-3" />
-                    <span className="font-bold text-sm">Terminate Session</span>
+                    <span className="font-bold text-sm">{t(dictionary.terminateSession)}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

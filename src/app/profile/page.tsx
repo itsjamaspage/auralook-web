@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useUser, useFirestore, useDoc, useMemoFirebase, useAuth } from '@/firebase';
@@ -7,12 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Shield, Package, Settings, ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const auth = useAuth();
   const router = useRouter();
+  const { t, dictionary } = useLanguage();
 
   const profileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -25,7 +28,7 @@ export default function ProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Synchronizing Profile...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{t(dictionary.synchronizingProfile)}</p>
       </div>
     );
   }
@@ -69,9 +72,9 @@ export default function ProfilePage() {
 
       <div className="space-y-4">
         {[
-          { icon: Package, label: 'Order History', color: 'text-blue-400', href: '/orders' },
-          { icon: Shield, label: 'Security Protocols', color: 'text-green-400', href: '#' },
-          { icon: Settings, label: 'System Preferences', color: 'text-purple-400', href: '#' },
+          { icon: Package, label: t(dictionary.orderHistory), color: 'text-blue-400', href: '/orders' },
+          { icon: Shield, label: t(dictionary.securityProtocols), color: 'text-green-400', href: '#' },
+          { icon: Settings, label: t(dictionary.systemPreferences), color: 'text-purple-400', href: '#' },
         ].map((item) => (
           <Card 
             key={item.label} 
@@ -93,7 +96,7 @@ export default function ProfilePage() {
           className="w-full mt-8 glass-dark border-destructive/20 p-5 rounded-[1.5rem] flex items-center justify-center gap-3 text-destructive hover:bg-destructive/10 transition-all font-black uppercase tracking-widest text-sm"
         >
           <LogOut className="w-5 h-5" />
-          Terminate session
+          {t(dictionary.terminateSession)}
         </button>
       </div>
     </div>
