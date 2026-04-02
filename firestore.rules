@@ -55,8 +55,9 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Admin can list and read everything
+      // Admins have full access to list and read all orders
       allow read: if isAdmin();
+      allow list: if isAdmin();
       
       // Users can list their own orders but MUST filter by userId
       allow list: if isSignedIn() && resource.data.userId == request.auth.uid;

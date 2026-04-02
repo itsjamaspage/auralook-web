@@ -79,8 +79,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     
     if (!user) {
       toast({
-        title: t(dictionary.registrationRequiredTitle),
-        description: t(dictionary.registrationRequiredDesc),
+        title: t(dictionary.welcomeBack),
+        description: t(dictionary.accessOrders),
         variant: "destructive"
       });
       router.push('/login');
@@ -106,8 +106,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const startCheckout = () => {
     if (!user) {
       toast({
-        title: t(dictionary.registrationRequiredTitle),
-        description: t(dictionary.registrationRequiredDesc),
+        title: t(dictionary.welcomeBack),
+        description: t(dictionary.accessOrders),
         variant: "destructive"
       });
       router.push('/login');
