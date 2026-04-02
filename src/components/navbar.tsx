@@ -19,7 +19,6 @@ import {
   Heart, 
   ShoppingBag, 
   LayoutDashboard, 
-  Ruler,
   ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -42,7 +41,6 @@ export function Navbar() {
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
-    { label: t(dictionary.razmeringiz), icon: Ruler, href: '/advisor' },
     { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
     { label: t(dictionary.adminPanel), icon: LayoutDashboard, href: '/admin' },
   ];
