@@ -12,7 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/Dialog";
+} from "@/components/ui/dialog";
 import { 
   Loader2, 
   Heart,
