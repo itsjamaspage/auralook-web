@@ -57,19 +57,19 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Admins have full access
+      // Admins have full access to get, list, update, and delete
       allow read, write: if isAdmin();
       
       // Regular users can create their own orders
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       
-      // Regular users can list and get their own orders (enforced by resource data)
-      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Regular users can list and get ONLY their own orders
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
 
       match /items/{orderItemId} {
         allow read, write: if isAdmin();
-        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow read: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
         allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       }
     }

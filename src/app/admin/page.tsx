@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    // Explicit list of administrator identifiers based on your reported UIDs and email
+    // Explicit list of administrator identifiers
     const adminEmails = ['jkhakimjonov8@gmail.com'];
     const adminUids = ['0JVf0DDPZtXyw6diJZsnfk3EasD2', 'THfzlOXNHLUYmwjVLArDlUhoRo63'];
     
@@ -75,8 +75,8 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
-    // Admin query for ALL orders
-    return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
+    // Admin query for ALL orders - Aligned with firestore.rules
+    return query(collection(db, 'orders'), orderBy('updatedAt', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
