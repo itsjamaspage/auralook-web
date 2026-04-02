@@ -18,9 +18,9 @@ const dictionary = {
     en: 'Wear clothes of the future, feel the heritage'
   },
   browseLooks: { 
-    uz: 'Qidirish',
-    ru: 'Поиск',
-    en: 'Explore'
+    uz: 'Katalog',
+    ru: 'Каталог',
+    en: 'Catalog'
   },
   favorites: {
     uz: 'Saralanganlar',
@@ -58,8 +58,8 @@ const dictionary = {
     en: 'Login'
   },
   adminPanel: {
-    uz: 'Boshqaruv Paneli',
-    ru: 'Панель управления',
+    uz: 'Admin Paneli',
+    ru: 'Админ Панель',
     en: 'Admin Panel'
   },
 
@@ -75,9 +75,9 @@ const dictionary = {
     en: 'Create Account'
   },
   accessOrders: { 
-    uz: 'Buyurtmalaringiz va o\'lchamlaringizga kiring',
-    ru: 'Доступ к вашим заказам и размерам',
-    en: 'Access your orders and sizes'
+    uz: 'Buyurtmalaringizga kiring',
+    ru: 'Доступ к вашим заказам',
+    en: 'Access your orders'
   },
   joinFuture: { 
     uz: 'Moda kelajagiga qo\'shiling',
@@ -283,6 +283,20 @@ const dictionary = {
   cancel: { uz: "Bekor qilish", ru: "Отмена", en: "Cancel" },
   confirmDeleteTitle: { uz: "O'chirishni tasdiqlang", ru: 'Подтвердите удаление', en: 'Confirm Deletion' },
   confirmDeleteDesc: { uz: "Ushbu elementni katalogni olib tashlamoqchimisiz?", ru: 'Вы хотите удалить этот элемент из каталога?', en: 'Are you sure you want to remove this item from the catalog?' },
+  itemName: { uz: 'Element nomi', ru: 'Название элемента', en: 'Item Name' },
+  lookPrice: { uz: 'Libos narxi', ru: 'Цена образа', en: 'Look Price' },
+  discountLabel: { uz: 'Chegirma %', ru: 'Скидка %', en: 'Discount %' },
+  lookDescription: { uz: 'Libos tavsifi', ru: 'Описание образа', en: 'Look Description' },
+  lookDescriptionPlaceholder: { uz: 'Ushbu libos haqida batafsil ma\'lumot...', ru: 'Подробности об этом образе...', en: 'Details about this look...' },
+  updateCatalog: { uz: 'Katalogni yangilash', ru: 'Обновить каталог', en: 'Update Catalog' },
+  uploadImage: { uz: 'Rasm yuklash', ru: 'Загрузить фото', en: 'Upload Image' },
+  imageUrlPlaceholder: { uz: 'Yoki rasm URL manzilini kiriting...', ru: 'Или введите URL изображения...', en: 'Or enter image URL...' },
+  editCatalogItem: { uz: 'Katalog elementini tahrirlash', ru: 'Редактировать элемент каталога', en: 'Edit Catalog Item' },
+  editCatalogItemDesc: { uz: 'Libos ma\'lumotlarini yangilang.', ru: 'Обновите информацию об образе.', en: 'Update look information.' },
+  lookSavedSuccess: { uz: 'Muvaffaqiyatli saqlandi', ru: 'Успешно сохранено', en: 'Saved Successfully' },
+  createNewLook: { uz: 'Yangi libos yaratish', ru: 'Создать новый образ', en: 'Create New Look' },
+  createNewLookDesc: { uz: 'Katalogga yangi techwear to\'plamini qo\'shing.', ru: 'Добавьте новый комплект в каталог.', en: 'Add a new techwear set to the catalog.' },
+  publish: { uz: 'Nashr qilish', ru: 'Опубликовать', en: 'Publish' },
 
   // Footer
   allRightsReserved: { 
@@ -290,6 +304,7 @@ const dictionary = {
     ru: '© 2026 Auralook.uz. Все права защищены.',
     en: '© 2026 Auralook.uz. All rights reserved.'
   },
+  contact: { uz: 'Bog\'lanish', ru: 'Контакт', en: 'Contact' },
 };
 
 interface LanguageContextType {

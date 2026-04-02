@@ -50,8 +50,14 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
+  // Define static admin info to speed up authorization check
+  const adminEmails = ['jkhakimjonov8@gmail.com'];
+  const adminUids = ['THfzlOXNHLUYmwjVLArDlUhoRo63', '0JVf0DDPZtXyw6diJZsnfk3EasD2'];
+
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
+    // Skip doc check if already matched by UID/Email for better performance
+    if (adminEmails.includes(user.email || '') || adminUids.includes(user.uid)) return null;
     return doc(db, 'roles_admin', user.uid);
   }, [db, user]);
   
@@ -59,10 +65,6 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    // Explicit list of administrator identifiers
-    const adminEmails = ['jkhakimjonov8@gmail.com'];
-    const adminUids = ['0JVf0DDPZtXyw6diJZsnfk3EasD2', 'THfzlOXNHLUYmwjVLArDlUhoRo63'];
-    
     if (adminEmails.includes(user.email || '') || adminUids.includes(user.uid)) return true;
     return !!adminRole;
   }, [user, adminRole]);
@@ -75,7 +77,6 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
-    // Admin query for ALL orders - Aligned with firestore.rules
     return query(collection(db, 'orders'), orderBy('updatedAt', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
@@ -95,13 +96,13 @@ export default function AdminDashboard() {
         status: 'Confirmed',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Order Accepted" });
+      toast({ title: t(dictionary.accept) + " OK" });
     } catch (e) {
       toast({ variant: "destructive", title: "Action Failed" });
     }
   };
 
-  if (isUserLoading || (user && roleLoading && !isAdmin)) {
+  if (isUserLoading || (user && !isAdmin && roleLoading)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
@@ -135,7 +136,7 @@ export default function AdminDashboard() {
         <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer">
           <Link href="/admin/looks/new">
             <Plus className="w-4 h-4 mr-2" />
-            Yangi Libos
+            {t(dictionary.publish)}
           </Link>
         </Button>
       </div>
@@ -153,7 +154,7 @@ export default function AdminDashboard() {
         <TabsContent value="inventory" className="space-y-6">
           <div className="flex items-center gap-3">
             <LayoutGrid className="w-5 h-5 neon-text" />
-            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">Faol inventar</h2>
+            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.inventory)}</h2>
           </div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
             {looksLoading ? (
@@ -163,8 +164,8 @@ export default function AdminDashboard() {
                 <TableHeader className="bg-white/5">
                   <TableRow className="border-none">
                     <TableHead className="pl-8 text-[10px] uppercase tracking-widest">Visual</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Nomi</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">Narxi</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.itemName)}</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.amount)}</TableHead>
                     <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">{t(dictionary.action)}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -175,7 +176,7 @@ export default function AdminDashboard() {
                         <img src={look.imageUrl} className="w-12 h-16 object-cover rounded-lg border border-white/10" alt="" />
                       </TableCell>
                       <TableCell className="font-bold">{look.name}</TableCell>
-                      <TableCell className="neon-text font-black">{look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}</TableCell>
+                      <TableCell className="neon-text font-black">{look.currency === 'UZS' ? `${look.price} UZS` : `$${look.price}`}</TableCell>
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
                           <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon"><Edit3 className="w-4 h-4" /></Button></Link>
