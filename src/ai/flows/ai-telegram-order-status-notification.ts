@@ -19,6 +19,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered']).describe("The current status of the order."),
   productName: z.string().describe("The name of the product(s) in the order."),
   phoneNumber: z.string().optional().describe("Customer's phone number."),
+  telegramUsername: z.string().optional().describe("Customer's Telegram username."),
   imageUrl: z.string().optional().describe("URL of the outfit image."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
@@ -43,6 +44,7 @@ Buyurtma ma'lumotlari:
 - Mijoz ismi: {{{customerName}}}
 - Buyurtma ID: {{{orderId}}}
 - Telefon raqami: {{{phoneNumber}}}
+- Telegram username: {{{telegramUsername}}}
 - Buyurtma holati: {{{currentStatus}}}
 - Mahsulot: {{{productName}}}
 
@@ -71,6 +73,7 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
       fallbackMsg += `Mijoz: ${input.customerName}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
+      if (input.telegramUsername) fallbackMsg += `Telegram: ${input.telegramUsername}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
         fallbackMsg += `\n<b>O'lchamlar:</b>\n`;

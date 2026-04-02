@@ -22,7 +22,8 @@ import {
   MapPin,
   CheckCircle2,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Send
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -49,7 +50,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     height: '',
     weight: '',
     phone: '',
-    address: ''
+    address: '',
+    telegram: ''
   });
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
@@ -146,6 +148,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookImageUrl: look.imageUrl,
         size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
+        telegramUsername: orderDetails.telegram || 'Tanlanmagan',
         shippingAddress: orderDetails.address || 'Tashkent',
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
@@ -163,6 +166,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         currentStatus: 'New',
         productName: look.name,
         phoneNumber: orderData.phoneNumber,
+        telegramUsername: orderData.telegramUsername,
         imageUrl: look.imageUrl,
         language: 'uz',
         physique: {
@@ -374,6 +378,19 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   placeholder={t(dictionary.phonePlaceholder)}
                   value={orderDetails.phone}
                   onChange={(e) => setOrderDetails({...orderDetails, phone: e.target.value})}
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-white/40">
+                  <Send className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.telegramUsername)}</p>
+                </div>
+                <Input 
+                  placeholder={t(dictionary.telegramPlaceholder)}
+                  value={orderDetails.telegram}
+                  onChange={(e) => setOrderDetails({...orderDetails, telegram: e.target.value})}
                   className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
                 />
               </div>
