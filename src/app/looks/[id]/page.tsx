@@ -15,11 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { 
   Loader2, 
-  Heart,
   ChevronLeft,
   Ruler,
   Phone,
-  MapPin,
   CheckCircle2,
   ArrowRight,
   Sparkles,
@@ -49,7 +47,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     height: '',
     weight: '',
     phone: '',
-    address: '',
     telegram: ''
   });
 
@@ -72,7 +69,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   if (!look) return <div className="p-24 text-center text-white/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
-    // Only phone and telegram are required now
     if (!orderDetails.phone || !orderDetails.telegram) {
       toast({
         variant: "destructive",
@@ -86,7 +82,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     try {
       const orderData = {
         userId: 'guest',
-        customerName: orderDetails.telegram, // Use telegram as the name
+        customerName: orderDetails.telegram, 
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
@@ -97,7 +93,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
-        shippingAddress: orderDetails.address || 'Tashkent',
+        shippingAddress: 'Tashkent (Direct Contact)',
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
           weight: orderDetails.weight || 'Noma\'lum',
@@ -108,8 +104,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
+      // Trigger bot with visual look
       notifyAdminOfOrder({
-        customerName: orderData.customerName,
+        customerName: orderData.telegramUsername,
         orderId: docRef.id,
         currentStatus: 'New',
         productName: look.name,

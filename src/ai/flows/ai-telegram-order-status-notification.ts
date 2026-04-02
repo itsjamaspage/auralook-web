@@ -41,12 +41,11 @@ const prompt = ai.definePrompt({
 MUHIM: Quyidagi barcha ma'lumotlarni xabarda aniq ko'rsating.
 
 Buyurtma ma'lumotlari:
-- Mijoz ismi: {{{customerName}}}
+- Mijoz (Telegram): {{{customerName}}}
 - Buyurtma ID: {{{orderId}}}
 - Telefon raqami: {{{phoneNumber}}}
-- Telegram username: {{{telegramUsername}}}
 - Buyurtma holati: {{{currentStatus}}}
-- Mahsulot: {{{productName}}}
+- Tanlangan Libos: {{{productName}}}
 
 {{#if physique}}
 Mijoz o'lchamlari (Menejer maslahati uchun):
@@ -55,7 +54,7 @@ Mijoz o'lchamlari (Menejer maslahati uchun):
 - Tanlangan o'lcham: {{{physique.size}}}
 {{/if}}
 
-Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijoz bilan bog'lanishi va o'lchamni tasdiqlashi kerak.`,
+Xabar professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijoz bilan bog'lanishi va o'lchamni tasdiqlashi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
@@ -73,7 +72,6 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       let fallbackMsg = `<b>Yangi Buyurtma Keldi!</b>\n\n`;
       fallbackMsg += `Mijoz: ${input.customerName}\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
-      if (input.telegramUsername) fallbackMsg += `Telegram: ${input.telegramUsername}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
         fallbackMsg += `\n<b>O'lchamlar:</b>\n`;
@@ -99,7 +97,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Ensure image is a valid absolute URL for Telegram
+    // Ensure image is a valid absolute URL for Telegram. Base64 is not supported via simple URL param.
     const hasValidImage = input.imageUrl && (input.imageUrl.startsWith('https://') || input.imageUrl.startsWith('http://'));
     
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';

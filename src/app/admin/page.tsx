@@ -31,10 +31,8 @@ import {
 import { 
   Plus, 
   Loader2,
-  LayoutGrid,
   Trash2,
   Edit3,
-  ShoppingBag,
   ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
@@ -50,13 +48,11 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Load looks for inventory
-  const looksQuery = useMemoFirebase(() => {
-    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
-  }, [db]);
+  // Load inventory
+  const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  // Load all orders for dashboard - No filter required
+  // Load orders
   const ordersQuery = useMemoFirebase(() => {
     return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
   }, [db]);
