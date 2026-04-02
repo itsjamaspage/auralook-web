@@ -3,16 +3,23 @@
 This is a futuristic clothing store prototype built with Next.js, Firebase, and Genkit. It features an AI Smart Size Advisor and deep integration with Telegram.
 
 ## 🚀 LIVE DEPLOYMENT FIX (Action Required)
-Your build failed because the server is looking for "Secrets" that don't exist yet. To fix this, run these commands in your local terminal:
+Your build failed because the server is looking for "Secrets" that don't exist in your project yet. To fix this, run these commands in your local terminal **one by one**. 
+
+**Note:** These commands are interactive. Do not include your token in the command itself.
 
 1. **Set Bot Token**:
    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_BOT_TOKEN`
+   *(When prompted, paste your bot token)*
+
 2. **Set Admin ID**:
    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_ADMIN_CHAT_ID`
+   *(When prompted, paste your Telegram ID or Chat ID)*
+
 3. **Set AI Key**:
    `npx -y firebase-tools@latest apphosting:secrets:set GEMINI_API_KEY`
+   *(When prompted, paste your Gemini API Key)*
 
-*After running these, trigger a new deployment in the Firebase Console.*
+*After running these, trigger a new deployment in the Firebase Console. The build system will now be able to securely resolve these variables.*
 
 ---
 

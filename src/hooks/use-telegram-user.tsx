@@ -34,7 +34,7 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-const CACHE_KEY = 'auralook_user_protocol_v2';
+const CACHE_KEY = 'auralook_user_protocol_v2.4.1';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -118,9 +118,29 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           setUser(finalUser);
           localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
           setIsVerified(true);
+        } else {
+          // If the server is still being configured (secrets missing), fallback to demo for testing
+          console.error('Server handshake failed. Falling back to Demo Mode for testing.');
+          throw new Error('Handshake failed');
         }
       } catch (error) {
         console.error('Handshake failed:', error);
+        // During testing, keep demo mode available if server fails
+        if (process.env.NODE_ENV !== 'production') {
+           const mockUser: UserProfile = {
+            id: 'tg_demo_error',
+            telegramId: 0,
+            firstName: 'Demo Voyager (Sync Error)',
+            username: 'demo_user',
+            phone: '+998 90 000 00 00',
+            photoUrl: 'https://ui-avatars.com/api/?name=Error+Voyager&background=FF0000&color=fff&bold=true',
+            lastSeen: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          setUser(mockUser);
+          setIsVerified(true);
+        }
       } finally {
         setIsLoading(false);
       }
