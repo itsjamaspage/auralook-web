@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -40,16 +41,6 @@ type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CO
 
 const COUNTRIES = [
   { name: "O'zbekiston", code: 'UZB', dial: '+998', regex: /^998/ },
-  { name: "Rossiya", code: 'RUS', dial: '+7', regex: /^7/ },
-  { name: "Qozog'iston", code: 'KAZ', dial: '+7', regex: /^77/ },
-  { name: "Turkiya", code: 'TUR', dial: '+90', regex: /^90/ },
-  { name: "Qirg'iziston", code: 'KGZ', dial: '+996', regex: /^996/ },
-  { name: "Tojikiston", code: 'TJK', dial: '+992', regex: /^992/ },
-  { name: "BAA", code: 'UAE', dial: '+971', regex: /^971/ },
-  { name: "AQSH", code: 'USA', dial: '+1', regex: /^1/ },
-  { name: "Germaniya", code: 'GER', dial: '+49', regex: /^49/ },
-  { name: "Janubiy Koreya", code: 'KOR', dial: '+82', regex: /^82/ },
-  { name: "Boshqa", code: 'OTHER', dial: '+', regex: null },
 ];
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -82,6 +73,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const formatUzbekPhone = (val: string) => {
     const digits = val.replace(/\D/g, '');
     let d = digits;
+    // Strip 998 if it's already there to handle pasting or re-formatting
     if (d.startsWith('998')) d = d.substring(3);
     d = d.substring(0, 9);
     
@@ -95,32 +87,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    const digits = val.replace(/\D/g, '');
-    
-    const matchedCountry = COUNTRIES.find(c => c.regex && c.regex.test(digits));
-    if (matchedCountry && matchedCountry.code !== country) {
-      setCountry(matchedCountry.code);
-    }
-
-    if (country === 'UZB' || digits.startsWith('998')) {
-      const formatted = formatUzbekPhone(val);
-      setOrderDetails(prev => ({ ...prev, phone: formatted }));
-    } else {
-      let finalVal = val;
-      if (finalVal && !finalVal.startsWith('+')) {
-        finalVal = '+' + finalVal;
-      }
-      setOrderDetails(prev => ({ ...prev, phone: finalVal }));
-    }
+    const formatted = formatUzbekPhone(val);
+    setOrderDetails(prev => ({ ...prev, phone: formatted }));
   };
 
   useEffect(() => {
-    const selected = COUNTRIES.find(c => c.code === country);
-    if (selected && selected.dial !== '+') {
-      setOrderDetails(prev => ({ ...prev, phone: selected.dial + ' ' }));
-    } else if (selected && selected.dial === '+') {
-      setOrderDetails(prev => ({ ...prev, phone: '+' }));
-    }
+    // Prefill with +998 on mount/reset
+    setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
   }, [country]);
 
   if (lookLoading) {
@@ -135,11 +108,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   if (!look) return <div className="p-24 text-center text-white/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
-    if (!orderDetails.phone || !orderDetails.telegram) {
+    if (!orderDetails.phone || orderDetails.phone.length < 17 || !orderDetails.telegram) {
       toast({
         variant: "destructive",
         title: "Ma'lumotlar yetarli emas",
-        description: "Telefon raqami va Telegram username majburiy."
+        description: "Telefon raqami (to'liq) va Telegram username majburiy."
       });
       return;
     }
@@ -160,7 +133,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         size: selectedSize || 'M (Menejer maslahati)',
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
-        country: country,
+        country: 'UZB',
         shippingAddress: 'Tashkent (Direct Contact)',
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
@@ -397,7 +370,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
                 </div>
                 <Input 
-                  placeholder={country === 'UZB' ? '+998 90 123 45 67' : '+'}
+                  placeholder="+998 90 123 45 67"
                   value={orderDetails.phone}
                   onChange={handlePhoneChange}
                   className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
@@ -419,7 +392,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
               <Button 
                 onClick={handlePurchase}
-                disabled={isOrdering || orderDetails.phone.length < 5 || !orderDetails.telegram}
+                disabled={isOrdering || orderDetails.phone.length < 17 || !orderDetails.telegram}
                 className="w-full h-14 sm:h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em] mt-2"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
