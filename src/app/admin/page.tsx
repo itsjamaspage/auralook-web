@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   const adminUids = [
     'THfzlOXNHLUYmwjVLArDlUhoRo63', 
     '0JVf0DDPZtXyw6diJZsnfk3EasD2',
-    '89LWX6lCN9PMul1XcbQipnkAvwk2' // Added user's current session UID
+    '89LWX6lCN9PMul1XcbQipnkAvwk2'
   ];
 
   const isAdmin = useMemo(() => {
