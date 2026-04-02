@@ -184,7 +184,7 @@ const dictionary = {
 
   // Checkout Flow
   knowSizeQuestion: {
-    uz: "O'lchamingizni bilasizmi?",
+    uz: "O'lchamingizni bilsizsiz?",
     ru: "Вы знаете свой размер?",
     en: "Do you know your size?"
   },

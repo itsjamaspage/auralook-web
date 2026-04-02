@@ -66,7 +66,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const isLiked = !!likedLook;
 
   const formatPrice = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val);
+    return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
   if (lookLoading) {
@@ -154,12 +154,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           height: orderDetails.height || 'Noma\'lum',
           weight: orderDetails.weight || 'Noma\'lum',
         },
+        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification via server flow
+      // Trigger Telegram notification
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -172,7 +173,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         physique: {
           height: orderDetails.height || 'Noma\'lum',
           weight: orderDetails.weight || 'Noma\'lum',
-          size: selectedSize || 'Noma\'lum',
+          size: selectedSize || 'Tanlanmagan',
         }
       });
 
@@ -187,7 +188,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       toast({
         variant: "destructive",
         title: "Xatolik",
-        description: "Tizimda xatolik yuz berdi. Qaytadan urunib ko'ring.",
+        description: "Tizimda xatolik yuz berdi. Qaytadan urinib ko'ring.",
       });
     } finally {
       setIsOrdering(false);

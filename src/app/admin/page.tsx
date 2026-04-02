@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
@@ -51,9 +51,13 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Instant Admin Authorization for developer and owner
+  // Global Admin Access List
   const adminEmails = ['jkhakimjonov8@gmail.com'];
-  const adminUids = ['THfzlOXNHLUYmwjVLArDlUhoRo63', '0JVf0DDPZtXyw6diJZsnfk3EasD2'];
+  const adminUids = [
+    'THfzlOXNHLUYmwjVLArDlUhoRo63', 
+    '0JVf0DDPZtXyw6diJZsnfk3EasD2',
+    '89LWX6lCN9PMul1XcbQipnkAvwk2' // Added user's current session UID
+  ];
 
   const isAdmin = useMemo(() => {
     if (!user) return false;
@@ -104,19 +108,19 @@ export default function AdminDashboard() {
   };
 
   const formatCurrencyValue = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val);
+    return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
   if (isUserLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Validating Node Status...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Validating Credentials...</p>
       </div>
     );
   }
 
-  if (!isAdmin && user) {
+  if (!isAdmin) {
     return (
       <div className="container mx-auto px-6 py-24 text-center space-y-4">
         <h2 className="text-2xl font-black text-white uppercase italic">Access Denied</h2>
@@ -223,6 +227,7 @@ export default function AdminDashboard() {
                         <div className="flex flex-col">
                           <span className="font-bold text-white/90">{order.customerName}</span>
                           <span className="text-[10px] text-white/40 font-mono tracking-tighter">{order.phoneNumber}</span>
+                          {order.telegramUsername && <span className="text-[9px] neon-text italic">{order.telegramUsername}</span>}
                         </div>
                       </TableCell>
                       <TableCell>
