@@ -37,7 +37,10 @@ const prompt = ai.definePrompt({
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
   prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Buyurtma holati o'zgarganda Admin uchun o'zbek tilida xabar tayyorlang.
 
-MUHIM: Agar buyurtma holati "Cancelled" bo'lsa, xabarni "⚠️ BUYURTMA BEKOR QILINDI" deb boshlang va adminni ogohlantiring.
+MUHIM: 
+- Agar buyurtma holati "New" bo'lsa, xabarni "📦 YANGI BUYURTMA" deb boshlang.
+- Agar buyurtma holati "Cancelled" bo'lsa, xabarni "⚠️ BUYURTMA BEKOR QILINDI" deb boshlang va adminni ogohlantiring.
+
 Quyidagi ma'lumotlarni HTML formatida (Telegram uchun) aniq ko'rsating. 
 Telegram username-ni mana bu formatda link qiling: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
 
@@ -77,8 +80,18 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
     } catch (error) {
       console.error('Flow execution error:', error);
       const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
-      const statusIcon = input.currentStatus === 'Cancelled' ? '⚠️' : '📦';
-      let fallbackMsg = `<b>${statusIcon} Buyurtma Yangilandi!</b>\n\n`;
+      
+      let statusIcon = '📦';
+      let statusTitle = 'Buyurtma Yangilandi!';
+      
+      if (input.currentStatus === 'New') {
+        statusTitle = 'YANGI BUYURTMA';
+      } else if (input.currentStatus === 'Cancelled') {
+        statusIcon = '⚠️';
+        statusTitle = 'BUYURTMA BEKOR QILINDI';
+      }
+
+      let fallbackMsg = `<b>${statusIcon} ${statusTitle}</b>\n\n`;
       fallbackMsg += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
