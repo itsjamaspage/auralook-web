@@ -1,7 +1,6 @@
-
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'uz' | 'ru' | 'en';
 
@@ -27,8 +26,13 @@ const dictionary = {
     ru: 'Избранное',
     en: 'Favorites'
   },
+  cart: {
+    uz: 'Savatcha',
+    ru: 'Корзина',
+    en: 'Cart'
+  },
   razmeringiz: {
-    uz: 'Razmeringiz',
+    uz: 'O\'lchamingiz',
     ru: 'Ваш размер',
     en: 'Your Size'
   },
@@ -90,7 +94,7 @@ const dictionary = {
     en: 'Password'
   },
   telegramUsername: { 
-    uz: 'Telegram foydalanuvchi nomi',
+    uz: 'Telegram username',
     ru: 'Имя пользователя Telegram',
     en: 'Telegram Username'
   },
@@ -105,7 +109,7 @@ const dictionary = {
     en: '••••••••'
   },
   telegramPlaceholder: { 
-    uz: '@foydalanuvchi',
+    uz: '@username',
     ru: '@пользователь',
     en: '@username'
   },
@@ -255,155 +259,11 @@ const dictionary = {
   availableNow: { uz: 'Mavjud', ru: 'В наличии', en: 'Available Now' },
   locationTashkent: { uz: 'Toshkent, Mirzo Ulug\'bek', ru: 'Ташкент, Мирзо-Улугбек', en: 'Tashkent, Mirzo Ulugbek' },
 
-  // Cart & Orders
-  cart: {
-    uz: 'Savatcha',
-    ru: 'Корзина',
-    en: 'Cart'
-  },
-  orderPending: {
-    uz: 'Tasdiqlanish kutilmoqda',
-    ru: 'Ожидает подтверждения',
-    en: 'Pending'
-  },
-  orderAccepted: {
-    uz: 'Tasdiqlandi',
-    ru: 'Принято',
-    en: 'Accepted'
-  },
-  orderRef: { 
-    uz: 'Buyurtma kodi', 
-    ru: 'Код заказа', 
-    en: 'Order Ref' 
-  },
-  transactionDate: { 
-    uz: 'Tranzaksiya sanasi', 
-    ru: 'Дата транзакции', 
-    en: 'Transaction Date' 
-  },
-  total: { 
-    uz: 'Jami', 
-    ru: 'Итого', 
-    en: 'Total' 
-  },
-  unknown: { 
-    uz: 'Noma\'lum', 
-    ru: 'Неизвестно', 
-    en: 'Unknown' 
-  },
-
-  // Toast Notifications
-  orderProcessedTitle: {
-    uz: 'Buyurtma qabul qilindi',
-    ru: 'Заказ обработан',
-    en: 'Order Processed'
-  },
-  orderProcessedDesc: {
-    uz: 'Tez orada menejerimiz siz bilan Telegram orqali bog\'lanadi.',
-    ru: 'Наш менеджер скоро свяжется с вами в Telegram.',
-    en: 'Our manager will contact you on Telegram shortly.'
-  },
-  orderFailedTitle: {
-    uz: 'Xatolik yuz berdi',
-    ru: 'Ошибка заказа',
-    en: 'Order Failed'
-  },
-  orderFailedDesc: {
-    uz: 'Tizimda xatolik yuz berdi. Iltimos qaytadan urunib ko\'ring.',
-    ru: 'Системная ошибка. Пожалуйста, попробуйте еще раз.',
-    en: 'System error. Please retry.'
-  },
-
   // Admin Dashboard
   adminDashboard: {
     uz: 'Boshqaruv Paneli',
     ru: 'Панель управления',
     en: 'Admin Dashboard'
-  },
-  newLook: {
-    uz: 'Yangi Libos',
-    ru: 'Новый образ',
-    en: 'New Look'
-  },
-  activeInventory: {
-    uz: 'Faol inventar',
-    ru: 'Активный инвентарь',
-    en: 'Active Inventory'
-  },
-  createNewLook: {
-    uz: "Yangi Libos Yaratish",
-    ru: "Создать новый образ",
-    en: "Create New Look"
-  },
-  createNewLookDesc: {
-    uz: "Katalog uchun yangi texnik ko'rinish qo'shing.",
-    ru: "Добавьте новый технический образ в каталог.",
-    en: "Add a new technical specification to the catalog."
-  },
-  editCatalogItem: {
-    uz: "Katalog elementini tahrirlash",
-    ru: "Редактировать элемент каталога",
-    en: "Edit Catalog Item"
-  },
-  editCatalogItemDesc: {
-    uz: "Texnik spetsifikatsiyalar va vizual aktivlarni o'zgartiring.",
-    ru: "Измените технические характеристики и визуальные ресурсы.",
-    en: "Modify technical specifications and visual assets."
-  },
-  uploadImage: {
-    uz: "Rasm Yuklash",
-    ru: "Загрузить изображение",
-    en: "Upload Image"
-  },
-  imageUrlPlaceholder: {
-    uz: "Yoki rasm URL manzilini kiriting",
-    ru: "Или введите URL изображения",
-    en: "Or enter Image URL"
-  },
-  itemName: {
-    uz: "Element nomi",
-    ru: "Название элемента",
-    en: "Item Name"
-  },
-  lookPrice: {
-    uz: "Narxi",
-    ru: "Цена",
-    en: "Price"
-  },
-  discountLabel: {
-    uz: "Chegirma (%)",
-    ru: "Скидка (%)",
-    en: "Discount (%)"
-  },
-  lookDescription: {
-    uz: "Tavsif",
-    ru: "Описание",
-    en: "Description"
-  },
-  lookDescriptionPlaceholder: {
-    uz: "Estetikani tasvirlab bering...",
-    ru: "Опишите эстетику...",
-    en: "Describe the aesthetic..."
-  },
-  cancel: {
-    uz: "Bekor qilish",
-    ru: "Отмена",
-    en: "Cancel"
-  },
-  publish: {
-    uz: "Qo'shish",
-    ru: "Nashr qilish",
-    en: "Publish"
-  },
-  updateCatalog: {
-    uz: "Yangilash",
-    ru: "Обновить каталог",
-    en: "Update Catalog"
-  },
-  lookSavedSuccess: {
-    uz: "Libos muvaffaqiyatli saqlandi",
-    ru: "Образ успешно сохранен",
-    en: "Look saved successfully"
   },
   inventory: { uz: 'Inventar', ru: 'Инвентарь', en: 'Inventory' },
   orders: { uz: 'Buyurtmalar', ru: 'Заказы', en: 'Orders' },
@@ -413,20 +273,16 @@ const dictionary = {
   status: { uz: 'Holat', ru: 'Статус', en: 'Status' },
   action: { uz: 'Amal', ru: 'Действие', en: 'Action' },
   accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
+  delete: { uz: "O'chirish", ru: 'Удалить', en: 'Delete' },
+  cancel: { uz: "Bekor qilish", ru: "Отмена", en: "Cancel" },
   confirmDeleteTitle: { uz: "O'chirishni tasdiqlang", ru: 'Подтвердите удаление', en: 'Confirm Deletion' },
   confirmDeleteDesc: { uz: "Ushbu elementni katalogni olib tashlamoqchimisiz?", ru: 'Вы хотите удалить этот элемент из каталога?', en: 'Are you sure you want to remove this item from the catalog?' },
-  delete: { uz: "O'chirish", ru: 'Удалить', en: 'Delete' },
 
   // Footer
   allRightsReserved: { 
     uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.',
     ru: '© 2026 Auralook.uz. Все права защищены.',
     en: '© 2026 Auralook.uz. All rights reserved.'
-  },
-  contact: { 
-    uz: 'Aloqa',
-    ru: 'Контакт',
-    en: 'Contact'
   },
 };
 

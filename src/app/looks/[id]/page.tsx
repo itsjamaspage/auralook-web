@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState } from 'react';
@@ -22,7 +21,6 @@ import {
   MapPin,
   CheckCircle2,
   ArrowRight,
-  Info,
   Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -152,7 +150,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification with image
+      // Trigger Telegram notification
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -169,8 +167,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       });
 
       toast({
-        title: t(dictionary.orderProcessedTitle),
-        description: t(dictionary.orderProcessedDesc),
+        title: "Buyurtma qabul qilindi",
+        description: "Tez orada menejerimiz siz bilan bog'lanadi.",
       });
       setShowCheckout(false);
       router.push('/orders');
@@ -178,8 +176,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       console.error(e);
       toast({
         variant: "destructive",
-        title: t(dictionary.orderFailedTitle),
-        description: t(dictionary.orderFailedDesc),
+        title: "Xatolik",
+        description: "Tizimda xatolik yuz berdi. Qaytadan urunib ko'ring.",
       });
     } finally {
       setIsOrdering(false);

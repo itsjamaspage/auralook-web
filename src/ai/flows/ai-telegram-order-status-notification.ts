@@ -1,7 +1,6 @@
-
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed, real-time order status updates for Telegram.
+ * @fileOverview This file defines a Genkit flow for generating and SENDING AI-composed order status updates for Telegram.
  */
 
 import {ai} from '@/ai/genkit';

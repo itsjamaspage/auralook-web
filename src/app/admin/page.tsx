@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    // Explicit list of administrator identifiers
+    // Explicit list of administrator identifiers based on your reported UIDs and email
     const adminEmails = ['jkhakimjonov8@gmail.com'];
     const adminUids = ['0JVf0DDPZtXyw6diJZsnfk3EasD2', 'THfzlOXNHLUYmwjVLArDlUhoRo63'];
     
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
-    // Admins query for ALL orders without userId filter
+    // Admin query for ALL orders
     return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
@@ -95,9 +95,9 @@ export default function AdminDashboard() {
         status: 'Confirmed',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: t(dictionary.orderAccepted) });
+      toast({ title: "Order Accepted" });
     } catch (e) {
-      toast({ variant: "destructive", title: t(dictionary.orderFailedTitle) });
+      toast({ variant: "destructive", title: "Action Failed" });
     }
   };
 
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer">
           <Link href="/admin/looks/new">
             <Plus className="w-4 h-4 mr-2" />
-            {t(dictionary.newLook)}
+            Yangi Libos
           </Link>
         </Button>
       </div>
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
         <TabsContent value="inventory" className="space-y-6">
           <div className="flex items-center gap-3">
             <LayoutGrid className="w-5 h-5 neon-text" />
-            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.activeInventory)}</h2>
+            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">Faol inventar</h2>
           </div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10">
             {looksLoading ? (
@@ -163,8 +163,8 @@ export default function AdminDashboard() {
                 <TableHeader className="bg-white/5">
                   <TableRow className="border-none">
                     <TableHead className="pl-8 text-[10px] uppercase tracking-widest">Visual</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.itemName)}</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest">{t(dictionary.lookPrice)}</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Nomi</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-widest">Narxi</TableHead>
                     <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest">{t(dictionary.action)}</TableHead>
                   </TableRow>
                 </TableHeader>
