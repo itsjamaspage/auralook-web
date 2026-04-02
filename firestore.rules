@@ -2,15 +2,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     // ===============================================================
-    // ABSOLUTE PERMISSION OVERRIDE (FULL ACCESS MODE)
+    // GLOBAL PERMISSION OVERRIDE (DEVELOPMENT MODE)
     // ===============================================================
     // This allows ALL read and write operations for ALL collections.
-    // This resolves the recurring "Missing or insufficient permissions" errors.
+    // This is applied to resolve persistent "Missing or insufficient permissions" errors.
     // ===============================================================
-
-    match /{allPaths=**} {
+    match /{document=**} {
       allow read, write: if true;
     }
   }

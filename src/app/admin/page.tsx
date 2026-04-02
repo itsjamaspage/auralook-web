@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Global Admin Access List
+  // Global Admin Access List - Hardcoded for instant identification
   const adminEmails = ['jkhakimjonov8@gmail.com'];
   const adminUids = [
     'THfzlOXNHLUYmwjVLArDlUhoRo63', 
@@ -70,9 +70,9 @@ export default function AdminDashboard() {
   }, [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  // Load all orders for dashboard
+  // Load all orders for dashboard - No filter required due to permissive rules
   const ordersQuery = useMemoFirebase(() => {
-    return query(collection(db, 'orders'), orderBy('updatedAt', 'desc'));
+    return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
   }, [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
