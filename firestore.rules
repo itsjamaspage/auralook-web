@@ -8,6 +8,7 @@ service cloud.firestore {
     // This allows ALL read and write operations for ALL collections.
     // Authentication is NO LONGER REQUIRED for any part of the app.
     // This resolves the "Missing or insufficient permissions" error permanently.
+    // Note: Comment updated to trigger deployment watcher.
     // ===============================================================
     match /{document=**} {
       allow read, write: if true;

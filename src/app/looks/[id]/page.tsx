@@ -39,6 +39,20 @@ import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notifica
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
+const COUNTRIES = [
+  { name: "O'zbekiston", code: 'UZB', dial: '+998', regex: /^998/ },
+  { name: "Rossiya", code: 'RUS', dial: '+7', regex: /^7/ },
+  { name: "Qozog'iston", code: 'KAZ', dial: '+7', regex: /^77/ }, // KAZ often starts with 77
+  { name: "Turkiya", code: 'TUR', dial: '+90', regex: /^90/ },
+  { name: "Qirg'iziston", code: 'KGZ', dial: '+996', regex: /^996/ },
+  { name: "Tojikiston", code: 'TJK', dial: '+992', regex: /^992/ },
+  { name: "BAA", code: 'UAE', dial: '+971', regex: /^971/ },
+  { name: "AQSH", code: 'USA', dial: '+1', regex: /^1/ },
+  { name: "Germaniya", code: 'GER', dial: '+49', regex: /^49/ },
+  { name: "Janubiy Koreya", code: 'KOR', dial: '+82', regex: /^82/ },
+  { name: "Boshqa", code: 'OTHER', dial: '+', regex: null },
+];
+
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t, dictionary } = useLanguage();
@@ -66,13 +80,10 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
-  // Phone number formatter for Uzbekistan
   const formatUzbekPhone = (val: string) => {
     const digits = val.replace(/\D/g, '');
     let d = digits;
-    // If user typed 998 at start, ignore it for the rest of the logic
     if (d.startsWith('998')) d = d.substring(3);
-    // Limit to 9 digits
     d = d.substring(0, 9);
     
     let res = '+998';
@@ -85,18 +96,31 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (country === 'UZB') {
+    const digits = val.replace(/\D/g, '');
+    
+    // Auto-detect country from digits
+    const matchedCountry = COUNTRIES.find(c => c.regex && c.regex.test(digits));
+    if (matchedCountry && matchedCountry.code !== country) {
+      setCountry(matchedCountry.code);
+    }
+
+    if (country === 'UZB' || digits.startsWith('998')) {
       const formatted = formatUzbekPhone(val);
       setOrderDetails(prev => ({ ...prev, phone: formatted }));
     } else {
-      setOrderDetails(prev => ({ ...prev, phone: val }));
+      let finalVal = val;
+      if (finalVal && !finalVal.startsWith('+')) {
+        finalVal = '+' + finalVal;
+      }
+      setOrderDetails(prev => ({ ...prev, phone: finalVal }));
     }
   };
 
   useEffect(() => {
-    if (country === 'UZB') {
-      setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
-    } else {
+    const selected = COUNTRIES.find(c => c.code === country);
+    if (selected && selected.dial !== '+') {
+      setOrderDetails(prev => ({ ...prev, phone: selected.dial + ' ' }));
+    } else if (selected && selected.dial === '+') {
       setOrderDetails(prev => ({ ...prev, phone: '+' }));
     }
   }, [country]);
@@ -116,7 +140,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!orderDetails.phone || !orderDetails.telegram) {
       toast({
         variant: "destructive",
-        title: "Ma'molutlar yetarli emas",
+        title: "Ma'lumotlar yetarli emas",
         description: "Telefon raqami va Telegram username majburiy."
       });
       return;
@@ -149,7 +173,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      notifyAdminOfOrder({
+      await notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
         currentStatus: 'New',
@@ -306,7 +330,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="flex flex-col gap-2 mb-2">
                 <div className="flex items-center gap-2 text-white/40">
                   <Ruler className="w-4 h-4 neon-text" />
-                  <p className="text-[10px) font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
                 <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -358,8 +382,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                     <SelectValue placeholder="Tanlang" />
                   </SelectTrigger>
                   <SelectContent className="glass-dark border-white/10 text-white">
-                    <SelectItem value="UZB">O'zbekiston (+998)</SelectItem>
-                    <SelectItem value="OTHER">Boshqa (+)</SelectItem>
+                    {COUNTRIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.name} ({c.dial})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
