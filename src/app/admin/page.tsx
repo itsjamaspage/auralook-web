@@ -4,14 +4,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,18 +21,33 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
   Plus, 
   Loader2,
   Trash2,
   Edit3,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Clock,
+  CheckCircle2,
+  Package,
+  Send,
+  Phone,
+  Ruler
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
+import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -95,6 +102,14 @@ export default function AdminDashboard() {
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'New': return <Clock className="w-4 h-4 text-amber-500" />;
+      case 'Confirmed': return <CheckCircle2 className="w-4 h-4 text-primary" />;
+      default: return <Package className="w-4 h-4 text-white/40" />;
+    }
+  };
+
   const formatCurrencyValue = (val: number) => {
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
@@ -117,13 +132,13 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      <Tabs defaultValue="inventory" className="space-y-6">
+      <Tabs defaultValue="orders" className="space-y-6">
         <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-12 flex w-fit">
-          <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-all">
-            {t(dictionary.inventory)}
-          </TabsTrigger>
           <TabsTrigger value="orders" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-all">
             {t(dictionary.orders)}
+          </TabsTrigger>
+          <TabsTrigger value="inventory" className="rounded-xl px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-all">
+            {t(dictionary.inventory)}
           </TabsTrigger>
         </TabsList>
 
@@ -166,78 +181,101 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
-          <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10 bg-white/[0.01]">
-            {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
-              <Table>
-                <TableHeader className="bg-white/5">
-                  <TableRow className="border-none">
-                    <TableHead className="pl-8 text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.customer)}</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest text-white/40">Body Stats</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.outfit)}</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.amount)}</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.status)}</TableHead>
-                    <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.action)}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders?.map((order) => (
-                    <TableRow key={order.id} className="border-white/5 hover:bg-white/[0.03] transition-colors">
-                      <TableCell className="pl-8">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-white/90">{order.telegramUsername || 'Noma\'lum'}</span>
-                          <span className="text-[10px] text-white/40 font-mono tracking-tighter">{order.phoneNumber}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-[10px] font-mono text-white/60">
-                          {order.measurements?.height || '?'}/{order.measurements?.weight || '?'}/{order.size || '?'}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-white/80">{order.lookName || 'Outfit'}</span>
-                          {order.lookId && <Link href={`/looks/${order.lookId}`} className="text-primary hover:neon-text"><ExternalLink className="w-3 h-3" /></Link>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-black text-primary italic">
-                        {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount)} UZS` : `$${formatCurrencyValue(order.totalAmount)}`}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${order.status === 'New' ? 'text-amber-500 animate-pulse' : 'text-primary'}`}>
+          {ordersLoading ? (
+            <div className="p-32 flex justify-center"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+              {orders?.map((order) => (
+                <Card key={order.id} className="glass-dark border-white/5 p-6 rounded-[2.5rem] space-y-6 relative overflow-hidden group hover:border-white/20 transition-all">
+                  <div className="flex justify-between items-start relative z-10">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Order Ref: {order.id.substring(0, 8)}</p>
+                      <h3 className="text-xl font-black text-white italic tracking-tight leading-none uppercase">
+                        {order.lookName || 'Look Purchase'}
+                      </h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Size: {order.size}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+                        {getStatusIcon(order.status)}
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
                           {getStatusLabel(order.status)}
                         </span>
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <div className="flex items-center justify-end gap-3">
-                          <div className="relative inline-block">
-                            <select 
-                              className="appearance-none bg-white/5 border border-white/10 text-[10px] font-black rounded-lg pl-3 pr-8 py-2 outline-none focus:neon-border text-white/80 cursor-pointer uppercase tracking-widest"
-                              value={order.status}
-                              onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                            >
-                              <option value="New" className="bg-black text-white">{t(dictionary.orderPending)}</option>
-                              <option value="Confirmed" className="bg-black text-white">{t(dictionary.orderAccepted)}</option>
-                              <option value="Shipped" className="bg-black text-white">{t(dictionary.orderShipped)}</option>
-                              <option value="Delivered" className="bg-black text-white">{t(dictionary.orderDelivered)}</option>
-                            </select>
-                            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/40 pointer-events-none" />
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => setItemToDelete({ id: order.id, type: 'order' })} 
-                            className="hover:text-destructive h-8 w-8 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </Card>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => setItemToDelete({ id: order.id, type: 'order' })} 
+                        className="hover:text-destructive h-10 w-10 bg-white/5 rounded-xl border border-white/5"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 py-6 border-y border-white/5 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                        <Send className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Telegram</span>
+                        <p className="text-sm text-white font-bold italic">{order.telegramUsername || 'Noma\'lum'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                        <Phone className="w-4 h-4 text-white/40" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Phone</span>
+                        <p className="text-sm text-white/60 font-mono">{order.phoneNumber}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                        <Ruler className="w-4 h-4 text-white/40" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Body Stats</span>
+                        <p className="text-sm text-white/60 font-mono">{order.measurements?.height}cm / {order.measurements?.weight}kg</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2 relative z-10">
+                    <div className="text-left">
+                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Total</p>
+                      <p className="text-2xl font-black neon-text italic tracking-tighter leading-none">
+                        {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount)} UZS` : `$${formatCurrencyValue(order.totalAmount)}`}
+                      </p>
+                    </div>
+                    
+                    <div className="relative">
+                      <select 
+                        className="appearance-none bg-primary text-black text-[10px] font-black rounded-xl pl-4 pr-10 h-12 outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer uppercase tracking-widest shadow-[0_0_20px_rgba(var(--sync-color),0.3)]"
+                        value={order.status}
+                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                      >
+                        <option value="New">{t(dictionary.orderPending)}</option>
+                        <option value="Confirmed">{t(dictionary.orderAccepted)}</option>
+                        <option value="Shipped">{t(dictionary.orderShipped)}</option>
+                        <option value="Delivered">{t(dictionary.orderDelivered)}</option>
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black pointer-events-none stroke-[3px]" />
+                    </div>
+                  </div>
+                </Card>
+              ))}
+
+              {(!orders || orders.length === 0) && (
+                <div className="col-span-full py-32 text-center">
+                  <Package className="w-16 h-16 text-white/10 mx-auto mb-4" />
+                  <p className="text-white/40 uppercase font-black italic tracking-[0.2em]">No Orders in Repository</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

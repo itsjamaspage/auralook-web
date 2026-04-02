@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage, type Language } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Compass, Globe } from 'lucide-react';
+import { LayoutDashboard, Compass } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +34,9 @@ export function Navbar() {
     const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
     return (
       <Link href={href} className={cn(
-        "transition-all uppercase tracking-[0.2em] font-black text-[10px] lg:text-xs flex items-center gap-2 px-4 py-2 rounded-xl border-2",
+        "transition-all uppercase tracking-[0.2em] font-black text-[10px] lg:text-xs flex items-center gap-2 px-6 py-2.5 rounded-xl border-2",
         isActive 
-          ? "neon-text neon-border bg-white/5 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" 
+          ? "neon-text neon-border bg-white/5 shadow-[0_0_20px_rgba(var(--sync-color),0.3)]" 
           : "text-white/40 hover:text-white border-transparent hover:bg-white/5"
       )}>
         {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -49,7 +49,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 border border-white/10 shadow-2xl">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass-dark rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 border border-white/10 shadow-2xl relative">
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
@@ -89,9 +89,12 @@ export function Navbar() {
           <Link href="/admin" className="lg:hidden">
             <Button 
               variant="ghost" 
-              className="rounded-full border border-white/20 h-10 w-10 p-0"
+              className={cn(
+                "rounded-full border h-10 w-10 p-0 transition-all",
+                pathname.startsWith('/admin') ? "neon-border neon-text bg-white/5" : "border-white/20"
+              )}
             >
-              <LayoutDashboard className="w-4 h-4 text-white" />
+              <LayoutDashboard className="w-4 h-4" />
             </Button>
           </Link>
         </div>
