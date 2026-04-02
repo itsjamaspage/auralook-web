@@ -26,7 +26,7 @@ import {
   Send
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
@@ -37,7 +37,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { id } = use(params);
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
-  const { user } = useUser();
   const db = useFirestore();
   const router = useRouter();
   
@@ -51,19 +50,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     weight: '',
     phone: '',
     address: '',
-    telegram: ''
+    telegram: '',
+    name: ''
   });
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
-
-  const likedLookRef = useMemoFirebase(() => {
-    if (!user) return null;
-    return doc(db, 'users', user.uid, 'liked_looks', id);
-  }, [db, user, id]);
-  const { data: likedLook } = useDoc(likedLookRef);
-
-  const isLiked = !!likedLook;
 
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
@@ -80,56 +72,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   if (!look) return <div className="p-24 text-center text-white/40 uppercase font-black italic">Look not found</div>;
 
-  const handleToggleLike = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!user) {
-      toast({
-        title: t(dictionary.welcomeBack),
-        description: t(dictionary.accessOrders),
-        variant: "destructive"
-      });
-      router.push('/login');
-      return;
-    }
-
-    if (!likedLookRef) return;
-
-    try {
-      if (isLiked) {
-        await deleteDoc(likedLookRef);
-      } else {
-        await setDoc(likedLookRef, {
-          lookId: id,
-          createdAt: new Date().toISOString()
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const startCheckout = () => {
-    if (!user) {
-      toast({
-        title: t(dictionary.welcomeBack),
-        description: t(dictionary.accessOrders),
-        variant: "destructive"
-      });
-      router.push('/login');
-      return;
-    }
-    setShowCheckout(true);
-    setStep('ASK_KNOWLEDGE');
-  };
-
   const handlePurchase = async () => {
-    if (!orderDetails.phone) {
+    if (!orderDetails.phone || !orderDetails.name) {
       toast({
         variant: "destructive",
-        title: t(dictionary.phoneNumber),
-        description: t(dictionary.phonePlaceholder)
+        title: "Ma'lumotlar yetarli emas",
+        description: "Ism va telefon raqami majburiy."
       });
       return;
     }
@@ -137,8 +85,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     setIsOrdering(true);
     try {
       const orderData = {
-        userId: user!.uid,
-        customerName: user!.displayName || user!.email?.split('@')[0] || 'Customer',
+        userId: 'guest',
+        customerName: orderDetails.name,
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
@@ -220,13 +168,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
-              
-              <button 
-                onClick={handleToggleLike}
-                className={`absolute bottom-6 right-6 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all shadow-2xl z-20 hover:scale-110 ${isLiked ? 'neon-border neon-text bg-primary/10' : 'border-white/20 text-white/60 hover:border-white/40'}`}
-              >
-                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-              </button>
             </div>
           </div>
 
@@ -251,15 +192,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
               <div className="space-y-4 pt-4">
                 <Button 
-                  onClick={startCheckout}
+                  onClick={() => setShowCheckout(true)}
                   className="w-full h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {t(dictionary.executePurchase)}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] text-center">
-                  {t(dictionary.secureCheckout)}
-                </p>
               </div>
             </div>
           </div>
@@ -370,6 +308,16 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           {step === 'CONTACT' && (
             <div className="space-y-6 py-4">
               <div className="space-y-4">
+                <Label className="text-[10px] uppercase font-black text-white/40">To'liq ismingiz</Label>
+                <Input 
+                  placeholder="Ismingiz..."
+                  value={orderDetails.name}
+                  onChange={(e) => setOrderDetails({...orderDetails, name: e.target.value})}
+                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
+                />
+              </div>
+
+              <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white/40">
                   <Phone className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
@@ -395,22 +343,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/40">
-                  <MapPin className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.shippingAddress)} (Ixtiyoriy)</p>
-                </div>
-                <Input 
-                  placeholder={t(dictionary.addressPlaceholder)}
-                  value={orderDetails.address}
-                  onChange={(e) => setOrderDetails({...orderDetails, address: e.target.value})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
-                />
-              </div>
-
               <Button 
                 onClick={handlePurchase}
-                disabled={isOrdering || !orderDetails.phone}
+                disabled={isOrdering || !orderDetails.phone || !orderDetails.name}
                 className="w-full h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em]"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}

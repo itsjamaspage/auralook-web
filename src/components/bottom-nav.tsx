@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -5,14 +6,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Compass, Heart, ShoppingBag, User, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { user } = useUser();
-  const db = useFirestore();
   const { t, dictionary } = useLanguage();
   const [mounted, setMounted] = useState(false);
 
@@ -20,21 +17,11 @@ export function BottomNav() {
     setMounted(true);
   }, []);
 
-  const adminRoleRef = useMemoFirebase(() => {
-    if (!user) return null;
-    return doc(db, 'roles_admin', user.uid);
-  }, [db, user]);
-  
-  const { data: adminRole } = useDoc(adminRoleRef);
-  
-  // Use a stable check for admin to avoid hydration mismatch
-  const isAdmin = !!adminRole || user?.email === 'jkhakimjonov8@gmail.com';
-
   const navItems = [
-    { label: "Qidirish", icon: Compass, href: '/looks' },
+    { label: "Katalog", icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
     { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
-    { label: t(dictionary.profile), icon: isAdmin ? LayoutDashboard : User, href: isAdmin ? '/admin' : '/profile' },
+    { label: t(dictionary.adminPanel), icon: LayoutDashboard, href: '/admin' },
   ];
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
@@ -66,7 +53,6 @@ export function BottomNav() {
     );
   };
 
-  // Only render on the client to ensure hydration matches
   if (!mounted) return null;
 
   return (

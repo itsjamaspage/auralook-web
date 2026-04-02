@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -39,30 +39,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function AdminDashboard() {
   const db = useFirestore();
-  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
-
-  // Global Admin Access List - Hardcoded for instant identification
-  const adminEmails = ['jkhakimjonov8@gmail.com'];
-  const adminUids = [
-    'THfzlOXNHLUYmwjVLArDlUhoRo63', 
-    '0JVf0DDPZtXyw6diJZsnfk3EasD2',
-    '89LWX6lCN9PMul1XcbQipnkAvwk2'
-  ];
-
-  const isAdmin = useMemo(() => {
-    if (!user) return false;
-    return adminEmails.includes(user.email || '') || adminUids.includes(user.uid);
-  }, [user]);
 
   // Load looks for inventory
   const looksQuery = useMemoFirebase(() => {
@@ -70,7 +56,7 @@ export default function AdminDashboard() {
   }, [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  // Load all orders for dashboard - No filter required due to permissive rules
+  // Load all orders for dashboard - No filter required
   const ordersQuery = useMemoFirebase(() => {
     return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
   }, [db]);
@@ -111,27 +97,6 @@ export default function AdminDashboard() {
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
-  if (isUserLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Validating Credentials...</p>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="container mx-auto px-6 py-24 text-center space-y-4">
-        <h2 className="text-2xl font-black text-white uppercase italic">Access Denied</h2>
-        <p className="text-white/40">Sizda administrator ruxsati yo'q.</p>
-        <Link href="/profile">
-          <Button variant="outline" className="mt-4 rounded-xl border-white/10">Profilga qaytish</Button>
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-6 py-10 space-y-10 max-w-6xl pb-32">
       <div className="flex items-center justify-between border-b border-white/10 pb-6">
@@ -161,10 +126,6 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="inventory" className="space-y-6">
-          <div className="flex items-center gap-3">
-            <LayoutGrid className="w-5 h-5 neon-text" />
-            <h2 className="text-lg font-bold tracking-tight text-white uppercase italic">{t(dictionary.inventory)}</h2>
-          </div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden shadow-2xl border-white/10 bg-white/[0.01]">
             {looksLoading ? (
               <div className="p-32 flex flex-col items-center gap-6"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
@@ -203,10 +164,6 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
-          <div className="flex items-center gap-3">
-            <ShoppingBag className="w-5 h-5 neon-text" />
-            <h2 className="text-lg font-bold text-white uppercase italic">{t(dictionary.orders)}</h2>
-          </div>
           <Card className="glass-dark rounded-[2rem] overflow-hidden border-white/10 bg-white/[0.01]">
             {ordersLoading ? <div className="p-32 flex justify-center"><Loader2 className="animate-spin" /></div> : (
               <Table>
@@ -250,24 +207,16 @@ export default function AdminDashboard() {
                         </span>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        {order.status === 'New' ? (
-                          <Button 
-                            onClick={() => handleUpdateOrderStatus(order.id, 'Confirmed')} 
-                            className="h-8 text-[10px] neon-bg text-black font-black uppercase px-4 rounded-lg"
-                          >
-                            {t(dictionary.accept)}
-                          </Button>
-                        ) : (
-                          <select 
-                            className="bg-white/5 border border-white/10 text-[10px] font-bold rounded-lg px-2 py-1 outline-none focus:neon-border text-white/60"
-                            value={order.status}
-                            onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                          >
-                            <option value="Confirmed">{t(dictionary.orderAccepted)}</option>
-                            <option value="Shipped">{t(dictionary.orderShipped)}</option>
-                            <option value="Delivered">{t(dictionary.orderDelivered)}</option>
-                          </select>
-                        )}
+                        <select 
+                          className="bg-white/5 border border-white/10 text-[10px] font-bold rounded-lg px-2 py-1 outline-none focus:neon-border text-white/60"
+                          value={order.status}
+                          onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                        >
+                          <option value="New">{t(dictionary.orderPending)}</option>
+                          <option value="Confirmed">{t(dictionary.orderAccepted)}</option>
+                          <option value="Shipped">{t(dictionary.orderShipped)}</option>
+                          <option value="Delivered">{t(dictionary.orderDelivered)}</option>
+                        </select>
                       </TableCell>
                     </TableRow>
                   ))}

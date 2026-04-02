@@ -1,34 +1,25 @@
 
 "use client"
 
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, MapPin, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function UserOrdersPage() {
-  const { user } = useUser();
   const db = useFirestore();
   const { t, dictionary } = useLanguage();
 
   const ordersQuery = useMemoFirebase(() => {
-    if (!user) return null;
     return query(
       collection(db, 'orders'),
-      where('userId', '==', user.uid),
       orderBy('orderDate', 'desc')
     );
-  }, [db, user]);
+  }, [db]);
 
   const { data: orders, isLoading } = useCollection(ordersQuery);
-
-  if (!user) return (
-    <div className="container mx-auto px-6 py-24 text-center">
-      <p className="text-white/40 uppercase font-black italic">Unauthorized Access. Please login.</p>
-    </div>
-  );
 
   if (isLoading) {
     return (
@@ -92,12 +83,10 @@ export default function UserOrdersPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 py-4 border-y border-white/5">
-              {order.shippingAddress && (
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-3 h-3 text-white/40 mt-0.5" />
-                  <p className="text-xs text-white/60 font-medium leading-tight">{order.shippingAddress}</p>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-white/40 uppercase">Ism:</span>
+                <p className="text-xs text-white/80 font-medium">{order.customerName}</p>
+              </div>
               {order.phoneNumber && (
                 <div className="flex items-center gap-2">
                   <Phone className="w-3 h-3 text-white/40" />

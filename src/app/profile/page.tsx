@@ -1,51 +1,15 @@
 
 "use client"
 
-import { useUser, useFirestore, useDoc, useMemoFirebase, useAuth } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Shield, Package, Settings, ChevronRight, LogOut, Loader2 } from 'lucide-react';
-import { signOut } from 'firebase/auth';
+import { User, Shield, Package, Settings, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function ProfilePage() {
-  const { user, isUserLoading } = useUser();
-  const db = useFirestore();
-  const auth = useAuth();
   const router = useRouter();
   const { t, dictionary } = useLanguage();
-
-  const profileRef = useMemoFirebase(() => {
-    if (!user) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user]);
-  
-  const { data: profile, isLoading: profileLoading } = useDoc(profileRef);
-
-  if (isUserLoading || (user && profileLoading)) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{t(dictionary.synchronizingProfile)}</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="container mx-auto px-6 py-24 text-center">
-        <p className="text-white/40 uppercase font-black italic">Unauthorized Access. Please login.</p>
-        <button 
-          onClick={() => router.push('/login')}
-          className="mt-8 neon-text font-black uppercase tracking-widest text-xs hover:underline"
-        >
-          Proceed to Authentication
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
@@ -53,7 +17,6 @@ export default function ProfilePage() {
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
           <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-black">
-            <AvatarImage src={profile?.photoUrl} className="rounded-full object-cover" />
             <AvatarFallback className="bg-white/5">
               <User className="w-10 h-10 text-primary" />
             </AvatarFallback>
@@ -62,10 +25,10 @@ export default function ProfilePage() {
         
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-            {profile?.firstName || user?.email?.split('@')[0] || t(dictionary.cyberVoyager)}
+            {t(dictionary.cyberVoyager)}
           </h1>
           <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] font-mono">
-            {profile?.telegramUsername || user.email}
+            Guest Protocol Active
           </p>
         </div>
       </div>
@@ -90,14 +53,6 @@ export default function ProfilePage() {
             <ChevronRight className="w-5 h-5 text-white/20 group-hover:neon-text transition-all" />
           </Card>
         ))}
-
-        <button 
-          onClick={() => signOut(auth).then(() => router.push('/'))}
-          className="w-full mt-8 glass-dark border-destructive/20 p-5 rounded-[1.5rem] flex items-center justify-center gap-3 text-destructive hover:bg-destructive/10 transition-all font-black uppercase tracking-widest text-sm"
-        >
-          <LogOut className="w-5 h-5" />
-          {t(dictionary.terminateSession)}
-        </button>
       </div>
     </div>
   );
