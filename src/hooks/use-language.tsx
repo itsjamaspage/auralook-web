@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -156,6 +155,11 @@ const dictionary = {
     ru: "Введите свои мерки",
     en: "Enter Measurements"
   },
+  managerAdvisory: {
+    uz: "Menejerimiz ushbu ma'lumotlar asosida sizga eng mos keladigan o'lchamni tanlab beradi.",
+    ru: "Наш менеджер выберет для вас наиболее подходящий размер на основе этих данных.",
+    en: "Our manager will select the most suitable size for you based on this information."
+  },
   nextStep: {
     uz: "Keyingisi",
     ru: "Далее",
@@ -185,11 +189,6 @@ const dictionary = {
     uz: 'TEXNIK TAFSILOTLAR',
     ru: 'ТЕХНИЧЕСКИЕ ДЕТАЛИ',
     en: 'TECHNICAL DETAILS'
-  },
-  selectSizeMatrix: {
-    uz: 'O\'LCHAMNI TANLANG',
-    ru: 'ВЫБЕРИТЕ РАЗМЕР',
-    en: 'SELECT SIZE MATRIX'
   },
   executePurchase: {
     uz: 'BUYURTMANI TASDIQLASH',

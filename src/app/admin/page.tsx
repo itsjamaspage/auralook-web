@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [lookToDelete, setLookToDelete] = useState<string | null>(null);
 
-  // Determine admin status
+  // Determine admin status with fallback to specific email/UID
   const adminRoleRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'roles_admin', user.uid);
@@ -59,7 +59,8 @@ export default function AdminDashboard() {
   
   const isAdmin = useMemo(() => {
     if (!user) return false;
-    if (user.email === 'jkhakimjonov8@gmail.com') return true;
+    // Hardcoded safety for the owner
+    if (user.email === 'jkhakimjonov8@gmail.com' || user.uid === '0JVf0DDPZtXyw6diJZsnfk3EasD2') return true;
     return !!adminRole;
   }, [user, adminRole]);
 
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
 
   const ordersQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
+    // Only fetch if admin to prevent permission errors
     return query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
   }, [db, isAdmin]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);

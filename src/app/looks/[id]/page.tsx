@@ -121,8 +121,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!orderDetails.phone) {
       toast({
         variant: "destructive",
-        title: "Telefon raqami zarur",
-        description: "Iltimos, bog'lanish uchun telefon raqamingizni kiriting."
+        title: t(dictionary.phoneNumber),
+        description: t(dictionary.phonePlaceholder)
       });
       return;
     }
@@ -322,7 +322,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 <div className="flex items-start gap-2 bg-white/5 p-4 rounded-xl border border-white/10">
                   <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <p className="text-[11px] text-white/70 italic leading-relaxed">
-                    Menejerimiz ushbu ma'lumotlar asosida sizga eng mos keladigan o'lchamni tanlab beradi.
+                    {t(dictionary.managerAdvisory)}
                   </p>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 disabled={isOrdering || !orderDetails.phone}
                 className="w-full h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em]"
               >
-                {isOrdering ? <Loader2 className="animate-spin" /> : "Tasdiqlash"}
+                {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
               </Button>
             </div>
           )}

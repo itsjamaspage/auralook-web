@@ -55,11 +55,14 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Allow list: Admin can see everything. Users MUST filter by their own UID.
-      allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
+      // Admin can list and read everything
+      allow read: if isAdmin();
       
-      // Allow individual read if owner or admin
-      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Users can list their own orders but MUST filter by userId
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // Users can get individual orders if they own them
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       // Anyone signed in can create an order for themselves
       allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
@@ -68,8 +71,7 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
-        allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
         allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
         allow update, delete: if isAdmin();
       }
