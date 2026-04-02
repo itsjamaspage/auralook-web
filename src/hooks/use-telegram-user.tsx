@@ -30,21 +30,22 @@ interface TelegramUserContextType {
   user: UserProfile | null;
   isLoading: boolean;
   isVerified: boolean;
+  error: string | null;
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-// Unique cache key to prevent collision with older versions
-const CACHE_KEY = 'auralook_user_protocol_v2.4.2';
+const CACHE_KEY = 'auralook_user_protocol_v2.4.5';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const db = useFirestore();
 
   useEffect(() => {
-    // 1. Instant load from local cache
+    // 1. Instant load from local cache to avoid flicker
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
@@ -57,32 +58,23 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     }
 
     async function authenticate() {
+      // Wait a moment for the bridge to initialize if script was just loaded
       const tg = (window as any).Telegram?.WebApp;
       
-      // Developer Bypass: If not in Telegram, use Demo User
-      if (!tg || !tg.initData) {
-        console.warn('Protocol Bypass: App not in Telegram environment. Enabling Demo Mode.');
-        
-        const mockUser: UserProfile = {
-          id: 'tg_demo',
-          telegramId: 0,
-          firstName: 'Demo Voyager',
-          username: 'demo_user',
-          phone: '+998 90 000 00 00',
-          photoUrl: 'https://ui-avatars.com/api/?name=Demo+Voyager&background=00FF88&color=000&bold=true',
-          lastSeen: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        
-        setUser(mockUser);
-        setIsVerified(true);
-        setIsLoading(false);
+      if (!tg) {
+        // Not in Telegram at all
+        handleDemoMode('Protocol Bypass: No Telegram bridge detected.');
         return;
       }
 
       tg.ready();
       tg.expand();
+
+      if (!tg.initData) {
+        // In Telegram but opened via URL instead of Bot Button
+        handleDemoMode('Protocol Bypass: initData is empty.');
+        return;
+      }
 
       try {
         const res = await fetch('/api/telegram-auth', {
@@ -98,7 +90,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           
           const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
 
-          // 2. Fetch existing data to preserve fields like 'phone'
           const existingDoc = await getDoc(userRef);
           
           const userData: any = {
@@ -111,13 +102,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             updatedAt: serverTimestamp(),
           };
 
-          // 3. Set defaults for new users
           if (!existingDoc.exists()) {
             userData.createdAt = serverTimestamp();
             userData.phone = null;
           }
 
-          // 4. Idempotent sync to Firestore
           await setDoc(userRef, userData, { merge: true });
           
           const finalUser = existingDoc.exists() 
@@ -127,37 +116,46 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           setUser(finalUser);
           localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
           setIsVerified(true);
+          setError(null);
         } else {
-          throw new Error('Handshake failed');
+          const errData = await res.json();
+          throw new Error(errData.error || 'Identity handshake failed');
         }
-      } catch (error) {
-        console.error('Handshake error:', error);
-        // Fallback to Demo Mode if server is still being configured (missing secrets)
+      } catch (err: any) {
+        console.error('Handshake Error:', err);
+        setError(err.message);
+        // Fallback to demo in non-production environments
         if (process.env.NODE_ENV !== 'production') {
-           const errorUser: UserProfile = {
-            id: 'tg_demo_error',
-            telegramId: 0,
-            firstName: 'Demo (Bypass Active)',
-            username: 'demo_user',
-            phone: '+998 90 000 00 00',
-            photoUrl: 'https://ui-avatars.com/api/?name=Sync+Error&background=FF3366&color=fff&bold=true',
-            lastSeen: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          setUser(errorUser);
-          setIsVerified(true);
+          handleDemoMode('Sync failed, using Demo fallback.');
         }
       } finally {
         setIsLoading(false);
       }
     }
 
+    function handleDemoMode(reason: string) {
+      console.warn(reason);
+      const mockUser: UserProfile = {
+        id: 'tg_demo',
+        telegramId: 0,
+        firstName: 'Demo Voyager',
+        username: 'demo_user',
+        phone: '+998 90 000 00 00',
+        photoUrl: 'https://ui-avatars.com/api/?name=Demo+Voyager&background=00FF88&color=000&bold=true',
+        lastSeen: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      setUser(mockUser);
+      setIsVerified(true);
+      setIsLoading(false);
+    }
+
     authenticate();
   }, [db]);
 
   return (
-    <TelegramUserContext.Provider value={{ user, isLoading, isVerified }}>
+    <TelegramUserContext.Provider value={{ user, isLoading, isVerified, error }}>
       {children}
     </TelegramUserContext.Provider>
   );

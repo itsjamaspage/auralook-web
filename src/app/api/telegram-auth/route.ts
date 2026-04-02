@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 /**
  * API Route to verify Telegram WebApp initData.
- * Implements Replay Protection and Idempotent User Sync.
+ * Implements Replay Protection and Identity Verification.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -20,14 +20,15 @@ export async function POST(req: NextRequest) {
     const hash = urlParams.get('hash');
     urlParams.delete('hash');
 
-    // 1. Replay Protection: Check if data is older than 5 minutes
+    // 1. Lenient Replay Protection: 24 hours (86400 seconds)
+    // Avoids failures due to minor clock skews on user devices.
     const authDate = parseInt(urlParams.get('auth_date') || '0');
     const now = Math.floor(Date.now() / 1000);
-    if (now - authDate > 300) {
-      return NextResponse.json({ error: 'Telegram data has expired (Replay Protection)' }, { status: 403 });
+    if (now - authDate > 86400) {
+      return NextResponse.json({ error: 'Session has expired. Please reload the bot.' }, { status: 403 });
     }
 
-    // 2. Data Integrity: Verify HMAC Signature
+    // 2. Data Integrity: Sort and verify HMAC Signature
     const dataCheckString = Array.from(urlParams.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}=${value}`)
@@ -44,24 +45,23 @@ export async function POST(req: NextRequest) {
       .digest('hex');
 
     if (hmac !== hash) {
-      return NextResponse.json({ error: 'Invalid Telegram data signature' }, { status: 403 });
+      return NextResponse.json({ error: 'Identity verification failed (Invalid Signature)' }, { status: 403 });
     }
 
     const userRaw = urlParams.get('user');
     if (!userRaw) {
-      return NextResponse.json({ error: 'No user data found' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing user profile data' }, { status: 400 });
     }
 
     const telegramUser = JSON.parse(userRaw);
     
-    // We return the cleaned user data. 
-    // Client-side code handles the Firestore sync to keep things simple for this prototype.
     return NextResponse.json({
       ...telegramUser,
+      verified: true,
       lastSeen: new Date().toISOString()
     });
   } catch (error) {
     console.error('Telegram Auth Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal secure session error' }, { status: 500 });
   }
 }

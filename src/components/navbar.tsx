@@ -19,12 +19,18 @@ import {
   Heart, 
   ShoppingBag, 
   LayoutDashboard, 
-  ChevronDown
+  ChevronDown,
+  User,
+  ShieldCheck,
+  ShieldAlert,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
+  const { user, isVerified, isLoading } = useTelegramUser();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -57,6 +63,25 @@ export function Navbar() {
             Auralook
           </span>
         </Link>
+
+        {/* Center: User Status (Visible on Desktop) */}
+        <div className="hidden md:flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 border border-white/5">
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-white/40" />
+          ) : isVerified ? (
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/80 italic">
+                {user?.firstName || 'User'}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Guest Mode</span>
+            </div>
+          )}
+        </div>
 
         {/* Right: Controls */}
         <div className="flex items-center gap-3 lg:gap-4">
@@ -94,6 +119,9 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="glass-dark border-white/10 p-2 w-64 mt-2">
               <div className="px-4 py-3 mb-2 border-b border-white/5">
                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 italic">Command Center</p>
+                {user && (
+                  <p className="text-[10px] font-bold text-primary mt-1 truncate">@{user.username || user.firstName}</p>
+                )}
               </div>
               {navItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -117,8 +145,14 @@ export function Navbar() {
                 );
               })}
               <DropdownMenuSeparator className="bg-white/5 my-2" />
-              <div className="px-4 py-2">
-                <p className="text-[8px] font-mono text-white/20 uppercase">Auralook Protocol v2.4.0</p>
+              <Link href="/profile">
+                <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white/60 hover:text-white">
+                  <User className="w-5 h-5" />
+                  <span className="font-bold text-[11px] uppercase tracking-widest">Profile</span>
+                </DropdownMenuItem>
+              </Link>
+              <div className="px-4 py-2 mt-2">
+                <p className="text-[8px] font-mono text-white/20 uppercase text-center tracking-tighter">Auralook Protocol v2.4.5</p>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
