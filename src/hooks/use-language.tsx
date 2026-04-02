@@ -244,6 +244,17 @@ const dictionary = {
     en: 'SECURE CHECKOUT // ENCRYPTED SESSION'
   },
 
+  // Catalog & Filters
+  filter: { uz: 'Filtr', ru: 'Фильтр', en: 'Filter' },
+  listingsDetected: { uz: 'Liboslar topildi', ru: 'Найдено образов', en: 'Listings Found' },
+  filterParameters: { uz: 'Filtr parametrlari', ru: 'Параметры фильтра', en: 'Filter Parameters' },
+  currencyUnit: { uz: 'Valyuta', ru: 'Валюта', en: 'Currency' },
+  priceRange: { uz: 'Narx oralig\'i', ru: 'Диапазон цен', en: 'Price Range' },
+  minPrice: { uz: 'Minimal narx', ru: 'Мин. цена', en: 'Min Price' },
+  maxPrice: { uz: 'Maksimal narx', ru: 'Макс. цена', en: 'Max Price' },
+  availableNow: { uz: 'Mavjud', ru: 'В наличии', en: 'Available Now' },
+  locationTashkent: { uz: 'Toshkent, Mirzo Ulug\'bek', ru: 'Ташкент, Мирзо-Улугбек', en: 'Tashkent, Mirzo Ulugbek' },
+
   // Cart & Orders
   cart: {
     uz: 'Savatcha',
@@ -399,6 +410,7 @@ const dictionary = {
   customer: { uz: 'Mijoz', ru: 'Клиент', en: 'Customer' },
   outfit: { uz: 'Libos', ru: 'Образ', en: 'Outfit' },
   amount: { uz: 'Summa', ru: 'Сумма', en: 'Amount' },
+  status: { uz: 'Holat', ru: 'Статус', en: 'Status' },
   action: { uz: 'Amal', ru: 'Действие', en: 'Action' },
   accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
   confirmDeleteTitle: { uz: "O'chirishni tasdiqlang", ru: 'Подтвердите удаление', en: 'Confirm Deletion' },

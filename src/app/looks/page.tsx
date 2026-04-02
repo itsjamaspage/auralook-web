@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -12,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X, Sparkles } from 'lucide-react';
+import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -43,7 +44,7 @@ export default function LooksPage() {
   }, [db, user]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery);
-  const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
+  const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.id) || []), [likedLooksData]);
 
   const filteredLooks = useMemo(() => {
     return looks?.filter(look => {
@@ -64,8 +65,8 @@ export default function LooksPage() {
     
     if (!user) {
       toast({
-        title: t(dictionary.registrationRequiredTitle),
-        description: t(dictionary.registrationRequiredDesc),
+        title: t(dictionary.welcomeBack),
+        description: t(dictionary.accessOrders),
         variant: "destructive"
       });
       router.push('/login');
@@ -111,7 +112,7 @@ export default function LooksPage() {
               )}
             >
               <Filter className="w-4 h-4 mr-2" />
-              Filter
+              {t(dictionary.filter)}
             </Button>
             
             <div className="hidden sm:flex items-baseline gap-2">
@@ -120,7 +121,7 @@ export default function LooksPage() {
               ) : (
                 <>
                   <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Listings Detected</span>
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.listingsDetected)}</span>
                 </>
               )}
             </div>
@@ -308,8 +309,8 @@ export default function LooksPage() {
                       )}
 
                       <div className="flex flex-col gap-0.5 pt-1">
-                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Tashkent, Mirzo Ulugbek</p>
-                        <p className="text-[9px] font-mono text-white/20 uppercase">Available Now</p>
+                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t(dictionary.locationTashkent)}</p>
+                        <p className="text-[9px] font-mono text-white/20 uppercase">{t(dictionary.availableNow)}</p>
                       </div>
                     </div>
                   </Card>
