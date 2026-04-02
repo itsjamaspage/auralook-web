@@ -158,6 +158,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         updatedAt: serverTimestamp(),
       };
 
+      // Direct addDoc to root 'orders' collection
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
       // Trigger Telegram notification

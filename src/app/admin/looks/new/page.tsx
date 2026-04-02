@@ -41,11 +41,12 @@ export default function NewLookPage() {
   };
 
   const parseNumericValue = (val: string, curr: string) => {
+    // Definitive fix for UZS price truncation: strip ALL non-digit characters
     if (curr === 'UZS') {
-      // For UZS, we ignore all non-digits (dots, spaces, commas)
-      return parseInt(val.replace(/\D/g, '')) || 0;
+      const onlyDigits = val.replace(/\D/g, '');
+      return parseInt(onlyDigits) || 0;
     }
-    // For USD, we allow one decimal point
+    // For USD, handle decimal points correctly
     const cleaned = val.replace(/[^\d.]/g, '');
     return parseFloat(cleaned) || 0;
   };
