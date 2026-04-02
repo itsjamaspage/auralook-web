@@ -94,7 +94,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Prefer sendPhoto to show the outfit visually to the admin
+    // Use sendPhoto if an image is available
     const hasValidImage = input.imageUrl && !input.imageUrl.startsWith('data:');
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
     
