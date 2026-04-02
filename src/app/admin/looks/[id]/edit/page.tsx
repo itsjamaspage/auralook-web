@@ -57,10 +57,11 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
 
   const parseNumericValue = (val: string, curr: string) => {
     if (curr === 'UZS') {
-      // For UZS, strip dots, spaces, commas
-      return parseInt(val.replace(/\D/g, '')) || 0;
+      // Definitive fix for UZS price truncation: strip ALL non-digit characters
+      const onlyDigits = val.replace(/\D/g, '');
+      return parseInt(onlyDigits, 10) || 0;
     }
-    // For USD, allow decimal point
+    // For USD, handle decimal points correctly
     const cleaned = val.replace(/[^\d.]/g, '');
     return parseFloat(cleaned) || 0;
   };

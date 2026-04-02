@@ -44,7 +44,7 @@ export default function NewLookPage() {
     // Definitive fix for UZS price truncation: strip ALL non-digit characters
     if (curr === 'UZS') {
       const onlyDigits = val.replace(/\D/g, '');
-      return parseInt(onlyDigits) || 0;
+      return parseInt(onlyDigits, 10) || 0;
     }
     // For USD, handle decimal points correctly
     const cleaned = val.replace(/[^\d.]/g, '');
