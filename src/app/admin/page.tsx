@@ -33,20 +33,20 @@ import {
   Loader2,
   Trash2,
   Edit3,
-  ExternalLink
+  ExternalLink,
+  ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, updateDoc, query, orderBy } from 'firebase/firestore';
-import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function AdminDashboard() {
   const db = useFirestore();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
-  const [lookToDelete, setLookToDelete] = useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
 
   // Load inventory
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
@@ -58,12 +58,18 @@ export default function AdminDashboard() {
   }, [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
-  const confirmDelete = () => {
-    if (!lookToDelete) return;
-    const lookRef = doc(db, 'looks', lookToDelete);
-    deleteDocumentNonBlocking(lookRef);
-    toast({ title: t(dictionary.delete) + "..." });
-    setLookToDelete(null);
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    
+    try {
+      const collectionName = itemToDelete.type === 'look' ? 'looks' : 'orders';
+      await deleteDoc(doc(db, collectionName, itemToDelete.id));
+      toast({ title: t(dictionary.delete) + " ok." });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Delete Failed" });
+    } finally {
+      setItemToDelete(null);
+    }
   };
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -148,7 +154,7 @@ export default function AdminDashboard() {
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
                           <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon" className="hover:neon-text"><Edit3 className="w-4 h-4" /></Button></Link>
-                          <Button variant="ghost" size="icon" onClick={() => setLookToDelete(look.id)} className="hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => setItemToDelete({ id: look.id, type: 'look' })} className="hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -178,9 +184,8 @@ export default function AdminDashboard() {
                     <TableRow key={order.id} className="border-white/5 hover:bg-white/[0.03] transition-colors">
                       <TableCell className="pl-8">
                         <div className="flex flex-col">
-                          <span className="font-bold text-white/90">{order.customerName}</span>
+                          <span className="font-bold text-white/90">{order.telegramUsername || 'Noma\'lum'}</span>
                           <span className="text-[10px] text-white/40 font-mono tracking-tighter">{order.phoneNumber}</span>
-                          {order.telegramUsername && <span className="text-[9px] neon-text italic">{order.telegramUsername}</span>}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -203,16 +208,29 @@ export default function AdminDashboard() {
                         </span>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        <select 
-                          className="bg-white/5 border border-white/10 text-[10px] font-bold rounded-lg px-2 py-1 outline-none focus:neon-border text-white/60"
-                          value={order.status}
-                          onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                        >
-                          <option value="New">{t(dictionary.orderPending)}</option>
-                          <option value="Confirmed">{t(dictionary.orderAccepted)}</option>
-                          <option value="Shipped">{t(dictionary.orderShipped)}</option>
-                          <option value="Delivered">{t(dictionary.orderDelivered)}</option>
-                        </select>
+                        <div className="flex items-center justify-end gap-3">
+                          <div className="relative inline-block">
+                            <select 
+                              className="appearance-none bg-white/5 border border-white/10 text-[10px] font-black rounded-lg pl-3 pr-8 py-2 outline-none focus:neon-border text-white/80 cursor-pointer uppercase tracking-widest"
+                              value={order.status}
+                              onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                            >
+                              <option value="New" className="bg-black text-white">{t(dictionary.orderPending)}</option>
+                              <option value="Confirmed" className="bg-black text-white">{t(dictionary.orderAccepted)}</option>
+                              <option value="Shipped" className="bg-black text-white">{t(dictionary.orderShipped)}</option>
+                              <option value="Delivered" className="bg-black text-white">{t(dictionary.orderDelivered)}</option>
+                            </select>
+                            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/40 pointer-events-none" />
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setItemToDelete({ id: order.id, type: 'order' })} 
+                            className="hover:text-destructive h-8 w-8 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -223,7 +241,7 @@ export default function AdminDashboard() {
         </TabsContent>
       </Tabs>
 
-      <AlertDialog open={!!lookToDelete} onOpenChange={(open) => !open && setLookToDelete(null)}>
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
         <AlertDialogContent className="glass-dark border-white/10 rounded-[2.5rem] text-foreground shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-black neon-text uppercase italic">{t(dictionary.confirmDeleteTitle)}</AlertDialogTitle>
