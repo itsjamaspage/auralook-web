@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useMemo } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
@@ -17,10 +17,11 @@ import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X } from 'lucide-r
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function LooksPage() {
   const db = useFirestore();
-  const { user } = useUser();
+  const { user } = useTelegramUser();
   const { toast } = useToast();
   const router = useRouter();
   const { t, dictionary } = useLanguage();
@@ -28,7 +29,7 @@ export default function LooksPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   
-  const [filterCurrency, setFilterCurrency] = useState<'USD' | 'UZS' | 'ALL'>('ALL');
+  const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
   const looksQuery = useMemoFirebase(() => {
@@ -37,9 +38,10 @@ export default function LooksPage() {
 
   const { data: looks, isLoading } = useCollection(looksQuery);
 
+  // Load the user's specific liked looks
   const likedLooksQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return collection(db, 'users', user.uid, 'liked_looks');
+    return collection(db, 'users', user.id, 'liked_looks');
   }, [db, user]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery);
@@ -49,8 +51,7 @@ export default function LooksPage() {
     return looks?.filter(look => {
       const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
       const price = Number(look.price || 0);
-      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
-      return matchesCurrency && matchesPrice;
+      return matchesCurrency && price >= priceRange[0] && price <= priceRange[1];
     });
   }, [looks, filterCurrency, priceRange]);
 
@@ -64,15 +65,14 @@ export default function LooksPage() {
     
     if (!user) {
       toast({
-        title: t(dictionary.welcomeBack),
-        description: t(dictionary.accessOrders),
+        title: "Identifikatsiya kerak",
+        description: "Saralanganlarga qo'shish uchun bot orqali kiring.",
         variant: "destructive"
       });
-      router.push('/login');
       return;
     }
 
-    const likedLookRef = doc(db, 'users', user.uid, 'liked_looks', lookId);
+    const likedLookRef = doc(db, 'users', user.id, 'liked_looks', lookId);
     
     try {
       const isLiked = likedLookIds.has(lookId);
@@ -85,17 +85,11 @@ export default function LooksPage() {
         });
       }
     } catch (e) {
-      console.error(e);
+      console.error('Like toggle failed:', e);
     }
   };
 
   const maxPossiblePrice = filterCurrency === 'USD' ? 5000 : 100000000;
-
-  const SkeletonCard = () => (
-    <Card className="bg-white/5 border-white/10 rounded-[2rem] aspect-[4/5] animate-pulse overflow-hidden">
-      <div className="w-full h-full bg-white/[0.02] animate-shimmer" />
-    </Card>
-  );
 
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen">
@@ -115,14 +109,8 @@ export default function LooksPage() {
             </Button>
             
             <div className="hidden sm:flex items-baseline gap-2">
-              {isLoading ? (
-                <div className="w-32 h-6 bg-white/5 rounded animate-pulse" />
-              ) : (
-                <>
-                  <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.listingsDetected)}</span>
-                </>
-              )}
+              <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.listingsDetected)}</span>
             </div>
           </div>
 
@@ -130,20 +118,14 @@ export default function LooksPage() {
             <Button 
               onClick={() => setViewMode('grid')} 
               variant="ghost" 
-              className={cn(
-                "h-12 w-12 rounded-2xl transition-all",
-                viewMode === 'grid' ? "neon-bg text-black" : "bg-white/5 text-white/40"
-              )}
+              className={cn("h-12 w-12 rounded-2xl transition-all", viewMode === 'grid' ? "neon-bg text-black" : "bg-white/5 text-white/40")}
             >
               <Grid2X2 className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setViewMode('list')} 
               variant="ghost" 
-              className={cn(
-                "h-12 w-12 rounded-2xl transition-all",
-                viewMode === 'list' ? "neon-bg text-black" : "bg-white/5 text-white/40"
-              )}
+              className={cn("h-12 w-12 rounded-2xl transition-all", viewMode === 'list' ? "neon-bg text-black" : "bg-white/5 text-white/40")}
             >
               <List className="w-5 h-5" />
             </Button>
@@ -166,8 +148,7 @@ export default function LooksPage() {
                   value={filterCurrency} 
                   onValueChange={(val: any) => {
                     setFilterCurrency(val);
-                    if (val === 'USD') setPriceRange([0, 5000]);
-                    else setPriceRange([0, 100000000]);
+                    setPriceRange([0, val === 'USD' ? 5000 : 100000000]);
                   }} 
                   className="flex gap-8 flex-wrap"
                 >
@@ -193,36 +174,6 @@ export default function LooksPage() {
                     {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
                   </span>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.minPrice)}</Label>
-                    <Input 
-                      type="number"
-                      placeholder="0"
-                      value={priceRange[0] === 0 ? '' : priceRange[0]}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? 0 : parseInt(e.target.value);
-                        setPriceRange([isNaN(val) ? 0 : val, priceRange[1]]);
-                      }}
-                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] font-bold uppercase text-white/40">{t(dictionary.maxPrice)}</Label>
-                    <Input 
-                      type="number"
-                      placeholder={maxPossiblePrice.toString()}
-                      value={priceRange[1] === maxPossiblePrice ? '' : priceRange[1]}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? maxPossiblePrice : parseInt(e.target.value);
-                        setPriceRange([priceRange[0], isNaN(val) ? maxPossiblePrice : val]);
-                      }}
-                      className="bg-white/5 border-white/10 h-10 text-xs rounded-xl focus:neon-border text-white transition-none"
-                    />
-                  </div>
-                </div>
-
                 <Slider 
                   value={[priceRange[0], priceRange[1]]} 
                   onValueChange={(val: number[]) => setPriceRange([val[0], val[1]])} 
@@ -237,19 +188,11 @@ export default function LooksPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-32">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <SkeletonCard key={i} />)}
-        </div>
+        <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
       ) : (
-        <div className={cn(
-          "pb-32 gap-6",
-          viewMode === 'grid' 
-            ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-            : "flex flex-col"
-        )}>
-          {filteredLooks?.map((look, index) => {
+        <div className={cn("pb-32 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
+          {filteredLooks?.map((look) => {
             const isLiked = likedLookIds.has(look.id);
-            
             return (
               <div key={look.id} className="relative group">
                 <Link href={`/looks/${look.id}`}>
@@ -257,39 +200,25 @@ export default function LooksPage() {
                     "bg-[#080808]/40 border border-white/5 overflow-hidden transition-all hover:border-white/20 active:scale-[0.98]",
                     viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
                   )}>
-                    <div className={cn(
-                      "relative overflow-hidden p-1",
-                      viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0"
-                    )}>
+                    <div className={cn("relative overflow-hidden p-1", viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0")}>
                       <Image
                         src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
                         alt={look.name || 'Look'}
                         fill
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                        className={cn(
-                          "object-cover transition-transform duration-700 group-hover:scale-105",
-                          viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]"
-                        )}
-                        priority={index < 4}
+                        className={cn("object-cover transition-transform duration-700 group-hover:scale-105", viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]")}
                       />
-                      
                       <button 
                         onClick={(e) => handleToggleLike(e, look.id)}
                         className={cn(
                           "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
-                          isLiked 
-                            ? "neon-border neon-text bg-primary/10" 
-                            : "border-white/10 text-white/60 hover:neon-text hover:neon-border"
+                          isLiked ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white/60 hover:neon-text hover:neon-border"
                         )}
                       >
                         <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
                       </button>
                     </div>
 
-                    <div className={cn(
-                      "space-y-2",
-                      viewMode === 'grid' ? "p-4" : "p-2 flex-grow"
-                    )}>
+                    <div className={cn("space-y-2", viewMode === 'grid' ? "p-4" : "p-2 flex-grow")}>
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="text-base font-black neon-text italic tracking-tighter">
@@ -299,13 +228,6 @@ export default function LooksPage() {
                         </div>
                         <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
                       </div>
-
-                      {viewMode === 'list' && (
-                        <p className="text-xs text-white/40 line-clamp-2 italic font-medium">
-                          {look.description}
-                        </p>
-                      )}
-
                       <div className="flex flex-col gap-0.5 pt-1">
                         <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t(dictionary.locationTashkent)}</p>
                         <p className="text-[9px] font-mono text-white/20 uppercase">{t(dictionary.availableNow)}</p>
@@ -316,17 +238,6 @@ export default function LooksPage() {
               </div>
             );
           })}
-
-          {(!filteredLooks || filteredLooks.length === 0) && (
-            <div className="col-span-full py-32 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                <Filter className="w-8 h-8 text-white/10" />
-              </div>
-              <p className="text-white/40 font-bold uppercase tracking-[0.2em] italic">
-                No results match your criteria.
-              </p>
-            </div>
-          )}
         </div>
       )}
     </div>

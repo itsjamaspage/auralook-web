@@ -16,6 +16,7 @@ interface TelegramUser {
 
 export interface UserProfile {
   id: string;
+  telegramId: number;
   firstName: string;
   username: string | null;
   phone: string | null;
@@ -31,10 +32,8 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-/**
- * Context Provider that manages Telegram Identity without Firebase Auth.
- * Handles auto-detection, backend verification, and Firestore sync.
- */
+const CACHE_KEY = 'auralook_user_protocol';
+
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,12 +41,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const db = useFirestore();
 
   useEffect(() => {
+    // 1. Initial Load from Cache for speed
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      setUser(JSON.parse(cached));
+      setIsVerified(true);
+    }
+
     async function authenticate() {
-      // 1. Check for Telegram environment
       const tg = (window as any).Telegram?.WebApp;
       
       if (!tg || !tg.initData) {
-        console.warn('App is not running inside Telegram or initData is missing.');
+        console.warn('Protocol Bypass: App not in Telegram environment.');
         setIsLoading(false);
         return;
       }
@@ -56,7 +61,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.expand();
 
       try {
-        // 2. Verify identity on our backend
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -68,31 +72,30 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           const uid = `tg_${telegramUser.id}`;
           const userRef = doc(db, 'users', uid);
           
-          // 3. Sync verified profile to Firestore
+          // Generate fallback avatar if needed
+          const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
+
           const userData: Partial<UserProfile> = {
             id: uid,
+            telegramId: telegramUser.id,
             firstName: telegramUser.first_name,
             username: telegramUser.username || null,
-            photoUrl: telegramUser.photo_url || null,
+            photoUrl: telegramUser.photo_url || fallbackAvatar,
             updatedAt: serverTimestamp(),
           };
 
+          // Background Sync to Firestore
           await setDoc(userRef, userData, { merge: true });
           
-          // 4. Fetch full record (including saved phone number)
           const snap = await getDoc(userRef);
-          if (snap.exists()) {
-            setUser(snap.data() as UserProfile);
-          } else {
-            setUser(userData as any);
-          }
+          const finalUser = snap.exists() ? (snap.data() as UserProfile) : (userData as UserProfile);
           
+          setUser(finalUser);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
           setIsVerified(true);
-        } else {
-          console.error('Telegram identity verification failed on backend.');
         }
       } catch (error) {
-        console.error('Identity sync process failed:', error);
+        console.error('Handshake failed:', error);
       } finally {
         setIsLoading(false);
       }

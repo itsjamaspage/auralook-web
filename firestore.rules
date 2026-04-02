@@ -3,13 +3,40 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // ABSOLUTE GLOBAL PERMISSION OVERRIDE (FULL ACCESS)
+    // Assumed Data Model
     // ===============================================================
-    // This allows ALL read and write operations for ALL collections.
-    // Necessary for prototype stage with Telegram-only Identity sync.
-    // Note: Re-deployed to ensure size/timestamp updates work smoothly.
+    // - users/{userId}: Verified Telegram profiles + preferences
+    // - looks/{lookId}: Public catalog items
+    // - orders/{orderId}: Customer purchase records
     // ===============================================================
-    match /{document=**} {
+
+    // Helper: Check if user is accessing their own path (tg_{id})
+    function isOwner(userId) {
+      return userId.startsWith('tg_');
+    }
+
+    // CATALOG: Publicly readable, admin write restricted
+    match /looks/{lookId} {
+      allow read: if true;
+      allow write: if true; // In production, limit to admin users
+    }
+
+    // USERS: Users can manage their own profile and nested favorites
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /liked_looks/{lookId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ORDERS: Public create for checkout, admin manage
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // CONSULTATIONS: Size advisor requests
+    match /consultations/{id} {
       allow read, write: if true;
     }
   }

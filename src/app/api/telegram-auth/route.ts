@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 /**
  * API Route to verify Telegram WebApp initData.
- * This is the "Backend Verification" step of the identity flow.
+ * Implements Replay Protection by checking auth_date.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
 
     if (!token) {
-      console.error('TELEGRAM_BOT_TOKEN is not configured in environment variables.');
+      console.error('TELEGRAM_BOT_TOKEN is not configured.');
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
@@ -20,19 +20,24 @@ export async function POST(req: NextRequest) {
     const hash = urlParams.get('hash');
     urlParams.delete('hash');
 
-    // Create the data check string by sorting keys alphabetically
+    // 1. Replay Protection: Check if data is older than 5 minutes
+    const authDate = parseInt(urlParams.get('auth_date') || '0');
+    const now = Math.floor(Date.now() / 1000);
+    if (now - authDate > 300) {
+      return NextResponse.json({ error: 'Telegram data has expired (Replay Protection)' }, { status: 403 });
+    }
+
+    // 2. Data Integrity: Verify HMAC Signature
     const dataCheckString = Array.from(urlParams.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
 
-    // Generate the secret key from the bot token
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
       .update(token)
       .digest();
 
-    // Generate the HMAC hash to compare with the one from Telegram
     const hmac = crypto
       .createHmac('sha256', secretKey)
       .update(dataCheckString)
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     const userRaw = urlParams.get('user');
     if (!userRaw) {
-      return NextResponse.json({ error: 'No user data found in initData' }, { status: 400 });
+      return NextResponse.json({ error: 'No user data found' }, { status: 400 });
     }
 
     const telegramUser = JSON.parse(userRaw);
