@@ -137,6 +137,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         totalAmount: look.price,
         lookId: look.id,
         lookName: look.name,
+        lookImageUrl: look.imageUrl,
         size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
         shippingAddress: orderDetails.address || 'Tashkent',

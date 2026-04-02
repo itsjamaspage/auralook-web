@@ -73,8 +73,8 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
       if (input.physique) {
         fallbackMsg += `\n<b>O'lchamlar:</b>\n`;
-        fallbackMsg += `Bo'y: ${input.physique.height}cm\n`;
-        fallbackMsg += `Vazn: ${input.physique.weight}kg\n`;
+        fallbackMsg += `Bo'y: ${input.physique.height} cm\n`;
+        fallbackMsg += `Vazn: ${input.physique.weight} kg\n`;
         fallbackMsg += `O'lcham: ${input.physique.size || 'Tanlanmagan'}\n`;
       }
       fallbackMsg += `\nID: ${input.orderId}`;
@@ -94,6 +94,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
+    // Determine if we should send a photo or a message
     const endpoint = input.imageUrl ? 'sendPhoto' : 'sendMessage';
     const body: any = {
       chat_id: adminChatId,
