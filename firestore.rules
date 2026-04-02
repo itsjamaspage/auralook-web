@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -5,7 +6,7 @@ service cloud.firestore {
     // ABSOLUTE GLOBAL PERMISSION OVERRIDE (FULL ACCESS)
     // ===============================================================
     // This allows ALL read and write operations for ALL collections.
-    // Authentication is NO LONGER REQUIRED for any part of the app.
+    // Necessary for prototype stage with Telegram-only Identity sync.
     // Note: Re-deployed to ensure size/timestamp updates work smoothly.
     // ===============================================================
     match /{document=**} {

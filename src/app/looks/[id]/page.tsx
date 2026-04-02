@@ -41,7 +41,7 @@ import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notifica
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 const COUNTRIES = [
-  { name: "O'zbekiston", code: 'UZB', dial: '+998', regex: /^998/ },
+  { name: "O'zbekiston", code: 'UZB', dial: '+998' },
 ];
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -65,6 +65,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     telegram: ''
   });
 
+  // Prefill contact details from verified Telegram identity
   useEffect(() => {
     if (tgUser) {
       setOrderDetails(prev => ({
@@ -128,7 +129,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       const timestamp = new Date().toLocaleString('uz-UZ');
       const orderData = {
         userId: tgUser?.id || 'guest',
-        customerName: orderDetails.telegram, 
+        customerName: tgUser?.firstName || orderDetails.telegram, 
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,

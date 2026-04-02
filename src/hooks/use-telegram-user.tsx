@@ -11,14 +11,15 @@ interface TelegramUser {
   last_name?: string;
   username?: string;
   language_code?: string;
-  is_premium?: boolean;
+  photo_url?: string;
 }
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
   firstName: string;
   username: string | null;
   phone: string | null;
+  photoUrl: string | null;
   updatedAt: any;
 }
 
@@ -30,6 +31,10 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
+/**
+ * Context Provider that manages Telegram Identity without Firebase Auth.
+ * Handles auto-detection, backend verification, and Firestore sync.
+ */
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,14 +43,20 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function authenticate() {
-      // Check if running in Telegram environment
+      // 1. Check for Telegram environment
       const tg = (window as any).Telegram?.WebApp;
+      
       if (!tg || !tg.initData) {
+        console.warn('App is not running inside Telegram or initData is missing.');
         setIsLoading(false);
         return;
       }
 
+      tg.ready();
+      tg.expand();
+
       try {
+        // 2. Verify identity on our backend
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -57,17 +68,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           const uid = `tg_${telegramUser.id}`;
           const userRef = doc(db, 'users', uid);
           
-          // Sync with Firestore
-          const userData = {
+          // 3. Sync verified profile to Firestore
+          const userData: Partial<UserProfile> = {
             id: uid,
             firstName: telegramUser.first_name,
             username: telegramUser.username || null,
+            photoUrl: telegramUser.photo_url || null,
             updatedAt: serverTimestamp(),
           };
 
           await setDoc(userRef, userData, { merge: true });
           
-          // Fetch full profile (to get phone if it exists)
+          // 4. Fetch full record (including saved phone number)
           const snap = await getDoc(userRef);
           if (snap.exists()) {
             setUser(snap.data() as UserProfile);
@@ -76,9 +88,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           }
           
           setIsVerified(true);
+        } else {
+          console.error('Telegram identity verification failed on backend.');
         }
       } catch (error) {
-        console.error('Identity sync failed:', error);
+        console.error('Identity sync process failed:', error);
       } finally {
         setIsLoading(false);
       }
