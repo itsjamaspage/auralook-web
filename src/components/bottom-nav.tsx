@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Heart, ShoppingBag, LayoutDashboard, Ruler } from 'lucide-react';
+import { Compass, Heart, ShoppingBag, LayoutDashboard, Ruler, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -34,13 +34,16 @@ export function BottomNav() {
         className="flex flex-col items-center gap-1 group relative py-2 flex-1 outline-none"
       >
         <div className={cn(
-          "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300",
+          "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
           isActive 
             ? "neon-bg scale-110 sm:scale-105" 
             : "bg-white/5 border border-white/10 group-hover:border-white/30"
         )}>
+          {isActive && (
+            <div className="absolute inset-0 rounded-full animate-ping neon-bg opacity-20" />
+          )}
           <item.icon className={cn(
-            "w-5 h-5 sm:w-5.5 sm:h-5.5 transition-colors duration-300",
+            "w-5 h-5 sm:w-5.5 sm:h-5.5 transition-colors duration-300 relative z-10",
             isActive ? "text-black stroke-[2.5px]" : "text-white/40 group-hover:text-white/60"
           )} />
         </div>

@@ -21,6 +21,8 @@ export interface UserProfile {
   username: string | null;
   phone: string | null;
   photoUrl: string | null;
+  lastSeen: any;
+  createdAt: any;
   updatedAt: any;
 }
 
@@ -32,7 +34,7 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-const CACHE_KEY = 'auralook_user_protocol';
+const CACHE_KEY = 'auralook_user_protocol_v2';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -75,20 +77,30 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           // Generate fallback avatar if needed
           const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
 
-          const userData: Partial<UserProfile> = {
+          // IDEMPOTENT SYNC: Check if user exists to preserve createdAt
+          const existingDoc = await getDoc(userRef);
+          
+          const userData: any = {
             id: uid,
             telegramId: telegramUser.id,
             firstName: telegramUser.first_name,
             username: telegramUser.username || null,
             photoUrl: telegramUser.photo_url || fallbackAvatar,
+            lastSeen: serverTimestamp(),
             updatedAt: serverTimestamp(),
           };
+
+          if (!existingDoc.exists()) {
+            userData.createdAt = serverTimestamp();
+            userData.phone = null;
+          }
 
           // Background Sync to Firestore
           await setDoc(userRef, userData, { merge: true });
           
-          const snap = await getDoc(userRef);
-          const finalUser = snap.exists() ? (snap.data() as UserProfile) : (userData as UserProfile);
+          const finalUser = existingDoc.exists() 
+            ? { ...(existingDoc.data() as UserProfile), ...userData } 
+            : (userData as UserProfile);
           
           setUser(finalUser);
           localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));

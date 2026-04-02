@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 /**
  * API Route to verify Telegram WebApp initData.
- * Implements Replay Protection by checking auth_date.
+ * Implements Replay Protection and Idempotent User Sync.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -53,7 +53,13 @@ export async function POST(req: NextRequest) {
     }
 
     const telegramUser = JSON.parse(userRaw);
-    return NextResponse.json(telegramUser);
+    
+    // We return the cleaned user data. 
+    // Client-side code handles the Firestore sync to keep things simple for this prototype.
+    return NextResponse.json({
+      ...telegramUser,
+      lastSeen: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Telegram Auth Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
