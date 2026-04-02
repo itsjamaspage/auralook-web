@@ -2,7 +2,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
-import { BottomNav } from '@/components/bottom-nav';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Footer } from '@/components/footer';
@@ -36,12 +35,11 @@ export default function RootLayout({
           <LanguageProvider>
             <TelegramUserProvider>
               <Navbar />
-              <main className="flex-grow pt-24 pb-32">
+              <main className="flex-grow pt-24">
                 {children}
               </main>
-              <BottomNav />
               <Toaster />
-              <Footer className="hidden lg:block pb-40" />
+              <Footer className="hidden lg:block" />
               <Script id="tg-init" strategy="afterInteractive">
                 {`
                   if (window.Telegram && window.Telegram.WebApp) {
