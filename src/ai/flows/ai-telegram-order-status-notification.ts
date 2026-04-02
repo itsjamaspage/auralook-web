@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
   name: 'telegramOrderStatusPrompt',
   input: {schema: AiTelegramOrderStatusNotificationInputSchema},
   output: {schema: AiTelegramOrderStatusNotificationOutputSchema},
-  prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Yangi buyurtma haqida Admin uchun o'zbek tilida hisobot tayyorlang.
+  prompt: `Siz "Auralook.uz" do'konining yordamchisisiz. Yangi buyurtma haqida Admin uchun o'zbek tilida batafsil hisobot tayyorlang.
 
 MUHIM: Quyidagi barcha ma'lumotlarni xabarda aniq ko'rsating.
 
@@ -45,13 +45,13 @@ Buyurtma ma'lumotlari:
 - Mahsulot: {{{productName}}}
 
 {{#if physique}}
-O'lcham ma'lumotlari:
+Mijoz o'lchamlari (Menejer maslahati uchun):
 - Bo'yi: {{{physique.height}}} sm
 - Vazni: {{{physique.weight}}} kg
 - Tanlangan o'lcham: {{{physique.size}}}
 {{/if}}
 
-Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijozga eng mos libosni tasdiqlashi kerak.`,
+Xabar qisqa, professional va tushunarli bo'lishi kerak. Admin ushbu ma'lumotlar asosida mijoz bilan bog'lanishi va o'lchamni tasdiqlashi kerak.`,
 });
 
 const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(

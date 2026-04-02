@@ -3,12 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * JamaStore Security Rules
-     * 
-     * Implements a hybrid security model:
-     * 1. Path-based ownership for /users
-     * 2. Public read / Admin write for /products, /looks, /media_assets
-     * 3. Identity-based access for /orders (Owner or Admin)
+     * Auralook.uz Security Rules
+     * Optimized for Admin accessibility and Customer privacy.
      */
 
     // --- Helper Functions ---
@@ -32,9 +28,6 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
-      match /{allSubcollections=**} {
-        allow read, write: if isOwner(userId) || isAdmin();
-      }
     }
 
     match /products/{productId} {
@@ -61,13 +54,16 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Admins can list and read all orders
-      // Users can list and read only their own orders
-      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100 && request.query.filters.userId == request.auth.uid);
+      // Allow listing: 
+      // 1. Admins can list all
+      // 2. Users must filter by their own userId
+      allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
+      
+      // Allow individual read if owner or admin
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       
       // Anyone signed in can create an order for themselves
-      allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
       
       // Updates and Deletes are admin-only
       allow update, delete: if isAdmin();
@@ -75,7 +71,7 @@ service cloud.firestore {
       match /items/{orderItemId} {
         allow list: if isAdmin() || (isSignedIn() && request.query.filters.userId == request.auth.uid);
         allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-        allow create: if isSignedIn() && (isAdmin() || request.resource.data.userId == request.auth.uid);
+        allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
         allow update, delete: if isAdmin();
       }
     }
