@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, collection, addDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
@@ -50,8 +50,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     weight: '',
     phone: '',
     address: '',
-    telegram: '',
-    name: ''
+    telegram: ''
   });
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
@@ -73,11 +72,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   if (!look) return <div className="p-24 text-center text-white/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
-    if (!orderDetails.phone || !orderDetails.name) {
+    // Only phone and telegram are required now
+    if (!orderDetails.phone || !orderDetails.telegram) {
       toast({
         variant: "destructive",
         title: "Ma'lumotlar yetarli emas",
-        description: "Ism va telefon raqami majburiy."
+        description: "Telefon raqami va Telegram username majburiy."
       });
       return;
     }
@@ -86,7 +86,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     try {
       const orderData = {
         userId: 'guest',
-        customerName: orderDetails.name,
+        customerName: orderDetails.telegram, // Use telegram as the name
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
@@ -96,7 +96,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookImageUrl: look.imageUrl,
         size: selectedSize || 'Tanlanmagan',
         phoneNumber: orderDetails.phone,
-        telegramUsername: orderDetails.telegram || 'Tanlanmagan',
+        telegramUsername: orderDetails.telegram,
         shippingAddress: orderDetails.address || 'Tashkent',
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
@@ -308,16 +308,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           {step === 'CONTACT' && (
             <div className="space-y-6 py-4">
               <div className="space-y-4">
-                <Label className="text-[10px] uppercase font-black text-white/40">To'liq ismingiz</Label>
-                <Input 
-                  placeholder="Ismingiz..."
-                  value={orderDetails.name}
-                  onChange={(e) => setOrderDetails({...orderDetails, name: e.target.value})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white"
-                />
-              </div>
-
-              <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white/40">
                   <Phone className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
@@ -345,7 +335,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
               <Button 
                 onClick={handlePurchase}
-                disabled={isOrdering || !orderDetails.phone || !orderDetails.name}
+                disabled={isOrdering || !orderDetails.phone || !orderDetails.telegram}
                 className="w-full h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em]"
               >
                 {isOrdering ? <Loader2 className="animate-spin" /> : t(dictionary.executePurchase)}
