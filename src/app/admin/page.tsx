@@ -113,6 +113,10 @@ export default function AdminDashboard() {
     }
   };
 
+  const formatCurrencyValue = (val: number, curr: string) => {
+    return new Intl.NumberFormat('uz-UZ').format(val);
+  };
+
   if (isUserLoading || (user && !isAdmin && roleLoading)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -188,7 +192,7 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell className="font-bold text-white/90">{look.name}</TableCell>
                       <TableCell className="neon-text font-black tracking-tighter">
-                        {look.currency === 'UZS' ? `${new Intl.NumberFormat('uz-UZ').format(look.price)} UZS` : `$${look.price}`}
+                        {look.currency === 'UZS' ? `${formatCurrencyValue(look.price, 'UZS')} UZS` : `$${formatCurrencyValue(look.price, 'USD')}`}
                       </TableCell>
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
@@ -242,7 +246,9 @@ export default function AdminDashboard() {
                           {order.lookId && <Link href={`/looks/${order.lookId}`} className="text-primary hover:neon-text"><ExternalLink className="w-3 h-3" /></Link>}
                         </div>
                       </TableCell>
-                      <TableCell className="font-black text-primary italic">${order.totalAmount}</TableCell>
+                      <TableCell className="font-black text-primary italic">
+                        {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount, 'UZS')} UZS` : `$${formatCurrencyValue(order.totalAmount, 'USD')}`}
+                      </TableCell>
                       <TableCell>
                         <span className={`text-[10px] font-black uppercase tracking-widest ${order.status === 'New' ? 'text-amber-500 animate-pulse' : 'text-primary'}`}>
                           {getStatusLabel(order.status)}

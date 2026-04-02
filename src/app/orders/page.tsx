@@ -57,6 +57,10 @@ export default function UserOrdersPage() {
     }
   };
 
+  const formatPrice = (val: number) => {
+    return new Intl.NumberFormat('uz-UZ').format(val);
+  };
+
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
@@ -112,7 +116,7 @@ export default function UserOrdersPage() {
               <div className="text-right">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total</p>
                 <p className="text-xl font-black neon-text italic">
-                  ${order.totalAmount}
+                  {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
                 </p>
               </div>
             </div>

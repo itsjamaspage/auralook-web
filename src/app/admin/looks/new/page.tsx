@@ -40,6 +40,16 @@ export default function NewLookPage() {
     }
   };
 
+  const parseNumericValue = (val: string, curr: string) => {
+    if (curr === 'UZS') {
+      // For UZS, we ignore all non-digits (dots, spaces, commas)
+      return parseInt(val.replace(/\D/g, '')) || 0;
+    }
+    // For USD, we allow one decimal point
+    const cleaned = val.replace(/[^\d.]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
   const handleSave = async () => {
     if (!description || !price) {
       toast({
@@ -52,11 +62,14 @@ export default function NewLookPage() {
 
     setSaving(true);
     try {
+      const numericPrice = parseNumericValue(price, currency);
+      const numericDiscount = parseFloat(discount) || 0;
+
       const lookData = {
         name: `Look ${new Date().toLocaleDateString()}`,
         description,
-        price: parseFloat(price),
-        discount: parseFloat(discount) || 0,
+        price: numericPrice,
+        discount: numericDiscount,
         currency,
         imageUrl: imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         createdAt: serverTimestamp(),
@@ -131,8 +144,8 @@ export default function NewLookPage() {
                 </Label>
                 <div className="flex gap-4">
                   <Input 
-                    type="number" 
-                    placeholder="299" 
+                    type="text" 
+                    placeholder={currency === 'UZS' ? '200 000' : '299'} 
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     className="bg-white/5 border-white/10 h-14 rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 

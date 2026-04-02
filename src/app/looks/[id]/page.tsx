@@ -63,6 +63,10 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const isLiked = !!likedLook;
 
+  const formatPrice = (val: number) => {
+    return new Intl.NumberFormat('uz-UZ').format(val);
+  };
+
   if (lookLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -136,6 +140,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         orderDate: new Date().toISOString(),
         status: 'New',
         totalAmount: look.price,
+        currency: look.currency || 'USD',
         lookId: look.id,
         lookName: look.name,
         lookImageUrl: look.imageUrl,
@@ -151,7 +156,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Trigger Telegram notification with the outfit photo
+      // Trigger Telegram notification
       notifyAdminOfOrder({
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -226,7 +231,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black text-white tracking-tighter">
-                    {look.currency === 'UZS' ? `UZS ${look.price}` : `$${look.price}`}
+                    {look.currency === 'UZS' ? `${formatPrice(look.price)}` : `$${formatPrice(look.price)}`}
                   </span>
                   <span className="text-xs font-black text-white/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
                 </div>
