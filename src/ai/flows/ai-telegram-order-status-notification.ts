@@ -9,7 +9,7 @@ import {z} from 'genkit';
 const PhysiqueSchema = z.object({
   height: z.string().optional().describe("Customer's height in cm"),
   weight: z.string().optional().describe("Customer's weight in kg"),
-  size: z.string().optional().describe("Customer's preferred size"),
+  size: z.string().optional().describe("Customer's selected size"),
 });
 
 const AiTelegramOrderStatusNotificationInputSchema = z.object({
@@ -22,7 +22,8 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   imageUrl: z.string().optional().describe("URL or Data URI of the outfit image."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
-  physique: PhysiqueSchema.optional().describe("Customer's physical measurements for size advisory."),
+  physique: PhysiqueSchema.optional().describe("Customer's physical measurements and size."),
+  timestamp: z.string().optional().describe("The time the action occurred."),
 });
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
@@ -47,15 +48,16 @@ Telegram username-ni mana bu formatda link qiling: <a href="https://t.me/{{{tele
 Ma'lumotlar:
 - Telegram: <a href="https://t.me/{{{telegramUsername}}}">@{{{telegramUsername}}}</a>
 - Buyurtma ID: <code>{{{orderId}}}</code>
-- Telefon raqami: {{{phoneNumber}}}
-- Buyurtma holati: <b>{{{currentStatus}}}</b>
-- Tanlangan Libos: <b>{{{productName}}}</b>
+- Telefon: {{{phoneNumber}}}
+- Mahsulot: <b>{{{productName}}}</b>
+- Holat: <b>{{{currentStatus}}}</b>
+- Tanlangan O'lcham: <b>{{{physique.size}}}</b>
+- Vaqt: {{{timestamp}}}
 
-{{#if physique}}
-O'lchamlar:
+{{#if physique.height}}
+Qo'shimcha ma'lumotlar:
 - Bo'yi: {{{physique.height}}} sm
 - Vazni: {{{physique.weight}}} kg
-- Tanlangan o'lcham: <b>{{{physique.size}}}</b>
 {{/if}}
 
 Xabar professional va tushunarli bo'lishi kerak.`,
@@ -69,7 +71,6 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      // Clean username for URL construction
       const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
       
       const {output} = await prompt({
@@ -82,11 +83,9 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'username';
       
       let statusIcon = '📦';
-      let statusTitle = 'Buyurtma Yangilandi!';
+      let statusTitle = 'YANGI BUYURTMA';
       
-      if (input.currentStatus === 'New') {
-        statusTitle = 'YANGI BUYURTMA';
-      } else if (input.currentStatus === 'Cancelled') {
+      if (input.currentStatus === 'Cancelled') {
         statusIcon = '⚠️';
         statusTitle = 'BUYURTMA BEKOR QILINDI';
       }
@@ -95,7 +94,9 @@ const aiTelegramOrderStatusNotificationFlow = ai.defineFlow(
       fallbackMsg += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
       fallbackMsg += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
       fallbackMsg += `Mahsulot: ${input.productName}\n`;
+      fallbackMsg += `O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
       fallbackMsg += `Holat: <b>${input.currentStatus}</b>\n`;
+      fallbackMsg += `Vaqt: ${input.timestamp || new Date().toLocaleString('uz-UZ')}\n`;
       fallbackMsg += `\nID: <code>${input.orderId}</code>`;
       return { message: fallbackMsg };
     }
@@ -117,7 +118,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    // Handle Image: Data URI vs Remote URL
     if (input.imageUrl && input.imageUrl.startsWith('data:')) {
       const [meta, base64Data] = input.imageUrl.split(',');
       const buffer = Buffer.from(base64Data, 'base64');

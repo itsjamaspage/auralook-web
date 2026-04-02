@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -42,7 +41,7 @@ type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CO
 const COUNTRIES = [
   { name: "O'zbekiston", code: 'UZB', dial: '+998', regex: /^998/ },
   { name: "Rossiya", code: 'RUS', dial: '+7', regex: /^7/ },
-  { name: "Qozog'iston", code: 'KAZ', dial: '+7', regex: /^77/ }, // KAZ often starts with 77
+  { name: "Qozog'iston", code: 'KAZ', dial: '+7', regex: /^77/ },
   { name: "Turkiya", code: 'TUR', dial: '+90', regex: /^90/ },
   { name: "Qirg'iziston", code: 'KGZ', dial: '+996', regex: /^996/ },
   { name: "Tojikiston", code: 'TJK', dial: '+992', regex: /^992/ },
@@ -98,7 +97,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     const val = e.target.value;
     const digits = val.replace(/\D/g, '');
     
-    // Auto-detect country from digits
     const matchedCountry = COUNTRIES.find(c => c.regex && c.regex.test(digits));
     if (matchedCountry && matchedCountry.code !== country) {
       setCountry(matchedCountry.code);
@@ -148,6 +146,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
     setIsOrdering(true);
     try {
+      const timestamp = new Date().toLocaleString('uz-UZ');
       const orderData = {
         userId: 'guest',
         customerName: orderDetails.telegram, 
@@ -158,7 +157,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookId: look.id,
         lookName: look.name,
         lookImageUrl: look.imageUrl,
-        size: selectedSize || 'Tanlanmagan',
+        size: selectedSize || 'M (Menejer maslahati)',
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
         country: country,
@@ -182,10 +181,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         telegramUsername: orderData.telegramUsername,
         imageUrl: look.imageUrl,
         language: 'uz',
+        timestamp: timestamp,
         physique: {
-          height: orderDetails.height || 'Noma\'lum',
-          weight: orderDetails.weight || 'Noma\'lum',
-          size: selectedSize || 'Tanlanmagan',
+          height: orderDetails.height || undefined,
+          weight: orderDetails.weight || undefined,
+          size: orderData.size,
         }
       });
 

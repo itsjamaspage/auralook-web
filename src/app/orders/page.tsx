@@ -29,6 +29,7 @@ export default function UserOrdersPage() {
   const handleCancelOrder = async (order: any) => {
     setCancellingId(order.id);
     try {
+      const timestamp = new Date().toLocaleString('uz-UZ');
       const orderRef = doc(db, 'orders', order.id);
       await updateDoc(orderRef, {
         status: 'Cancelled',
@@ -45,6 +46,7 @@ export default function UserOrdersPage() {
         telegramUsername: order.telegramUsername,
         imageUrl: order.lookImageUrl,
         language: 'uz',
+        timestamp: timestamp,
         physique: {
           height: order.measurements?.height,
           weight: order.measurements?.weight,
