@@ -18,6 +18,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered']).describe("The current status of the order."),
   productName: z.string().describe("The name of the product(s) in the order."),
   phoneNumber: z.string().optional().describe("Customer's phone number."),
+  imageUrl: z.string().optional().describe("URL of the outfit image."),
   estimatedDeliveryDate: z.string().nullable().optional().describe("The estimated delivery date."),
   language: z.enum(['uz']).describe("The desired language for the notification. Only 'uz' is supported."),
   physique: PhysiqueSchema.optional().describe("Customer's physical measurements for size advisory."),
@@ -93,14 +94,23 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const endpoint = input.imageUrl ? 'sendPhoto' : 'sendMessage';
+    const body: any = {
+      chat_id: adminChatId,
+      parse_mode: 'HTML',
+    };
+
+    if (input.imageUrl) {
+      body.photo = input.imageUrl;
+      body.caption = message;
+    } else {
+      body.text = message;
+    }
+
+    await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: adminChatId,
-        text: message,
-        parse_mode: 'HTML',
-      }),
+      body: JSON.stringify(body),
     });
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);
