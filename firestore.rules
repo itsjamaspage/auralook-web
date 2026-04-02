@@ -24,12 +24,10 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
 
-      // Fix for listing the subcollection: rules on docId apply to the collection list too
       match /liked_looks/{lookId} {
         allow read, write: if isOwner(userId) || isAdmin();
       }
       
-      // Recursive match as a fallback for deeper user data
       match /{allPaths=**} {
         allow read, write: if isOwner(userId) || isAdmin();
       }
@@ -59,22 +57,20 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Admins can read (get/list) everything
-      allow read: if isAdmin();
+      // Admins have full access
+      allow read, write: if isAdmin();
       
-      // Regular users can list their own orders with a filter
-      allow list: if isSignedIn() && request.query.filters.userId == request.auth.uid;
+      // Regular users can create their own orders
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       
-      // Regular users can get their specific order document
+      // Regular users can list and get their own orders (enforced by resource data)
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
-      
-      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
-      allow update, delete: if isAdmin();
 
       match /items/{orderItemId} {
-        allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-        allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
-        allow update, delete: if isAdmin();
+        allow read, write: if isAdmin();
+        allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       }
     }
 

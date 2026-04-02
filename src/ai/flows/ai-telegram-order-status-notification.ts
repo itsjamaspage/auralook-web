@@ -96,13 +96,10 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       return;
     }
 
-    // Determine if we should send a photo or just text
-    // Hardening: Ensure image is a valid HTTPS URL
-    const hasValidImage = input.imageUrl && input.imageUrl.startsWith('https://');
+    // Hardening: Ensure image is a valid absolute URL for Telegram
+    const hasValidImage = input.imageUrl && (input.imageUrl.startsWith('https://') || input.imageUrl.startsWith('http://'));
     
     const endpoint = hasValidImage ? 'sendPhoto' : 'sendMessage';
-    
-    // Append view order link
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
@@ -126,7 +123,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("Telegram API Error:", errorData);
+      console.error("Telegram API Error Details:", errorData);
     }
   } catch (error) {
     console.error("Failed to send Telegram notification:", error);

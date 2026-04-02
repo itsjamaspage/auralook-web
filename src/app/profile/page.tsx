@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useUser, useFirestore, useDoc, useMemoFirebase, useAuth } from '@/firebase';
@@ -61,7 +62,7 @@ export default function ProfilePage() {
         
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-            {profile?.firstName || user?.email?.split('@')[0] || 'Cyber Voyager'}
+            {profile?.firstName || user?.email?.split('@')[0] || t(dictionary.cyberVoyager)}
           </h1>
           <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] font-mono">
             {profile?.telegramUsername || user.email}

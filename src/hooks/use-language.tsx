@@ -176,6 +176,11 @@ const dictionary = {
     ru: 'Синхронизация профиля...',
     en: 'Synchronizing Profile...'
   },
+  cyberVoyager: {
+    uz: 'Sayohat qiling',
+    ru: 'Путешествуйте',
+    en: 'Cyber Voyager'
+  },
 
   // Checkout Flow
   knowSizeQuestion: {
