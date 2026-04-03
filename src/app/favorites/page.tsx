@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -29,7 +28,7 @@ export default function FavoritesPage() {
     return collection(db, 'users', user.id, 'liked_looks');
   }, [db, user]);
   
-  // Use undefined for stability fallback
+  // Use undefined for stability fallback to prevent null-reference crash in hook
   const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);
 

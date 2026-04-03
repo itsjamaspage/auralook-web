@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -49,7 +48,7 @@ export default function LooksPage() {
     return collection(db, 'users', user.id, 'liked_looks');
   }, [db, user]);
   
-  // Use undefined for null fallback to ensure useCollection stability
+  // Use undefined for null fallback to ensure useCollection stability and prevent crash
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
