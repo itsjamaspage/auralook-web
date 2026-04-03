@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v2.7.0';
+const CACHE_KEY = 'auralook_protocol_v2.8.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -39,44 +39,48 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
-    // Load cached profile instantly for snappy UI
+    // 1. Instant Cache Hydration
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
-        setUser(JSON.parse(cached));
+        const parsed = JSON.parse(cached);
+        setUser(parsed);
         setIsVerified(true);
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
     }
 
-    // Wait up to 3 seconds for Telegram script to inject WebApp
+    // 2. High-Durability Script Polling
     let attempts = 0;
+    const maxAttempts = 15; // 3.75 seconds total
+    
     const interval = setInterval(() => {
       attempts++;
       const tg = (window as any).Telegram?.WebApp;
 
-      // Still waiting for script...
-      if (!tg?.initData && attempts < 12) return;
+      // Still waiting for script injection...
+      if (!tg?.initData && attempts < maxAttempts) return;
 
       clearInterval(interval);
 
-      // Dev/Studio environment — use mock user
-      const isDev = process.env.NODE_ENV !== 'production' 
+      const isStudio = process.env.NODE_ENV !== 'production' 
         || window.location.hostname.includes('cloudworkstations.dev')
         || window.location.hostname === 'localhost';
 
       if (!tg?.initData) {
-        if (isDev) {
+        if (isStudio) {
+          console.log("Protocol Bypass: Studio Environment Detected.");
           handleDemoMode();
         } else {
-          // Real production but no Telegram context found
+          console.log("Protocol Sync: Native Environment (Outside Telegram).");
           setIsLoading(false);
         }
         return;
       }
 
-      // Telegram context found — run the bridge
+      // 3. Script Ready — Begin Signature Bridge
+      console.log("Protocol Sync: Telegram Identity Found.");
       bridgeIdentity(tg);
     }, 250);
 
@@ -88,23 +92,23 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.ready();
       tg.expand();
 
-      // Step 1: Verify Telegram signature on backend
+      // Step 1: Signature Verification (HMAC Handshake)
       const res = await fetch('/api/telegram-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData: tg.initData }),
       });
 
-      if (!res.ok) throw new Error('Signature verification failed');
+      if (!res.ok) throw new Error('HMAC Signature Handshake Failed');
 
       const telegramData = await res.json();
       const uid = `tg_${telegramData.id}`;
 
-      // Step 2: Sign into Firebase anonymously (silent)
+      // Step 2: Firebase Silent Sign-in
       const userCred = await signInAnonymously(auth);
       const firebaseUid = userCred.user.uid;
 
-      // Step 3: Sync profile to Firestore
+      // Step 3: Database Sync
       const userRef = doc(db, 'users', uid);
       const existingDoc = await getDoc(userRef);
 
@@ -137,7 +141,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
       setError(null);
     } catch (err: any) {
-      console.error('Bridge failed:', err);
+      console.error('Protocol Sync Failure:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);

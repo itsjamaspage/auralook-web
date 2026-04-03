@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
+import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -32,7 +32,10 @@ export default function ProfilePage() {
   }, [user]);
 
   const handleUpdatePhone = async () => {
-    if (!user) return;
+    if (!user || user.id === 'tg_demo') {
+      toast({ title: "Demo Mode", description: "Phone updates are simulated in Demo Mode." });
+      return;
+    }
     setIsSaving(true);
     try {
       await updateDoc(doc(db, 'users', user.id), {
@@ -47,7 +50,6 @@ export default function ProfilePage() {
     }
   };
 
-  // High-tech loader while identifying the Telegram session
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -58,19 +60,6 @@ export default function ProfilePage() {
           </div>
         </div>
         <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Establishing Connection...</p>
-      </div>
-    );
-  }
-
-  // If sync fails or app is opened outside TG, show a clear message
-  if (!user) {
-    return (
-      <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4">
-          <User className="w-10 h-10 text-white/20" />
-        </div>
-        <h1 className="text-xl font-black text-white uppercase italic">Protocol Locked</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">This profile is linked to a Telegram identity. Please open this app through the official bot.</p>
       </div>
     );
   }
@@ -87,16 +76,21 @@ export default function ProfilePage() {
               <User className="w-10 h-10 text-primary" />
             </AvatarFallback>
           </Avatar>
+          {!user && (
+            <div className="absolute bottom-0 right-0 bg-amber-500 rounded-full p-1 border-2 border-black">
+              <Shield className="w-3 h-3 text-white" />
+            </div>
+          )}
         </div>
         
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-            {user?.firstName || 'Cyber Voyager'}
+            {user?.firstName || 'Guest Voyager'}
           </h1>
           <div className="flex items-center justify-center gap-2">
             <Send className="w-3 h-3 text-primary" />
             <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] font-mono">
-              @{user?.username || 'unknown'}
+              @{user?.username || 'unidentified_node'}
             </p>
           </div>
         </div>
@@ -128,7 +122,14 @@ export default function ProfilePage() {
               {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}
             </Button>
           </div>
-          <p className="text-[9px] text-white/30 italic px-2">Your data is secured and used strictly for order logistics.</p>
+          {!user && (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-3 mt-2">
+              <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-[9px] text-amber-500/80 font-bold uppercase tracking-wider leading-relaxed">
+                Connect through Telegram Bot to enable persistent database synchronization.
+              </p>
+            </div>
+          )}
         </div>
       </Card>
 

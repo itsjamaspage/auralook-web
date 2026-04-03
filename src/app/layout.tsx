@@ -7,7 +7,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Footer } from '@/components/footer';
 import { LanguageProvider } from '@/hooks/use-language';
 import { TelegramUserProvider } from '@/hooks/use-telegram-user';
-import Script from 'next/script';
+import { BottomNav } from '@/components/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'Auralook.uz | Future of Fashion',
@@ -25,10 +25,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-        {/* High priority Telegram script */}
+        {/* Telegram Mini App Script - Highest Priority */}
         <script 
           src="https://telegram.org/js/telegram-web-app.js" 
-          async
+          strategy="beforeInteractive"
         />
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">
@@ -36,9 +36,10 @@ export default function RootLayout({
           <LanguageProvider>
             <TelegramUserProvider>
               <Navbar />
-              <main className="flex-grow pt-24">
+              <main className="flex-grow pt-24 pb-32 lg:pb-0">
                 {children}
               </main>
+              <BottomNav />
               <Toaster />
               <Footer className="hidden lg:block" />
             </TelegramUserProvider>
