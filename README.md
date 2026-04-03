@@ -25,6 +25,6 @@ The build is currently failing because secrets cannot contain colons (`:`). I ha
     Go to the **Firebase Console** -> **App Hosting** -> **Rollouts** and click **"New Rollout"**.
 
 ## 🛠 Stability Updates
-- Added **Composite Index** for the Orders page to prevent "Permission Denied" crashes.
-- Hardened **Identity Bridge** to ensure smooth login even without tokens.
-- Cleaned up **Security Rules** for production reliability.
+- **Index Bypass**: Orders now load without requiring a manual composite index (fixing the crash).
+- **Hardened Identity**: Purchase flow waits for valid Firebase Auth before submitting.
+- **Cleaned Config**: Removed colons from secret identifiers to satisfy Google Cloud requirements.
