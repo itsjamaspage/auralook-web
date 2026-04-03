@@ -32,7 +32,7 @@ import {
   Globe
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -51,6 +51,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const db = useFirestore();
   const router = useRouter();
   const { user: tgUser } = useTelegramUser();
+  const { user: firebaseUser } = useUser();
   
   const [showCheckout, setShowCheckout] = useState(false);
   const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
@@ -65,7 +66,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     telegram: ''
   });
 
-  // Prefill contact details from verified Telegram identity
   useEffect(() => {
     if (tgUser) {
       setOrderDetails(prev => ({
@@ -124,11 +124,21 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       return;
     }
 
+    if (!firebaseUser) {
+      toast({
+        variant: "destructive",
+        title: "Identity Pending",
+        description: "Please wait for connection to stabilize."
+      });
+      return;
+    }
+
     setIsOrdering(true);
     try {
       const timestamp = new Date().toLocaleString('uz-UZ');
       const orderData = {
         userId: tgUser?.id || 'guest',
+        firebaseUid: firebaseUser.uid, // CRITICAL: Link to Firebase Auth for security rules
         customerName: tgUser?.firstName || orderDetails.telegram, 
         orderDate: new Date().toISOString(),
         status: 'New',
@@ -152,7 +162,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      await notifyAdminOfOrder({
+      // Attempt notification but don't block order success on it
+      notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
         currentStatus: 'New',
@@ -167,7 +178,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           weight: orderDetails.weight || undefined,
           size: orderData.size,
         }
-      });
+      }).catch(console.error);
 
       toast({
         title: "Buyurtma qabul qilindi",

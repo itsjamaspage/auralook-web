@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v3.0.0 Identity Bridged)
+    // Assumed Data Model (v4.0.0 Identity Bridged)
     // ===============================================================
     
     // Helper: Check if user is signed in to Firebase (Anonymous or Auth)
@@ -11,26 +11,17 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper: Check if user owns the document via their Firebase UID or Telegram ID
-    function isOwner(userId) {
-      return isAuthenticated() && (
-        userId == request.auth.uid || 
-        (resource != null && resource.data.firebaseUid == request.auth.uid)
-      );
-    }
-
     // CATALOG
     match /looks/{lookId} {
       allow read: if true;
-      allow write: if false; // Restrict to hardcoded admin in prod
+      allow write: if false; 
     }
 
-    // USERS (Verified Telegram Identities)
+    // USERS
     match /users/{userId} {
       // Allow read/write if the Firebase UID matches the one stored in the doc
-      // New tg_ profiles can be created by any authenticated session (silent bridge)
       allow read: if isAuthenticated() && (userId == 'tg_demo' || resource.data.firebaseUid == request.auth.uid);
-      allow create: if isAuthenticated() && userId.startsWith('tg_');
+      allow create: if isAuthenticated();
       allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
       
       match /liked_looks/{lookId} {
@@ -38,11 +29,13 @@ service cloud.firestore {
       }
     }
 
-    // ORDERS
+    // ORDERS (Denormalized UID Check)
     match /orders/{orderId} {
-      allow read: if isAuthenticated();
+      // Users can only read their own orders via the firebaseUid tag
+      allow read: if isAuthenticated() && (resource == null || resource.data.firebaseUid == request.auth.uid);
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      // Only allow cancelation/update by owner
+      allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
     }
 
     // CONSULTATIONS

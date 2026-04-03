@@ -22,14 +22,15 @@ export default function UserOrdersPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Wait for identity bridge and full auth session
-    if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
+    // SECURITY GUARD: Query by firebaseUid to match security rules
+    if (isUserLoading || !firebaseUser) return null;
+    
     return query(
       collection(db, 'orders'),
-      where('userId', '==', tgUser.id),
+      where('firebaseUid', '==', firebaseUser.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [db, tgUser, firebaseUser, isUserLoading]);
+  }, [db, firebaseUser, isUserLoading]);
 
   const { data: orders, isLoading } = useCollection(ordersQuery ?? undefined);
 
