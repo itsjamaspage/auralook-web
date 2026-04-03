@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
+import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -51,7 +51,7 @@ export default function ProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">Identifying Protocol...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing Encrypted Identity...</p>
       </div>
     );
   }
@@ -59,11 +59,14 @@ export default function ProfilePage() {
   if (!isVerified) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4">
-          <Shield className="w-10 h-10 text-white/20" />
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4 shadow-[0_0_30px_rgba(255,0,0,0.1)]">
+          <Lock className="w-10 h-10 text-destructive/40" />
         </div>
-        <h1 className="text-xl font-black text-white uppercase italic">Access Denied</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">Please open this application through the official Telegram Bot to verify your identity.</p>
+        <h1 className="text-xl font-black text-white uppercase italic">Session Invalid</h1>
+        <p className="text-white/40 text-sm max-w-xs mx-auto">Identity handshake failed. Please reload the app within your official bot to restore the connection.</p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl border-white/10 text-white/60">
+          Retry Handshake
+        </Button>
       </div>
     );
   }
@@ -73,7 +76,7 @@ export default function ProfilePage() {
       <div className="flex flex-col items-center gap-6">
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
-          <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-black">
+          <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-black shadow-2xl">
             <AvatarImage src={user?.photoUrl || undefined} alt={user?.firstName} />
             <AvatarFallback className="bg-white/5">
               <User className="w-10 h-10 text-primary" />
@@ -94,8 +97,12 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Card className="glass-dark border-white/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl">
-        <div className="space-y-4">
+      <Card className="glass-dark border-white/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Shield className="w-12 h-12 text-primary" />
+        </div>
+        
+        <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />
             <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">Aloqa Ma'lumotlari</Label>
@@ -105,17 +112,17 @@ export default function ProfilePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+998 90 123 45 67"
-              className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white text-base"
+              className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-white text-base transition-all"
             />
             <Button 
               onClick={handleUpdatePhone}
               disabled={isSaving}
-              className="h-14 w-14 rounded-2xl neon-bg border-none shadow-xl"
+              className="h-14 w-14 rounded-2xl neon-bg border-none shadow-xl hover:scale-105 active:scale-95 transition-transform"
             >
               {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}
             </Button>
           </div>
-          <p className="text-[9px] text-white/30 italic px-2">Telefon raqamingiz buyurtma berishda avtomatik ko'rsatiladi.</p>
+          <p className="text-[9px] text-white/30 italic px-2">Ma'lumotlaringiz xavfsiz va faqat buyurtma uchun ishlatiladi.</p>
         </div>
       </Card>
 

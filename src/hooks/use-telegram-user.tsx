@@ -2,17 +2,9 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useAuth } from '@/firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  photo_url?: string;
-}
+import { signInAnonymously } from 'firebase/auth';
 
 export interface UserProfile {
   id: string;
@@ -21,6 +13,7 @@ export interface UserProfile {
   username: string | null;
   phone: string | null;
   photoUrl: string | null;
+  firebaseUid: string;
   lastSeen: any;
   createdAt: any;
   updatedAt: any;
@@ -35,99 +28,95 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-const CACHE_KEY = 'auralook_user_protocol_v2.4.5';
+const CACHE_KEY = 'auralook_protocol_v2.5.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const db = useFirestore();
+  const auth = useAuth();
 
   useEffect(() => {
-    // 1. Instant load from local cache to avoid flicker
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        setUser(parsed);
-        setIsVerified(true);
-      } catch (e) {
-        localStorage.removeItem(CACHE_KEY);
-      }
-    }
-
-    async function authenticate() {
-      // Wait a moment for the bridge to initialize if script was just loaded
+    async function bridgeIdentity() {
       const tg = (window as any).Telegram?.WebApp;
       
-      if (!tg) {
-        // Not in Telegram at all
-        handleDemoMode('Protocol Bypass: No Telegram bridge detected.');
-        return;
+      // 1. Attempt to load cached profile for instant UI
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setUser(parsed);
+          setIsVerified(true);
+        } catch (e) {
+          localStorage.removeItem(CACHE_KEY);
+        }
       }
 
-      tg.ready();
-      tg.expand();
-
-      if (!tg.initData) {
-        // In Telegram but opened via URL instead of Bot Button
-        handleDemoMode('Protocol Bypass: initData is empty.');
+      if (!tg || !tg.initData) {
+        if (process.env.NODE_ENV !== 'production') {
+          handleDemoMode('Local Environment detected. Entering Simulation...');
+        } else {
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
+        // Step A: Verify Telegram Signature
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ initData: tg.initData })
         });
 
-        if (res.ok) {
-          const telegramUser: TelegramUser = await res.json();
-          const uid = `tg_${telegramUser.id}`;
-          const userRef = doc(db, 'users', uid);
-          
-          const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramUser.first_name)}&background=00FF88&color=000&bold=true`;
+        if (!res.ok) throw new Error('Identity handshake failed');
+        
+        const telegramData = await res.json();
+        const uid = `tg_${telegramData.id}`;
 
-          const existingDoc = await getDoc(userRef);
-          
-          const userData: any = {
-            id: uid,
-            telegramId: telegramUser.id,
-            firstName: telegramUser.first_name,
-            username: telegramUser.username || null,
-            photoUrl: telegramUser.photo_url || fallbackAvatar,
-            lastSeen: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          };
+        // Step B: Silent Firebase Authentication
+        const userCred = await signInAnonymously(auth);
+        const firebaseUid = userCred.user.uid;
 
-          if (!existingDoc.exists()) {
-            userData.createdAt = serverTimestamp();
-            userData.phone = null;
-          }
+        // Step C: Sync Firestore Profile
+        const userRef = doc(db, 'users', uid);
+        const existingDoc = await getDoc(userRef);
+        
+        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramData.first_name)}&background=00FF88&color=000&bold=true`;
 
-          await setDoc(userRef, userData, { merge: true });
-          
-          const finalUser = existingDoc.exists() 
-            ? { ...(existingDoc.data() as UserProfile), ...userData } 
-            : (userData as UserProfile);
-          
-          setUser(finalUser);
-          localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
-          setIsVerified(true);
-          setError(null);
-        } else {
-          const errData = await res.json();
-          throw new Error(errData.error || 'Identity handshake failed');
+        const userData: any = {
+          id: uid,
+          telegramId: telegramData.id,
+          firstName: telegramData.first_name,
+          username: telegramData.username || null,
+          photoUrl: telegramData.photo_url || fallbackAvatar,
+          firebaseUid: firebaseUid,
+          lastSeen: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        };
+
+        if (!existingDoc.exists()) {
+          userData.createdAt = serverTimestamp();
+          userData.phone = null;
         }
+
+        // Link current Firebase session to this Telegram ID
+        await setDoc(userRef, userData, { merge: true });
+        
+        const finalUser = existingDoc.exists() 
+          ? { ...(existingDoc.data() as UserProfile), ...userData } 
+          : (userData as UserProfile);
+        
+        setUser(finalUser);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
+        setIsVerified(true);
+        setError(null);
       } catch (err: any) {
-        console.error('Handshake Error:', err);
+        console.error('Handshake Failure:', err);
         setError(err.message);
-        // Fallback to demo in non-production environments
-        if (process.env.NODE_ENV !== 'production') {
-          handleDemoMode('Sync failed, using Demo fallback.');
-        }
       } finally {
         setIsLoading(false);
       }
@@ -142,6 +131,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         username: 'demo_user',
         phone: '+998 90 000 00 00',
         photoUrl: 'https://ui-avatars.com/api/?name=Demo+Voyager&background=00FF88&color=000&bold=true',
+        firebaseUid: 'demo_session',
         lastSeen: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -151,8 +141,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
 
-    authenticate();
-  }, [db]);
+    bridgeIdentity();
+  }, [db, auth]);
 
   return (
     <TelegramUserContext.Provider value={{ user, isLoading, isVerified, error }}>

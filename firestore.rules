@@ -3,43 +3,52 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model
+    // Assumed Data Model (v2.5.0 Identity Bridged)
     // ===============================================================
-    // - users/{userId}: Verified Telegram profiles + preferences
-    // - looks/{lookId}: Public catalog items
-    // - orders/{orderId}: Customer purchase records
-    // ===============================================================
-
-    // Deployment Trigger: Updated to resolve conflict release (v2.4.1)
-
-    // Helper: Check if user is accessing their own path (tg_{id})
-    function isOwner(userId) {
-      return userId.startsWith('tg_');
+    
+    // Helper: Check if user is signed in to Firebase
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // CATALOG: Publicly readable, admin write restricted
+    // Helper: Verify the Telegram UID matches the session
+    // Note: We link firebaseUid inside the document for persistent verification
+    function isOwner(userId) {
+      return isAuthenticated() && (
+        request.auth.uid == resource.data.firebaseUid || 
+        request.auth.uid == request.resource.data.firebaseUid
+      );
+    }
+
+    // CATALOG
     match /looks/{lookId} {
       allow read: if true;
-      allow write: if true; // In production, limit to admin users
+      allow write: if true; // Restrict to admin role in production
     }
 
-    // USERS: Users can manage their own profile and nested favorites
+    // USERS (Persistent Telegram Identities)
     match /users/{userId} {
-      allow read, write: if true; // Full access for prototype sync
+      // Allow read/write if the Firebase UID matches the one stored in the doc
+      // Or allow create if it's a new tg_ user
+      allow read: if isAuthenticated() && (userId == 'tg_demo' || resource.data.firebaseUid == request.auth.uid);
+      allow create: if isAuthenticated() && userId.startsWith('tg_');
+      allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
       
       match /liked_looks/{lookId} {
-        allow read, write: if true;
+        allow read, write: if isAuthenticated();
       }
     }
 
-    // ORDERS: Public create for checkout, admin manage
+    // ORDERS
     match /orders/{orderId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
     }
 
-    // CONSULTATIONS: Size advisor requests
+    // CONSULTATIONS
     match /consultations/{id} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
   }
 }
