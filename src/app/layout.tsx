@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -28,7 +27,7 @@ export default function RootLayout({
         {/* Telegram Mini App Script - Highest Priority Execution */}
         <script 
           src="https://telegram.org/js/telegram-web-app.js" 
-          async
+          strategy="beforeInteractive"
         />
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">

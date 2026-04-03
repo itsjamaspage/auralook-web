@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -27,7 +26,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v3.0.0';
+const CACHE_KEY = 'auralook_protocol_v3.2.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -53,7 +52,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
     // 2. High-Durability Polling for Telegram Environment
     let attempts = 0;
-    const maxAttempts = 20; // 5 seconds total
+    const maxAttempts = 40; // 10 seconds total
     
     const interval = setInterval(() => {
       attempts++;
@@ -70,10 +69,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
       if (!tg?.initData) {
         if (isStudio) {
-          console.log("Protocol Sync: Studio Environment. Triggering Demo Mode.");
           handleDemoMode();
         } else {
-          console.log("Protocol Sync: Outside Telegram Environment.");
           setIsLoading(false);
         }
         return;
@@ -92,7 +89,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       // 4. Begin Secure Signature Handshake
-      console.log("Protocol Sync: Securing Telegram Identity...");
       bridgeIdentity(tg);
     }, 250);
 
