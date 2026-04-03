@@ -22,7 +22,7 @@ export default function UserOrdersPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    // CRITICAL: Prevent Permission Denied by filtering by userId AND waiting for auth
+    // CRITICAL: Prevent Permission Denied by waiting for identity bridge
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
     return query(
       collection(db, 'orders'),

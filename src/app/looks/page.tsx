@@ -29,7 +29,6 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
-  // Prevent slider crash when switching currencies
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) setPriceRange([0, max]);
@@ -42,8 +41,7 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Do not query until identity is fully bridged to Firebase
-    // This prevents "Permission Denied" crashes
+    // CRITICAL DATA GUARD: Prevent crash by waiting for full identity sync
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
