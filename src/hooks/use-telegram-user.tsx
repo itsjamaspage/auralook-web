@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v6.0.0';
+const CACHE_KEY = 'auralook_protocol_v7.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -42,7 +42,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
-        setUser(JSON.parse(cached));
+        const parsed = JSON.parse(cached);
+        setUser(parsed);
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
@@ -52,7 +53,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       let attempts = 0;
       const getTG = () => (window as any).Telegram?.WebApp;
 
-      while (!getTG() && attempts < 40) {
+      // Aggressive polling for Telegram environment
+      while (!getTG() && attempts < 50) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
@@ -87,13 +89,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.expand();
 
       try {
-        // 1. SILENT LOGIN - Essential for database access
+        // 1. MANDATORY SILENT LOGIN - Must happen before any database reads
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
+        
         const profileWithUid = { ...initialProfile, firebaseUid };
         setUser(profileWithUid);
 
-        // 2. VERIFICATION
+        // 2. SECURE VERIFICATION
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -110,10 +113,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           }, { merge: true });
           localStorage.setItem(CACHE_KEY, JSON.stringify(profileWithUid));
         } else {
-          console.warn('Protocol verification failure (401). Identity operating in unverified mode.');
+          console.warn('Signature handshake failed. Identity operating in unverified bridge mode.');
+          // We still allow the session to continue for better UX, but marked as unverified
+          setIsVerified(false);
         }
       } catch (err) {
-        console.error('Identity Bridge Error:', err);
+        console.error('Identity Bridge Critical Error:', err);
       } finally {
         setIsLoading(false);
       }

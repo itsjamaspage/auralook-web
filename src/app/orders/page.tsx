@@ -22,7 +22,7 @@ export default function UserOrdersPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    // CRITICAL: Wait for identity bridge and auth session
+    // CRITICAL DATA GUARD: Wait for identity bridge and full auth session
     if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
     return query(
       collection(db, 'orders'),

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -28,7 +29,7 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
-  // Handle currency switching: automatically clamp price range to prevent slider crash
+  // Prevent slider crash by clamping values on currency change
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) setPriceRange([0, max]);
@@ -41,14 +42,14 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // STRICT DATA GUARD: Prevent Permission Denied by waiting for full Firebase session
-    // We must have a valid firebaseUser AND a settled telegram identity bridge
+    // STRICT GUARD: If user isn't fully authenticated, return null to avoid crash
     if (isUserLoading || !firebaseUser || !tgUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading]);
   
+  // Use explicit undefined check to keep hook in waiting state
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
@@ -60,7 +61,6 @@ export default function LooksPage() {
     });
   }, [looks, filterCurrency, priceRange]);
 
-  // Defensive price formatting to prevent Intl errors
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
     return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
@@ -72,8 +72,8 @@ export default function LooksPage() {
     
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       toast({
-        title: "Protocol Syncing",
-        description: "Please wait for identity verification.",
+        title: "Sincronizing...",
+        description: "Identity verification in progress.",
         variant: "destructive"
       });
       return;
@@ -88,7 +88,7 @@ export default function LooksPage() {
         await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
       }
     } catch (e) {
-      console.error('Action Rejection:', e);
+      console.error('Like toggle failed:', e);
     }
   };
 
