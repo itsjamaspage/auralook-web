@@ -29,7 +29,8 @@ export default function FavoritesPage() {
     return collection(db, 'users', user.id, 'liked_looks');
   }, [db, user]);
   
-  const { data: likedData } = useCollection(likedLooksQuery);
+  // Use undefined for stability fallback
+  const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);
 
   // 3. Filter looks

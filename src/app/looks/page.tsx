@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
@@ -29,6 +29,14 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
+  // Prevent slider out-of-bounds crash when switching currencies
+  useEffect(() => {
+    const max = filterCurrency === 'USD' ? 5000 : 100000000;
+    if (priceRange[1] > max) {
+      setPriceRange([0, max]);
+    }
+  }, [filterCurrency]);
+
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
   }, [db]);
@@ -41,7 +49,8 @@ export default function LooksPage() {
     return collection(db, 'users', user.id, 'liked_looks');
   }, [db, user]);
   
-  const { data: likedLooksData } = useCollection(likedLooksQuery);
+  // Use undefined for null fallback to ensure useCollection stability
+  const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
   const filteredLooks = useMemo(() => {
@@ -143,10 +152,7 @@ export default function LooksPage() {
                 <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
                 <RadioGroup 
                   value={filterCurrency} 
-                  onValueChange={(val: any) => {
-                    setFilterCurrency(val);
-                    setPriceRange([0, val === 'USD' ? 5000 : 100000000]);
-                  }} 
+                  onValueChange={(val: any) => setFilterCurrency(val)} 
                   className="flex gap-8 flex-wrap"
                 >
                   <div className="flex items-center space-x-2">
