@@ -47,16 +47,22 @@ export default function ProfilePage() {
     }
   };
 
+  // High-tech loader while identifying the Telegram session
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 animate-spin neon-text" />
+        <div className="relative">
+          <Loader2 className="w-12 h-12 animate-spin neon-text stroke-[1px]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 neon-bg rounded-full animate-ping" />
+          </div>
+        </div>
         <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing Identity...</p>
       </div>
     );
   }
 
-  // If no user is detected after loading, we show a friendly "Please use Telegram" instead of "Unauthorized"
+  // If no user is detected, fallback to a friendly prompt (should not happen in real bot)
   if (!user) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
@@ -71,6 +77,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
+      {/* Profile Header */}
       <div className="flex flex-col items-center gap-6">
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
@@ -95,6 +102,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Identity Shield (Contact Info) */}
       <Card className="glass-dark border-white/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Shield className="w-12 h-12 text-primary" />
@@ -124,6 +132,7 @@ export default function ProfilePage() {
         </div>
       </Card>
 
+      {/* Navigation Nodes */}
       <div className="space-y-4">
         {[
           { icon: Package, label: t(dictionary.orderHistory), color: 'text-blue-400', href: '/orders' },

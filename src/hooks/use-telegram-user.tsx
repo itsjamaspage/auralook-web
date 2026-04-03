@@ -28,7 +28,7 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-const CACHE_KEY = 'auralook_protocol_v2.5.0';
+const CACHE_KEY = 'auralook_protocol_v2.6.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -43,7 +43,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     async function bridgeIdentity() {
       const tg = (window as any).Telegram?.WebApp;
       
-      // 1. Attempt to load cached profile for instant UI
+      // Attempt to load cached profile for instant UI
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
         try {
@@ -55,9 +55,10 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      // Detect environment
       if (!tg || !tg.initData) {
-        if (process.env.NODE_ENV !== 'production') {
-          handleDemoMode('Local Environment detected. Entering Simulation...');
+        if (process.env.NODE_ENV !== 'production' || window.location.hostname.includes('cloudworkstations.dev')) {
+          handleDemoMode('Local/Studio Environment detected. Entering Simulation...');
         } else {
           setIsLoading(false);
         }
@@ -65,7 +66,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        // Step A: Verify Telegram Signature
+        // Step A: Verify Telegram Signature via Backend
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -77,7 +78,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const telegramData = await res.json();
         const uid = `tg_${telegramData.id}`;
 
-        // Step B: Silent Firebase Authentication
+        // Step B: Silent Firebase Authentication (Bridge session)
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
@@ -103,7 +104,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           userData.phone = null;
         }
 
-        // Link current Firebase session to this Telegram ID
+        // Link the active Firebase session to the persistent Telegram identity
         await setDoc(userRef, userData, { merge: true });
         
         const finalUser = existingDoc.exists() 
@@ -141,7 +142,13 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
 
-    bridgeIdentity();
+    // Wait for Telegram Script to definitely be ready
+    if ((window as any).Telegram?.WebApp) {
+      bridgeIdentity();
+    } else {
+      const timeout = setTimeout(bridgeIdentity, 500);
+      return () => clearTimeout(timeout);
+    }
   }, [db, auth]);
 
   return (

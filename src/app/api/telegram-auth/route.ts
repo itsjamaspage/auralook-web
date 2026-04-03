@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
     const hash = urlParams.get('hash');
     urlParams.delete('hash');
 
-    // 1. Data Integrity: Sort keys alphabetically
+    // 1. Sort keys alphabetically to construct the data check string
     const dataCheckString = Array.from(urlParams.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
 
-    // 2. Signature Verification
+    // 2. Signature Verification using SHA256 HMAC
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
       .update(token)
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized: Invalid Signature' }, { status: 401 });
     }
 
-    // 3. Extract User Object
+    // 3. Extract and return the user profile
     const userRaw = urlParams.get('user');
     if (!userRaw) {
       return NextResponse.json({ error: 'Missing user profile' }, { status: 400 });
