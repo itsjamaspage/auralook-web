@@ -24,8 +24,8 @@ export default function FavoritesPage() {
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Guard against Permission Denied by waiting for BOTH identities
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending' || tgUser.firebaseUid !== firebaseUser.uid) {
+    // CRITICAL DATA GUARD: Prevent Permission Denied crashes during sync
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');

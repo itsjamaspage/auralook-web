@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v5.0.0';
+const CACHE_KEY = 'auralook_protocol_v6.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -39,24 +39,20 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
-    // 1. Instant Cache Recovery
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
-        const parsed = JSON.parse(cached);
-        setUser(parsed);
+        setUser(JSON.parse(cached));
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
     }
 
-    // 2. Robust Identification Sequence
     const initBridge = async () => {
       let attempts = 0;
       const getTG = () => (window as any).Telegram?.WebApp;
 
-      // Wait up to 3 seconds for script
-      while (!getTG() && attempts < 30) {
+      while (!getTG() && attempts < 40) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
@@ -72,7 +68,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // 3. Instant UI Hydration (Visual Identification)
       const rawUser = tg.initDataUnsafe.user;
       const initialProfile: UserProfile = {
         id: `tg_${rawUser.id}`,
@@ -92,15 +87,13 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.expand();
 
       try {
-        // 4. Silent Firebase Login (Mandatory for Database Access)
+        // 1. SILENT LOGIN - Essential for database access
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
-        
-        // Finalize local profile with verified UID
         const profileWithUid = { ...initialProfile, firebaseUid };
         setUser(profileWithUid);
 
-        // 5. Backend Verification (Security Handshake)
+        // 2. VERIFICATION
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -109,20 +102,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
         if (res.ok) {
           setIsVerified(true);
-          // 6. Sync to Firestore for data persistence
           const userRef = doc(db, 'users', profileWithUid.id);
-          const userData = {
+          await setDoc(userRef, {
             ...profileWithUid,
             lastSeen: serverTimestamp(),
             updatedAt: serverTimestamp(),
-          };
-          await setDoc(userRef, userData, { merge: true });
-          localStorage.setItem(CACHE_KEY, JSON.stringify(userData));
+          }, { merge: true });
+          localStorage.setItem(CACHE_KEY, JSON.stringify(profileWithUid));
         } else {
-          console.warn('Backend verification bypassed. Using client-only session.');
+          console.warn('Protocol verification failure (401). Identity operating in unverified mode.');
         }
       } catch (err) {
-        console.error('Identity Bridge Critical Error:', err);
+        console.error('Identity Bridge Error:', err);
       } finally {
         setIsLoading(false);
       }
