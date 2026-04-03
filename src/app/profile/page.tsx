@@ -57,20 +57,20 @@ export default function ProfilePage() {
             <div className="w-2 h-2 neon-bg rounded-full animate-ping" />
           </div>
         </div>
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing Identity...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Establishing Connection...</p>
       </div>
     );
   }
 
-  // If no user is detected, fallback to a friendly prompt (should not happen in real bot)
+  // If sync fails or app is opened outside TG, show a clear message
   if (!user) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4">
           <User className="w-10 h-10 text-white/20" />
         </div>
-        <h1 className="text-xl font-black text-white uppercase italic">Bot orqali kiring</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">Profilni ko'rish uchun iltimos Mini App'ni Telegram botingiz orqali oching.</p>
+        <h1 className="text-xl font-black text-white uppercase italic">Protocol Locked</h1>
+        <p className="text-white/40 text-sm max-w-xs mx-auto">This profile is linked to a Telegram identity. Please open this app through the official bot.</p>
       </div>
     );
   }
@@ -78,7 +78,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       {/* Profile Header */}
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
           <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-black shadow-2xl">
@@ -111,7 +111,7 @@ export default function ProfilePage() {
         <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />
-            <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">Aloqa Ma'lumotlari</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">Contact Information</Label>
           </div>
           <div className="flex gap-3">
             <Input 
@@ -128,7 +128,7 @@ export default function ProfilePage() {
               {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}
             </Button>
           </div>
-          <p className="text-[9px] text-white/30 italic px-2">Ma'lumotlaringiz xavfsiz va faqat buyurtma uchun ishlatiladi.</p>
+          <p className="text-[9px] text-white/30 italic px-2">Your data is secured and used strictly for order logistics.</p>
         </div>
       </Card>
 

@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v2.6.0';
+const CACHE_KEY = 'auralook_protocol_v2.7.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -50,14 +50,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Wait up to 2 seconds for Telegram script to inject WebApp
+    // Wait up to 3 seconds for Telegram script to inject WebApp
     let attempts = 0;
     const interval = setInterval(() => {
       attempts++;
       const tg = (window as any).Telegram?.WebApp;
 
       // Still waiting for script...
-      if (!tg && attempts < 8) return;
+      if (!tg?.initData && attempts < 12) return;
 
       clearInterval(interval);
 
@@ -70,7 +70,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         if (isDev) {
           handleDemoMode();
         } else {
-          // Real production but no Telegram context
+          // Real production but no Telegram context found
           setIsLoading(false);
         }
         return;
@@ -85,7 +85,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
   async function bridgeIdentity(tg: any) {
     try {
-      tg.ready(); // Tell Telegram the app is ready
+      tg.ready();
+      tg.expand();
 
       // Step 1: Verify Telegram signature on backend
       const res = await fetch('/api/telegram-auth', {
