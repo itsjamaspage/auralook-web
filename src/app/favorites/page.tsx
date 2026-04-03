@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
@@ -24,7 +23,7 @@ export default function FavoritesPage() {
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Wait for auth session to be confirmed
+    // STRICT DATA GUARD: Prevents Permission Denied by ensuring auth session exists
     if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       return null;
     }

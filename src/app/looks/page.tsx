@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -29,6 +28,7 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
+  // Handle currency switching: automatically clamp price range to prevent slider crash
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) setPriceRange([0, max]);
@@ -41,7 +41,8 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Prevent crash by waiting for full session stability
+    // STRICT DATA GUARD: Prevent Permission Denied by waiting for full Firebase session
+    // We must have a valid firebaseUser AND a settled telegram identity bridge
     if (isUserLoading || !firebaseUser || !tgUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
@@ -59,7 +60,11 @@ export default function LooksPage() {
     });
   }, [looks, filterCurrency, priceRange]);
 
-  const formatPrice = (val: number) => new Intl.NumberFormat('uz-UZ').format(val);
+  // Defensive price formatting to prevent Intl errors
+  const formatPrice = (val: any) => {
+    const num = Number(val || 0);
+    return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
+  };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
@@ -67,8 +72,8 @@ export default function LooksPage() {
     
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       toast({
-        title: "Sinxronizatsiya kutilmoqda",
-        description: "Iltimos, identifikatsiya yakunlanishini kuting.",
+        title: "Protocol Syncing",
+        description: "Please wait for identity verification.",
         variant: "destructive"
       });
       return;
@@ -83,7 +88,7 @@ export default function LooksPage() {
         await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
       }
     } catch (e) {
-      console.error('Like toggle failed:', e);
+      console.error('Action Rejection:', e);
     }
   };
 
