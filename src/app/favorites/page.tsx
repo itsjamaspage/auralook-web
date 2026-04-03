@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
@@ -13,7 +14,8 @@ import { useState, useMemo } from 'react';
 
 export default function FavoritesPage() {
   const db = useFirestore();
-  const { user } = useTelegramUser();
+  const { user, isVerified } = useTelegramUser();
+  const { user: firebaseUser } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
@@ -24,11 +26,11 @@ export default function FavoritesPage() {
 
   // 2. Get user's liked IDs
   const likedLooksQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    // CRITICAL: Wait for BOTH Telegram ID AND Firebase Session
+    if (!user || !isVerified || !firebaseUser) return null;
     return collection(db, 'users', user.id, 'liked_looks');
-  }, [db, user]);
+  }, [db, user, isVerified, firebaseUser]);
   
-  // Use undefined for stability fallback to prevent null-reference crash in hook
   const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);
 
@@ -40,7 +42,7 @@ export default function FavoritesPage() {
   const handleRemove = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return;
+    if (!user || !firebaseUser) return;
     
     try {
       await deleteDoc(doc(db, 'users', user.id, 'liked_looks', lookId));

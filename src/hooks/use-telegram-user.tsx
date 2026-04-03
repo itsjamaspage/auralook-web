@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -38,7 +39,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
-    // 1. Instant Cache/Local Hydration
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
@@ -50,15 +50,13 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // 2. High-Durability Polling for Telegram Environment
     let attempts = 0;
-    const maxAttempts = 40; // 10 seconds total
+    const maxAttempts = 40; 
     
     const interval = setInterval(() => {
       attempts++;
       const tg = (window as any).Telegram?.WebApp;
 
-      // Still waiting for script injection...
       if ((!tg || !tg.initDataUnsafe) && attempts < maxAttempts) return;
 
       clearInterval(interval);
@@ -76,19 +74,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // 3. Script Ready — Instant UI Hydration from initDataUnsafe
-      if (tg.initDataUnsafe.user) {
-        const u = tg.initDataUnsafe.user;
-        const preliminaryUser: any = {
-          id: `tg_${u.id}`,
-          firstName: u.first_name,
-          username: u.username || null,
-          photoUrl: u.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.first_name)}&background=00FF88&color=000&bold=true`,
-        };
-        setUser(prev => ({ ...prev, ...preliminaryUser }));
-      }
-
-      // 4. Begin Secure Signature Handshake
       bridgeIdentity(tg);
     }, 250);
 
@@ -100,7 +85,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.ready();
       tg.expand();
 
-      // Step 1: Secure Signature Handshake (HMAC Verification)
+      // Step 1: Sign into Firebase first to ensure we have a session for subsequent DB writes
+      const userCred = await signInAnonymously(auth);
+      const firebaseUid = userCred.user.uid;
+
+      // Step 2: Secure Signature Handshake
       const res = await fetch('/api/telegram-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,10 +100,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
       const telegramData = await res.json();
       const uid = `tg_${telegramData.id}`;
-
-      // Step 2: Firebase Silent Identity Bridge
-      const userCred = await signInAnonymously(auth);
-      const firebaseUid = userCred.user.uid;
 
       // Step 3: Database Synchronization
       const userRef = doc(db, 'users', uid);
@@ -156,7 +141,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function handleDemoMode() {
+  async function handleDemoMode() {
+    try {
+      // Must sign in even in demo mode to satisfy security rules for catalog queries
+      await signInAnonymously(auth);
+    } catch (e) {
+      console.warn("Demo Firebase login bypassed");
+    }
+
     const mockUser: UserProfile = {
       id: 'tg_demo',
       telegramId: 0,

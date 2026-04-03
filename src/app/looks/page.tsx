@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
@@ -18,7 +19,8 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function LooksPage() {
   const db = useFirestore();
-  const { user } = useTelegramUser();
+  const { user, isVerified } = useTelegramUser();
+  const { user: firebaseUser } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   
@@ -28,7 +30,6 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
-  // Prevent slider out-of-bounds crash when switching currencies
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) {
@@ -42,13 +43,13 @@ export default function LooksPage() {
 
   const { data: looks, isLoading } = useCollection(looksQuery);
 
-  // Load the user's specific liked looks
   const likedLooksQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    // CRITICAL: Must wait for BOTH Telegram identity AND Firebase Session
+    // to avoid "Permission Denied" crashes
+    if (!user || !isVerified || !firebaseUser) return null;
     return collection(db, 'users', user.id, 'liked_looks');
-  }, [db, user]);
+  }, [db, user, isVerified, firebaseUser]);
   
-  // Use undefined for null fallback to ensure useCollection stability and prevent crash
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
@@ -68,7 +69,7 @@ export default function LooksPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user) {
+    if (!user || !firebaseUser) {
       toast({
         title: "Identifikatsiya kerak",
         description: "Saralanganlarga qo'shish uchun bot orqali kiring.",
