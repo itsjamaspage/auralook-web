@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Template-based order notifications for Telegram.
- * Removed Gemini dependency for guaranteed delivery and faster response.
+ * Enhanced with server-side logging to debug delivery issues.
  */
 
 import { z } from 'genkit';
@@ -28,6 +28,16 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
+  console.log(`[Telegram Protocol] Initiating notification for Order: ${input.orderId}`);
+  
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+
+  if (!token || !adminChatId) {
+    console.error("[Telegram Protocol] CRITICAL ERROR: TELEGRAM_BOT_TOKEN or ADMIN_CHAT_ID is missing from environment variables.");
+    return;
+  }
+
   try {
     const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'user';
     const timestamp = input.timestamp || new Date().toLocaleString('uz-UZ');
@@ -58,42 +68,41 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
-
-    if (!token || !adminChatId) {
-      console.warn("Telegram configuration is missing. Notification skipped.");
-      return;
-    }
-
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    // Send logic (Photo or Message)
-    if (input.imageUrl && !input.imageUrl.includes('picsum.photos')) {
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: adminChatId,
-          photo: input.imageUrl,
-          caption: finalCaption,
-          parse_mode: 'HTML',
-        }),
-      });
+    const usePhoto = input.imageUrl && !input.imageUrl.includes('picsum.photos') && !input.imageUrl.startsWith('data:');
+    const method = usePhoto ? 'sendPhoto' : 'sendMessage';
+    
+    const payload: any = {
+      chat_id: adminChatId,
+      parse_mode: 'HTML',
+    };
+
+    if (usePhoto) {
+      payload.photo = input.imageUrl;
+      payload.caption = finalCaption;
     } else {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: adminChatId,
-          text: finalCaption,
-          parse_mode: 'HTML',
-        }),
-      });
+      payload.text = finalCaption;
+    }
+
+    console.log(`[Telegram Protocol] Dispatching ${method} to API...`);
+    
+    const response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      console.error(`[Telegram Protocol] API ERROR: ${result.description}`);
+    } else {
+      console.log(`[Telegram Protocol] SUCCESS: Notification delivered to Telegram.`);
     }
   } catch (error) {
-    console.error("Failed to send Telegram notification:", error);
+    console.error("[Telegram Protocol] NETWORK ERROR:", error);
   }
 }

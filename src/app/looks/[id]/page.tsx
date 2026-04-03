@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -138,7 +137,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       const timestamp = new Date().toLocaleString('uz-UZ');
       const orderData = {
         userId: tgUser?.id || 'guest',
-        firebaseUid: firebaseUser.uid, // CRITICAL: Link to Firebase Auth for security rules
+        firebaseUid: firebaseUser.uid,
         customerName: tgUser?.firstName || orderDetails.telegram, 
         orderDate: new Date().toISOString(),
         status: 'New',
@@ -162,8 +161,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Attempt notification but don't block order success on it
-      notifyAdminOfOrder({
+      // Await notification to ensure server action is processed correctly
+      await notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
         currentStatus: 'New',
@@ -178,7 +177,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           weight: orderDetails.weight || undefined,
           size: orderData.size,
         }
-      }).catch(console.error);
+      });
 
       toast({
         title: "Buyurtma qabul qilindi",
