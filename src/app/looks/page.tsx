@@ -29,11 +29,10 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
-  // Adjust price range slider when currency changes to prevent out-of-bounds crash
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) setPriceRange([0, max]);
-  }, [filterCurrency]);
+  }, [filterCurrency, priceRange]);
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -42,8 +41,10 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Prevent Permission Denied crash by waiting for Firebase Auth to finalize
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
+    // CRITICAL: Only initiate query if BOTH identities are verified and synchronized
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending' || tgUser.firebaseUid !== firebaseUser.uid) {
+      return null;
+    }
     return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser]);
   
@@ -64,10 +65,10 @@ export default function LooksPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!tgUser || !firebaseUser) {
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       toast({
-        title: "Identifikatsiya kerak",
-        description: "Saralanganlarga qo'shish uchun bot orqali kiring.",
+        title: "Sinxronizatsiya kutilmoqda",
+        description: "Iltimos, identifikatsiya yakunlanishini kuting.",
         variant: "destructive"
       });
       return;
@@ -161,7 +162,7 @@ export default function LooksPage() {
                 <div className="flex justify-between items-center">
                   <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.priceRange)}</Label>
                   <span className="text-xs font-black neon-text italic">
-                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[ priceRange.length - 1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
+                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
                   </span>
                 </div>
                 <Slider 

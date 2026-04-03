@@ -14,27 +14,26 @@ import { useState, useMemo } from 'react';
 
 export default function FavoritesPage() {
   const db = useFirestore();
-  const { user, isVerified } = useTelegramUser();
+  const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
-  // 1. Get all looks
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
 
-  // 2. Get user's liked IDs
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Wait for BOTH identities to be ready to avoid Permission Denied crash
-    if (!user || !firebaseUser || user.firebaseUid === 'pending') return null;
-    return collection(db, 'users', user.id, 'liked_looks');
-  }, [db, user, firebaseUser]);
+    // CRITICAL: Guard against Permission Denied by waiting for BOTH identities
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending' || tgUser.firebaseUid !== firebaseUser.uid) {
+      return null;
+    }
+    return collection(db, 'users', tgUser.id, 'liked_looks');
+  }, [db, tgUser, firebaseUser]);
   
   const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);
 
-  // 3. Filter looks
   const myFavorites = useMemo(() => {
     return allLooks?.filter(look => likedIds.has(look.id)) || [];
   }, [allLooks, likedIds]);
@@ -42,10 +41,10 @@ export default function FavoritesPage() {
   const handleRemove = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user || !firebaseUser) return;
+    if (!tgUser || !firebaseUser) return;
     
     try {
-      await deleteDoc(doc(db, 'users', user.id, 'liked_looks', lookId));
+      await deleteDoc(doc(db, 'users', tgUser.id, 'liked_looks', lookId));
       toast({ title: "O'chirildi", description: "Libos saralanganlardan olib tashlandi." });
     } catch (e) {
       console.error(e);
@@ -61,7 +60,7 @@ export default function FavoritesPage() {
     );
   }
 
-  if (!user) {
+  if (!tgUser) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
         <Heart className="w-16 h-16 text-white/10 mx-auto" />

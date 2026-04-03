@@ -1,8 +1,9 @@
+
 "use client"
 
 import { useState } from 'react';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, orderBy, doc, updateDoc, serverTimestamp, where } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,21 +11,27 @@ import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone, XCircl
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function UserOrdersPage() {
   const db = useFirestore();
+  const { user: tgUser } = useTelegramUser();
+  const { user: firebaseUser } = useUser();
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
+    // CRITICAL: Prevent Permission Denied by filtering by userId AND waiting for auth
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
     return query(
       collection(db, 'orders'),
+      where('userId', '==', tgUser.id),
       orderBy('createdAt', 'desc')
     );
-  }, [db]);
+  }, [db, tgUser, firebaseUser]);
 
-  const { data: orders, isLoading } = useCollection(ordersQuery);
+  const { data: orders, isLoading } = useCollection(ordersQuery ?? undefined);
 
   const handleCancelOrder = async (order: any) => {
     setCancellingId(order.id);
@@ -36,7 +43,6 @@ export default function UserOrdersPage() {
         updatedAt: serverTimestamp()
       });
 
-      // Notify admin about cancellation
       await notifyAdminOfOrder({
         customerName: order.telegramUsername || order.customerName,
         orderId: order.id,
