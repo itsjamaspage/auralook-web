@@ -1,3 +1,4 @@
+
 # Auralook.uz - AI-Powered Techwear Store
 
 This is a futuristic clothing store prototype built with Next.js, Firebase, and Genkit. It features an AI Smart Size Advisor and deep integration with Telegram.

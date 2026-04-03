@@ -16,20 +16,20 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 export default function UserOrdersPage() {
   const db = useFirestore();
   const { user: tgUser } = useTelegramUser();
-  const { user: firebaseUser } = useUser();
+  const { user: firebaseUser, isUserLoading } = useUser();
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    // CRITICAL: Prevent Permission Denied by waiting for identity bridge
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
+    // CRITICAL: Wait for identity bridge and auth session
+    if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
     return query(
       collection(db, 'orders'),
       where('userId', '==', tgUser.id),
       orderBy('createdAt', 'desc')
     );
-  }, [db, tgUser, firebaseUser]);
+  }, [db, tgUser, firebaseUser, isUserLoading]);
 
   const { data: orders, isLoading } = useCollection(ordersQuery ?? undefined);
 

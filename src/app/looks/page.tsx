@@ -20,7 +20,7 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 export default function LooksPage() {
   const db = useFirestore();
   const { user: tgUser } = useTelegramUser();
-  const { user: firebaseUser } = useUser();
+  const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   
@@ -41,12 +41,12 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Prevent crash by waiting for full identity sync
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
+    // CRITICAL DATA GUARD: Prevent crash by waiting for full session stability
+    if (isUserLoading || !firebaseUser || !tgUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');
-  }, [db, tgUser, firebaseUser]);
+  }, [db, tgUser, firebaseUser, isUserLoading]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);

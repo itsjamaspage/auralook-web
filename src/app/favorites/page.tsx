@@ -15,7 +15,7 @@ import { useState, useMemo } from 'react';
 export default function FavoritesPage() {
   const db = useFirestore();
   const { user: tgUser } = useTelegramUser();
-  const { user: firebaseUser } = useUser();
+  const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
@@ -24,12 +24,12 @@ export default function FavoritesPage() {
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL DATA GUARD: Prevent Permission Denied by waiting for Auth
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
+    // CRITICAL DATA GUARD: Wait for auth session to be confirmed
+    if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');
-  }, [db, tgUser, firebaseUser]);
+  }, [db, tgUser, firebaseUser, isUserLoading]);
   
   const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);
