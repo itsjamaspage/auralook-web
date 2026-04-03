@@ -25,10 +25,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-        {/* Telegram Mini App Script - Highest Priority */}
+        {/* Telegram Mini App Script - Highest Priority Execution */}
         <script 
           src="https://telegram.org/js/telegram-web-app.js" 
-          strategy="beforeInteractive"
+          async
         />
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">

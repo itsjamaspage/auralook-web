@@ -50,7 +50,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="relative">
@@ -85,7 +85,7 @@ export default function ProfilePage() {
         
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-            {user?.firstName || 'Guest Voyager'}
+            {user?.firstName || 'Identified Node'}
           </h1>
           <div className="flex items-center justify-center gap-2">
             <Send className="w-3 h-3 text-primary" />
@@ -126,7 +126,7 @@ export default function ProfilePage() {
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-3 mt-2">
               <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <p className="text-[9px] text-amber-500/80 font-bold uppercase tracking-wider leading-relaxed">
-                Connect through Telegram Bot to enable persistent database synchronization.
+                Synchronization in progress. Please wait for full identity verification.
               </p>
             </div>
           )}

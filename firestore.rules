@@ -3,33 +3,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v2.5.0 Identity Bridged)
+    // Assumed Data Model (v3.0.0 Identity Bridged)
     // ===============================================================
     
-    // Helper: Check if user is signed in to Firebase
+    // Helper: Check if user is signed in to Firebase (Anonymous or Auth)
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper: Verify the Telegram UID matches the session
-    // Note: We link firebaseUid inside the document for persistent verification
+    // Helper: Check if user owns the document via their Firebase UID or Telegram ID
     function isOwner(userId) {
       return isAuthenticated() && (
-        request.auth.uid == resource.data.firebaseUid || 
-        request.auth.uid == request.resource.data.firebaseUid
+        userId == request.auth.uid || 
+        (resource != null && resource.data.firebaseUid == request.auth.uid)
       );
     }
 
     // CATALOG
     match /looks/{lookId} {
       allow read: if true;
-      allow write: if true; // Restrict to admin role in production
+      allow write: if false; // Restrict to hardcoded admin in prod
     }
 
-    // USERS (Persistent Telegram Identities)
+    // USERS (Verified Telegram Identities)
     match /users/{userId} {
       // Allow read/write if the Firebase UID matches the one stored in the doc
-      // Or allow create if it's a new tg_ user
+      // New tg_ profiles can be created by any authenticated session (silent bridge)
       allow read: if isAuthenticated() && (userId == 'tg_demo' || resource.data.firebaseUid == request.auth.uid);
       allow create: if isAuthenticated() && userId.startsWith('tg_');
       allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;

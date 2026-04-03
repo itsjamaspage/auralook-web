@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v2.8.0';
+const CACHE_KEY = 'auralook_protocol_v3.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -39,7 +39,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
-    // 1. Instant Cache Hydration
+    // 1. Instant Cache/Local Hydration
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
@@ -51,16 +51,16 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // 2. High-Durability Script Polling
+    // 2. High-Durability Polling for Telegram Environment
     let attempts = 0;
-    const maxAttempts = 15; // 3.75 seconds total
+    const maxAttempts = 20; // 5 seconds total
     
     const interval = setInterval(() => {
       attempts++;
       const tg = (window as any).Telegram?.WebApp;
 
       // Still waiting for script injection...
-      if (!tg?.initData && attempts < maxAttempts) return;
+      if ((!tg || !tg.initDataUnsafe) && attempts < maxAttempts) return;
 
       clearInterval(interval);
 
@@ -70,17 +70,29 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
       if (!tg?.initData) {
         if (isStudio) {
-          console.log("Protocol Bypass: Studio Environment Detected.");
+          console.log("Protocol Sync: Studio Environment. Triggering Demo Mode.");
           handleDemoMode();
         } else {
-          console.log("Protocol Sync: Native Environment (Outside Telegram).");
+          console.log("Protocol Sync: Outside Telegram Environment.");
           setIsLoading(false);
         }
         return;
       }
 
-      // 3. Script Ready — Begin Signature Bridge
-      console.log("Protocol Sync: Telegram Identity Found.");
+      // 3. Script Ready — Instant UI Hydration from initDataUnsafe
+      if (tg.initDataUnsafe.user) {
+        const u = tg.initDataUnsafe.user;
+        const preliminaryUser: any = {
+          id: `tg_${u.id}`,
+          firstName: u.first_name,
+          username: u.username || null,
+          photoUrl: u.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.first_name)}&background=00FF88&color=000&bold=true`,
+        };
+        setUser(prev => ({ ...prev, ...preliminaryUser }));
+      }
+
+      // 4. Begin Secure Signature Handshake
+      console.log("Protocol Sync: Securing Telegram Identity...");
       bridgeIdentity(tg);
     }, 250);
 
@@ -92,7 +104,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.ready();
       tg.expand();
 
-      // Step 1: Signature Verification (HMAC Handshake)
+      // Step 1: Secure Signature Handshake (HMAC Verification)
       const res = await fetch('/api/telegram-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,11 +116,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const telegramData = await res.json();
       const uid = `tg_${telegramData.id}`;
 
-      // Step 2: Firebase Silent Sign-in
+      // Step 2: Firebase Silent Identity Bridge
       const userCred = await signInAnonymously(auth);
       const firebaseUid = userCred.user.uid;
 
-      // Step 3: Database Sync
+      // Step 3: Database Synchronization
       const userRef = doc(db, 'users', uid);
       const existingDoc = await getDoc(userRef);
 
