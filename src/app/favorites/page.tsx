@@ -26,10 +26,10 @@ export default function FavoritesPage() {
 
   // 2. Get user's liked IDs
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Wait for BOTH Telegram ID AND Firebase Session
-    if (!user || !isVerified || !firebaseUser) return null;
+    // CRITICAL: Wait for BOTH identities to be ready to avoid Permission Denied crash
+    if (!user || !firebaseUser || user.firebaseUid === 'pending') return null;
     return collection(db, 'users', user.id, 'liked_looks');
-  }, [db, user, isVerified, firebaseUser]);
+  }, [db, user, firebaseUser]);
   
   const { data: likedData } = useCollection(likedLooksQuery ?? undefined);
   const likedIds = useMemo(() => new Set(likedData?.map(l => l.lookId) || []), [likedData]);

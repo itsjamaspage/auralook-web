@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useFirestore, useAuth } from '@/firebase';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 
 export interface UserProfile {
@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v4.0.0';
+const CACHE_KEY = 'auralook_protocol_v5.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -43,22 +43,25 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
-        setUser(JSON.parse(cached));
-        setIsVerified(true);
+        const parsed = JSON.parse(cached);
+        setUser(parsed);
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
     }
 
-    // 2. Poll for Telegram WebApp
-    let attempts = 0;
-    const interval = setInterval(() => {
-      attempts++;
-      const tg = (window as any).Telegram?.WebApp;
+    // 2. Robust Identification Sequence
+    const initBridge = async () => {
+      let attempts = 0;
+      const getTG = () => (window as any).Telegram?.WebApp;
 
-      if (!tg && attempts < 20) return;
-      clearInterval(interval);
+      // Wait up to 3 seconds for script
+      while (!getTG() && attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+      }
 
+      const tg = getTG();
       const isDev = process.env.NODE_ENV !== 'production' 
         || window.location.hostname.includes('cloudworkstations.dev')
         || window.location.hostname === 'localhost';
@@ -69,7 +72,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // 3. Instant UI Hydration (Don't wait for API)
+      // 3. Instant UI Hydration (Visual Identification)
       const rawUser = tg.initDataUnsafe.user;
       const initialProfile: UserProfile = {
         id: `tg_${rawUser.id}`,
@@ -83,58 +86,50 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         updatedAt: new Date().toISOString(),
         phone: null
       };
-      setUser(initialProfile);
       
-      // 4. Secure Bridge in background
-      bridgeIdentity(tg, initialProfile);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [db, auth]);
-
-  async function bridgeIdentity(tg: any, initialProfile: UserProfile) {
-    try {
+      setUser(initialProfile);
       tg.ready();
       tg.expand();
 
-      // Step 1: Sign into Firebase (Mandatory for DB writes)
-      const userCred = await signInAnonymously(auth);
-      const firebaseUid = userCred.user.uid;
-
-      // Update local state with UID
-      setUser(prev => prev ? { ...prev, firebaseUid } : null);
-
-      // Step 2: Signature Verification (Optional for UI, Mandatory for Data Sync)
-      const res = await fetch('/api/telegram-auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData: tg.initData }),
-      });
-
-      if (res.ok) {
-        const verifiedData = await res.json();
-        setIsVerified(true);
-
-        // Step 3: Firestore Sync
-        const userRef = doc(db, 'users', initialProfile.id);
-        const userData = {
-          ...initialProfile,
-          firebaseUid,
-          lastSeen: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        };
+      try {
+        // 4. Silent Firebase Login (Mandatory for Database Access)
+        const userCred = await signInAnonymously(auth);
+        const firebaseUid = userCred.user.uid;
         
-        await setDoc(userRef, userData, { merge: true });
-        localStorage.setItem(CACHE_KEY, JSON.stringify(userData));
-      } else {
-        console.warn('Backend verification failed, using client-side identity only.');
+        // Finalize local profile with verified UID
+        const profileWithUid = { ...initialProfile, firebaseUid };
+        setUser(profileWithUid);
+
+        // 5. Backend Verification (Security Handshake)
+        const res = await fetch('/api/telegram-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData }),
+        });
+
+        if (res.ok) {
+          setIsVerified(true);
+          // 6. Sync to Firestore for data persistence
+          const userRef = doc(db, 'users', profileWithUid.id);
+          const userData = {
+            ...profileWithUid,
+            lastSeen: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          };
+          await setDoc(userRef, userData, { merge: true });
+          localStorage.setItem(CACHE_KEY, JSON.stringify(userData));
+        } else {
+          console.warn('Backend verification bypassed. Using client-only session.');
+        }
+      } catch (err) {
+        console.error('Identity Bridge Critical Error:', err);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: any) {
-      console.error('Protocol Sync Error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+    };
+
+    initBridge();
+  }, [db, auth]);
 
   function handleDemoMode() {
     const mockUser: UserProfile = {

@@ -29,6 +29,7 @@ export default function LooksPage() {
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
+  // Adjust price range slider when currency changes to prevent out-of-bounds crash
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
     if (priceRange[1] > max) setPriceRange([0, max]);
@@ -38,11 +39,11 @@ export default function LooksPage() {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
   }, [db]);
 
-  const { data: looks, isLoading } = useCollection(looksQuery);
+  const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Wait for BOTH identities to be ready
-    if (!tgUser || !firebaseUser) return null;
+    // CRITICAL: Prevent Permission Denied crash by waiting for Firebase Auth to finalize
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') return null;
     return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser]);
   
@@ -160,7 +161,7 @@ export default function LooksPage() {
                 <div className="flex justify-between items-center">
                   <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.priceRange)}</Label>
                   <span className="text-xs font-black neon-text italic">
-                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
+                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[ priceRange.length - 1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
                   </span>
                 </div>
                 <Slider 
@@ -176,7 +177,7 @@ export default function LooksPage() {
         )}
       </div>
 
-      {isLoading ? (
+      {looksLoading ? (
         <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
       ) : (
         <div className={cn("pb-32 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>

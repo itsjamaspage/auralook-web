@@ -47,18 +47,26 @@ export default function ProfilePage() {
     }
   };
 
-  // Only show full loader if we have NO user data at all
+  // Only show full loader if we have NO user data at all from the Telegram script
   if (isLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-12 h-12 animate-spin neon-text stroke-[1px]" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Scanning Protocol...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing identity...</p>
       </div>
     );
   }
 
-  // If sync finished and still no user, we are likely outside Telegram, but we show a guest UI instead of blocking
-  const displayUser = user || { firstName: 'Guest Voyager', username: 'guest' };
+  // Identity Hydration: If script isn't found yet, show a waiting state
+  if (!user) {
+    return (
+      <div className="container mx-auto px-6 py-20 text-center space-y-6">
+        <Shield className="w-16 h-16 text-white/10 mx-auto" />
+        <h1 className="text-xl font-black text-white uppercase italic">Protocol identification required</h1>
+        <p className="text-white/40 text-sm max-w-xs mx-auto">Please open this app inside the official Telegram bot.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
@@ -66,7 +74,7 @@ export default function ProfilePage() {
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
           <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-black shadow-2xl">
-            <AvatarImage src={displayUser.photoUrl || undefined} alt={displayUser.firstName} />
+            <AvatarImage src={user.photoUrl || undefined} alt={user.firstName} />
             <AvatarFallback className="bg-white/5">
               <User className="w-10 h-10 text-primary" />
             </AvatarFallback>
@@ -75,12 +83,12 @@ export default function ProfilePage() {
         
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
-            {displayUser.firstName}
+            {user.firstName}
           </h1>
           <div className="flex items-center justify-center gap-2">
             <Send className="w-3 h-3 text-primary" />
             <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] font-mono">
-              @{displayUser.username || 'user'}
+              @{user.username || 'user'}
             </p>
           </div>
         </div>
@@ -105,7 +113,7 @@ export default function ProfilePage() {
             />
             <Button 
               onClick={handleUpdatePhone}
-              disabled={isSaving || !user || user.firebaseUid === 'pending'}
+              disabled={isSaving || user.firebaseUid === 'pending'}
               className="h-14 w-14 rounded-2xl neon-bg border-none shadow-xl hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}
