@@ -12,7 +12,7 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: TELEGRAM_BOT_TOKEN
-    secret: TELEGRAM_BOT_TOKEN
-  - variable: TELEGRAM_ADMIN_CHAT_ID
-    secret: TELEGRAM_ADMIN_CHAT_ID
+  - variable: 7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM
+    secret: 7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM
+  - variable: 7213073025
+    secret: 7213073025

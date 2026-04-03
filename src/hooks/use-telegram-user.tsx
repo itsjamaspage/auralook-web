@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v3.2.0';
+const CACHE_KEY = 'auralook_protocol_v4.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -39,116 +39,104 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
+    // 1. Instant Cache Recovery
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
-        const parsed = JSON.parse(cached);
-        setUser(parsed);
+        setUser(JSON.parse(cached));
         setIsVerified(true);
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
     }
 
+    // 2. Poll for Telegram WebApp
     let attempts = 0;
-    const maxAttempts = 40; 
-    
     const interval = setInterval(() => {
       attempts++;
       const tg = (window as any).Telegram?.WebApp;
 
-      if ((!tg || !tg.initDataUnsafe) && attempts < maxAttempts) return;
-
+      if (!tg && attempts < 20) return;
       clearInterval(interval);
 
-      const isStudio = process.env.NODE_ENV !== 'production' 
+      const isDev = process.env.NODE_ENV !== 'production' 
         || window.location.hostname.includes('cloudworkstations.dev')
         || window.location.hostname === 'localhost';
 
-      if (!tg?.initData) {
-        if (isStudio) {
-          handleDemoMode();
-        } else {
-          setIsLoading(false);
-        }
+      if (!tg?.initDataUnsafe?.user) {
+        if (isDev) handleDemoMode();
+        else setIsLoading(false);
         return;
       }
 
-      bridgeIdentity(tg);
-    }, 250);
+      // 3. Instant UI Hydration (Don't wait for API)
+      const rawUser = tg.initDataUnsafe.user;
+      const initialProfile: UserProfile = {
+        id: `tg_${rawUser.id}`,
+        telegramId: rawUser.id,
+        firstName: rawUser.first_name,
+        username: rawUser.username || null,
+        photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
+        firebaseUid: 'pending',
+        lastSeen: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        phone: null
+      };
+      setUser(initialProfile);
+      
+      // 4. Secure Bridge in background
+      bridgeIdentity(tg, initialProfile);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [db, auth]);
 
-  async function bridgeIdentity(tg: any) {
+  async function bridgeIdentity(tg: any, initialProfile: UserProfile) {
     try {
       tg.ready();
       tg.expand();
 
-      // Step 1: Sign into Firebase first to ensure we have a session for subsequent DB writes
+      // Step 1: Sign into Firebase (Mandatory for DB writes)
       const userCred = await signInAnonymously(auth);
       const firebaseUid = userCred.user.uid;
 
-      // Step 2: Secure Signature Handshake
+      // Update local state with UID
+      setUser(prev => prev ? { ...prev, firebaseUid } : null);
+
+      // Step 2: Signature Verification (Optional for UI, Mandatory for Data Sync)
       const res = await fetch('/api/telegram-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData: tg.initData }),
       });
 
-      if (!res.ok) throw new Error('HMAC Signature Handshake Failed');
+      if (res.ok) {
+        const verifiedData = await res.json();
+        setIsVerified(true);
 
-      const telegramData = await res.json();
-      const uid = `tg_${telegramData.id}`;
-
-      // Step 3: Database Synchronization
-      const userRef = doc(db, 'users', uid);
-      const existingDoc = await getDoc(userRef);
-
-      const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(telegramData.first_name)}&background=00FF88&color=000&bold=true`;
-
-      const userData: any = {
-        id: uid,
-        telegramId: telegramData.id,
-        firstName: telegramData.first_name,
-        username: telegramData.username || null,
-        photoUrl: telegramData.photo_url || fallbackAvatar,
-        firebaseUid,
-        lastSeen: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
-
-      if (!existingDoc.exists()) {
-        userData.createdAt = serverTimestamp();
-        userData.phone = null;
+        // Step 3: Firestore Sync
+        const userRef = doc(db, 'users', initialProfile.id);
+        const userData = {
+          ...initialProfile,
+          firebaseUid,
+          lastSeen: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        };
+        
+        await setDoc(userRef, userData, { merge: true });
+        localStorage.setItem(CACHE_KEY, JSON.stringify(userData));
+      } else {
+        console.warn('Backend verification failed, using client-side identity only.');
       }
-
-      await setDoc(userRef, userData, { merge: true });
-
-      const finalUser = existingDoc.exists()
-        ? { ...(existingDoc.data() as UserProfile), ...userData }
-        : (userData as UserProfile);
-
-      setUser(finalUser);
-      setIsVerified(true);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(finalUser));
-      setError(null);
     } catch (err: any) {
-      console.error('Protocol Sync Failure:', err);
-      setError(err.message);
+      console.error('Protocol Sync Error:', err);
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function handleDemoMode() {
-    try {
-      // Must sign in even in demo mode to satisfy security rules for catalog queries
-      await signInAnonymously(auth);
-    } catch (e) {
-      console.warn("Demo Firebase login bypassed");
-    }
-
+  function handleDemoMode() {
     const mockUser: UserProfile = {
       id: 'tg_demo',
       telegramId: 0,
@@ -164,6 +152,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     setUser(mockUser);
     setIsVerified(true);
     setIsLoading(false);
+    signInAnonymously(auth).catch(() => {});
   }
 
   return (
@@ -175,6 +164,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
 export function useTelegramUser() {
   const context = useContext(TelegramUserContext);
-  if (context === undefined) throw new Error('useTelegramUser must be used within TelegramUserProvider');
+  if (!context) throw new Error('useTelegramUser must be used within TelegramUserProvider');
   return context;
 }

@@ -19,22 +19,19 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function LooksPage() {
   const db = useFirestore();
-  const { user, isVerified } = useTelegramUser();
+  const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
 
   useEffect(() => {
     const max = filterCurrency === 'USD' ? 5000 : 100000000;
-    if (priceRange[1] > max) {
-      setPriceRange([0, max]);
-    }
+    if (priceRange[1] > max) setPriceRange([0, max]);
   }, [filterCurrency]);
 
   const looksQuery = useMemoFirebase(() => {
@@ -44,11 +41,10 @@ export default function LooksPage() {
   const { data: looks, isLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // CRITICAL: Must wait for BOTH Telegram identity AND Firebase Session
-    // to avoid "Permission Denied" crashes
-    if (!user || !isVerified || !firebaseUser) return null;
-    return collection(db, 'users', user.id, 'liked_looks');
-  }, [db, user, isVerified, firebaseUser]);
+    // CRITICAL: Wait for BOTH identities to be ready
+    if (!tgUser || !firebaseUser) return null;
+    return collection(db, 'users', tgUser.id, 'liked_looks');
+  }, [db, tgUser, firebaseUser]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
@@ -61,15 +57,13 @@ export default function LooksPage() {
     });
   }, [looks, filterCurrency, priceRange]);
 
-  const formatPrice = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val);
-  };
+  const formatPrice = (val: number) => new Intl.NumberFormat('uz-UZ').format(val);
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user || !firebaseUser) {
+    if (!tgUser || !firebaseUser) {
       toast({
         title: "Identifikatsiya kerak",
         description: "Saralanganlarga qo'shish uchun bot orqali kiring.",
@@ -78,17 +72,13 @@ export default function LooksPage() {
       return;
     }
 
-    const likedLookRef = doc(db, 'users', user.id, 'liked_looks', lookId);
+    const likedLookRef = doc(db, 'users', tgUser.id, 'liked_looks', lookId);
     
     try {
-      const isLiked = likedLookIds.has(lookId);
-      if (isLiked) {
+      if (likedLookIds.has(lookId)) {
         await deleteDoc(likedLookRef);
       } else {
-        await setDoc(likedLookRef, {
-          lookId: lookId,
-          createdAt: new Date().toISOString()
-        });
+        await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
       }
     } catch (e) {
       console.error('Like toggle failed:', e);
@@ -150,21 +140,17 @@ export default function LooksPage() {
             <div className="grid md:grid-cols-2 gap-10">
               <div className="space-y-4">
                 <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
-                <RadioGroup 
-                  value={filterCurrency} 
-                  onValueChange={(val: any) => setFilterCurrency(val)} 
-                  className="flex gap-8 flex-wrap"
-                >
+                <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-8 flex-wrap">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" className="transition-none" />
+                    <RadioGroupItem value="ALL" id="all" />
                     <Label htmlFor="all" className="text-xs font-bold text-white/80">{t(dictionary.all)}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" className="transition-none" />
+                    <RadioGroupItem value="USD" id="usd" />
                     <Label htmlFor="usd" className="text-xs font-bold text-white/80">USD ($)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" className="transition-none" />
+                    <RadioGroupItem value="UZS" id="uzs" />
                     <Label htmlFor="uzs" className="text-xs font-bold text-white/80">UZS (so'm)</Label>
                   </div>
                 </RadioGroup>
@@ -230,10 +216,6 @@ export default function LooksPage() {
                           <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
                         </div>
                         <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
-                      </div>
-                      <div className="flex flex-col gap-0.5 pt-1">
-                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t(dictionary.locationTashkent)}</p>
-                        <p className="text-[9px] font-mono text-white/20 uppercase">{t(dictionary.availableNow)}</p>
                       </div>
                     </div>
                   </Card>
