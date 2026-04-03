@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Heart, ShoppingBag, LayoutDashboard, Ruler, User } from 'lucide-react';
+import { Compass, Heart, ShoppingBag, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -18,11 +18,10 @@ export function BottomNav() {
   }, []);
 
   const navItems = [
-    { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
-    { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
-    { label: t(dictionary.razmeringiz), icon: Ruler, href: '/advisor' },
-    { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
-    { label: t(dictionary.adminPanel), icon: LayoutDashboard, href: '/admin' },
+    { label: "QIDIRISH", icon: Compass, href: '/looks' },
+    { label: "SARALANGANLAR", icon: Heart, href: '/favorites' },
+    { label: "SAVATCHA", icon: ShoppingBag, href: '/orders' },
+    { label: "PROFIL", icon: User, href: '/profile' },
   ];
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {

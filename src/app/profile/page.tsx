@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone, Lock } from 'lucide-react';
+import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProfilePage() {
   const router = useRouter();
   const { t, dictionary } = useLanguage();
-  const { user, isLoading, isVerified } = useTelegramUser();
+  const { user, isLoading } = useTelegramUser();
   const db = useFirestore();
   const { toast } = useToast();
   
@@ -51,22 +51,20 @@ export default function ProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing Encrypted Identity...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing Identity...</p>
       </div>
     );
   }
 
-  if (!isVerified) {
+  // If no user is detected after loading, we show a friendly "Please use Telegram" instead of "Unauthorized"
+  if (!user) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4 shadow-[0_0_30px_rgba(255,0,0,0.1)]">
-          <Lock className="w-10 h-10 text-destructive/40" />
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-4">
+          <User className="w-10 h-10 text-white/20" />
         </div>
-        <h1 className="text-xl font-black text-white uppercase italic">Session Invalid</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">Identity handshake failed. Please reload the app within your official bot to restore the connection.</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl border-white/10 text-white/60">
-          Retry Handshake
-        </Button>
+        <h1 className="text-xl font-black text-white uppercase italic">Bot orqali kiring</h1>
+        <p className="text-white/40 text-sm max-w-xs mx-auto">Profilni ko'rish uchun iltimos Mini App'ni Telegram botingiz orqali oching.</p>
       </div>
     );
   }
