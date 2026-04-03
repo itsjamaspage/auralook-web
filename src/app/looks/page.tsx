@@ -11,11 +11,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Heart, Filter, Grid2X2, List, CheckCircle2, X } from 'lucide-react';
+import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 
@@ -23,7 +21,6 @@ export default function LooksPage() {
   const db = useFirestore();
   const { user } = useTelegramUser();
   const { toast } = useToast();
-  const router = useRouter();
   const { t, dictionary } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -120,7 +117,7 @@ export default function LooksPage() {
               variant="ghost" 
               className={cn("h-12 w-12 rounded-2xl transition-all", viewMode === 'grid' ? "neon-bg text-black" : "bg-white/5 text-white/40")}
             >
-              <Grid2X2 className="w-5 h-5" />
+              <Grid2x2 className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setViewMode('list')} 

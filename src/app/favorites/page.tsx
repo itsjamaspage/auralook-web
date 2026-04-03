@@ -7,7 +7,7 @@ import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { Loader2, Heart, HeartOff, CheckCircle2 } from 'lucide-react';
+import { Loader2, Heart, HeartOff, CheckCircle2, X } from 'lucide-react';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
