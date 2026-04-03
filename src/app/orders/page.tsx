@@ -22,7 +22,7 @@ export default function UserOrdersPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const ordersQuery = useMemoFirebase(() => {
-    // SECURITY GUARD: Query by firebaseUid to match security rules
+    // SECURITY GUARD: Query by firebaseUid to match security rules and prevent crashes
     if (isUserLoading || !firebaseUser) return null;
     
     return query(
