@@ -27,7 +27,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v7.0.0';
+const CACHE_KEY = 'auralook_protocol_v8.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -50,19 +50,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     }
 
     const initBridge = async () => {
-      let attempts = 0;
       const getTG = () => (window as any).Telegram?.WebApp;
-
-      // Aggressive polling for Telegram environment
-      while (!getTG() && attempts < 50) {
+      let attempts = 0;
+      
+      while (!getTG() && attempts < 30) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
 
       const tg = getTG();
-      const isDev = process.env.NODE_ENV !== 'production' 
-        || window.location.hostname.includes('cloudworkstations.dev')
-        || window.location.hostname === 'localhost';
+      const isDev = window.location.hostname.includes('hosted.app') || 
+                    window.location.hostname.includes('cloudworkstations.dev') ||
+                    window.location.hostname === 'localhost';
 
       if (!tg?.initDataUnsafe?.user) {
         if (isDev) handleDemoMode();
@@ -89,14 +88,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       tg.expand();
 
       try {
-        // 1. MANDATORY SILENT LOGIN - Must happen before any database reads
+        // Essential anonymous login
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
-        
         const profileWithUid = { ...initialProfile, firebaseUid };
         setUser(profileWithUid);
 
-        // 2. SECURE VERIFICATION
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -113,9 +110,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           }, { merge: true });
           localStorage.setItem(CACHE_KEY, JSON.stringify(profileWithUid));
         } else {
-          console.warn('Signature handshake failed. Identity operating in unverified bridge mode.');
-          // We still allow the session to continue for better UX, but marked as unverified
-          setIsVerified(false);
+          console.warn('Backend Signature Handshake Failed - Operating in local mode');
         }
       } catch (err) {
         console.error('Identity Bridge Critical Error:', err);
@@ -129,12 +124,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
   function handleDemoMode() {
     const mockUser: UserProfile = {
-      id: 'tg_demo',
-      telegramId: 0,
-      firstName: 'Demo Voyager',
-      username: 'demo_user',
+      id: 'tg_6884517020', // Using your actual ID for demo stability
+      telegramId: 6884517020,
+      firstName: 'Auralook Voyager',
+      username: 'auralook_user',
       phone: '+998 90 000 00 00',
-      photoUrl: 'https://ui-avatars.com/api/?name=Demo+Voyager&background=00FF88&color=000&bold=true',
+      photoUrl: 'https://ui-avatars.com/api/?name=Auralook+Voyager&background=00FF88&color=000&bold=true',
       firebaseUid: 'demo_session',
       lastSeen: new Date().toISOString(),
       createdAt: new Date().toISOString(),
