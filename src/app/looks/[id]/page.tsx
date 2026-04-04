@@ -71,7 +71,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       setOrderDetails(prev => ({
         ...prev,
         telegram: tgUser.username || '',
-        // As requested: default to +998 and let the user add the rest, even if Telegram provides a phone.
         phone: '+998 '
       }));
     }
@@ -85,16 +84,16 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   const formatUzbekPhone = (val: string) => {
-    const digits = val.replace(/\D/g, '');
-    let d = digits;
-    if (d.startsWith('998')) d = d.substring(3);
-    d = d.substring(0, 9);
+    // Strictly preserve +998 prefix
+    if (!val.startsWith('+998')) return '+998 ';
+    
+    const digits = val.substring(4).replace(/\D/g, '').substring(0, 9);
     
     let res = '+998';
-    if (d.length > 0) res += ' ' + d.substring(0, 2);
-    if (d.length > 2) res += ' ' + d.substring(2, 5);
-    if (d.length > 5) res += ' ' + d.substring(5, 7);
-    if (d.length > 7) res += ' ' + d.substring(7, 9);
+    if (digits.length > 0) res += ' ' + digits.substring(0, 2);
+    if (digits.length > 2) res += ' ' + digits.substring(2, 5);
+    if (digits.length > 5) res += ' ' + digits.substring(5, 7);
+    if (digits.length > 7) res += ' ' + digits.substring(7, 9);
     return res;
   };
 
@@ -116,7 +115,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   if (!look) return <div className="p-24 text-center text-foreground/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
-    if (!orderDetails.phone || orderDetails.phone.length < 17 || !orderDetails.telegram) {
+    // Phone length check: +998 90 123 45 67 is 17 characters
+    if (orderDetails.phone.length < 17 || !orderDetails.telegram) {
       toast({
         variant: "destructive",
         title: t(dictionary.missingInformation),
@@ -205,7 +205,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       <div className="container mx-auto px-4 max-w-5xl relative pb-32 lg:pb-0">
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
-          {/* Image Column - Smaller & Centered */}
+          {/* Image Column */}
           <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-md">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
@@ -236,13 +236,13 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   <span className="text-3xl lg:text-4xl font-black text-foreground tracking-tighter">
                     {look.currency === 'UZS' ? `${formatPrice(look.price)}` : `$${formatPrice(look.price)}`}
                   </span>
-                  <span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
+                  <span className="text-[10px] font-black text-foreground/60 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
                 </div>
                 <h1 className="text-xl lg:text-2xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[9px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <p className="text-[9px] font-black text-foreground/60 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
                 <div className="text-sm text-foreground/80 font-medium italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>

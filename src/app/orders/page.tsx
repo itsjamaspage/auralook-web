@@ -96,7 +96,7 @@ export default function UserOrdersPage() {
       case 'New': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'Confirmed': return <CheckCircle2 className="w-4 h-4 text-primary" />;
       case 'Cancelled': return <XCircle className="w-4 h-4 text-destructive" />;
-      default: return <Package className="w-4 h-4 text-muted-foreground" />;
+      default: return <Package className="w-4 h-4 text-foreground/60" />;
     }
   };
 
@@ -137,7 +137,7 @@ export default function UserOrdersPage() {
           <Card key={order.id} className={`glass-surface border-foreground/10 p-6 rounded-[2rem] space-y-4 shadow-xl transition-opacity ${order.status === 'Cancelled' ? 'opacity-60' : 'opacity-100'}`}>
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
+                <p className="text-[10px] font-black text-foreground/80 uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
                 <h3 className="text-lg font-bold text-foreground italic">
                   {order.lookName || 'Outfit Purchase'}
                 </h3>
@@ -156,12 +156,12 @@ export default function UserOrdersPage() {
             <div className="grid grid-cols-1 gap-3 py-4 border-y border-foreground/10">
               <div className="flex items-center gap-2">
                 <Send className="w-3 h-3 neon-text" />
-                <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-widest">TELEGRAM:</span>
+                <span className="text-[10px] font-bold text-foreground/80 uppercase tracking-widest">TELEGRAM:</span>
                 <p className="text-xs text-foreground font-medium">{order.telegramUsername || order.customerName}</p>
               </div>
               {order.phoneNumber && (
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3 h-3 text-foreground/60" />
+                  <Phone className="w-3 h-3 text-foreground/80" />
                   <p className="text-xs text-foreground font-medium">{order.phoneNumber}</p>
                 </div>
               )}
@@ -169,14 +169,14 @@ export default function UserOrdersPage() {
 
             <div className="flex justify-between items-end pt-2">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
+                <p className="text-[10px] font-black text-foreground/80 uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
                 <p className="text-[10px] font-medium text-foreground/80">
                   {formatOrderDate(order.createdAt)}
                 </p>
               </div>
               <div className="text-right space-y-3">
                 <div>
-                  <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
+                  <p className="text-[9px] font-black text-foreground/80 uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
                   <p className="text-xl font-black neon-text italic tracking-tighter">
                     {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
                   </p>
@@ -201,7 +201,7 @@ export default function UserOrdersPage() {
         {(!orders || orders.length === 0) && (
           <div className="py-20 text-center space-y-4">
             <Package className="w-12 h-12 text-foreground/10 mx-auto" />
-            <p className="text-foreground/40 uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
+            <p className="text-foreground/60 uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
           </div>
         )}
       </div>

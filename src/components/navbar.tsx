@@ -59,15 +59,32 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
+      // Primary Telegram Protocol: Force max expansion
       tg.expand();
+      // Support for immersive full-screen in newer Telegram versions (v8.0+)
+      if (typeof tg.requestFullscreen === 'function') {
+        tg.requestFullscreen();
+      }
     }
     
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().then(() => setIsFullscreen(false));
+    // Standard browser fallback for desktop/browser testing
+    try {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(() => {
+            // Browser might block, but we track intention
+            setIsFullscreen(true);
+          });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen()
+            .then(() => setIsFullscreen(false))
+            .catch(() => {});
+        }
       }
+    } catch (e) {
+      console.warn("Fullscreen handshake aborted:", e);
     }
   };
 
@@ -86,7 +103,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative">
+      <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative border-foreground/10">
         
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 group">
