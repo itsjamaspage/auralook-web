@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -29,7 +28,7 @@ export default function LooksPage() {
   const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { t, dictionary } = useLanguage();
+  const { t, dictionary, lang } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -78,7 +77,7 @@ export default function LooksPage() {
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
-    return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
+    return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(num).replace(/,/g, ' ');
   };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {

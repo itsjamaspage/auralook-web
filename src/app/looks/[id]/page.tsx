@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ const COUNTRIES = [
 
 export default function LookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { t, dictionary } = useLanguage();
+  const { t, dictionary, lang } = useLanguage();
   const { toast } = useToast();
   const db = useFirestore();
   const router = useRouter();
@@ -80,7 +79,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
 
   const formatPrice = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
+    return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
   };
 
   const formatUzbekPhone = (val: string) => {
@@ -107,7 +106,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">SYNCING REPOSITORY...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
       </div>
     );
   }
@@ -135,7 +134,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
     setIsOrdering(true);
     try {
-      const timestamp = new Date().toLocaleString('uz-UZ');
+      const timestamp = new Date().toLocaleString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US');
       const orderData = {
         userId: tgUser?.id || 'guest',
         firebaseUid: firebaseUser.uid,

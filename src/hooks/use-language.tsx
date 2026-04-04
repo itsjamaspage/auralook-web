@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -66,6 +65,26 @@ const dictionary = {
     uz: 'Bayonnoma',
     ru: 'Протокол',
     en: 'Protocol'
+  },
+  expandApp: {
+    uz: 'Kengaytirish',
+    ru: 'Развернуть',
+    en: 'Expand App'
+  },
+  theme: {
+    uz: 'Mavzu',
+    ru: 'Тема',
+    en: 'Theme'
+  },
+  light: {
+    uz: 'Yorug\'',
+    ru: 'Светлая',
+    en: 'Light'
+  },
+  dark: {
+    uz: 'Qorong\'u',
+    ru: 'Темная',
+    en: 'Dark'
   },
 
   // Auth Pages
