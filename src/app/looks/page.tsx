@@ -114,7 +114,7 @@ export default function LooksPage() {
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-white/10 text-white hover:neon-border hover:neon-text transition-all font-bold",
+                "h-12 px-6 rounded-2xl border-white/10 dark:border-white/10 bg-card text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl",
                 showFilters && "neon-border neon-text bg-white/5"
               )}
             >
@@ -127,14 +127,14 @@ export default function LooksPage() {
             <Button 
               onClick={() => setViewMode('grid')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all", viewMode === 'grid' ? "neon-bg text-black" : "bg-white/5 text-white/40")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-white/10")}
             >
               <Grid2x2 className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setViewMode('list')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all", viewMode === 'list' ? "neon-bg text-black" : "bg-white/5 text-white/40")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-white/10")}
             >
               <List className="w-5 h-5" />
             </Button>
@@ -142,35 +142,35 @@ export default function LooksPage() {
         </div>
 
         {showFilters && (
-          <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300">
+          <Card className="glass-dark dark:glass-dark bg-card border-white/10 dark:border-white/10 rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white hover:text-white">
+              <h3 className="text-sm font-black text-foreground dark:text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-foreground dark:text-white hover:text-primary">
                 <X className="w-5 h-5" />
               </Button>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
+                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
                 <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6 flex-wrap">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" className="border-white" />
-                    <Label htmlFor="all" className="text-xs font-bold text-white">{t(dictionary.all)}</Label>
+                    <RadioGroupItem value="ALL" id="all" className="border-foreground/20 dark:border-white" />
+                    <Label htmlFor="all" className="text-xs font-bold text-foreground dark:text-white">{t(dictionary.all)}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" className="border-white" />
-                    <Label htmlFor="usd" className="text-xs font-bold text-white">USD ($)</Label>
+                    <RadioGroupItem value="USD" id="usd" className="border-foreground/20 dark:border-white" />
+                    <Label htmlFor="usd" className="text-xs font-bold text-foreground dark:text-white">USD ($)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" className="border-white" />
-                    <Label htmlFor="uzs" className="text-xs font-bold text-white">UZS (so'm)</Label>
+                    <RadioGroupItem value="UZS" id="uzs" className="border-foreground/20 dark:border-white" />
+                    <Label htmlFor="uzs" className="text-xs font-bold text-foreground dark:text-white">UZS (so'm)</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
+                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
                 <div className="flex items-center gap-3">
                   <Input 
                     type="number" 
@@ -178,30 +178,30 @@ export default function LooksPage() {
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold placeholder:text-white/20"
+                    className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold placeholder:text-foreground/20 dark:placeholder:text-white/20"
                   />
-                  <div className="w-4 h-0.5 bg-white/10" />
+                  <div className="w-4 h-0.5 bg-foreground/10 dark:bg-white/10" />
                   <Input 
                     type="number" 
                     placeholder="Max" 
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold placeholder:text-white/20"
+                    className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold placeholder:text-foreground/20 dark:placeholder:text-white/20"
                   />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
+                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold">
+                  <SelectTrigger className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold">
                     <div className="flex items-center gap-2">
                       <ArrowUpDown className="w-3 h-3 neon-text" />
                       <SelectValue />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="glass-dark border-white/10 text-white">
+                  <SelectContent className="glass-dark dark:glass-dark border-white/10 dark:border-white/10 text-white">
                     <SelectItem value="newest" className="font-bold">{t(dictionary.newest)}</SelectItem>
                     <SelectItem value="price_asc" className="font-bold">{t(dictionary.priceAsc)}</SelectItem>
                     <SelectItem value="price_desc" className="font-bold">{t(dictionary.priceDesc)}</SelectItem>
@@ -223,7 +223,7 @@ export default function LooksPage() {
               <div key={look.id} className="relative group">
                 <Link href={`/looks/${look.id}`}>
                   <Card className={cn(
-                    "bg-[#080808]/40 border border-white/5 overflow-hidden transition-all hover:border-white/20 active:scale-[0.98]",
+                    "bg-card border border-white/10 dark:border-white/5 overflow-hidden transition-all hover:border-primary/20 active:scale-[0.98] shadow-lg hover:shadow-2xl",
                     viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
                   )}>
                     <div className={cn("relative overflow-hidden p-1", viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0")}>
@@ -252,7 +252,7 @@ export default function LooksPage() {
                           </span>
                           <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
                         </div>
-                        <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                        <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{look.name}</h3>
                       </div>
                     </div>
                   </Card>
@@ -263,8 +263,8 @@ export default function LooksPage() {
 
           {filteredAndSortedLooks.length === 0 && (
             <div className="col-span-full py-32 text-center">
-              <Filter className="w-12 h-12 text-white/10 mx-auto mb-4" />
-              <p className="text-white uppercase font-black italic tracking-widest">{t(dictionary.nothingFound)}</p>
+              <Filter className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
+              <p className="text-foreground/60 uppercase font-black italic tracking-widest">{t(dictionary.nothingFound)}</p>
             </div>
           )}
         </div>
