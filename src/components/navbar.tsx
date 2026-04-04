@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -17,8 +16,6 @@ import {
   Compass, 
   LayoutDashboard, 
   User,
-  ShieldCheck,
-  ShieldAlert,
   Loader2,
   Maximize2,
   Minimize2,
@@ -93,17 +90,6 @@ export function Navbar() {
         {/* Right: Controls */}
         <div className="flex items-center gap-2 lg:gap-4">
           
-          {/* Status Badge */}
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5">
-            {isLoading ? (
-              <Loader2 className="w-3 h-3 animate-spin text-white/40" />
-            ) : user ? (
-              <ShieldCheck className="w-4 h-4 neon-text" />
-            ) : (
-              <ShieldAlert className="w-4 h-4 text-amber-500" />
-            )}
-          </div>
-
           {/* Expand Button */}
           <Button 
             variant="ghost" 
@@ -112,16 +98,6 @@ export function Navbar() {
             className="rounded-full border border-white/10 hover:bg-white/5 h-10 w-10 lg:h-11 lg:w-11 p-0 group"
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4 neon-text" /> : <Maximize2 className="w-4 h-4 neon-text" />}
-          </Button>
-
-          {/* Theme Toggle */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={toggleTheme}
-            className="rounded-full border border-white/10 hover:bg-white/5 h-10 w-10 lg:h-11 lg:w-11 p-0 group"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 neon-text" /> : <Moon className="w-4 h-4 neon-text" />}
           </Button>
 
           {/* Language Switcher */}
@@ -170,6 +146,15 @@ export function Navbar() {
                 </Link>
               ))}
               <DropdownMenuSeparator className="bg-white/5 my-2" />
+              <DropdownMenuItem 
+                onClick={toggleTheme}
+                className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground/60 hover:text-foreground"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 neon-text" /> : <Moon className="w-5 h-5 neon-text" />}
+                <span className="font-bold text-[11px] uppercase tracking-widest">
+                  {t(dictionary.theme)}: {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
+                </span>
+              </DropdownMenuItem>
               <Link href="/profile">
                 <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground/60 hover:text-foreground">
                   <User className="w-5 h-5 neon-text" />

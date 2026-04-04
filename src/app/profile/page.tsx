@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -7,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { User, Shield, Package, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
+import { User, Package, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -59,7 +58,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <Shield className="w-16 h-16 neon-text mx-auto opacity-20" />
+        <User className="w-16 h-16 neon-text mx-auto opacity-20" />
         <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
         <p className="text-foreground/70 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
       </div>
@@ -96,10 +95,6 @@ export default function ProfilePage() {
       </div>
 
       <Card className="glass-dark border-white/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-          <Shield className="w-12 h-12 neon-text" />
-        </div>
-        
         <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />

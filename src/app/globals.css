@@ -88,19 +88,19 @@ body {
 
 .neon-text {
   color: var(--sync-color) !important;
-  transition: color 0.1s linear !important;
+  transition: none !important;
 }
 
 .neon-border {
   border-color: var(--sync-color) !important;
-  transition: border-color 0.1s linear !important;
+  transition: none !important;
 }
 
 .neon-bg {
   background-color: var(--sync-color) !important;
   color: #000 !important;
   box-shadow: 0 0 30px var(--sync-shadow) !important;
-  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease !important;
+  transition: none !important;
 }
 
 .glass-dark {
