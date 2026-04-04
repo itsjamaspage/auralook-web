@@ -35,8 +35,9 @@ export default function RootLayout({
           <LanguageProvider>
             <TelegramUserProvider>
               <Navbar />
-              <main className="flex-grow pt-24 pb-32 lg:pb-0">
+              <main className="flex-grow pt-24 pb-48 lg:pb-0">
                 {children}
+                <Footer className="lg:hidden" />
               </main>
               <BottomNav />
               <Toaster />
