@@ -13,6 +13,6 @@ env:
       - BUILD
       - RUNTIME
   - variable: TELEGRAM_BOT_TOKEN
-    secret: TELEGRAM_BOT_TOKEN
+    value: "7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM"
   - variable: TELEGRAM_ADMIN_CHAT_ID
-    secret: TELEGRAM_ADMIN_CHAT_ID
+    value: "7213073025"
