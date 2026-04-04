@@ -1,9 +1,9 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, doc, updateDoc, serverTimestamp, where } from 'firebase/firestore';
+import { collection, query, doc, updateDoc, serverTimestamp, where, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,36 @@ export default function UserOrdersPage() {
   }, [db, firebaseUser, isUserLoading]);
 
   const { data: orders, isLoading } = useCollection(ordersQuery ?? undefined);
+
+  // PROTOCOL: 24-Hour Auto-Cleanup for Cancelled Orders
+  useEffect(() => {
+    if (!orders || !db) return;
+
+    const performCleanup = async () => {
+      const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+      
+      const ordersToDelete = orders.filter(order => {
+        if (order.status !== 'Cancelled') return false;
+        
+        // Handle Firestore Timestamp or ISO string
+        const updatedTime = order.updatedAt?.seconds 
+          ? order.updatedAt.toDate().getTime() 
+          : new Date(order.updatedAt || order.createdAt).getTime();
+          
+        return updatedTime < oneDayAgo;
+      });
+
+      for (const order of ordersToDelete) {
+        try {
+          await deleteDoc(doc(db, 'orders', order.id));
+        } catch (e) {
+          console.warn(`[Cleanup] Failed to remove order ${order.id}:`, e);
+        }
+      }
+    };
+
+    performCleanup();
+  }, [orders, db]);
 
   const handleCancelOrder = async (order: any) => {
     setCancellingId(order.id);
@@ -134,19 +164,19 @@ export default function UserOrdersPage() {
 
       <div className="space-y-4">
         {orders?.map((order) => (
-          <Card key={order.id} className={`glass-surface border-foreground/10 p-6 rounded-[2rem] space-y-4 shadow-xl transition-opacity ${order.status === 'Cancelled' ? 'opacity-60' : 'opacity-100'}`}>
+          <Card key={order.id} className={`glass-surface border-foreground/10 p-6 rounded-[2.5rem] space-y-4 shadow-xl transition-all ${order.status === 'Cancelled' ? 'opacity-70 grayscale-[0.5]' : 'opacity-100'}`}>
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-foreground/80 uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
-                <h3 className="text-lg font-bold text-foreground italic">
+                <p className="text-[9px] font-black text-foreground uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
+                <h3 className="text-lg font-bold text-foreground italic tracking-tight uppercase leading-tight">
                   {order.lookName || 'Outfit Purchase'}
                 </h3>
                 <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{t(dictionary.size)}: {translateSize(order.size)}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <div className={`flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-foreground/10'}`}>
+                <div className={`flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30 bg-destructive/5' : 'border-foreground/10'}`}>
                   {getStatusIcon(order.status)}
-                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-foreground/80'}`}>
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-foreground'}`}>
                     {getStatusLabel(order.status)}
                   </span>
                 </div>
@@ -156,28 +186,28 @@ export default function UserOrdersPage() {
             <div className="grid grid-cols-1 gap-3 py-4 border-y border-foreground/10">
               <div className="flex items-center gap-2">
                 <Send className="w-3 h-3 neon-text" />
-                <span className="text-[10px] font-bold text-foreground/80 uppercase tracking-widest">TELEGRAM:</span>
-                <p className="text-xs text-foreground font-medium">{order.telegramUsername || order.customerName}</p>
+                <span className="text-[10px] font-black text-foreground uppercase tracking-widest">TELEGRAM:</span>
+                <p className="text-xs text-foreground font-bold italic">@{order.telegramUsername?.replace('@', '') || order.customerName}</p>
               </div>
               {order.phoneNumber && (
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3 h-3 text-foreground/80" />
-                  <p className="text-xs text-foreground font-medium">{order.phoneNumber}</p>
+                  <Phone className="w-3 h-3 text-foreground" />
+                  <p className="text-xs text-foreground font-mono">{order.phoneNumber}</p>
                 </div>
               )}
             </div>
 
             <div className="flex justify-between items-end pt-2">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-foreground/80 uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
-                <p className="text-[10px] font-medium text-foreground/80">
+                <p className="text-[9px] font-black text-foreground uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
+                <p className="text-[10px] font-bold text-foreground">
                   {formatOrderDate(order.createdAt)}
                 </p>
               </div>
               <div className="text-right space-y-3">
                 <div>
-                  <p className="text-[9px] font-black text-foreground/80 uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
-                  <p className="text-xl font-black neon-text italic tracking-tighter">
+                  <p className="text-[9px] font-black text-foreground uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
+                  <p className="text-2xl font-black neon-text italic tracking-tighter">
                     {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
                   </p>
                 </div>
@@ -188,7 +218,7 @@ export default function UserOrdersPage() {
                     size="sm" 
                     onClick={() => handleCancelOrder(order)}
                     disabled={cancellingId === order.id}
-                    className="h-8 rounded-lg border border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive text-[10px] font-black uppercase tracking-widest"
+                    className="h-9 rounded-xl border border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive text-[10px] font-black uppercase tracking-widest px-4"
                   >
                     {cancellingId === order.id ? <Loader2 className="animate-spin w-3 h-3" /> : t(dictionary.cancelOrder)}
                   </Button>
@@ -199,9 +229,9 @@ export default function UserOrdersPage() {
         ))}
 
         {(!orders || orders.length === 0) && (
-          <div className="py-20 text-center space-y-4">
+          <div className="py-24 text-center space-y-4">
             <Package className="w-12 h-12 text-foreground/10 mx-auto" />
-            <p className="text-foreground/60 uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
+            <p className="text-foreground uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
           </div>
         )}
       </div>
