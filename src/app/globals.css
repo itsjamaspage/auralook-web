@@ -26,7 +26,6 @@
     --radius: 1.5rem;
   }
 
-  /* Cyber-Light Protocol */
   :root[data-theme='light'] {
     --background: 0 0% 95%;
     --foreground: 240 10% 3.9%;
@@ -104,7 +103,7 @@ body {
 }
 
 .glass-dark {
-  @apply bg-black/60 backdrop-blur-3xl border border-white/10;
+  @apply bg-black/90 backdrop-blur-3xl border border-white/10;
 }
 
 .energy-line {

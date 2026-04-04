@@ -42,12 +42,12 @@ export function BottomNav() {
           )}
           <item.icon className={cn(
             "w-5 h-5 sm:w-5.5 sm:h-5.5 transition-colors duration-300 relative z-10",
-            isActive ? "text-black stroke-[2.5px]" : "text-white/40 group-hover:text-white/60"
+            isActive ? "text-black stroke-[2.5px]" : "text-white/70 group-hover:text-white/90"
           )} />
         </div>
         <span className={cn(
           "text-[7px] sm:text-[8px] font-black uppercase tracking-[0.1em] font-mono transition-colors duration-300 text-center truncate w-full px-1",
-          isActive ? "neon-text" : "text-white/20"
+          isActive ? "neon-text" : "text-white/70"
         )}>
           {item.label}
         </span>

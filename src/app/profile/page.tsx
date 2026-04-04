@@ -89,7 +89,7 @@ export default function ProfilePage() {
                 @{user.username || 'user'}
               </p>
             </div>
-            <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.activeNode)}</p>
+            <p className="text-[9px] font-black text-foreground/70 uppercase tracking-widest">{t(dictionary.activeNode)}</p>
           </div>
         </div>
       </div>

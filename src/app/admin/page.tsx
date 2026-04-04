@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -39,9 +38,7 @@ import {
   Package,
   Send,
   Phone,
-  Ruler,
-  ShieldCheck,
-  ShieldAlert
+  Ruler
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -54,12 +51,6 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
-  
-  const [isBotArmed, setIsBotArmed] = useState(false);
-
-  useEffect(() => {
-    setIsBotArmed(!!process.env.NEXT_PUBLIC_BASE_URL);
-  }, []);
 
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
@@ -88,7 +79,7 @@ export default function AdminDashboard() {
         status: newStatus,
         updatedAt: new Date().toISOString()
       });
-      toast({ title: t(dictionary.lookSavedSuccess) });
+      toast({ title: t(dictionary.operationSuccess) });
     } catch (e) {
       toast({ variant: "destructive", title: "Update Failed" });
     }
@@ -132,19 +123,6 @@ export default function AdminDashboard() {
             <h1 className="text-xl font-black tracking-tighter neon-text uppercase italic">
               {t(dictionary.adminDashboard)}
             </h1>
-          </div>
-          <div className="flex items-center gap-2 pl-4">
-            {isBotArmed ? (
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3 h-3 text-primary" />
-                <span className="text-[8px] font-bold text-primary/60 uppercase tracking-widest">{t(dictionary.protocolLive)}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <ShieldAlert className="w-3 h-3 text-amber-500" />
-                <span className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest">{t(dictionary.configPending)}</span>
-              </div>
-            )}
           </div>
         </div>
         
