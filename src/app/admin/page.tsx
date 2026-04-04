@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -54,11 +55,9 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
   
-  // Diagnostic state for Telegram Protocol
   const [isBotArmed, setIsBotArmed] = useState(false);
 
   useEffect(() => {
-    // Only check for the primary Telegram URL indicator to confirm "Live" status
     setIsBotArmed(!!process.env.NEXT_PUBLIC_BASE_URL);
   }, []);
 
@@ -117,6 +116,13 @@ export default function AdminDashboard() {
     return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
+  const translateSize = (size: string) => {
+    if (size.includes('(Menejer maslahati)')) {
+      return size.replace('(Menejer maslahati)', `(${t(dictionary.managerAdviceLabel)})`);
+    }
+    return size;
+  };
+
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-8 max-w-6xl pb-32">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
@@ -169,10 +175,10 @@ export default function AdminDashboard() {
                 <Table>
                   <TableHeader className="bg-white/5">
                     <TableRow className="border-none">
-                      <TableHead className="pl-8 text-[10px] uppercase tracking-widest text-white/40">Visual</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.itemName)}</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.amount)}</TableHead>
-                      <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest text-white/40">{t(dictionary.action)}</TableHead>
+                      <TableHead className="pl-8 text-[10px] uppercase tracking-widest text-white">{t(dictionary.visual)}</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-widest text-white">{t(dictionary.itemName)}</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-widest text-white">{t(dictionary.amount)}</TableHead>
+                      <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest text-white">{t(dictionary.action)}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -187,8 +193,8 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell className="text-right pr-8">
                           <div className="flex justify-end gap-2">
-                            <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon" className="hover:neon-text"><Edit3 className="w-4 h-4" /></Button></Link>
-                            <Button variant="ghost" size="icon" onClick={() => setItemToDelete({ id: look.id, type: 'look' })} className="hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                            <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon" className="hover:neon-text text-white"><Edit3 className="w-4 h-4" /></Button></Link>
+                            <Button variant="ghost" size="icon" onClick={() => setItemToDelete({ id: look.id, type: 'look' })} className="hover:text-destructive text-white"><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -210,7 +216,7 @@ export default function AdminDashboard() {
                   </p>
                   <div className="flex gap-2 pt-2">
                     <Link href={`/admin/looks/${look.id}/edit`} className="flex-1">
-                      <Button variant="outline" className="w-full h-9 rounded-lg border-white/10 text-[10px] font-black uppercase">
+                      <Button variant="outline" className="w-full h-9 rounded-lg border-white/10 text-[10px] font-black uppercase text-white">
                         <Edit3 className="w-3 h-3 mr-1" /> Edit
                       </Button>
                     </Link>
@@ -237,16 +243,16 @@ export default function AdminDashboard() {
                 <Card key={order.id} className="glass-dark border-white/5 p-5 sm:p-6 rounded-[2.5rem] space-y-6 relative overflow-hidden group hover:border-white/20 transition-all">
                   <div className="flex justify-between items-start relative z-10">
                     <div className="space-y-1 flex-grow pr-4">
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Ref: {order.id.substring(0, 8)}</p>
+                      <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
                       <h3 className="text-lg sm:text-xl font-black text-white italic tracking-tight leading-tight uppercase line-clamp-2">
-                        {order.lookName || 'Look Purchase'}
+                        {order.lookName || 'Outfit Purchase'}
                       </h3>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Size: {order.size}</p>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{t(dictionary.size)}: {translateSize(order.size)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-3 shrink-0">
                       <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 whitespace-nowrap">
                         {getStatusIcon(order.status)}
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/80">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-white">
                           {getStatusLabel(order.status)}
                         </span>
                       </div>
@@ -254,7 +260,7 @@ export default function AdminDashboard() {
                         variant="ghost" 
                         size="icon" 
                         onClick={() => setItemToDelete({ id: order.id, type: 'order' })} 
-                        className="hover:text-destructive h-9 w-9 sm:h-10 sm:w-10 bg-white/5 rounded-xl border border-white/5"
+                        className="hover:text-destructive h-9 w-9 sm:h-10 sm:w-10 bg-white/5 rounded-xl border border-white/5 text-white"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -267,7 +273,7 @@ export default function AdminDashboard() {
                         <Send className="w-4 h-4 text-primary" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Telegram</span>
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">Telegram</span>
                         <a 
                           href={`https://t.me/${order.telegramUsername?.replace('@', '')}`}
                           target="_blank"
@@ -280,27 +286,27 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                        <Phone className="w-4 h-4 text-white/40" />
+                        <Phone className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Phone</span>
-                        <p className="text-sm text-white/60 font-mono">{order.phoneNumber}</p>
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">{t(dictionary.phoneNumber)}</span>
+                        <p className="text-sm text-white font-mono">{order.phoneNumber}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                        <Ruler className="w-4 h-4 text-white/40" />
+                        <Ruler className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Body Stats</span>
-                        <p className="text-sm text-white/60 font-mono">{order.measurements?.height}cm / {order.measurements?.weight}kg</p>
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</span>
+                        <p className="text-sm text-white font-mono">{order.measurements?.height}cm / {order.measurements?.weight}kg</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-2 relative z-10 gap-4">
                     <div className="text-left">
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Total</p>
+                      <p className="text-[9px] font-black text-white uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
                       <p className="text-xl sm:text-2xl font-black neon-text italic tracking-tighter leading-none">
                         {order.currency === 'UZS' ? `${formatCurrencyValue(order.totalAmount)} UZS` : `$${formatCurrencyValue(order.totalAmount)}`}
                       </p>
@@ -326,7 +332,7 @@ export default function AdminDashboard() {
               {(!orders || orders.length === 0) && (
                 <div className="col-span-full py-32 text-center">
                   <Package className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <p className="text-white/40 uppercase font-black italic tracking-[0.2em]">No Orders in Repository</p>
+                  <p className="text-white uppercase font-black italic tracking-[0.2em]">{t(dictionary.repositoryEmpty)}</p>
                 </div>
               )}
             </div>
@@ -338,10 +344,10 @@ export default function AdminDashboard() {
         <AlertDialogContent className="glass-dark border-white/10 rounded-[2rem] sm:rounded-[2.5rem] text-foreground shadow-[0_0_50px_rgba(0,0,0,0.5)] mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl sm:text-2xl font-black neon-text uppercase italic">{t(dictionary.confirmDeleteTitle)}</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60 font-medium">{t(dictionary.confirmDeleteDesc)}</AlertDialogDescription>
+            <AlertDialogDescription className="text-white font-medium">{t(dictionary.confirmDeleteDesc)}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 sm:gap-4 flex-col sm:flex-row">
-            <AlertDialogCancel className="bg-white/5 border-white/10 rounded-xl h-12 sm:h-10 hover:bg-white/10 text-white/60 hover:text-white transition-colors order-2 sm:order-1">{t(dictionary.cancel)}</AlertDialogCancel>
+            <AlertDialogCancel className="bg-white/5 border-white/10 rounded-xl h-12 sm:h-10 hover:bg-white/10 text-white order-2 sm:order-1">{t(dictionary.cancel)}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/80 rounded-xl h-12 sm:h-10 text-white font-bold order-1 sm:order-2">{t(dictionary.delete)}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

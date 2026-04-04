@@ -64,17 +64,14 @@ export default function LooksPage() {
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
 
-      // Only apply price filtering if a specific currency is selected to avoid mixed logic
       if (filterCurrency === 'ALL') return matchesCurrency;
       
       return matchesCurrency && price >= min && price <= max;
     });
 
-    // Automatic Sorting
     return [...result].sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
-      // Default newest (already handled by firestore, but ensuring consistency here)
       return 0;
     });
   }, [looks, filterCurrency, minPrice, maxPrice, sortBy]);
@@ -90,8 +87,7 @@ export default function LooksPage() {
     
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       toast({
-        title: "Sincronizing...",
-        description: "Identity verification in progress.",
+        title: t(dictionary.syncing),
         variant: "destructive"
       });
       return;
@@ -119,7 +115,7 @@ export default function LooksPage() {
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-white/10 text-white/80 hover:neon-border hover:neon-text transition-all font-bold",
+                "h-12 px-6 rounded-2xl border-white/10 text-white hover:neon-border hover:neon-text transition-all font-bold",
                 showFilters && "neon-border neon-text bg-white/5"
               )}
             >
@@ -150,34 +146,32 @@ export default function LooksPage() {
           <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-black text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white/40 hover:text-white">
+              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white hover:text-white">
                 <X className="w-5 h-5" />
               </Button>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {/* Currency Selection */}
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Valyuta</Label>
+                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
                 <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6 flex-wrap">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" className="border-white/30" />
-                    <Label htmlFor="all" className="text-xs font-bold text-white/90">Barchasi</Label>
+                    <RadioGroupItem value="ALL" id="all" className="border-white" />
+                    <Label htmlFor="all" className="text-xs font-bold text-white">{t(dictionary.all)}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" className="border-white/30" />
-                    <Label htmlFor="usd" className="text-xs font-bold text-white/90">USD ($)</Label>
+                    <RadioGroupItem value="USD" id="usd" className="border-white" />
+                    <Label htmlFor="usd" className="text-xs font-bold text-white">USD ($)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" className="border-white/30" />
-                    <Label htmlFor="uzs" className="text-xs font-bold text-white/90">UZS (so'm)</Label>
+                    <RadioGroupItem value="UZS" id="uzs" className="border-white" />
+                    <Label htmlFor="uzs" className="text-xs font-bold text-white">UZS (so'm)</Label>
                   </div>
                 </RadioGroup>
               </div>
 
-              {/* Manual Price Range */}
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Narx oralig'i ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
+                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
                 <div className="flex items-center gap-3">
                   <Input 
                     type="number" 
@@ -185,7 +179,7 @@ export default function LooksPage() {
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold"
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold placeholder:text-white/20"
                   />
                   <div className="w-4 h-0.5 bg-white/10" />
                   <Input 
@@ -194,14 +188,13 @@ export default function LooksPage() {
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold"
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold placeholder:text-white/20"
                   />
                 </div>
               </div>
 
-              {/* Sorting */}
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Tartiblash</Label>
+                <Label className="text-[10px] font-black text-white uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold">
                     <div className="flex items-center gap-2">
@@ -210,9 +203,9 @@ export default function LooksPage() {
                     </div>
                   </SelectTrigger>
                   <SelectContent className="glass-dark border-white/10 text-white">
-                    <SelectItem value="newest" className="font-bold">Yangi qo'shilganlar</SelectItem>
-                    <SelectItem value="price_asc" className="font-bold">Arzonroq birinchi</SelectItem>
-                    <SelectItem value="price_desc" className="font-bold">Qimmatroq birinchi</SelectItem>
+                    <SelectItem value="newest" className="font-bold">{t(dictionary.newest)}</SelectItem>
+                    <SelectItem value="price_asc" className="font-bold">{t(dictionary.priceAsc)}</SelectItem>
+                    <SelectItem value="price_desc" className="font-bold">{t(dictionary.priceDesc)}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -245,7 +238,7 @@ export default function LooksPage() {
                         onClick={(e) => handleToggleLike(e, look.id)}
                         className={cn(
                           "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
-                          isLiked ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white/60 hover:neon-text hover:neon-border"
+                          isLiked ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white hover:neon-text hover:neon-border"
                         )}
                       >
                         <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
@@ -272,7 +265,7 @@ export default function LooksPage() {
           {filteredAndSortedLooks.length === 0 && (
             <div className="col-span-full py-32 text-center">
               <Filter className="w-12 h-12 text-white/10 mx-auto mb-4" />
-              <p className="text-white/40 uppercase font-black italic tracking-widest">Hech narsa topilmadi</p>
+              <p className="text-white uppercase font-black italic tracking-widest">{lang === 'uz' ? 'Hech narsa topilmadi' : lang === 'ru' ? 'Ничего не найдено' : 'Nothing found'}</p>
             </div>
           )}
         </div>

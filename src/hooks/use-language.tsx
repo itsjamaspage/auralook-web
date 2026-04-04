@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -303,6 +304,26 @@ const dictionary = {
   orderAccepted: { uz: 'Tasdiqlandi', ru: 'Принято', en: 'Accepted' },
   orderShipped: { uz: 'Yuborildi', ru: 'Отправлено', en: 'Shipped' },
   orderDelivered: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
+
+  // New Technical Labels
+  orderRef: { uz: 'BUYURTMA RAQAMI', ru: 'НОМЕР ЗАКАЗА', en: 'ORDER REF' },
+  size: { uz: 'O\'LCHAM', ru: 'РАЗМЕР', en: 'SIZE' },
+  total: { uz: 'JAMI', ru: 'ИТОГО', en: 'TOTAL' },
+  transactionDate: { uz: 'XARID VAQTI', ru: 'ДАТА ТРАНЗАКЦИИ', en: 'TRANSACTION DATE' },
+  managerAdviceLabel: { uz: 'Menejer maslahati', ru: 'совет менеджера', en: 'manager advice' },
+  height: { uz: 'Bo\'y', ru: 'Рост', en: 'Height' },
+  weight: { uz: 'Vazn', ru: 'Вес', en: 'Weight' },
+  contactInfo: { uz: 'Aloqa ma\'lumotlari', ru: 'Контактная информация', en: 'Contact Information' },
+  sortLabel: { uz: 'Tartiblash', ru: 'Сортировка', en: 'Sort' },
+  newest: { uz: 'Yangi qo\'shilganlar', ru: 'Сначала новые', en: 'Newest Arrivals' },
+  priceAsc: { uz: 'Arzonroq birinchi', ru: 'Сначала дешевле', en: 'Price: Low to High' },
+  priceDesc: { uz: 'Qimmatroq birinchi', ru: 'Сначала дороже', en: 'Price: High to Low' },
+  visual: { uz: 'Ko\'rinish', ru: 'Визуал', en: 'Visual' },
+  noFavorites: { uz: 'Hech narsa topilmadi', ru: 'Ничего не найдено', en: 'No favorites found' },
+  repositoryEmpty: { uz: 'Ombor bo\'sh', ru: 'Репозиторий пуст', en: 'Repository Empty' },
+  syncing: { uz: 'Sinxronizatsiya...', ru: 'Синхронизация...', en: 'Syncing...' },
+  identificationRequired: { uz: 'Identifikatsiya lozim', ru: 'Требуется идентификация', en: 'Identification Required' },
+  openInBot: { uz: 'Bot orqali kiring', ru: 'Войдите через бот', en: 'Enter via bot' },
 
   // Footer
   allRightsReserved: { 

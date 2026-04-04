@@ -24,7 +24,6 @@ export default function FavoritesPage() {
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // STRICT DATA GUARD: Prevents Permission Denied by ensuring auth session exists
     if (isUserLoading || !tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
@@ -45,7 +44,7 @@ export default function FavoritesPage() {
     
     try {
       await deleteDoc(doc(db, 'users', tgUser.id, 'liked_looks', lookId));
-      toast({ title: "O'chirildi", description: "Libos saralanganlardan olib tashlandi." });
+      toast({ title: t(dictionary.delete), description: "" });
     } catch (e) {
       console.error(e);
     }
@@ -55,7 +54,7 @@ export default function FavoritesPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Protocol Sync...</p>
+        <p className="text-white font-mono text-xs uppercase tracking-widest">{t(dictionary.syncing)}</p>
       </div>
     );
   }
@@ -64,8 +63,8 @@ export default function FavoritesPage() {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
         <Heart className="w-16 h-16 text-white/10 mx-auto" />
-        <h1 className="text-xl font-black text-white uppercase italic">Identifikatsiya lozim</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">Saralanganlarni ko'rish uchun bot orqali kiring.</p>
+        <h1 className="text-xl font-black text-white uppercase italic">{t(dictionary.identificationRequired)}</h1>
+        <p className="text-white/70 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
       </div>
     );
   }
@@ -82,7 +81,7 @@ export default function FavoritesPage() {
       {myFavorites.length === 0 ? (
         <div className="py-32 text-center space-y-4">
           <HeartOff className="w-12 h-12 text-white/10 mx-auto" />
-          <p className="text-white/40 uppercase font-black italic tracking-widest">Repository Empty</p>
+          <p className="text-white uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-32">
@@ -99,7 +98,7 @@ export default function FavoritesPage() {
                     />
                     <button 
                       onClick={(e) => handleRemove(e, look.id)}
-                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 text-white/60 hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 text-white hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
                     >
                       <X className="w-5 h-5" />
                     </button>
