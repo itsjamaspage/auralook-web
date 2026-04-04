@@ -1,30 +1,21 @@
 
-# Auralook.uz - Build Recovery Manual
+# Auralook.uz - Final Deployment Guide
 
-The build is currently failing because secrets cannot contain colons (`:`). I have standardized the code to look for standard names.
+The code is now optimized for both the Studio Preview and the Live production site.
 
-## 🚀 Step-by-Step Fix
+## ✅ Notifications (Preview)
+I have added the credentials to your `.env` file. Notifications triggered from the **Studio Preview** should work immediately.
 
-1.  **Authorization**:
-    If you see a "401" error in your terminal, please **refresh this browser tab**. This will re-authorize your session.
+## 🚀 Notifications (Live Site)
+The build is currently failing because Google Cloud needs you to verify the secrets in the UI.
 
-2.  **Set the Bot Token**:
-    Copy and paste this command exactly into the terminal:
-    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_BOT_TOKEN`
-    
-    *When it asks for the value, paste:*
-    `7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM`
-
-3.  **Set the Admin ID**:
-    `npx -y firebase-tools@latest apphosting:secrets:set TELEGRAM_ADMIN_CHAT_ID`
-    
-    *When it asks for the value, paste:*
-    `7213073025`
-
-4.  **Finalize**:
-    Go to the **Firebase Console** -> **App Hosting** -> **Rollouts** and click **"New Rollout"**.
+1. **Firebase Console**: Open your project `studio-2916828899-aeb98`.
+2. **Secrets Tab**: Navigate to **App Hosting** -> **Studio** -> **Secrets** (or Settings).
+3. **Set Token**: Add a secret named `TELEGRAM_BOT_TOKEN` and paste your value `7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM`.
+4. **Set Admin**: Add a secret named `TELEGRAM_ADMIN_CHAT_ID` and paste `7213073025`.
+5. **Redeploy**: Click **"New Rollout"** in the Rollouts tab.
 
 ## 🛠 Stability Updates
-- **Index Bypass**: Orders now load without requiring a manual composite index (fixing the crash).
-- **Hardened Identity**: Purchase flow waits for valid Firebase Auth before submitting.
-- **Cleaned Config**: Removed colons from secret identifiers to satisfy Google Cloud requirements.
+- **Size Advisor**: Removed from navigation per request.
+- **Index Bypass**: Orders load without database index requirements.
+- **Identity Guard**: App waits for Firebase Auth before querying data to prevent crashes.
