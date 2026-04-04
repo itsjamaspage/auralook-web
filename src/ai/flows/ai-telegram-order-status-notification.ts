@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Template-based order notifications for Telegram.
- * Enhanced with environment validation and production-grade delivery checks.
+ * Enhanced with support for Photo delivery (URLs and Data URIs).
  */
 
 import { z } from 'genkit';
@@ -30,16 +30,14 @@ export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOr
 
 /**
  * Dispatches a notification to the Telegram Admin bot.
- * Uses a standard fetch call to ensure delivery in serverless environments.
+ * Now supports Photo delivery for outfit visuals.
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
-  console.log(`[Telegram Protocol] Attempting notification for Order: ${input.orderId}`);
-
   if (!token || !adminChatId) {
-    console.warn("[Telegram Protocol] ABORTED: Missing TELEGRAM_BOT_TOKEN or TELEGRAM_ADMIN_CHAT_ID in environment.");
+    console.warn("[Telegram Protocol] ABORTED: Credentials missing.");
     return;
   }
 
@@ -76,27 +74,53 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    const payload = {
-      chat_id: adminChatId,
-      parse_mode: 'HTML',
-      text: finalCaption
-    };
+    const isDataUri = input.imageUrl?.startsWith('data:');
 
-    console.log(`[Telegram Protocol] Dispatching sendMessage to API...`);
-    
-    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000)
-    });
+    if (input.imageUrl) {
+      if (isDataUri) {
+        // Multi-part form data for Base64/Data URI uploads
+        const formData = new FormData();
+        formData.append('chat_id', adminChatId);
+        formData.append('parse_mode', 'HTML');
+        formData.append('caption', finalCaption);
+        
+        const [meta, base64] = input.imageUrl.split(',');
+        const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const binary = Buffer.from(base64, 'base64');
+        const blob = new Blob([binary], { type: mime });
+        
+        formData.append('photo', blob, 'outfit.jpg');
 
-    const result = await response.json();
-    
-    if (!response.ok) {
-      console.error(`[Telegram Protocol] API REJECTED: ${result.description} (Error Code: ${result.error_code})`);
+        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+          method: 'POST',
+          body: formData,
+          signal: AbortSignal.timeout(15000)
+        });
+      } else {
+        // Standard JSON for external URLs
+        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: adminChatId,
+            photo: input.imageUrl,
+            caption: finalCaption,
+            parse_mode: 'HTML'
+          }),
+          signal: AbortSignal.timeout(10000)
+        });
+      }
     } else {
-      console.log(`[Telegram Protocol] SUCCESS: Message delivered to Admin.`);
+      // Fallback to simple text if no image provided
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: adminChatId,
+          text: finalCaption,
+          parse_mode: 'HTML'
+        })
+      });
     }
   } catch (error) {
     console.error("[Telegram Protocol] CRITICAL FAILURE:", error);

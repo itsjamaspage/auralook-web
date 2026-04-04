@@ -118,7 +118,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!orderDetails.phone || orderDetails.phone.length < 17 || !orderDetails.telegram) {
       toast({
         variant: "destructive",
-        title: "Ma'lumotlar yetarli emas",
+        title: "Ma'mulotlar yetarli emas",
         description: "Telefon raqami (to'liq) va Telegram username majburiy."
       });
       return;
@@ -162,7 +162,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // CRITICAL: Await notification explicitly before completing UI transition
+      // CRITICAL: Dispatch notification with visual context
       await notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
@@ -261,7 +261,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       </div>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="glass-dark border-white/10 rounded-[2rem] lg:rounded-[2.5rem] text-white p-6 sm:p-8 max-w-[90vw] sm:max-w-md mx-auto">
+        <DialogContent className="glass-dark border-white/10 rounded-[2rem] lg:rounded-[2.5rem] text-white p-6 sm:p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-[0_0_100px_rgba(0,0,0,0.8)]">
           <DialogHeader className="mb-4 sm:mb-6">
             <DialogTitle className="text-xl sm:text-2xl font-black italic uppercase neon-text flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -293,7 +293,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             <div className="space-y-6 sm:space-y-8 py-2">
               <div className="flex items-center gap-2 text-white mb-2">
                 <CheckCircle2 className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.selectSizeTitle)}</p>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {sizes.map((size) => (
@@ -321,7 +321,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="flex flex-col gap-2 mb-2">
                 <div className="flex items-center gap-2 text-white">
                   <Ruler className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
                 <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -332,7 +332,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white">Bo'y (cm)</Label>
+                  <Label className="text-[10px] uppercase font-black text-white">Bo'y (cm)</Label>
                   <Input 
                     type="number" 
                     placeholder="175"
@@ -342,7 +342,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white">Vazn (kg)</Label>
+                  <Label className="text-[10px] uppercase font-black text-white">Vazn (kg)</Label>
                   <Input 
                     type="number" 
                     placeholder="70"
@@ -354,7 +354,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
               <Button 
                 onClick={() => setStep('CONTACT')}
-                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest text-white"
               >
                 {t(dictionary.nextStep)}
               </Button>
@@ -366,7 +366,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white">
                   <Globe className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">Mamlakat</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white">Mamlakat</p>
                 </div>
                 <Select value={country} onValueChange={setCountry}>
                   <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm uppercase font-bold tracking-widest">
@@ -374,7 +374,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   </SelectTrigger>
                   <SelectContent className="glass-dark border-white/10 text-white">
                     {COUNTRIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
+                      <SelectItem key={c.code} value={c.code} className="text-white hover:bg-white/10">
                         {c.name} ({c.dial})
                       </SelectItem>
                     ))}
@@ -385,7 +385,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white">
                   <Phone className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.phoneNumber)}</p>
                 </div>
                 <Input 
                   placeholder="+998 90 123 45 67"
@@ -398,7 +398,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white">
                   <Send className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.telegramUsername)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.telegramUsername)}</p>
                 </div>
                 <Input 
                   placeholder={t(dictionary.telegramPlaceholder)}
