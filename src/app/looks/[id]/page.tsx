@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -161,7 +162,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Await notification to ensure server action is processed correctly
       await notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
@@ -239,8 +239,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
 
               <div className="space-y-2">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-sm text-white/80 font-medium italic leading-relaxed whitespace-pre-line">
+                <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-sm text-white/90 font-medium italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>
               </div>
@@ -270,17 +270,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
           {step === 'ASK_KNOWLEDGE' && (
             <div className="space-y-6 sm:space-y-8 py-2">
-              <h3 className="text-base sm:text-lg font-bold text-center italic">{t(dictionary.knowSizeQuestion)}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-center italic text-white">{t(dictionary.knowSizeQuestion)}</h3>
               <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <Button 
                   onClick={() => setStep('CHOOSE_SIZE')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs"
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs text-white"
                 >
                   {t(dictionary.yesIKnow)}
                 </Button>
                 <Button 
                   onClick={() => setStep('ENTER_MEASUREMENTS')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs"
+                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs text-white"
                 >
                   {t(dictionary.noHelpMe)}
                 </Button>
@@ -290,7 +290,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
           {step === 'CHOOSE_SIZE' && (
             <div className="space-y-6 sm:space-y-8 py-2">
-              <div className="flex items-center gap-2 text-white/40 mb-2">
+              <div className="flex items-center gap-2 text-white/60 mb-2">
                 <CheckCircle2 className="w-4 h-4 neon-text" />
                 <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
               </div>
@@ -299,7 +299,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none' : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'}`}
+                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none text-black' : 'bg-white/5 border-white/10 text-white/80 hover:border-white/30'}`}
                   >
                     {size}
                   </button>
@@ -318,20 +318,20 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           {step === 'ENTER_MEASUREMENTS' && (
             <div className="space-y-6 sm:space-y-8 py-2">
               <div className="flex flex-col gap-2 mb-2">
-                <div className="flex items-center gap-2 text-white/40">
+                <div className="flex items-center gap-2 text-white/60">
                   <Ruler className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
-                <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
+                <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-xs text-white/90 italic font-bold leading-relaxed">
+                  <p className="text-xs text-white italic font-bold leading-relaxed">
                     {t(dictionary.managerAdvisory)}
                   </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/40">Bo'y (cm)</Label>
+                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/60">Bo'y (cm)</Label>
                   <Input 
                     type="number" 
                     placeholder="175"
@@ -341,7 +341,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/40">Vazn (kg)</Label>
+                  <Label className="text-[9px] sm:text-[10px] uppercase font-black text-white/60">Vazn (kg)</Label>
                   <Input 
                     type="number" 
                     placeholder="70"
@@ -363,7 +363,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           {step === 'CONTACT' && (
             <div className="space-y-5 sm:space-y-6 py-2">
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/40">
+                <div className="flex items-center gap-2 text-white/60">
                   <Globe className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">Mamlakat</p>
                 </div>
@@ -382,7 +382,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/40">
+                <div className="flex items-center gap-2 text-white/60">
                   <Phone className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
                 </div>
@@ -395,7 +395,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/40">
+                <div className="flex items-center gap-2 text-white/60">
                   <Send className="w-4 h-4 neon-text" />
                   <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.telegramUsername)}</p>
                 </div>

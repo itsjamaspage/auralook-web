@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -99,11 +100,11 @@ export default function AdvisorPage() {
 
       <Card className="glass-dark border-white/10 p-8 space-y-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
         <div className="space-y-2 relative z-10">
-          <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-tighter">
+          <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-tighter text-white">
             <Zap className="w-5 h-5 neon-text transition-none" />
             O'lcham Ma'lumotlari
           </h2>
-          <p className="text-sm text-white/40 font-medium">
+          <p className="text-sm text-white/60 font-medium">
             Menejerga ma'lumotlaringizni yuboring va mukammal moslikni oling.
           </p>
         </div>
@@ -112,7 +113,7 @@ export default function AdvisorPage() {
           <div className="space-y-8 py-4 relative z-10">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Bo'yingiz (cm)</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">Bo'yingiz (cm)</Label>
                 <Input 
                   type="number" 
                   value={formData.height} 
@@ -121,7 +122,7 @@ export default function AdvisorPage() {
                 />
               </div>
               <div className="space-y-3">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Vazningiz (kg)</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">Vazningiz (kg)</Label>
                 <Input 
                   type="number" 
                   value={formData.weight}
@@ -132,7 +133,7 @@ export default function AdvisorPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">O'lchamingiz (agar bilsangiz)</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">O'lchamingiz (agar bilsangiz)</Label>
               <Input 
                 placeholder="Masalan: M yoki 48"
                 value={formData.knownSize}
@@ -142,33 +143,33 @@ export default function AdvisorPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Jinsingiz</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">Jinsingiz</Label>
               <RadioGroup value={formData.gender} onValueChange={(val: any) => setFormData({...formData, gender: val})} className="flex gap-8">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male" className="transition-none" />
-                  <Label htmlFor="male" className="text-xs font-bold text-white/80">Erkak</Label>
+                  <Label htmlFor="male" className="text-xs font-bold text-white/90">Erkak</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="female" id="female" className="transition-none" />
-                  <Label htmlFor="female" className="text-xs font-bold text-white/80">Ayol</Label>
+                  <Label htmlFor="female" className="text-xs font-bold text-white/90">Ayol</Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/40">Kiyinish uslubingiz</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white/60">Kiyinish uslubingiz</Label>
               <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex flex-col gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="tight" id="tight" className="transition-none" />
-                  <Label htmlFor="tight" className="text-xs font-bold text-white/80">Yopishib turadigan</Label>
+                  <Label htmlFor="tight" className="text-xs font-bold text-white/90">Yopishib turadigan</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="regular" id="reg" className="transition-none" />
-                  <Label htmlFor="reg" className="text-xs font-bold text-white/80">O'rtacha</Label>
+                  <Label htmlFor="reg" className="text-xs font-bold text-white/90">O'rtacha</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="loose" id="loose" className="transition-none" />
-                  <Label htmlFor="loose" className="text-xs font-bold text-white/80">Kengroq</Label>
+                  <Label htmlFor="loose" className="text-xs font-bold text-white/90">Kengroq</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -204,7 +205,7 @@ export default function AdvisorPage() {
               <h3 className="text-xl font-bold flex items-center justify-center gap-2 text-white">
                 Tavsiya etilgan o'lcham: {result.recommendedSize}
               </h3>
-              <p className="text-white/60 text-sm leading-relaxed px-6 italic font-medium">
+              <p className="text-white/80 text-sm leading-relaxed px-6 italic font-medium">
                 "{result.explanation}"
               </p>
             </div>
@@ -220,7 +221,7 @@ export default function AdvisorPage() {
               <Button 
                   onClick={() => setResult(null)} 
                   variant="ghost" 
-                  className="w-full rounded-xl border border-white/10 text-white/40 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
+                  className="w-full rounded-xl border border-white/10 text-white/60 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
               >
                 O'lchamlarni o'zgartirish
               </Button>
