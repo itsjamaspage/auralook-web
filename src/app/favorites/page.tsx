@@ -6,7 +6,7 @@ import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { Loader2, Heart, HeartOff, CheckCircle2, X } from 'lucide-react';
+import { Loader2, Heart, HeartOff, CheckCircle2 } from 'lucide-react';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
@@ -87,7 +87,7 @@ export default function FavoritesPage() {
           {myFavorites.map((look) => (
             <div key={look.id} className="relative group">
               <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
-                <Card className="bg-card border border-white/10 overflow-hidden rounded-[2rem] transition-all hover:border-primary/20 relative shadow-lg">
+                <Card className="bg-card border border-border overflow-hidden rounded-[2rem] transition-all hover:border-primary/20 relative shadow-lg">
                   <div className="relative aspect-[4/5] overflow-hidden p-1">
                     <Image
                       src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
@@ -97,12 +97,12 @@ export default function FavoritesPage() {
                     />
                     <button 
                       onClick={(e) => handleRemove(e, look.id)}
-                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 neon-text hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-surface border border-foreground/10 neon-text hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
                     >
                       <Heart className="w-5 h-5 fill-current" />
                     </button>
                     {navigatingId === look.id && (
-                      <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">
+                      <div className="absolute inset-0 flex items-center justify-center glass-surface z-20">
                         <Loader2 className="w-8 h-8 animate-spin neon-text" />
                       </div>
                     )}

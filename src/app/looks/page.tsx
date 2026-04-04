@@ -127,14 +127,14 @@ export default function LooksPage() {
             <Button 
               onClick={() => setViewMode('grid')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-border")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
             >
               <Grid2x2 className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setViewMode('list')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-border")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
             >
               <List className="w-5 h-5" />
             </Button>
@@ -142,7 +142,7 @@ export default function LooksPage() {
         </div>
 
         {showFilters && (
-          <Card className="bg-card border-border rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
+          <Card className="glass-surface border-border rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
               <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-foreground hover:text-primary">
@@ -201,7 +201,7 @@ export default function LooksPage() {
                       <SelectValue />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
+                  <SelectContent className="glass-surface border-border">
                     <SelectItem value="newest" className="font-bold">{t(dictionary.newest)}</SelectItem>
                     <SelectItem value="price_asc" className="font-bold">{t(dictionary.priceAsc)}</SelectItem>
                     <SelectItem value="price_desc" className="font-bold">{t(dictionary.priceDesc)}</SelectItem>
@@ -236,11 +236,11 @@ export default function LooksPage() {
                       <button 
                         onClick={(e) => handleToggleLike(e, look.id)}
                         className={cn(
-                          "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
-                          isLiked ? "neon-border neon-text bg-white/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white hover:neon-text hover:neon-border"
+                          "absolute top-4 right-4 w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all z-10",
+                          isLiked ? "neon-border neon-text bg-foreground/10 shadow-2xl" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border"
                         )}
                       >
-                        <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-white")} />
+                        <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
                       </button>
                     </div>
 

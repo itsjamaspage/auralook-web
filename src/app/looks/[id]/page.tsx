@@ -106,12 +106,12 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
+        <p className="text-foreground font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
       </div>
     );
   }
 
-  if (!look) return <div className="p-24 text-center text-white/40 uppercase font-black italic">Look not found</div>;
+  if (!look) return <div className="p-24 text-center text-foreground/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
     if (!orderDetails.phone || orderDetails.phone.length < 17 || !orderDetails.telegram) {
@@ -201,20 +201,21 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="min-h-screen lg:min-h-[calc(100vh-100px)] bg-background text-foreground flex items-start lg:items-center justify-center py-6 lg:py-4">
       <div className="container mx-auto px-4 max-w-5xl relative pb-32 lg:pb-0">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-stretch relative z-10">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
-          <div className="lg:col-span-6 flex flex-col relative">
+          {/* Image Column - Smaller & Centered */}
+          <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-md">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
-                className="rounded-full w-10 h-10 p-0 border border-white/10 glass-dark hover:neon-border text-white transition-all"
+                className="rounded-full w-10 h-10 p-0 border border-foreground/10 glass-surface hover:neon-border text-foreground transition-all"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </div>
 
-            <div className="relative flex-grow aspect-[4/5] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden glass-dark border border-white/10 shadow-2xl group bg-[#080808]">
+            <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-surface border-foreground/10 shadow-2xl group bg-muted/20">
               <Image 
                 src={look.imageUrl} 
                 alt={look.name} 
@@ -225,21 +226,22 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
 
-          <div className="lg:col-span-6 flex flex-col h-full justify-center">
-            <div className="space-y-6 lg:space-y-8 glass-dark border border-white/10 rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-12 shadow-2xl bg-white/[0.02]">
+          {/* Content Column */}
+          <div className="lg:col-span-7 flex flex-col h-full justify-center">
+            <div className="space-y-6 lg:space-y-8 glass-surface border-foreground/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl">
               <div className="space-y-4">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl lg:text-3xl font-black text-white tracking-tighter">
+                  <span className="text-3xl lg:text-4xl font-black text-foreground tracking-tighter">
                     {look.currency === 'UZS' ? `${formatPrice(look.price)}` : `$${formatPrice(look.price)}`}
                   </span>
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
+                  <span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
                 </div>
-                <h1 className="text-lg lg:text-xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
+                <h1 className="text-xl lg:text-2xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-sm text-white font-medium italic leading-relaxed whitespace-pre-line">
+                <p className="text-[9px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-sm text-foreground/80 font-medium italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>
               </div>
@@ -259,27 +261,29 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       </div>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="glass-dark border-white/10 rounded-[2rem] lg:rounded-[2.5rem] text-white p-6 sm:p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-[0_0_100px_rgba(0,0,0,0.8)]">
-          <DialogHeader className="mb-4 sm:mb-6">
-            <DialogTitle className="text-xl sm:text-2xl font-black italic uppercase neon-text flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
+        <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-2xl">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-2">
+              <CheckCircle2 className="w-6 h-6" />
               {t(dictionary.checkoutTitle)}
             </DialogTitle>
           </DialogHeader>
 
           {step === 'ASK_KNOWLEDGE' && (
-            <div className="space-y-6 sm:space-y-8 py-2">
-              <h3 className="text-base sm:text-lg font-bold text-center italic text-white">{t(dictionary.knowSizeQuestion)}</h3>
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+            <div className="space-y-8 py-2">
+              <h3 className="text-lg font-bold text-center italic text-foreground">{t(dictionary.knowSizeQuestion)}</h3>
+              <div className="grid grid-cols-1 gap-4">
                 <Button 
                   onClick={() => setStep('CHOOSE_SIZE')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs text-white"
+                  variant="outline"
+                  className="h-14 rounded-2xl border-foreground/10 hover:neon-border hover:neon-text font-black uppercase text-xs text-foreground"
                 >
                   {t(dictionary.yesIKnow)}
                 </Button>
                 <Button 
                   onClick={() => setStep('ENTER_MEASUREMENTS')}
-                  className="h-14 rounded-2xl bg-white/5 border border-white/10 hover:neon-border hover:neon-text font-black uppercase text-[10px] sm:text-xs text-white"
+                  variant="outline"
+                  className="h-14 rounded-2xl border-foreground/10 hover:neon-border hover:neon-text font-black uppercase text-xs text-foreground"
                 >
                   {t(dictionary.noHelpMe)}
                 </Button>
@@ -288,17 +292,17 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'CHOOSE_SIZE' && (
-            <div className="space-y-6 sm:space-y-8 py-2">
-              <div className="flex items-center gap-2 text-white mb-2">
+            <div className="space-y-8 py-2">
+              <div className="flex items-center gap-2 text-foreground mb-2">
                 <CheckCircle2 className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.selectSizeTitle)}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none text-black' : 'bg-white/5 border-white/10 text-white hover:border-white/30'}`}
+                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none text-black' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'}`}
                   >
                     {size}
                   </button>
@@ -315,44 +319,44 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'ENTER_MEASUREMENTS' && (
-            <div className="space-y-6 sm:space-y-8 py-2">
+            <div className="space-y-8 py-2">
               <div className="flex flex-col gap-2 mb-2">
-                <div className="flex items-center gap-2 text-white">
+                <div className="flex items-center gap-2 text-foreground">
                   <Ruler className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.enterMeasurementsTitle)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
                 <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-xs text-white italic font-bold leading-relaxed">
+                  <p className="text-xs text-foreground italic font-bold leading-relaxed">
                     {t(dictionary.managerAdvisory)}
                   </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-white">Bo'y (cm)</Label>
+                  <Label className="text-[10px] uppercase font-black text-foreground">Bo'y (cm)</Label>
                   <Input 
                     type="number" 
                     placeholder="175"
                     value={orderDetails.height}
                     onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
+                    className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-white">Vazn (kg)</Label>
+                  <Label className="text-[10px] uppercase font-black text-foreground">Vazn (kg)</Label>
                   <Input 
                     type="number" 
                     placeholder="70"
                     value={orderDetails.weight}
                     onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})}
-                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
+                    className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground text-sm"
                   />
                 </div>
               </div>
               <Button 
                 onClick={() => setStep('CONTACT')}
-                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest text-white"
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
               >
                 {t(dictionary.nextStep)}
               </Button>
@@ -360,19 +364,19 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {step === 'CONTACT' && (
-            <div className="space-y-5 sm:space-y-6 py-2">
+            <div className="space-y-6 py-2">
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white">
+                <div className="flex items-center gap-2 text-foreground">
                   <Globe className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.countryLabel)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.countryLabel)}</p>
                 </div>
                 <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm uppercase font-bold tracking-widest">
+                  <SelectTrigger className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground text-sm uppercase font-bold tracking-widest">
                     <SelectValue placeholder={t(dictionary.selectPlaceholder)} />
                   </SelectTrigger>
-                  <SelectContent className="glass-dark border-white/10 text-white">
+                  <SelectContent className="glass-surface border-foreground/10 text-foreground">
                     {COUNTRIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code} className="text-white hover:bg-white/10">
+                      <SelectItem key={c.code} value={c.code} className="text-foreground hover:bg-foreground/10">
                         {c.name} ({c.dial})
                       </SelectItem>
                     ))}
@@ -381,28 +385,28 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white">
+                <div className="flex items-center gap-2 text-foreground">
                   <Phone className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.phoneNumber)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
                 </div>
                 <Input 
                   placeholder="+998 90 123 45 67"
                   value={orderDetails.phone}
                   onChange={handlePhoneChange}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
+                  className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground text-sm"
                 />
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white">
+                <div className="flex items-center gap-2 text-foreground">
                   <Send className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.telegramUsername)}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.telegramUsername)}</p>
                 </div>
                 <Input 
                   placeholder={t(dictionary.telegramPlaceholder)}
                   value={orderDetails.telegram}
                   onChange={(e) => setOrderDetails({...orderDetails, telegram: e.target.value})}
-                  className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm"
+                  className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground text-sm"
                 />
               </div>
 
