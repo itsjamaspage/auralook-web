@@ -46,8 +46,8 @@ export function BottomNav() {
           )} />
         </div>
         <span className={cn(
-          "text-[7px] sm:text-[8px] font-black uppercase tracking-[0.1em] font-mono transition-colors duration-300 text-center truncate w-full px-1",
-          isActive ? "neon-text" : "text-white/80"
+          "text-[10px] sm:text-[11px] font-black uppercase tracking-wider font-mono transition-colors duration-300 text-center truncate w-full px-1",
+          isActive ? "neon-text" : "text-white"
         )}>
           {item.label}
         </span>
