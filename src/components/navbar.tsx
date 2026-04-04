@@ -16,22 +16,18 @@ import {
 import { 
   Menu, 
   Compass, 
-  Heart, 
-  ShoppingBag, 
   LayoutDashboard, 
   User,
   ShieldCheck,
   ShieldAlert,
-  Loader2,
-  Ruler
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
-  const { user, isVerified, isLoading } = useTelegramUser();
-  const pathname = usePathname();
+  const { user, isLoading } = useTelegramUser();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -46,7 +42,6 @@ export function Navbar() {
 
   const menuItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
-    { label: t(dictionary.razmeringiz), icon: Ruler, href: '/advisor' },
     { label: t(dictionary.adminPanel), icon: LayoutDashboard, href: '/admin' },
   ];
 
