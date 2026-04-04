@@ -109,6 +109,10 @@ body {
   @apply bg-black/90 backdrop-blur-3xl border border-white/10;
 }
 
+.glass-surface {
+  @apply bg-background/80 backdrop-blur-3xl border border-foreground/10 shadow-2xl;
+}
+
 .energy-line {
   stroke: var(--sync-color);
   opacity: 0.3;
