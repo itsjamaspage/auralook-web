@@ -237,10 +237,10 @@ export default function LooksPage() {
                         onClick={(e) => handleToggleLike(e, look.id)}
                         className={cn(
                           "absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border flex items-center justify-center transition-all z-10",
-                          isLiked ? "neon-border neon-text bg-primary/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white hover:neon-text hover:neon-border"
+                          isLiked ? "neon-border neon-text bg-white/10 shadow-[0_0_15px_rgba(var(--sync-color),0.2)]" : "border-white/10 text-white hover:neon-text hover:neon-border"
                         )}
                       >
-                        <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+                        <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-white")} />
                       </button>
                     </div>
 

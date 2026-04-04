@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
@@ -98,9 +97,9 @@ export default function FavoritesPage() {
                     />
                     <button 
                       onClick={(e) => handleRemove(e, look.id)}
-                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 text-white hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full glass-dark border border-white/10 neon-text hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-all z-10"
                     >
-                      <X className="w-5 h-5" />
+                      <Heart className="w-5 h-5 fill-current" />
                     </button>
                     {navigatingId === look.id && (
                       <div className="absolute inset-0 flex items-center justify-center glass-dark z-20">

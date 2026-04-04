@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -18,10 +17,10 @@ export function BottomNav() {
   }, []);
 
   const navItems = [
-    { label: "QIDIRISH", icon: Compass, href: '/looks' },
-    { label: "SARALANGANLAR", icon: Heart, href: '/favorites' },
-    { label: "SAVATCHA", icon: ShoppingBag, href: '/orders' },
-    { label: "PROFIL", icon: User, href: '/profile' },
+    { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
+    { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
+    { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
+    { label: t(dictionary.profile), icon: User, href: '/profile' },
   ];
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
@@ -35,7 +34,7 @@ export function BottomNav() {
         <div className={cn(
           "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
           isActive 
-            ? "neon-bg scale-110 sm:scale-105" 
+            ? "neon-bg scale-110" 
             : "bg-white/5 border border-white/10 group-hover:border-white/30"
         )}>
           {isActive && (
@@ -59,9 +58,9 @@ export function BottomNav() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 sm:pb-8 pointer-events-none">
-      <div className="max-w-2xl mx-auto relative pointer-events-auto">
-        <div className="glass-dark border border-white/10 rounded-[2rem] sm:rounded-[2.5rem] h-20 sm:h-24 w-full flex items-center justify-between px-3 sm:px-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+    <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+      <div className="max-w-full mx-auto relative pointer-events-auto">
+        <div className="bg-black/90 backdrop-blur-2xl border-t border-white/10 h-20 sm:h-24 w-full flex items-center justify-between px-3 sm:px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] rounded-t-[2.5rem]">
           {navItems.map((item) => (
             <NavButton key={item.href} item={item} />
           ))}
