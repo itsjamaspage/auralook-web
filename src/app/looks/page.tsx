@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
@@ -10,9 +10,16 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X } from 'lucide-react';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -27,13 +34,9 @@ export default function LooksPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
-
-  // Prevent slider crash by clamping values on currency change
-  useEffect(() => {
-    const max = filterCurrency === 'USD' ? 5000 : 100000000;
-    if (priceRange[1] > max) setPriceRange([0, max]);
-  }, [filterCurrency]);
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('newest');
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -42,24 +45,39 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // STRICT GUARD: If user isn't fully authenticated, return null to avoid crash
     if (isUserLoading || !firebaseUser || !tgUser || tgUser.firebaseUid === 'pending') {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading]);
   
-  // Use explicit undefined check to keep hook in waiting state
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
-  const filteredLooks = useMemo(() => {
-    return looks?.filter(look => {
+  const filteredAndSortedLooks = useMemo(() => {
+    if (!looks) return [];
+
+    let result = looks.filter(look => {
       const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
+      
       const price = Number(look.price || 0);
-      return matchesCurrency && price >= priceRange[0] && price <= priceRange[1];
+      const min = minPrice ? Number(minPrice) : 0;
+      const max = maxPrice ? Number(maxPrice) : Infinity;
+
+      // Only apply price filtering if a specific currency is selected to avoid mixed logic
+      if (filterCurrency === 'ALL') return matchesCurrency;
+      
+      return matchesCurrency && price >= min && price <= max;
     });
-  }, [looks, filterCurrency, priceRange]);
+
+    // Automatic Sorting
+    return [...result].sort((a, b) => {
+      if (sortBy === 'price_asc') return a.price - b.price;
+      if (sortBy === 'price_desc') return b.price - a.price;
+      // Default newest (already handled by firestore, but ensuring consistency here)
+      return 0;
+    });
+  }, [looks, filterCurrency, minPrice, maxPrice, sortBy]);
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
@@ -92,8 +110,6 @@ export default function LooksPage() {
     }
   };
 
-  const maxPossiblePrice = filterCurrency === 'USD' ? 5000 : 100000000;
-
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen">
       <div className="space-y-6">
@@ -103,18 +119,13 @@ export default function LooksPage() {
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-white/10 text-white/60 hover:neon-border hover:neon-text transition-all",
-                showFilters && "neon-border neon-text"
+                "h-12 px-6 rounded-2xl border-white/10 text-white/80 hover:neon-border hover:neon-text transition-all font-bold",
+                showFilters && "neon-border neon-text bg-white/5"
               )}
             >
               <Filter className="w-4 h-4 mr-2" />
               {t(dictionary.filter)}
             </Button>
-            
-            <div className="hidden sm:flex items-baseline gap-2">
-              <span className="text-xl font-black text-white italic">{filteredLooks?.length || 0}</span>
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t(dictionary.listingsDetected)}</span>
-            </div>
           </div>
 
           <div className="flex gap-2">
@@ -136,7 +147,7 @@ export default function LooksPage() {
         </div>
 
         {showFilters && (
-          <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-8 animate-in slide-in-from-top-4 duration-300">
+          <Card className="glass-dark border-white/10 rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-black text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
               <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-white/40 hover:text-white">
@@ -144,39 +155,66 @@ export default function LooksPage() {
               </Button>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-10">
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Currency Selection */}
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
-                <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-8 flex-wrap">
+                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Valyuta</Label>
+                <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6 flex-wrap">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" />
-                    <Label htmlFor="all" className="text-xs font-bold text-white/80">{t(dictionary.all)}</Label>
+                    <RadioGroupItem value="ALL" id="all" className="border-white/30" />
+                    <Label htmlFor="all" className="text-xs font-bold text-white/90">Barchasi</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" />
-                    <Label htmlFor="usd" className="text-xs font-bold text-white/80">USD ($)</Label>
+                    <RadioGroupItem value="USD" id="usd" className="border-white/30" />
+                    <Label htmlFor="usd" className="text-xs font-bold text-white/90">USD ($)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" />
-                    <Label htmlFor="uzs" className="text-xs font-bold text-white/80">UZS (so'm)</Label>
+                    <RadioGroupItem value="UZS" id="uzs" className="border-white/30" />
+                    <Label htmlFor="uzs" className="text-xs font-bold text-white/90">UZS (so'm)</Label>
                   </div>
                 </RadioGroup>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.priceRange)}</Label>
-                  <span className="text-xs font-black neon-text italic">
-                    {filterCurrency === 'USD' ? '$' : ''}{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}{filterCurrency === 'UZS' ? ' UZS' : ''}
-                  </span>
+              {/* Manual Price Range */}
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Narx oralig'i ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
+                <div className="flex items-center gap-3">
+                  <Input 
+                    type="number" 
+                    placeholder="Min" 
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    disabled={filterCurrency === 'ALL'}
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold"
+                  />
+                  <div className="w-4 h-0.5 bg-white/10" />
+                  <Input 
+                    type="number" 
+                    placeholder="Max" 
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    disabled={filterCurrency === 'ALL'}
+                    className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold"
+                  />
                 </div>
-                <Slider 
-                  value={[priceRange[0], priceRange[1]]} 
-                  onValueChange={(val: number[]) => setPriceRange([val[0], val[1]])} 
-                  max={maxPossiblePrice} 
-                  step={filterCurrency === 'USD' ? 1 : 1000}
-                  className="py-4"
-                />
+              </div>
+
+              {/* Sorting */}
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black text-white/70 uppercase tracking-widest">Tartiblash</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm font-bold">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpDown className="w-3 h-3 neon-text" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="glass-dark border-white/10 text-white">
+                    <SelectItem value="newest" className="font-bold">Yangi qo'shilganlar</SelectItem>
+                    <SelectItem value="price_asc" className="font-bold">Arzonroq birinchi</SelectItem>
+                    <SelectItem value="price_desc" className="font-bold">Qimmatroq birinchi</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </Card>
@@ -187,7 +225,7 @@ export default function LooksPage() {
         <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
       ) : (
         <div className={cn("pb-32 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
-          {filteredLooks?.map((look) => {
+          {filteredAndSortedLooks.map((look) => {
             const isLiked = likedLookIds.has(look.id);
             return (
               <div key={look.id} className="relative group">
@@ -230,6 +268,13 @@ export default function LooksPage() {
               </div>
             );
           })}
+
+          {filteredAndSortedLooks.length === 0 && (
+            <div className="col-span-full py-32 text-center">
+              <Filter className="w-12 h-12 text-white/10 mx-auto mb-4" />
+              <p className="text-white/40 uppercase font-black italic tracking-widest">Hech narsa topilmadi</p>
+            </div>
+          )}
         </div>
       )}
     </div>
