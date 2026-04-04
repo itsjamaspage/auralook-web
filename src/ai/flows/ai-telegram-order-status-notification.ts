@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Template-based order notifications for Telegram.
- * Enhanced with server-side logging to debug delivery issues.
+ * Enhanced with server-side logging and robust delivery checks.
  */
 
 import { z } from 'genkit';
@@ -27,6 +27,10 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
 });
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
+/**
+ * Dispatches a notification to the Telegram Admin bot.
+ * Uses a standard fetch call to bypass Genkit initialization overhead for faster delivery.
+ */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   console.log(`[Telegram Protocol] Initiating notification for Order: ${input.orderId}`);
   
@@ -34,7 +38,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
   const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
   if (!token || !adminChatId) {
-    console.error("[Telegram Protocol] CRITICAL ERROR: TELEGRAM_BOT_TOKEN or ADMIN_CHAT_ID is missing from environment variables.");
+    console.error("[Telegram Protocol] CRITICAL ERROR: Bot credentials missing from environment.");
     return;
   }
 
@@ -58,7 +62,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     message += `Buyurtma ID: <code>${input.orderId}</code>\n`;
     message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
     message += `Mahsulot: <b>${input.productName}</b>\n`;
-    message += `Tanlangan O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
+    message += `O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
     message += `Holat: <b>${input.currentStatus}</b>\n`;
     message += `Vaqt: ${timestamp}\n`;
 
@@ -68,19 +72,24 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     const viewOrderLink = `${baseUrl}/admin`;
     const finalCaption = `${message}\n\n<a href="${viewOrderLink}">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    const usePhoto = input.imageUrl && !input.imageUrl.includes('picsum.photos') && !input.imageUrl.startsWith('data:');
-    const method = usePhoto ? 'sendPhoto' : 'sendMessage';
+    // Only attempt photo if it's a real public URL. Telegram sendPhoto doesn't support local paths or data URIs.
+    const isPublicUrl = input.imageUrl && 
+                        !input.imageUrl.includes('picsum.photos') && 
+                        !input.imageUrl.startsWith('data:') &&
+                        input.imageUrl.startsWith('http');
+
+    const method = isPublicUrl ? 'sendPhoto' : 'sendMessage';
     
     const payload: any = {
       chat_id: adminChatId,
       parse_mode: 'HTML',
     };
 
-    if (usePhoto) {
+    if (isPublicUrl) {
       payload.photo = input.imageUrl;
       payload.caption = finalCaption;
     } else {
@@ -93,6 +102,8 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      // Extend timeout for serverless environments
+      signal: AbortSignal.timeout(10000)
     });
 
     const result = await response.json();
@@ -100,9 +111,9 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     if (!response.ok) {
       console.error(`[Telegram Protocol] API ERROR: ${result.description}`);
     } else {
-      console.log(`[Telegram Protocol] SUCCESS: Notification delivered to Telegram.`);
+      console.log(`[Telegram Protocol] SUCCESS: Notification delivered.`);
     }
   } catch (error) {
-    console.error("[Telegram Protocol] NETWORK ERROR:", error);
+    console.error("[Telegram Protocol] DELIVERY FAILURE:", error);
   }
 }
