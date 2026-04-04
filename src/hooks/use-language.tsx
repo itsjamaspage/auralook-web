@@ -198,6 +198,11 @@ const dictionary = {
   },
 
   // Checkout Flow
+  checkoutTitle: {
+    uz: 'Rasmiylashtirish',
+    ru: 'Оформление',
+    en: 'Checkout'
+  },
   knowSizeQuestion: {
     uz: "O'lchamingizni bilsizsiz?",
     ru: "Вы знаете свой размер?",
@@ -359,13 +364,13 @@ const dictionary = {
   success: { uz: 'Muvaffaqiyatli', ru: 'Успешно', en: 'Success' },
   detailsUpdated: { uz: 'Ma\'lumotlar yangilandi.', ru: 'Данные обновлены.', en: 'Details updated.' },
 
-  // New Technical Labels
+  // New Technical Labels & Toasts
   orderRef: { uz: 'BUYURTMA RAQAMI', ru: 'НОМЕР ЗАКАЗА', en: 'ORDER REF' },
   size: { uz: 'O\'LCHAM', ru: 'РАЗМЕР', en: 'SIZE' },
   total: { uz: 'JAMI', ru: 'ИТОГО', en: 'TOTAL' },
   transactionDate: { uz: 'XARID VAQTI', ru: 'ДАТА ТРАНЗАКЦИИ', en: 'TRANSACTION DATE' },
   managerAdviceLabel: { uz: 'Menejer maslahati', ru: 'совет менеджера', en: 'manager advice' },
-  contactInfo: { uz: 'Aloqa ma\'lumotlari', ru: 'Контактная информация', ru_alt: 'Контактные данные', en: 'Contact Information' },
+  contactInfo: { uz: 'Aloqa ma\'lumotlari', ru: 'Контактная информация', en: 'Contact Information' },
   sortLabel: { uz: 'Tartiblash', ru: 'Сортировка', en: 'Sort' },
   newest: { uz: 'Yangi qo\'shilganlar', ru: 'Сначала новые', en: 'Newest Arrivals' },
   priceAsc: { uz: 'Arzonroq birinchi', ru: 'Сначала дешевле', en: 'Price: Low to High' },
@@ -375,6 +380,21 @@ const dictionary = {
   syncing: { uz: 'Sinxronizatsiya...', ru: 'Синхронизация...', en: 'Syncing...' },
   identificationRequired: { uz: 'Identifikatsiya lozim', ru: 'Требуется идентификация', en: 'Identification Required' },
   openInBot: { uz: 'Iltimos, ushbu ilovani rasmiy Telegram bot ichida oching.', ru: 'Пожалуйста, откройте это приложение в официальном Telegram-боте.', en: 'Please open this app inside the official Telegram bot.' },
+  
+  // New Localizations for Checkout & Actions
+  countryLabel: { uz: 'Mamlakat', ru: 'Страна', en: 'Country' },
+  selectPlaceholder: { uz: 'Tanlang', ru: 'Выберите', en: 'Select' },
+  missingInformation: { uz: "Ma'lumotlar yetarli emas", ru: 'Недостаточно информации', en: 'Missing information' },
+  phoneAndTelegramRequired: { uz: "Telefon raqami (to'liq) va Telegram username majburiy.", ru: 'Номер телефона (полный) и имя пользователя Telegram обязательны.', en: 'Phone number (full) and Telegram username are required.' },
+  errorTitle: { uz: 'Xatolik', ru: 'Ошибка', en: 'Error' },
+  errorDescription: { uz: 'Tizimda xatolik yuz berdi. Qaytadan urinib ko\'ring.', ru: 'Произошла системная ошибка. Пожалуйста, попробуйте еще раз.', en: 'A system error occurred. Please try again.' },
+  orderSuccessTitle: { uz: 'Buyurtma qabul qilindi', ru: 'Заказ принят', en: 'Order accepted' },
+  orderSuccessDescription: { uz: 'Tez orada menejerimiz siz bilan bog\'lanadi.', ru: 'Наш менеджер свяжется с вами в ближайшее время.', en: 'Our manager will contact you shortly.' },
+  identityPendingTitle: { uz: 'Identifikatsiya kutilmoqda', ru: 'Ожидание идентификации', en: 'Identity Pending' },
+  identityPendingDescription: { uz: 'Iltimos, aloqa barqarorlashishini kuting.', ru: 'Пожалуйста, подождите стабилизации соединения.', en: 'Please wait for connection to stabilize.' },
+  orderCancelledSuccess: { uz: 'Buyurtma muvaffaqiyatli bekor qilindi.', ru: 'Заказ успешно отменен.', en: 'Order successfully cancelled.' },
+  tashkentDirectContact: { uz: 'Toshkent (To\'g\'ridan-to\'g\'ri bog\'lanish)', ru: 'Ташкент (Прямая связь)', en: 'Tashkent (Direct Contact)' },
+  operationSuccess: { uz: 'Muvaffaqiyatli', ru: 'Успешно', en: 'Success' },
 
   // Footer
   allRightsReserved: { 

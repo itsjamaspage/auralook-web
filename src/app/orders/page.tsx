@@ -58,13 +58,14 @@ export default function UserOrdersPage() {
 
       toast({
         title: t(dictionary.orderCancelled),
-        description: lang === 'uz' ? "Buyurtma muvaffaqiyatli bekor qilindi." : lang === 'ru' ? "Заказ успешно отменен." : "Order successfully cancelled."
+        description: t(dictionary.orderCancelledSuccess)
       });
     } catch (e) {
       console.error(e);
       toast({
         variant: "destructive",
-        title: lang === 'uz' ? "Xatolik" : lang === 'ru' ? "Ошибка" : "Error",
+        title: t(dictionary.errorTitle),
+        description: t(dictionary.errorDescription)
       });
     } finally {
       setCancellingId(null);

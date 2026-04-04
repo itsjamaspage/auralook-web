@@ -29,7 +29,7 @@ export default function LooksPage() {
   const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { t, dictionary } = useLanguage();
+  const { t, lang, dictionary } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -265,7 +265,7 @@ export default function LooksPage() {
           {filteredAndSortedLooks.length === 0 && (
             <div className="col-span-full py-32 text-center">
               <Filter className="w-12 h-12 text-white/10 mx-auto mb-4" />
-              <p className="text-white uppercase font-black italic tracking-widest">{lang === 'uz' ? 'Hech narsa topilmadi' : lang === 'ru' ? 'Ничего не найдено' : 'Nothing found'}</p>
+              <p className="text-white uppercase font-black italic tracking-widest">{t(dictionary.nothingFound)}</p>
             </div>
           )}
         </div>

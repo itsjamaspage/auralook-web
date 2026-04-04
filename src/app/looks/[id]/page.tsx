@@ -118,8 +118,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!orderDetails.phone || orderDetails.phone.length < 17 || !orderDetails.telegram) {
       toast({
         variant: "destructive",
-        title: "Ma'mulotlar yetarli emas",
-        description: "Telefon raqami (to'liq) va Telegram username majburiy."
+        title: t(dictionary.missingInformation),
+        description: t(dictionary.phoneAndTelegramRequired)
       });
       return;
     }
@@ -127,8 +127,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     if (!firebaseUser) {
       toast({
         variant: "destructive",
-        title: "Identity Pending",
-        description: "Please wait for connection to stabilize."
+        title: t(dictionary.identityPendingTitle),
+        description: t(dictionary.identityPendingDescription)
       });
       return;
     }
@@ -147,11 +147,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookId: look.id,
         lookName: look.name,
         lookImageUrl: look.imageUrl,
-        size: selectedSize || 'M (Menejer maslahati)',
+        size: selectedSize || `M (${t(dictionary.managerAdviceLabel)})`,
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
         country: 'UZB',
-        shippingAddress: 'Tashkent (Direct Contact)',
+        shippingAddress: t(dictionary.tashkentDirectContact),
         measurements: {
           height: orderDetails.height || 'Noma\'lum',
           weight: orderDetails.weight || 'Noma\'lum',
@@ -162,7 +162,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // CRITICAL: Dispatch notification with visual context
       await notifyAdminOfOrder({
         customerName: orderData.telegramUsername,
         orderId: docRef.id,
@@ -181,8 +180,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       });
 
       toast({
-        title: "Buyurtma qabul qilindi",
-        description: "Tez orada menejerimiz siz bilan bog'lanadi.",
+        title: t(dictionary.orderSuccessTitle),
+        description: t(dictionary.orderSuccessDescription),
       });
       setShowCheckout(false);
       router.push('/orders');
@@ -190,8 +189,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       console.error(e);
       toast({
         variant: "destructive",
-        title: "Xatolik",
-        description: "Tizimda xatolik yuz berdi. Qaytadan urinib ko'ring.",
+        title: t(dictionary.errorTitle),
+        description: t(dictionary.errorDescription),
       });
     } finally {
       setIsOrdering(false);
@@ -265,7 +264,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           <DialogHeader className="mb-4 sm:mb-6">
             <DialogTitle className="text-xl sm:text-2xl font-black italic uppercase neon-text flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              Checkout
+              {t(dictionary.checkoutTitle)}
             </DialogTitle>
           </DialogHeader>
 
@@ -366,11 +365,11 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-white">
                   <Globe className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white">Mamlakat</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.countryLabel)}</p>
                 </div>
                 <Select value={country} onValueChange={setCountry}>
                   <SelectTrigger className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white text-sm uppercase font-bold tracking-widest">
-                    <SelectValue placeholder="Tanlang" />
+                    <SelectValue placeholder={t(dictionary.selectPlaceholder)} />
                   </SelectTrigger>
                   <SelectContent className="glass-dark border-white/10 text-white">
                     {COUNTRIES.map((c) => (
