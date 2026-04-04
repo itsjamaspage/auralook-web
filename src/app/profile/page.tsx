@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { User, Shield, Package, Settings, ChevronRight, Save, Loader2, Send, Phone, Zap } from 'lucide-react';
+import { User, Shield, Package, ChevronRight, Save, Loader2, Send, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -41,29 +41,27 @@ export default function ProfilePage() {
       });
       toast({ title: t(dictionary.success), description: t(dictionary.detailsUpdated) });
     } catch (e) {
-      toast({ variant: "destructive", title: t(dictionary.errorOccurred), description: t(dictionary.errorOccurred) });
+      toast({ variant: "destructive", title: t(dictionary.errorTitle), description: t(dictionary.errorDescription) });
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Only show full loader if we have NO user data at all from the Telegram script
   if (isLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-12 h-12 animate-spin neon-text stroke-[1px]" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">{t(dictionary.syncing)}</p>
+        <p className="text-white font-mono text-[10px] uppercase tracking-widest italic animate-pulse">{t(dictionary.syncing)}</p>
       </div>
     );
   }
 
-  // Identity Hydration: If script isn't found yet, show a waiting state
   if (!user) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
         <Shield className="w-16 h-16 text-white/10 mx-auto" />
         <h1 className="text-xl font-black text-white uppercase italic">{t(dictionary.identificationRequired)}</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
+        <p className="text-white text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
       </div>
     );
   }
@@ -85,11 +83,14 @@ export default function ProfilePage() {
           <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
             {user.firstName}
           </h1>
-          <div className="flex items-center justify-center gap-2">
-            <Send className="w-3 h-3 text-primary" />
-            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] font-mono">
-              @{user.username || 'user'}
-            </p>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
+              <Send className="w-3 h-3 text-primary" />
+              <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] font-mono">
+                @{user.username || 'user'}
+              </p>
+            </div>
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t(dictionary.activeNode)}</p>
           </div>
         </div>
       </div>
@@ -102,7 +103,7 @@ export default function ProfilePage() {
         <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />
-            <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">{t(dictionary.contactInformation)}</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-white">{t(dictionary.contactInformation)}</Label>
           </div>
           <div className="flex gap-3">
             <Input 
@@ -125,7 +126,6 @@ export default function ProfilePage() {
       <div className="space-y-4">
         {[
           { icon: Package, label: t(dictionary.orderHistory), color: 'text-blue-400', href: '/orders' },
-          { icon: Settings, label: t(dictionary.systemPreferences), color: 'text-purple-400', href: '#' },
         ].map((item) => (
           <Card 
             key={item.label} 
@@ -136,7 +136,7 @@ export default function ProfilePage() {
               <div className="p-3 bg-white/5 rounded-xl group-hover:neon-border transition-colors">
                 <item.icon className={`w-5 h-5 ${item.color}`} />
               </div>
-              <span className="font-bold text-sm text-white/80 uppercase tracking-widest">{item.label}</span>
+              <span className="font-bold text-sm text-white uppercase tracking-widest">{item.label}</span>
             </div>
             <ChevronRight className="w-5 h-5 text-white/20 group-hover:neon-text transition-all" />
           </Card>

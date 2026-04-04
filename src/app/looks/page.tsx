@@ -29,7 +29,7 @@ export default function LooksPage() {
   const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { t, lang, dictionary } = useLanguage();
+  const { t, dictionary } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
