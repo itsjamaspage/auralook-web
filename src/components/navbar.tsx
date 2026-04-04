@@ -104,7 +104,7 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-dark border-white/10 p-2 w-64 mt-2">
               <div className="px-4 py-3 mb-2 border-b border-white/5">
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 italic">Protocol</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 italic">{t(dictionary.protocol)}</p>
                 {user && (
                   <p className="text-[10px] font-bold text-primary mt-1 truncate">@{user.username || user.firstName}</p>
                 )}
@@ -121,7 +121,7 @@ export function Navbar() {
               <Link href="/profile">
                 <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white/60 hover:text-white">
                   <User className="w-5 h-5" />
-                  <span className="font-bold text-[11px] uppercase tracking-widest">Profile</span>
+                  <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.profile)}</span>
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

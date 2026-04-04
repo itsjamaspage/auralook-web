@@ -53,8 +53,8 @@ export default function AdvisorPage() {
     if (!user) {
       toast({
         variant: "destructive",
-        title: "Tizimga kiring",
-        description: "Murojaat yuborish uchun tizimga kirishingiz kerak."
+        title: t(dictionary.loginRequired),
+        description: t(dictionary.loginToSubmit)
       });
       return;
     }
@@ -74,15 +74,15 @@ export default function AdvisorPage() {
       });
 
       toast({
-        title: "Yuborildi",
-        description: "Sizning ma'lumotlaringiz menejerga yuborildi. Tez orada bog'lanamiz."
+        title: t(dictionary.success),
+        description: t(dictionary.dataSentToManager)
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Xatolik",
-        description: "Ma'lumotlarni yuborishda xatolik yuz berdi."
+        title: t(dictionary.errorOccurred),
+        description: t(dictionary.errorOccurred)
       });
     } finally {
       setSubmitting(false);
@@ -102,10 +102,10 @@ export default function AdvisorPage() {
         <div className="space-y-2 relative z-10">
           <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-tighter text-white">
             <Zap className="w-5 h-5 neon-text transition-none" />
-            O'lcham Ma'lumotlari
+            {t(dictionary.sizeInfo)}
           </h2>
           <p className="text-sm text-white/80 font-medium">
-            Menejerga ma'lumotlaringizni yuboring va mukammal moslikni oling.
+            {t(dictionary.sizeInfoDesc)}
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function AdvisorPage() {
           <div className="space-y-8 py-4 relative z-10">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white">Bo'yingiz (cm)</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white">{t(dictionary.heightCmLabel)}</Label>
                 <Input 
                   type="number" 
                   value={formData.height} 
@@ -122,7 +122,7 @@ export default function AdvisorPage() {
                 />
               </div>
               <div className="space-y-3">
-                <Label className="font-bold uppercase tracking-widest text-[10px] text-white">Vazningiz (kg)</Label>
+                <Label className="font-bold uppercase tracking-widest text-[10px] text-white">{t(dictionary.weightKgLabel)}</Label>
                 <Input 
                   type="number" 
                   value={formData.weight}
@@ -133,9 +133,9 @@ export default function AdvisorPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">O'lchamingiz (agar bilsangiz)</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">{t(dictionary.knownSize)}</Label>
               <Input 
-                placeholder="Masalan: M yoki 48"
+                placeholder={t(dictionary.sizeExample)}
                 value={formData.knownSize}
                 onChange={(e) => setFormData({...formData, knownSize: e.target.value})}
                 className="bg-white/5 border-white/10 h-12 rounded-xl focus:neon-border text-white transition-none placeholder:text-white/20"
@@ -143,33 +143,33 @@ export default function AdvisorPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">Jinsingiz</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">{t(dictionary.gender)}</Label>
               <RadioGroup value={formData.gender} onValueChange={(val: any) => setFormData({...formData, gender: val})} className="flex gap-8">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male" className="transition-none border-white/30" />
-                  <Label htmlFor="male" className="text-xs font-bold text-white">Erkak</Label>
+                  <Label htmlFor="male" className="text-xs font-bold text-white">{t(dictionary.male)}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="female" id="female" className="transition-none border-white/30" />
-                  <Label htmlFor="female" className="text-xs font-bold text-white">Ayol</Label>
+                  <Label htmlFor="female" className="text-xs font-bold text-white">{t(dictionary.female)}</Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">Kiyinish uslubingiz</Label>
+              <Label className="font-bold uppercase tracking-widest text-[10px] text-white">{t(dictionary.fitStyle)}</Label>
               <RadioGroup value={formData.fit} onValueChange={(val: any) => setFormData({...formData, fit: val})} className="flex flex-col gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="tight" id="tight" className="transition-none border-white/30" />
-                  <Label htmlFor="tight" className="text-xs font-bold text-white">Yopishib turadigan</Label>
+                  <Label htmlFor="tight" className="text-xs font-bold text-white">{t(dictionary.tight)}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="regular" id="reg" className="transition-none border-white/30" />
-                  <Label htmlFor="reg" className="text-xs font-bold text-white">O'rtacha</Label>
+                  <Label htmlFor="reg" className="text-xs font-bold text-white">{t(dictionary.regular)}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="loose" id="loose" className="transition-none border-white/30" />
-                  <Label htmlFor="loose" className="text-xs font-bold text-white">Kengroq</Label>
+                  <Label htmlFor="loose" className="text-xs font-bold text-white">{t(dictionary.loose)}</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -181,7 +181,7 @@ export default function AdvisorPage() {
                 className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-widest border-none shadow-2xl transition-none"
               >
                 {loading ? <Loader2 className="animate-spin mr-2" /> : (
-                  <><Sparkles className="w-4 h-4 mr-2" /> AI Hisoblash</>
+                  <><Sparkles className="w-4 h-4 mr-2" /> {t(dictionary.aiCalculate)}</>
                 )}
               </Button>
               <Button 
@@ -191,7 +191,7 @@ export default function AdvisorPage() {
                 className="w-full h-14 rounded-2xl border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:neon-border hover:neon-text transition-none"
               >
                 {submitting ? <Loader2 className="animate-spin mr-2" /> : (
-                  <><Send className="w-4 h-4 mr-2" /> Menejerga yuborish</>
+                  <><Send className="w-4 h-4 mr-2" /> {t(dictionary.sendToManager)}</>
                 )}
               </Button>
             </div>
@@ -203,7 +203,7 @@ export default function AdvisorPage() {
             </div>
             <div className="space-y-4">
               <h3 className="text-xl font-bold flex items-center justify-center gap-2 text-white">
-                Tavsiya etilgan o'lcham: {result.recommendedSize}
+                {t(dictionary.recommendedSizeResult)}: {result.recommendedSize}
               </h3>
               <p className="text-white text-sm leading-relaxed px-6 italic font-medium">
                 "{result.explanation}"
@@ -216,14 +216,14 @@ export default function AdvisorPage() {
                 disabled={submitting}
                 className="w-full h-14 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-widest border-none transition-none"
               >
-                <UserCheck className="w-4 h-4 mr-2" /> Menejer tasdiqlashi
+                <UserCheck className="w-4 h-4 mr-2" /> {t(dictionary.managerConfirm)}
               </Button>
               <Button 
                   onClick={() => setResult(null)} 
                   variant="ghost" 
                   className="w-full rounded-xl border border-white/10 text-white hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
               >
-                O'lchamlarni o'zgartirish
+                {t(dictionary.changeMeasurements)}
               </Button>
             </div>
           </div>

@@ -39,9 +39,9 @@ export default function ProfilePage() {
         phone: phone,
         updatedAt: serverTimestamp()
       });
-      toast({ title: "Muvaffaqiyatli", description: "Telefon raqamingiz yangilandi." });
+      toast({ title: t(dictionary.success), description: t(dictionary.detailsUpdated) });
     } catch (e) {
-      toast({ variant: "destructive", title: "Xatolik", description: "Ma'lumotni saqlashda xatolik yuz berdi." });
+      toast({ variant: "destructive", title: t(dictionary.errorOccurred), description: t(dictionary.errorOccurred) });
     } finally {
       setIsSaving(false);
     }
@@ -52,7 +52,7 @@ export default function ProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-12 h-12 animate-spin neon-text stroke-[1px]" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">Syncing identity...</p>
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest italic animate-pulse">{t(dictionary.syncing)}</p>
       </div>
     );
   }
@@ -62,8 +62,8 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
         <Shield className="w-16 h-16 text-white/10 mx-auto" />
-        <h1 className="text-xl font-black text-white uppercase italic">Protocol identification required</h1>
-        <p className="text-white/40 text-sm max-w-xs mx-auto">Please open this app inside the official Telegram bot.</p>
+        <h1 className="text-xl font-black text-white uppercase italic">{t(dictionary.identificationRequired)}</h1>
+        <p className="text-white/40 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function ProfilePage() {
         <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />
-            <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">Contact Information</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-white/40">{t(dictionary.contactInformation)}</Label>
           </div>
           <div className="flex gap-3">
             <Input 

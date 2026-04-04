@@ -14,7 +14,7 @@ const dictionary = {
   },
   heroSub: { 
     uz: 'Kelajak kiyimlarini kiying, merosni his qiling',
-    ru: 'Одевай одежду будущего, почувсвтуй наследие',
+    ru: 'Одевай одежду будущего, почувствуй наследие',
     en: 'Wear clothes of the future, feel the heritage'
   },
   browseLooks: { 
@@ -61,6 +61,11 @@ const dictionary = {
     uz: 'Admin Paneli',
     ru: 'Админ Панель',
     en: 'Admin Panel'
+  },
+  protocol: {
+    uz: 'Bayonnoma',
+    ru: 'Протокол',
+    en: 'Protocol'
   },
 
   // Auth Pages
@@ -161,6 +166,11 @@ const dictionary = {
     ru: 'Управление профилем',
     en: 'Profile Control'
   },
+  contactInformation: {
+    uz: 'Aloqa ma\'lumotlari',
+    ru: 'Контактная информация',
+    en: 'Contact Information'
+  },
   activeNode: {
     uz: 'Holat: Faol',
     ru: 'Статус: Активен',
@@ -180,6 +190,11 @@ const dictionary = {
     uz: 'Cyber Voyager',
     ru: 'Cyber Voyager',
     en: 'Cyber Voyager'
+  },
+  bridgingIdentity: {
+    uz: 'Telegram identifikatsiyasi bog\'lanmoqda...',
+    ru: 'Связывание личности Telegram...',
+    en: 'Bridging Telegram Identity...'
   },
 
   // Checkout Flow
@@ -253,6 +268,16 @@ const dictionary = {
     ru: 'БЕЗОПАСНАЯ ОПЛАТА // ЗАШИФРОВАННАЯ СЕССИЯ',
     en: 'SECURE CHECKOUT // ENCRYPTED SESSION'
   },
+  country: {
+    uz: 'Mamlakat',
+    ru: 'Страна',
+    en: 'Country'
+  },
+  select: {
+    uz: 'Tanlang',
+    ru: 'Выбрать',
+    en: 'Select'
+  },
 
   // Catalog & Filters
   filter: { uz: 'Filtr', ru: 'Фильтр', en: 'Filter' },
@@ -265,6 +290,7 @@ const dictionary = {
   availableNow: { uz: 'Mavjud', ru: 'В наличии', en: 'Available Now' },
   locationTashkent: { uz: 'Toshkent, Mirzo Ulug\'bek', ru: 'Ташкент, Мирзо-Улугбек', en: 'Tashkent, Mirzo Ulugbek' },
   all: { uz: 'Barchasi', ru: 'Все', en: 'All' },
+  nothingFound: { uz: 'Hech narsa topilmadi', ru: 'Ничего не найдено', en: 'Nothing found' },
 
   // Admin Dashboard
   adminDashboard: {
@@ -281,6 +307,7 @@ const dictionary = {
   action: { uz: 'Amal', ru: 'Действие', en: 'Action' },
   accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
   delete: { uz: "O'chirish", ru: 'Удалить', en: 'Delete' },
+  edit: { uz: "Tahrirlash", ru: 'Редактировать', en: 'Edit' },
   cancel: { uz: "Bekor qilish", ru: "Отмена", en: "Cancel" },
   cancelOrder: { uz: "Buyurtmani bekor qilish", ru: "Отменить заказ", en: "Cancel Order" },
   orderCancelled: { uz: "Bekor qilindi", ru: "Отменено", en: "Cancelled" },
@@ -304,6 +331,33 @@ const dictionary = {
   orderAccepted: { uz: 'Tasdiqlandi', ru: 'Принято', en: 'Accepted' },
   orderShipped: { uz: 'Yuborildi', ru: 'Отправлено', en: 'Shipped' },
   orderDelivered: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
+  configPending: { uz: 'Sozlash kutilmoqda', ru: 'Ожидание настройки', en: 'Configuration Pending' },
+  protocolLive: { uz: 'Bayonnoma faol', ru: 'Протокол активен', en: 'Protocol Live' },
+
+  // Advisor Page
+  sizeInfo: { uz: 'O\'lcham Ma\'lumotlari', ru: 'Информация о размерах', en: 'Size Information' },
+  sizeInfoDesc: { uz: 'Menejerga ma\'lumotlaringizni yuboring va mukammal moslikni oling.', ru: 'Отправьте данные менеджеру и получите идеальную посадку.', en: 'Send your data to the manager and get the perfect fit.' },
+  heightCmLabel: { uz: 'Bo\'yingiz (sm)', ru: 'Рост (см)', en: 'Height (cm)' },
+  weightKgLabel: { uz: 'Vazningiz (kg)', ru: 'Вес (кг)', en: 'Weight (kg)' },
+  knownSize: { uz: 'O\'lchamingiz (agar bilsangiz)', ru: 'Ваш размер (если знаете)', en: 'Your size (if known)' },
+  sizeExample: { uz: 'Masalan: M yoki 48', ru: 'Например: М или 48', en: 'Example: M or 48' },
+  gender: { uz: 'Jinsingiz', ru: 'Ваш пол', en: 'Gender' },
+  male: { uz: 'Erkak', ru: 'Мужской', en: 'Male' },
+  female: { uz: 'Ayol', ru: 'Женский', en: 'Female' },
+  fitStyle: { uz: 'Kiyinish uslubingiz', ru: 'Стиль одежды', en: 'Fit style' },
+  tight: { uz: 'Yopishib turadigan', ru: 'В обтяжку', en: 'Tight' },
+  regular: { uz: 'O\'rtacha', ru: 'Средний', en: 'Regular' },
+  loose: { uz: 'Kengroq', ru: 'Свободный', en: 'Loose' },
+  aiCalculate: { uz: 'AI Hisoblash', ru: 'ИИ Расчет', en: 'AI Calculate' },
+  sendToManager: { uz: 'Menejerga yuborish', ru: 'Отправить менеджеру', en: 'Send to Manager' },
+  recommendedSizeResult: { uz: 'Tavsiya etilgan o\'lcham', ru: 'Рекомендуемый размер', en: 'Recommended size' },
+  managerConfirm: { uz: 'Menejer tasdiqlashi', ru: 'Подтверждение менеджера', en: 'Manager confirmation' },
+  changeMeasurements: { uz: 'O\'lchamlarni o\'zgartirish', ru: 'Изменить замеры', en: 'Change measurements' },
+  dataSentToManager: { uz: 'Sizning ma\'lumotlaringiz menejerga yuborildi. Tez orada bog\'lanamiz.', ru: 'Ваши данные отправлены менеджеру. Мы скоро свяжемся с вами.', en: 'Your data has been sent to the manager. We will contact you soon.' },
+  loginToSubmit: { uz: 'Murojaat yuborish uchun tizimga kirishingiz kerak.', ru: 'Вы должны войти в систему, чтобы отправить запрос.', en: 'You must log in to submit a request.' },
+  loginRequired: { uz: 'Tizimga kiring', ru: 'Требуется вход', en: 'Login required' },
+  success: { uz: 'Muvaffaqiyatli', ru: 'Успешно', en: 'Success' },
+  detailsUpdated: { uz: 'Ma\'lumotlar yangilandi.', ru: 'Данные обновлены.', en: 'Details updated.' },
 
   // New Technical Labels
   orderRef: { uz: 'BUYURTMA RAQAMI', ru: 'НОМЕР ЗАКАЗА', en: 'ORDER REF' },
@@ -311,19 +365,16 @@ const dictionary = {
   total: { uz: 'JAMI', ru: 'ИТОГО', en: 'TOTAL' },
   transactionDate: { uz: 'XARID VAQTI', ru: 'ДАТА ТРАНЗАКЦИИ', en: 'TRANSACTION DATE' },
   managerAdviceLabel: { uz: 'Menejer maslahati', ru: 'совет менеджера', en: 'manager advice' },
-  height: { uz: 'Bo\'y', ru: 'Рост', en: 'Height' },
-  weight: { uz: 'Vazn', ru: 'Вес', en: 'Weight' },
-  contactInfo: { uz: 'Aloqa ma\'lumotlari', ru: 'Контактная информация', en: 'Contact Information' },
+  contactInfo: { uz: 'Aloqa ma\'lumotlari', ru: 'Контактная информация', ru_alt: 'Контактные данные', en: 'Contact Information' },
   sortLabel: { uz: 'Tartiblash', ru: 'Сортировка', en: 'Sort' },
   newest: { uz: 'Yangi qo\'shilganlar', ru: 'Сначала новые', en: 'Newest Arrivals' },
   priceAsc: { uz: 'Arzonroq birinchi', ru: 'Сначала дешевле', en: 'Price: Low to High' },
   priceDesc: { uz: 'Qimmatroq birinchi', ru: 'Сначала дороже', en: 'Price: High to Low' },
   visual: { uz: 'Ko\'rinish', ru: 'Визуал', en: 'Visual' },
-  noFavorites: { uz: 'Hech narsa topilmadi', ru: 'Ничего не найдено', en: 'No favorites found' },
   repositoryEmpty: { uz: 'Ombor bo\'sh', ru: 'Репозиторий пуст', en: 'Repository Empty' },
   syncing: { uz: 'Sinxronizatsiya...', ru: 'Синхронизация...', en: 'Syncing...' },
   identificationRequired: { uz: 'Identifikatsiya lozim', ru: 'Требуется идентификация', en: 'Identification Required' },
-  openInBot: { uz: 'Bot orqali kiring', ru: 'Войдите через бот', en: 'Enter via bot' },
+  openInBot: { uz: 'Iltimos, ushbu ilovani rasmiy Telegram bot ichida oching.', ru: 'Пожалуйста, откройте это приложение в официальном Telegram-боте.', en: 'Please open this app inside the official Telegram bot.' },
 
   // Footer
   allRightsReserved: { 

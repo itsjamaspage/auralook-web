@@ -137,12 +137,12 @@ export default function AdminDashboard() {
             {isBotArmed ? (
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3 h-3 text-primary" />
-                <span className="text-[8px] font-bold text-primary/60 uppercase tracking-widest">Protocol Live</span>
+                <span className="text-[8px] font-bold text-primary/60 uppercase tracking-widest">{t(dictionary.protocolLive)}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <ShieldAlert className="w-3 h-3 text-amber-500" />
-                <span className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest">Configuration Pending</span>
+                <span className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest">{t(dictionary.configPending)}</span>
               </div>
             )}
           </div>
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
                   <div className="flex gap-2 pt-2">
                     <Link href={`/admin/looks/${look.id}/edit`} className="flex-1">
                       <Button variant="outline" className="w-full h-9 rounded-lg border-white/10 text-[10px] font-black uppercase text-white">
-                        <Edit3 className="w-3 h-3 mr-1" /> Edit
+                        <Edit3 className="w-3 h-3 mr-1" /> {t(dictionary.edit)}
                       </Button>
                     </Link>
                     <Button 
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                     <div className="space-y-1 flex-grow pr-4">
                       <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
                       <h3 className="text-lg sm:text-xl font-black text-white italic tracking-tight leading-tight uppercase line-clamp-2">
-                        {order.lookName || 'Outfit Purchase'}
+                        {order.lookName || t(dictionary.outfit)}
                       </h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{t(dictionary.size)}: {translateSize(order.size)}</p>
                     </div>
@@ -273,14 +273,14 @@ export default function AdminDashboard() {
                         <Send className="w-4 h-4 text-primary" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-white uppercase tracking-widest">Telegram</span>
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">{t(dictionary.telegramUsername)}</span>
                         <a 
                           href={`https://t.me/${order.telegramUsername?.replace('@', '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-primary font-bold italic hover:underline"
                         >
-                          {order.telegramUsername || 'Noma\'lum'}
+                          {order.telegramUsername || t(dictionary.all)}
                         </a>
                       </div>
                     </div>
