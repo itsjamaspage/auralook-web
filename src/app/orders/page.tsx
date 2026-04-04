@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -76,7 +75,7 @@ export default function UserOrdersPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
+        <p className="text-foreground font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
       </div>
     );
   }
@@ -128,7 +127,7 @@ export default function UserOrdersPage() {
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
         <ShoppingBag className="w-6 h-6 neon-text" />
-        <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
+        <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
           {t(dictionary.myOrders)}
         </h1>
       </div>
@@ -145,7 +144,7 @@ export default function UserOrdersPage() {
                 <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{t(dictionary.size)}: {translateSize(order.size)}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <div className={`flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-white/10'}`}>
+                <div className={`flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-white/10'}`}>
                   {getStatusIcon(order.status)}
                   <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-white/80'}`}>
                     {getStatusLabel(order.status)}
@@ -201,8 +200,8 @@ export default function UserOrdersPage() {
 
         {(!orders || orders.length === 0) && (
           <div className="py-20 text-center space-y-4">
-            <Package className="w-12 h-12 text-white/10 mx-auto" />
-            <p className="text-white/40 uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
+            <Package className="w-12 h-12 text-foreground/10 mx-auto" />
+            <p className="text-foreground/40 uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
           </div>
         )}
       </div>

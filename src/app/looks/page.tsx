@@ -114,8 +114,8 @@ export default function LooksPage() {
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-white/10 dark:border-white/10 bg-card text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl",
-                showFilters && "neon-border neon-text bg-white/5"
+                "h-12 px-6 rounded-2xl border-border bg-card text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl",
+                showFilters && "neon-border neon-text bg-accent/10"
               )}
             >
               <Filter className="w-4 h-4 mr-2" />
@@ -127,14 +127,14 @@ export default function LooksPage() {
             <Button 
               onClick={() => setViewMode('grid')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-white/10")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-border")}
             >
               <Grid2x2 className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setViewMode('list')} 
               variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-white/10")}
+              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "bg-card text-foreground/40 border border-border")}
             >
               <List className="w-5 h-5" />
             </Button>
@@ -142,35 +142,35 @@ export default function LooksPage() {
         </div>
 
         {showFilters && (
-          <Card className="glass-dark dark:glass-dark bg-card border-white/10 dark:border-white/10 rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
+          <Card className="bg-card border-border rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black text-foreground dark:text-white uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-foreground dark:text-white hover:text-primary">
+              <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-foreground hover:text-primary">
                 <X className="w-5 h-5" />
               </Button>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
+                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
                 <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6 flex-wrap">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" className="border-foreground/20 dark:border-white" />
-                    <Label htmlFor="all" className="text-xs font-bold text-foreground dark:text-white">{t(dictionary.all)}</Label>
+                    <RadioGroupItem value="ALL" id="all" />
+                    <Label htmlFor="all" className="text-xs font-bold text-foreground">{t(dictionary.all)}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" className="border-foreground/20 dark:border-white" />
-                    <Label htmlFor="usd" className="text-xs font-bold text-foreground dark:text-white">USD ($)</Label>
+                    <RadioGroupItem value="USD" id="usd" />
+                    <Label htmlFor="usd" className="text-xs font-bold text-foreground">USD ($)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" className="border-foreground/20 dark:border-white" />
-                    <Label htmlFor="uzs" className="text-xs font-bold text-foreground dark:text-white">UZS (so'm)</Label>
+                    <RadioGroupItem value="UZS" id="uzs" />
+                    <Label htmlFor="uzs" className="text-xs font-bold text-foreground">UZS (so'm)</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
+                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
                 <div className="flex items-center gap-3">
                   <Input 
                     type="number" 
@@ -178,30 +178,30 @@ export default function LooksPage() {
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold placeholder:text-foreground/20 dark:placeholder:text-white/20"
+                    className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold placeholder:text-foreground/20"
                   />
-                  <div className="w-4 h-0.5 bg-foreground/10 dark:bg-white/10" />
+                  <div className="w-4 h-0.5 bg-foreground/10" />
                   <Input 
                     type="number" 
                     placeholder="Max" 
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                     disabled={filterCurrency === 'ALL'}
-                    className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold placeholder:text-foreground/20 dark:placeholder:text-white/20"
+                    className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold placeholder:text-foreground/20"
                   />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 dark:text-white uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
+                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="bg-background/50 border-white/10 dark:bg-white/5 h-12 rounded-xl focus:neon-border text-foreground dark:text-white text-sm font-bold">
+                  <SelectTrigger className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold">
                     <div className="flex items-center gap-2">
                       <ArrowUpDown className="w-3 h-3 neon-text" />
                       <SelectValue />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="glass-dark dark:glass-dark border-white/10 dark:border-white/10 text-white">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="newest" className="font-bold">{t(dictionary.newest)}</SelectItem>
                     <SelectItem value="price_asc" className="font-bold">{t(dictionary.priceAsc)}</SelectItem>
                     <SelectItem value="price_desc" className="font-bold">{t(dictionary.priceDesc)}</SelectItem>
@@ -223,7 +223,7 @@ export default function LooksPage() {
               <div key={look.id} className="relative group">
                 <Link href={`/looks/${look.id}`}>
                   <Card className={cn(
-                    "bg-card border border-white/10 dark:border-white/5 overflow-hidden transition-all hover:border-primary/20 active:scale-[0.98] shadow-lg hover:shadow-2xl",
+                    "bg-card border border-border overflow-hidden transition-all hover:border-primary/20 active:scale-[0.98] shadow-lg hover:shadow-2xl",
                     viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
                   )}>
                     <div className={cn("relative overflow-hidden p-1", viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0")}>

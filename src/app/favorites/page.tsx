@@ -53,7 +53,7 @@ export default function FavoritesPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white font-mono text-xs uppercase tracking-widest">{t(dictionary.syncing)}</p>
+        <p className="text-foreground font-mono text-xs uppercase tracking-widest">{t(dictionary.syncing)}</p>
       </div>
     );
   }
@@ -61,9 +61,9 @@ export default function FavoritesPage() {
   if (!tgUser) {
     return (
       <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <Heart className="w-16 h-16 text-white/10 mx-auto" />
-        <h1 className="text-xl font-black text-white uppercase italic">{t(dictionary.identificationRequired)}</h1>
-        <p className="text-white/70 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
+        <Heart className="w-16 h-16 neon-text mx-auto opacity-20" />
+        <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
       </div>
     );
   }
@@ -72,22 +72,22 @@ export default function FavoritesPage() {
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen">
       <div className="flex items-center gap-3">
         <Heart className="w-6 h-6 neon-text fill-current" />
-        <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">
+        <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
           {t(dictionary.favorites)}
         </h1>
       </div>
 
       {myFavorites.length === 0 ? (
         <div className="py-32 text-center space-y-4">
-          <HeartOff className="w-12 h-12 text-white/10 mx-auto" />
-          <p className="text-white uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
+          <HeartOff className="w-12 h-12 text-foreground/10 mx-auto" />
+          <p className="text-foreground uppercase font-black italic tracking-widest">{t(dictionary.repositoryEmpty)}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-32">
           {myFavorites.map((look) => (
             <div key={look.id} className="relative group">
               <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
-                <Card className="bg-[#080808]/40 border border-white/5 overflow-hidden rounded-[2rem] transition-all hover:border-white/20 relative">
+                <Card className="bg-card border border-white/10 overflow-hidden rounded-[2rem] transition-all hover:border-primary/20 relative shadow-lg">
                   <div className="relative aspect-[4/5] overflow-hidden p-1">
                     <Image
                       src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
@@ -116,7 +116,7 @@ export default function FavoritesPage() {
                         </span>
                         <CheckCircle2 className="w-3 h-3 text-green-500" />
                       </div>
-                      <h3 className="text-sm font-bold text-white truncate uppercase tracking-tight">{look.name}</h3>
+                      <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight">{look.name}</h3>
                     </div>
                   </div>
                 </Card>
