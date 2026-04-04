@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -56,7 +57,7 @@ export default function Home() {
             {t(dictionary.heroTitle)}
           </h1>
           
-          <p className="text-base sm:text-xl lg:text-2xl text-foreground/80 dark:text-white/60 max-w-2xl mx-auto font-light leading-relaxed px-4 lg:px-0 italic">
+          <p className="text-base sm:text-xl lg:text-2xl text-foreground/70 max-w-2xl mx-auto font-light leading-relaxed px-4 lg:px-0 italic">
             {t(dictionary.heroSub)}
           </p>
 
