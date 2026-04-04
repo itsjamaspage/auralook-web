@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -18,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown } from 'lucide-react';
+import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingBag, CheckSquare, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -36,6 +37,10 @@ export default function LooksPage() {
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  // Multi-selection state
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedLookIds, setSelectedLookIds] = useState<Set<string>>(new Set());
 
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -77,7 +82,9 @@ export default function LooksPage() {
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
-    return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(num).replace(/,/g, ' ');
+    if (isNaN(num)) return '0';
+    // Robust formatting for thousands with spaces
+    return new Intl.NumberFormat('fr-FR').format(num);
   };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
@@ -85,45 +92,106 @@ export default function LooksPage() {
     e.stopPropagation();
     
     if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
-      toast({
-        title: t(dictionary.syncing),
-        variant: "destructive"
-      });
+      toast({ title: t(dictionary.syncing), variant: "destructive" });
       return;
     }
 
     const likedLookRef = doc(db, 'users', tgUser.id, 'liked_looks', lookId);
-    
     try {
       if (likedLookIds.has(lookId)) {
         await deleteDoc(likedLookRef);
       } else {
         await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
       }
-    } catch (e) {
-      console.error('Like toggle failed:', e);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleToggleCart = async (e: React.MouseEvent, look: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
+      toast({ title: t(dictionary.syncing), variant: "destructive" });
+      return;
     }
+
+    try {
+      const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
+      await setDoc(cartItemRef, {
+        lookId: look.id,
+        name: look.name,
+        imageUrl: look.imageUrl,
+        price: look.price,
+        currency: look.currency || 'USD',
+        addedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      toast({ title: t(dictionary.addedToCart), description: look.name });
+    } catch (e) { console.error(e); }
+  };
+
+  const handleToggleSelection = (lookId: string) => {
+    const newSelected = new Set(selectedLookIds);
+    if (newSelected.has(lookId)) newSelected.delete(lookId);
+    else newSelected.add(lookId);
+    setSelectedLookIds(newSelected);
+  };
+
+  const handleAddSelectedToCart = async () => {
+    if (!tgUser || !firebaseUser) return;
+    
+    const itemsToAdd = looks?.filter(l => selectedLookIds.has(l.id)) || [];
+    
+    for (const look of itemsToAdd) {
+      const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
+      await setDoc(cartItemRef, {
+        lookId: look.id,
+        name: look.name,
+        imageUrl: look.imageUrl,
+        price: look.price,
+        currency: look.currency || 'USD',
+        addedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+
+    toast({ title: t(dictionary.addedToCart), description: `${selectedLookIds.size} ta element` });
+    setSelectedLookIds(new Set());
+    setIsSelectMode(false);
   };
 
   return (
-    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen">
+    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             <Button 
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-border bg-card text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl",
-                showFilters && "neon-border neon-text bg-accent/10"
+                "h-12 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
+                showFilters && "neon-border neon-text"
               )}
             >
               <Filter className="w-4 h-4 mr-2" />
               {t(dictionary.filter)}
             </Button>
+            <Button 
+              onClick={() => {
+                setIsSelectMode(!isSelectMode);
+                if (isSelectMode) setSelectedLookIds(new Set());
+              }} 
+              variant="outline" 
+              className={cn(
+                "h-12 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
+                isSelectMode && "neon-border neon-text"
+              )}
+            >
+              <CheckSquare className="w-4 h-4 mr-2" />
+              {t(dictionary.selectMultiple)}
+            </Button>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <Button 
               onClick={() => setViewMode('grid')} 
               variant="ghost" 
@@ -216,32 +284,54 @@ export default function LooksPage() {
       {looksLoading ? (
         <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
       ) : (
-        <div className={cn("pb-32 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
+        <div className={cn("pb-48 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
           {filteredAndSortedLooks.map((look) => {
             const isLiked = likedLookIds.has(look.id);
+            const isSelected = selectedLookIds.has(look.id);
+            
             return (
               <div key={look.id} className="relative group">
-                <Link href={`/looks/${look.id}`}>
+                <div onClick={() => isSelectMode && handleToggleSelection(look.id)} className={isSelectMode ? "cursor-pointer" : ""}>
                   <Card className={cn(
-                    "bg-card border border-border overflow-hidden transition-all hover:border-primary/20 active:scale-[0.98] shadow-lg hover:shadow-2xl",
+                    "bg-card border border-border overflow-hidden transition-all shadow-lg hover:shadow-2xl relative",
+                    isSelected ? "neon-border" : "hover:border-primary/20",
                     viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
                   )}>
+                    {isSelectMode && (
+                      <div className="absolute top-4 left-4 z-20">
+                        {isSelected ? <CheckSquare className="w-6 h-6 neon-text" /> : <Square className="w-6 h-6 text-foreground/40" />}
+                      </div>
+                    )}
+
                     <div className={cn("relative overflow-hidden p-1", viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0")}>
-                      <Image
-                        src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                        alt={look.name || 'Look'}
-                        fill
-                        className={cn("object-cover transition-transform duration-700 group-hover:scale-105", viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]")}
-                      />
-                      <button 
-                        onClick={(e) => handleToggleLike(e, look.id)}
-                        className={cn(
-                          "absolute top-4 right-4 w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all z-10",
-                          isLiked ? "neon-border neon-text bg-foreground/10 shadow-2xl" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border"
-                        )}
-                      >
-                        <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
-                      </button>
+                      <Link href={isSelectMode ? '#' : `/looks/${look.id}`} onClick={(e) => isSelectMode && e.preventDefault()}>
+                        <Image
+                          src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
+                          alt={look.name || 'Look'}
+                          fill
+                          className={cn("object-cover transition-transform duration-700 group-hover:scale-105", viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]")}
+                        />
+                      </Link>
+                      
+                      {!isSelectMode && (
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                          <button 
+                            onClick={(e) => handleToggleLike(e, look.id)}
+                            className={cn(
+                              "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
+                              isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border"
+                            )}
+                          >
+                            <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
+                          </button>
+                          <button 
+                            onClick={(e) => handleToggleCart(e, look)}
+                            className="w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all"
+                          >
+                            <ShoppingBag className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className={cn("space-y-2", viewMode === 'grid' ? "p-4" : "p-2 flex-grow")}>
@@ -256,7 +346,7 @@ export default function LooksPage() {
                       </div>
                     </div>
                   </Card>
-                </Link>
+                </div>
               </div>
             );
           })}
@@ -267,6 +357,30 @@ export default function LooksPage() {
               <p className="text-foreground/60 uppercase font-black italic tracking-widest">{t(dictionary.nothingFound)}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Floating Action Bar for Multiple Selection */}
+      {selectedLookIds.size > 0 && (
+        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10">
+          <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 neon-bg rounded-xl flex items-center justify-center text-black font-black">
+                {selectedLookIds.size}
+              </div>
+              <p className="text-xs font-black uppercase text-foreground">{t(dictionary.itemsSelected)}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setSelectedLookIds(new Set())} className="text-foreground/60 hover:text-foreground">
+                <X className="w-4 h-4 mr-2" />
+                {t(dictionary.cancel)}
+              </Button>
+              <Button onClick={handleAddSelectedToCart} className="neon-bg text-black font-black px-6 rounded-xl h-12">
+                <ShoppingBag className="w-4 h-4 mr-2" />
+                {t(dictionary.addToCart)}
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
     </div>

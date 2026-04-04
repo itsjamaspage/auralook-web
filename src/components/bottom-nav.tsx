@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -19,7 +20,7 @@ export function BottomNav() {
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
-    { label: t(dictionary.cart), icon: ShoppingBag, href: '/orders' },
+    { label: t(dictionary.cart), icon: ShoppingBag, href: '/cart' },
     { label: t(dictionary.profile), icon: User, href: '/profile' },
   ];
 
@@ -35,7 +36,7 @@ export function BottomNav() {
           "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
           isActive 
             ? "neon-bg scale-110" 
-            : "bg-foreground/10 border border-foreground/10 group-hover:border-foreground/30"
+            : "glass-surface border border-foreground/10 group-hover:border-foreground/30"
         )}>
           {isActive && (
             <div className="absolute inset-0 rounded-full animate-ping neon-bg opacity-20" />
@@ -47,7 +48,7 @@ export function BottomNav() {
         </div>
         <span className={cn(
           "text-[10px] sm:text-[11px] font-black uppercase tracking-wider font-mono transition-colors duration-300 text-center truncate w-full px-1",
-          isActive ? "neon-text" : "text-foreground/70"
+          isActive ? "neon-text" : "text-foreground"
         )}>
           {item.label}
         </span>

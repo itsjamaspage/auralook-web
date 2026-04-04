@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v4.1.0 Stability Protocol)
+    // Assumed Data Model (v4.2.0 Savatcha Expansion)
     // ===============================================================
     
     function isAuthenticated() {
@@ -25,11 +25,15 @@ service cloud.firestore {
       match /liked_looks/{lookId} {
         allow read, write: if isAuthenticated();
       }
+
+      // SAVATCHA (CART)
+      match /cart/{lookId} {
+        allow read, write: if isAuthenticated();
+      }
     }
 
     // ORDERS
     match /orders/{orderId} {
-      // Direct field check for listing and getting
       allow read: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
       allow create: if isAuthenticated();
       allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;

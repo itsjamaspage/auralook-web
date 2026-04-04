@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -90,7 +91,7 @@ const dictionary = {
   // Auth Pages
   welcomeBack: { 
     uz: 'Xush kelibsiz',
-    ru: 'С возвращением',
+    ru: 'Xush kelibsiz',
     en: 'Welcome Back'
   },
   createAccount: { 
@@ -315,6 +316,10 @@ const dictionary = {
   locationTashkent: { uz: 'Toshkent, Mirzo Ulug\'bek', ru: 'Ташкент, Мирзо-Улугбек', en: 'Tashkent, Mirzo Ulugbek' },
   all: { uz: 'Barchasi', ru: 'Все', en: 'All' },
   nothingFound: { uz: 'Hech narsa topilmadi', ru: 'Ничего не найдено', en: 'Nothing found' },
+  selectMultiple: { uz: 'Tanlash', ru: 'Выбрать несколько', en: 'Select Mode' },
+  addToCart: { uz: 'Savatchaga', ru: 'В корзину', en: 'Add to Cart' },
+  itemsSelected: { uz: 'ta tanlandi', ru: 'выбрано', en: 'selected' },
+  addedToCart: { uz: 'Savatchaga qo\'shildi', ru: 'Добавлено в корзину', en: 'Added to Cart' },
 
   // Admin Dashboard
   adminDashboard: {
@@ -414,6 +419,9 @@ const dictionary = {
   orderCancelledSuccess: { uz: 'Buyurtma muvaffaqiyatli bekor qilindi.', ru: 'Заказ успешно отменен.', en: 'Order successfully cancelled.' },
   tashkentDirectContact: { uz: 'Toshkent (To\'g\'ridan-to\'g\'ri bog\'lanish)', ru: 'Ташкент (Прямая связь)', en: 'Tashkent (Direct Contact)' },
   operationSuccess: { uz: 'Muvaffaqiyatli', ru: 'Успешно', en: 'Success' },
+  emptyCart: { uz: 'Savatchangiz bo\'sh', ru: 'Ваша корзина пуста', en: 'Your cart is empty' },
+  checkout: { uz: 'Sotib olish', ru: 'Оформить заказ', en: 'Checkout' },
+  clearCart: { uz: 'Tozalash', ru: 'Очистить', en: 'Clear Cart' },
 
   // Footer
   allRightsReserved: { 
