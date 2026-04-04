@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -72,7 +73,7 @@ export default function ProfilePage() {
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
           <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-background shadow-2xl">
             <AvatarImage src={user.photoUrl || undefined} alt={user.firstName} />
-            <AvatarFallback className="bg-white/5">
+            <AvatarFallback className="bg-foreground/5">
               <User className="w-10 h-10 neon-text" />
             </AvatarFallback>
           </Avatar>
@@ -94,7 +95,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Card className="glass-dark border-white/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl relative overflow-hidden group">
+      <Card className="glass-surface border-foreground/10 p-6 rounded-[2.5rem] space-y-6 shadow-2xl relative overflow-hidden group">
         <div className="space-y-4 relative z-10">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 neon-text" />
@@ -105,7 +106,7 @@ export default function ProfilePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+998 90 123 45 67"
-              className="bg-white/5 border-white/10 h-14 rounded-2xl focus:neon-border text-foreground text-base transition-all"
+              className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground text-base transition-all"
             />
             <Button 
               onClick={handleUpdatePhone}
@@ -125,10 +126,10 @@ export default function ProfilePage() {
           <Card 
             key={item.label} 
             onClick={() => item.href !== '#' && router.push(item.href)}
-            className="glass-dark border-white/5 p-5 flex items-center justify-between group hover:border-white/20 active:scale-[0.98] transition-all cursor-pointer rounded-[2rem]"
+            className="glass-surface border-foreground/10 p-5 flex items-center justify-between group hover:border-primary/20 active:scale-[0.98] transition-all cursor-pointer rounded-[2rem]"
           >
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/5 rounded-xl group-hover:neon-border transition-colors">
+              <div className="p-3 bg-foreground/5 rounded-xl group-hover:neon-border transition-colors">
                 <item.icon className="w-5 h-5 neon-text" />
               </div>
               <span className="font-bold text-sm text-foreground uppercase tracking-widest">{item.label}</span>

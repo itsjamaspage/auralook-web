@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -9,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
-import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function UserOrdersPage() {
   const db = useFirestore();
@@ -96,12 +96,12 @@ export default function UserOrdersPage() {
       case 'New': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'Confirmed': return <CheckCircle2 className="w-4 h-4 text-primary" />;
       case 'Cancelled': return <XCircle className="w-4 h-4 text-destructive" />;
-      default: return <Package className="w-4 h-4 text-white/40" />;
+      default: return <Package className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const formatPrice = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val);
+    return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
   };
 
   const formatOrderDate = (dateObj: any) => {
@@ -134,49 +134,49 @@ export default function UserOrdersPage() {
 
       <div className="space-y-4">
         {orders?.map((order) => (
-          <Card key={order.id} className={`glass-dark border-white/5 p-6 rounded-[2rem] space-y-4 transition-opacity ${order.status === 'Cancelled' ? 'opacity-60' : 'opacity-100'}`}>
+          <Card key={order.id} className={`glass-surface border-foreground/10 p-6 rounded-[2rem] space-y-4 shadow-xl transition-opacity ${order.status === 'Cancelled' ? 'opacity-60' : 'opacity-100'}`}>
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
-                <h3 className="text-lg font-bold text-white italic">
+                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
+                <h3 className="text-lg font-bold text-foreground italic">
                   {order.lookName || 'Outfit Purchase'}
                 </h3>
                 <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{t(dictionary.size)}: {translateSize(order.size)}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <div className={`flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-white/10'}`}>
+                <div className={`flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-full border ${order.status === 'Cancelled' ? 'border-destructive/30' : 'border-foreground/10'}`}>
                   {getStatusIcon(order.status)}
-                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-white/80'}`}>
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'Cancelled' ? 'text-destructive' : 'text-foreground/80'}`}>
                     {getStatusLabel(order.status)}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 py-4 border-y border-white/5">
+            <div className="grid grid-cols-1 gap-3 py-4 border-y border-foreground/10">
               <div className="flex items-center gap-2">
-                <Send className="w-3 h-3 text-white" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-widest">TELEGRAM:</span>
-                <p className="text-xs text-white font-medium">{order.telegramUsername || order.customerName}</p>
+                <Send className="w-3 h-3 neon-text" />
+                <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-widest">TELEGRAM:</span>
+                <p className="text-xs text-foreground font-medium">{order.telegramUsername || order.customerName}</p>
               </div>
               {order.phoneNumber && (
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3 h-3 text-white" />
-                  <p className="text-xs text-white font-medium">{order.phoneNumber}</p>
+                  <Phone className="w-3 h-3 text-foreground/60" />
+                  <p className="text-xs text-foreground font-medium">{order.phoneNumber}</p>
                 </div>
               )}
             </div>
 
             <div className="flex justify-between items-end pt-2">
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
-                <p className="text-[10px] font-medium text-white/80">
+                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em]">{t(dictionary.transactionDate)}</p>
+                <p className="text-[10px] font-medium text-foreground/80">
                   {formatOrderDate(order.createdAt)}
                 </p>
               </div>
               <div className="text-right space-y-3">
                 <div>
-                  <p className="text-[9px] font-black text-white uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
+                  <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest mb-1">{t(dictionary.total)}</p>
                   <p className="text-xl font-black neon-text italic tracking-tighter">
                     {order.currency === 'UZS' ? `${formatPrice(order.totalAmount)} UZS` : `$${formatPrice(order.totalAmount)}`}
                   </p>

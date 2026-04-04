@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -70,7 +71,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       setOrderDetails(prev => ({
         ...prev,
         telegram: tgUser.username || '',
-        phone: tgUser.phone || '+998 '
+        // As requested: default to +998 and let the user add the rest, even if Telegram provides a phone.
+        phone: '+998 '
       }));
     }
   }, [tgUser]);
