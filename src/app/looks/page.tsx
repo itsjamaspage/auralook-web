@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -43,6 +42,10 @@ export default function LooksPage() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedLookIds, setSelectedLookIds] = useState<Set<string>>(new Set());
 
+  // Interaction feedback
+  const [animatingLikeId, setAnimatingLikeId] = useState<string | null>(null);
+  const [animatingCartId, setAnimatingCartId] = useState<string | null>(null);
+
   const looksQuery = useMemoFirebase(() => {
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
   }, [db]);
@@ -50,7 +53,6 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    // SECURITY: Align with firebaseUid doc path
     if (isUserLoading || !firebaseUser || !tgUser || !isVerified) {
       return null;
     }
@@ -64,7 +66,6 @@ export default function LooksPage() {
     if (!looks) return [];
 
     let result = looks.filter(look => {
-      // 1. Search Query Filter
       const lookName = typeof look.name === 'string' ? look.name : '';
       const lookDesc = look.description || '';
       const search = searchQuery.toLowerCase();
@@ -73,11 +74,9 @@ export default function LooksPage() {
         return false;
       }
 
-      // 2. Currency Filter
       const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
       if (!matchesCurrency) return false;
 
-      // 3. Price Filter
       const price = Number(look.price || 0);
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
@@ -89,7 +88,6 @@ export default function LooksPage() {
       return true;
     });
 
-    // 4. Sorting
     return [...result].sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
@@ -112,6 +110,9 @@ export default function LooksPage() {
       return;
     }
 
+    setAnimatingLikeId(lookId);
+    setTimeout(() => setAnimatingLikeId(null), 400);
+
     const likedLookRef = doc(db, 'users', firebaseUser.uid, 'liked_looks', lookId);
     try {
       if (likedLookIds.has(lookId)) {
@@ -130,6 +131,9 @@ export default function LooksPage() {
       toast({ title: t(dictionary.syncing), variant: "destructive" });
       return;
     }
+
+    setAnimatingCartId(look.id);
+    setTimeout(() => setAnimatingCartId(null), 400);
 
     try {
       const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
@@ -178,7 +182,6 @@ export default function LooksPage() {
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative">
       <div className="space-y-6">
-        {/* Search & Global Controls */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -226,22 +229,6 @@ export default function LooksPage() {
               <CheckSquare className="w-4 h-4 mr-2" />
               {t(dictionary.selectMultiple)}
             </Button>
-            <div className="hidden sm:flex gap-2 ml-2">
-              <Button 
-                onClick={() => setViewMode('grid')} 
-                variant="ghost" 
-                className={cn("h-14 w-14 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
-              >
-                <Grid2x2 className="w-5 h-5" />
-              </Button>
-              <Button 
-                onClick={() => setViewMode('list')} 
-                variant="ghost" 
-                className={cn("h-14 w-14 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
-              >
-                <List className="w-5 h-5" />
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -356,14 +343,18 @@ export default function LooksPage() {
                             onClick={(e) => handleToggleLike(e, look.id)}
                             className={cn(
                               "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
-                              isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border"
+                              isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
+                              animatingLikeId === look.id && "animate-pop"
                             )}
                           >
                             <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
                           </button>
                           <button 
                             onClick={(e) => handleToggleCart(e, look)}
-                            className="w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all"
+                            className={cn(
+                              "w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all",
+                              animatingCartId === look.id && "animate-pop"
+                            )}
                           >
                             <ShoppingCart className="w-5 h-5" />
                           </button>
@@ -387,19 +378,11 @@ export default function LooksPage() {
               </div>
             );
           })}
-
-          {filteredAndSortedLooks.length === 0 && (
-            <div className="col-span-full py-32 text-center">
-              <Filter className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
-              <p className="text-foreground/60 uppercase font-black italic tracking-widest">{t(dictionary.nothingFound)}</p>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Floating Action Bar for Multiple Selection */}
       {selectedLookIds.size > 0 && (
-        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10">
+        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10 duration-500">
           <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-[0_0_50px_rgba(0,0,0,0.5)]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 neon-bg rounded-xl flex items-center justify-center text-black font-black">
@@ -412,7 +395,7 @@ export default function LooksPage() {
                 <X className="w-4 h-4 mr-2" />
                 {t(dictionary.cancel)}
               </Button>
-              <Button onClick={handleAddSelectedToCart} className="neon-bg text-black font-black px-6 rounded-xl h-12">
+              <Button onClick={handleAddSelectedToCart} className="neon-bg text-black font-black px-6 rounded-xl h-12 transition-transform hover:scale-105 active:scale-95">
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 {t(dictionary.addToCart)}
               </Button>

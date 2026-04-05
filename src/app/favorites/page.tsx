@@ -10,6 +10,7 @@ import { Loader2, Heart, HeartOff, CheckCircle2 } from 'lucide-react';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function FavoritesPage() {
   const db = useFirestore();
@@ -18,6 +19,7 @@ export default function FavoritesPage() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
 
   const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
   const { data: allLooks, isLoading: looksLoading } = useCollection(looksQuery);
@@ -41,12 +43,17 @@ export default function FavoritesPage() {
     e.stopPropagation();
     if (!tgUser || !firebaseUser) return;
     
-    try {
-      await deleteDoc(doc(db, 'users', tgUser.id, 'liked_looks', lookId));
-      toast({ title: t(dictionary.delete), description: "" });
-    } catch (e) {
-      console.error(e);
-    }
+    setAnimatingId(lookId);
+    setTimeout(async () => {
+      try {
+        await deleteDoc(doc(db, 'users', tgUser.id, 'liked_looks', lookId));
+        toast({ title: t(dictionary.delete), description: "" });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setAnimatingId(null);
+      }
+    }, 300);
   };
 
   if (looksLoading) {
@@ -85,7 +92,7 @@ export default function FavoritesPage() {
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pb-32">
           {myFavorites.map((look) => (
-            <div key={look.id} className="relative group">
+            <div key={look.id} className={cn("relative group transition-all duration-300", animatingId === look.id && "scale-90 opacity-0")}>
               <Link href={`/looks/${look.id}`} onClick={() => setNavigatingId(look.id)}>
                 <Card className="bg-card border border-border overflow-hidden rounded-[2rem] transition-all hover:border-primary/20 relative shadow-lg">
                   <div className="relative aspect-[4/5] overflow-hidden p-1">

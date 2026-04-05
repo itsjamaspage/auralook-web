@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -7,11 +6,24 @@ import { usePathname } from 'next/navigation';
 import { Compass, Heart, ShoppingCart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
+import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export function BottomNav() {
   const pathname = usePathname();
   const { t, dictionary } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  
+  const db = useFirestore();
+  const { user } = useUser();
+
+  const cartQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(db, 'users', user.uid, 'cart');
+  }, [db, user]);
+
+  const { data: cartItems } = useCollection(cartQuery);
+  const cartCount = cartItems?.length || 0;
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +38,7 @@ export function BottomNav() {
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+    const isCart = item.href === '/cart';
     
     return (
       <Link 
@@ -41,10 +54,17 @@ export function BottomNav() {
           {isActive && (
             <div className="absolute inset-0 rounded-full animate-ping neon-bg opacity-20" />
           )}
+          
           <item.icon className={cn(
             "w-5 h-5 sm:w-5.5 sm:h-5.5 transition-colors duration-300 relative z-10",
             isActive ? "text-black stroke-[2.5px]" : "text-foreground group-hover:text-foreground"
           )} />
+
+          {isCart && cartCount > 0 && (
+            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background animate-in zoom-in duration-300 shadow-[0_0_15px_rgba(var(--primary),0.5)]">
+              {cartCount}
+            </div>
+          )}
         </div>
         <span className={cn(
           "text-[10px] sm:text-[11px] font-black uppercase tracking-wider font-mono transition-colors duration-300 text-center truncate w-full px-1",

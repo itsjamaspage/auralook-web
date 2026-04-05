@@ -27,8 +27,8 @@
   }
 
   :root[data-theme='light'] {
-    --background: 210 40% 98%; /* High-contrast Slate White */
-    --foreground: 222 47% 11%; /* Deep Slate Black */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
@@ -64,6 +64,16 @@
   70% { --sync-color: hsl(260 100% 50%); --sync-shadow: hsla(260, 100%, 50%, 0.4); }
   84% { --sync-color: hsl(300 100% 50%); --sync-shadow: hsla(300, 100%, 50%, 0.4); }
   100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
+}
+
+@keyframes pop-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: pop-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes shimmer {
@@ -106,7 +116,7 @@ body {
 }
 
 .glass-surface {
-  @apply bg-background/80 backdrop-blur-3xl border border-foreground/10 shadow-2xl;
+  @apply bg-card/80 backdrop-blur-3xl border border-foreground/10 shadow-2xl;
 }
 
 .energy-line {

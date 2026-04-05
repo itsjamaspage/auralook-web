@@ -1,4 +1,3 @@
-
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -29,14 +28,16 @@ import {
   ArrowRight,
   Sparkles,
   Send,
-  Globe
+  Globe,
+  ShoppingCart
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { cn } from '@/lib/utils';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -56,6 +57,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const [showCheckout, setShowCheckout] = useState(false);
   const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
   const [isOrdering, setIsOrdering] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
   const [country, setCountry] = useState('UZB');
   
@@ -83,24 +85,41 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
   };
 
-  const formatUzbekPhone = (val: string) => {
-    // Strictly preserve +998 prefix
-    if (!val.startsWith('+998')) return '+998 ';
-    
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (!val.startsWith('+998')) {
+      setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
+      return;
+    }
     const digits = val.substring(4).replace(/\D/g, '').substring(0, 9);
-    
     let res = '+998';
     if (digits.length > 0) res += ' ' + digits.substring(0, 2);
     if (digits.length > 2) res += ' ' + digits.substring(2, 5);
     if (digits.length > 5) res += ' ' + digits.substring(5, 7);
     if (digits.length > 7) res += ' ' + digits.substring(7, 9);
-    return res;
+    setOrderDetails(prev => ({ ...prev, phone: res }));
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const formatted = formatUzbekPhone(val);
-    setOrderDetails(prev => ({ ...prev, phone: formatted }));
+  const handleAddToCart = async () => {
+    if (!firebaseUser || !look) return;
+    setIsAddingToCart(true);
+    try {
+      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
+      await setDoc(cartItemRef, {
+        lookId: look.id,
+        name: look.name,
+        imageUrl: look.imageUrl,
+        price: look.price,
+        currency: look.currency || 'USD',
+        addedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : '' });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   if (lookLoading) {
@@ -115,7 +134,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   if (!look) return <div className="p-24 text-center text-foreground/40 uppercase font-black italic">Look not found</div>;
 
   const handlePurchase = async () => {
-    // Phone length check: +998 90 123 45 67 is 17 characters
     if (orderDetails.phone.length < 17 || !orderDetails.telegram) {
       toast({
         variant: "destructive",
@@ -138,7 +156,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     try {
       const timestamp = new Date().toLocaleString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US');
       const orderData = {
-        userId: tgUser?.id || 'guest',
+        userId: firebaseUser.uid,
         firebaseUid: firebaseUser.uid,
         customerName: tgUser?.firstName || orderDetails.telegram, 
         orderDate: new Date().toISOString(),
@@ -205,7 +223,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       <div className="container mx-auto px-4 max-w-5xl relative pb-32 lg:pb-0">
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
-          {/* Image Column */}
           <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-md">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
@@ -228,7 +245,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
 
-          {/* Content Column */}
           <div className="lg:col-span-7 flex flex-col h-full justify-center">
             <div className="space-y-6 lg:space-y-8 glass-surface border-foreground/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl">
               <div className="space-y-4">
@@ -248,13 +264,26 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                 </div>
               </div>
 
-              <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 gap-4 pt-4">
                 <Button 
                   onClick={() => setShowCheckout(true)}
                   className="w-full h-14 lg:h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {t(dictionary.executePurchase)}
                   <ArrowRight className="ml-2 w-5 h-5 lg:w-6 lg:h-6 text-black" />
+                </Button>
+                <Button 
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                  variant="outline"
+                  className="w-full h-14 lg:h-16 rounded-2xl border-foreground/10 text-foreground font-black text-sm uppercase tracking-[0.2em] hover:neon-border transition-all"
+                >
+                  {isAddingToCart ? <Loader2 className="animate-spin" /> : (
+                    <>
+                      <ShoppingCart className="mr-2 w-5 h-5" />
+                      {t(dictionary.addToCart)}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -304,7 +333,10 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none text-black' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'}`}
+                    className={cn(
+                      "h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                      selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'
+                    )}
                   >
                     {size}
                   </button>
