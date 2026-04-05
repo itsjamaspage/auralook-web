@@ -28,7 +28,7 @@ export default function LooksPage() {
   const { user: tgUser, isVerified } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { t, dictionary, lang } = useLanguage();
+  const { t, dictionary } = useLanguage();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -133,7 +133,7 @@ export default function LooksPage() {
     }
 
     setAnimatingCartId(look.id);
-    setTimeout(() => setAnimatingCartId(null), 400);
+    setTimeout(() => setAnimatingCartId(null), 800);
 
     try {
       const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
@@ -312,6 +312,7 @@ export default function LooksPage() {
             const isLiked = likedLookIds.has(look.id);
             const isSelected = selectedLookIds.has(look.id);
             const lookNameDisplay = typeof look.name === 'string' ? look.name : 'Unnamed Look';
+            const isAnimatingCart = animatingCartId === look.id;
             
             return (
               <div key={look.id} className="relative group">
@@ -349,15 +350,22 @@ export default function LooksPage() {
                           >
                             <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
                           </button>
-                          <button 
-                            onClick={(e) => handleToggleCart(e, look)}
-                            className={cn(
-                              "w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all",
-                              animatingCartId === look.id && "animate-pop"
+                          <div className="relative">
+                            <button 
+                              onClick={(e) => handleToggleCart(e, look)}
+                              className={cn(
+                                "w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all",
+                                isAnimatingCart && "animate-pop"
+                              )}
+                            >
+                              <ShoppingCart className="w-5 h-5" />
+                            </button>
+                            {isAnimatingCart && (
+                              <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
+                                +1
+                              </span>
                             )}
-                          >
-                            <ShoppingCart className="w-5 h-5" />
-                          </button>
+                          </div>
                         </div>
                       )}
                     </div>

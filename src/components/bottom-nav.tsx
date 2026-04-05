@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Compass, Heart, ShoppingCart, User } from 'lucide-react';
@@ -24,10 +24,23 @@ export function BottomNav() {
 
   const { data: cartItems } = useCollection(cartQuery);
   const cartCount = cartItems?.length || 0;
+  
+  const prevCartCount = useRef(cartCount);
+  const [showPlusOne, setShowPlusOne] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted && cartCount > prevCartCount.current) {
+      setShowPlusOne(true);
+      const timer = setTimeout(() => setShowPlusOne(false), 800);
+      prevCartCount.current = cartCount;
+      return () => clearTimeout(timer);
+    }
+    prevCartCount.current = cartCount;
+  }, [cartCount, mounted]);
 
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
@@ -49,7 +62,8 @@ export function BottomNav() {
           "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
           isActive 
             ? "neon-bg scale-110" 
-            : "glass-surface border border-foreground/10 group-hover:border-foreground/30"
+            : "glass-surface border border-foreground/10 group-hover:border-foreground/30",
+          isCart && showPlusOne && "animate-pop"
         )}>
           {isActive && (
             <div className="absolute inset-0 rounded-full animate-ping neon-bg opacity-20" />
@@ -64,6 +78,12 @@ export function BottomNav() {
             <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background animate-in zoom-in duration-300 shadow-[0_0_15px_rgba(var(--primary),0.5)]">
               {cartCount}
             </div>
+          )}
+
+          {isCart && showPlusOne && (
+            <span className="absolute -top-12 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
+              +1
+            </span>
           )}
         </div>
         <span className={cn(
