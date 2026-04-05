@@ -7,7 +7,7 @@ import { collection, query, doc, updateDoc, serverTimestamp, where, deleteDoc } 
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, Send, Phone, XCircle } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingCart, Send, Phone, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
@@ -156,7 +156,7 @@ export default function UserOrdersPage() {
   return (
     <div className="container mx-auto px-6 py-8 space-y-8 max-w-2xl pb-32">
       <div className="flex items-center gap-3">
-        <ShoppingBag className="w-6 h-6 neon-text" />
+        <ShoppingCart className="w-6 h-6 neon-text" />
         <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
           {t(dictionary.myOrders)}
         </h1>

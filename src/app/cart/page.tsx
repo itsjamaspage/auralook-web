@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Trash2, ShoppingBag, ArrowRight, CheckCircle2, Phone, Send, Ruler, Sparkles, Globe } from 'lucide-react';
+import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, Ruler, Sparkles, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -158,7 +158,7 @@ export default function CartPage() {
   if (!cartItems || cartItems.length === 0) {
     return (
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
-        <ShoppingBag className="w-16 h-16 neon-text mx-auto opacity-20" />
+        <ShoppingCart className="w-16 h-16 neon-text mx-auto opacity-20" />
         <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.emptyCart)}</h1>
         <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
           <Link href="/looks">{t(dictionary.browseLooks)}</Link>
@@ -170,7 +170,7 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen pb-48">
       <div className="flex items-center gap-3">
-        <ShoppingBag className="w-6 h-6 neon-text" />
+        <ShoppingCart className="w-6 h-6 neon-text" />
         <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
           {t(dictionary.cart)}
         </h1>

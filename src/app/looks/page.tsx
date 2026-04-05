@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingBag, CheckSquare, Square } from 'lucide-react';
+import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -328,7 +328,7 @@ export default function LooksPage() {
                             onClick={(e) => handleToggleCart(e, look)}
                             className="w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all"
                           >
-                            <ShoppingBag className="w-5 h-5" />
+                            <ShoppingCart className="w-5 h-5" />
                           </button>
                         </div>
                       )}
@@ -376,7 +376,7 @@ export default function LooksPage() {
                 {t(dictionary.cancel)}
               </Button>
               <Button onClick={handleAddSelectedToCart} className="neon-bg text-black font-black px-6 rounded-xl h-12">
-                <ShoppingBag className="w-4 h-4 mr-2" />
+                <ShoppingCart className="w-4 h-4 mr-2" />
                 {t(dictionary.addToCart)}
               </Button>
             </div>

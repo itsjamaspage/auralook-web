@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Heart, ShoppingBag, User } from 'lucide-react';
+import { Compass, Heart, ShoppingCart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -20,7 +20,7 @@ export function BottomNav() {
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
-    { label: t(dictionary.cart), icon: ShoppingBag, href: '/cart' },
+    { label: t(dictionary.cart), icon: ShoppingCart, href: '/cart' },
     { label: t(dictionary.profile), icon: User, href: '/profile' },
   ];
 
