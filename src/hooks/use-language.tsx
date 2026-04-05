@@ -305,6 +305,8 @@ const dictionary = {
   },
 
   // Catalog & Filters
+  search: { uz: 'Qidiruv', ru: 'Поиск', en: 'Search' },
+  searchPlaceholder: { uz: 'Liboslar qidiruvi...', ru: 'Поиск образов...', en: 'Search outfits...' },
   filter: { uz: 'Filtr', ru: 'Фильтр', en: 'Filter' },
   listingsDetected: { uz: 'Liboslar topildi', ru: 'Найдено образов', en: 'Listings Found' },
   filterParameters: { uz: 'Filtr parametrlari', ru: 'Параметры фильтра', en: 'Filter Parameters' },

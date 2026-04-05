@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square } from 'lucide-react';
+import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -37,6 +37,7 @@ export default function LooksPage() {
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Multi-selection state
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -62,28 +63,42 @@ export default function LooksPage() {
     if (!looks) return [];
 
     let result = looks.filter(look => {
-      const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
+      // 1. Search Query Filter
+      const name = (typeof look.name === 'string' ? look.name : t(look.name) || '').toLowerCase();
+      const description = (look.description || '').toLowerCase();
+      const search = searchQuery.toLowerCase();
       
+      if (search && !name.includes(search) && !description.includes(search)) {
+        return false;
+      }
+
+      // 2. Currency Filter
+      const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
+      if (!matchesCurrency) return false;
+
+      // 3. Price Filter
       const price = Number(look.price || 0);
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
 
-      if (filterCurrency === 'ALL') return matchesCurrency;
+      if (filterCurrency !== 'ALL') {
+        if (price < min || price > max) return false;
+      }
       
-      return matchesCurrency && price >= min && price <= max;
+      return true;
     });
 
+    // 4. Sorting
     return [...result].sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
       return 0;
     });
-  }, [looks, filterCurrency, minPrice, maxPrice, sortBy]);
+  }, [looks, filterCurrency, minPrice, maxPrice, sortBy, searchQuery, t]);
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
     if (isNaN(num)) return '0';
-    // Robust formatting for thousands with spaces
     return new Intl.NumberFormat('fr-FR').format(num);
   };
 
@@ -126,7 +141,7 @@ export default function LooksPage() {
         addedAt: new Date().toISOString()
       }, { merge: true });
       
-      toast({ title: t(dictionary.addedToCart), description: look.name });
+      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : t(look.name) });
     } catch (e) { console.error(e); }
   };
 
@@ -162,13 +177,34 @@ export default function LooksPage() {
   return (
     <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative">
       <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {/* Search & Global Controls */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-grow group">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-foreground/40 group-focus-within:neon-text transition-colors" />
+            </div>
+            <Input 
+              placeholder={t(dictionary.searchPlaceholder)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-background border-border h-14 rounded-2xl pl-12 pr-12 focus:neon-border text-foreground font-medium shadow-xl transition-all"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-4 flex items-center text-foreground/40 hover:text-foreground transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
             <Button 
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
+                "h-14 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
                 showFilters && "neon-border neon-text"
               )}
             >
@@ -182,30 +218,29 @@ export default function LooksPage() {
               }} 
               variant="outline" 
               className={cn(
-                "h-12 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
+                "h-14 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
                 isSelectMode && "neon-border neon-text"
               )}
             >
               <CheckSquare className="w-4 h-4 mr-2" />
               {t(dictionary.selectMultiple)}
             </Button>
-          </div>
-
-          <div className="flex gap-2 shrink-0">
-            <Button 
-              onClick={() => setViewMode('grid')} 
-              variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
-            >
-              <Grid2x2 className="w-5 h-5" />
-            </Button>
-            <Button 
-              onClick={() => setViewMode('list')} 
-              variant="ghost" 
-              className={cn("h-12 w-12 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
-            >
-              <List className="w-5 h-5" />
-            </Button>
+            <div className="hidden sm:flex gap-2 ml-2">
+              <Button 
+                onClick={() => setViewMode('grid')} 
+                variant="ghost" 
+                className={cn("h-14 w-14 rounded-2xl transition-all shadow-xl", viewMode === 'grid' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
+              >
+                <Grid2x2 className="w-5 h-5" />
+              </Button>
+              <Button 
+                onClick={() => setViewMode('list')} 
+                variant="ghost" 
+                className={cn("h-14 w-14 rounded-2xl transition-all shadow-xl", viewMode === 'list' ? "neon-bg text-black" : "glass-surface text-foreground/40 border border-border")}
+              >
+                <List className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -288,6 +323,7 @@ export default function LooksPage() {
           {filteredAndSortedLooks.map((look) => {
             const isLiked = likedLookIds.has(look.id);
             const isSelected = selectedLookIds.has(look.id);
+            const lookNameDisplay = typeof look.name === 'string' ? look.name : t(look.name) || 'Unnamed Look';
             
             return (
               <div key={look.id} className="relative group">
@@ -307,7 +343,7 @@ export default function LooksPage() {
                       <Link href={isSelectMode ? '#' : `/looks/${look.id}`} onClick={(e) => isSelectMode && e.preventDefault()}>
                         <Image
                           src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                          alt={look.name || 'Look'}
+                          alt={lookNameDisplay}
                           fill
                           className={cn("object-cover transition-transform duration-700 group-hover:scale-105", viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]")}
                         />
@@ -342,7 +378,7 @@ export default function LooksPage() {
                           </span>
                           <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
                         </div>
-                        <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{look.name}</h3>
+                        <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{lookNameDisplay}</h3>
                       </div>
                     </div>
                   </Card>
