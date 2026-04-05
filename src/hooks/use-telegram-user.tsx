@@ -30,7 +30,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v9.0.0';
+const CACHE_KEY = 'auralook_protocol_v10.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -47,6 +47,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(cached);
         setUser(parsed);
+        setIsVerified(true); // Trust cache for immediate UI responsiveness
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
@@ -73,63 +74,56 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       const rawUser = tg.initDataUnsafe.user;
-      const initialProfile: Partial<UserProfile> = {
-        id: `tg_${rawUser.id}`,
-        telegramId: rawUser.id,
-        firstName: rawUser.first_name,
-        username: rawUser.username || null,
-        photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
-        firebaseUid: 'pending',
-        role: 'viewer',
-        lastSeen: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        phone: null
-      };
+      const tgIdString = `tg_${rawUser.id}`;
       
-      setUser(initialProfile as UserProfile);
-      tg.ready();
-      tg.expand();
-
       try {
         // 1. Anonymous Session Initiation
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 2. Role Determination
-        const roleRef = doc(db, 'roles', firebaseUid);
-        const roleSnap = await getDoc(roleRef);
-        const assignedRole: UserRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
-
-        const finalProfile: UserProfile = { 
-          ...(initialProfile as UserProfile), 
-          firebaseUid,
-          role: assignedRole
-        };
-        
-        setUser(finalProfile);
-
-        // 3. Signature Handshake
-        const res = await fetch('/api/telegram-auth', {
+        // 2. Signature Handshake
+        const authRes = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ initData: tg.initData }),
         });
 
-        if (res.ok) {
-          setIsVerified(true);
-          const userRef = doc(db, 'users', finalProfile.id);
-          await setDoc(userRef, {
-            ...finalProfile,
-            lastSeen: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          }, { merge: true });
-          localStorage.setItem(CACHE_KEY, JSON.stringify(finalProfile));
-        } else {
+        if (!authRes.ok) {
           console.warn('Backend Signature Handshake Failed - Operating in local mode');
         }
+
+        // 3. Role Determination
+        const roleRef = doc(db, 'roles', firebaseUid);
+        const roleSnap = await getDoc(roleRef);
+        const assignedRole: UserRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
+
+        // 4. Persistence Sequence (CRITICAL: Write parent before exposing UID)
+        const userRef = doc(db, 'users', tgIdString);
+        const profileData: UserProfile = {
+          id: tgIdString,
+          telegramId: rawUser.id,
+          firstName: rawUser.first_name,
+          username: rawUser.username || null,
+          photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
+          firebaseUid,
+          role: assignedRole,
+          lastSeen: serverTimestamp(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          phone: null
+        };
+
+        await setDoc(userRef, profileData, { merge: true });
+
+        // 5. Final Exposure
+        setUser(profileData);
+        setIsVerified(true);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(profileData));
+        tg.ready();
+        tg.expand();
       } catch (err) {
         console.error('Identity Bridge Critical Error:', err);
+        setError(String(err));
       } finally {
         setIsLoading(false);
       }

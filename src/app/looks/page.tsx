@@ -26,7 +26,7 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function LooksPage() {
   const db = useFirestore();
-  const { user: tgUser } = useTelegramUser();
+  const { user: tgUser, isVerified } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary, lang } = useLanguage();
@@ -50,11 +50,11 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firebaseUser || !tgUser || tgUser.firebaseUid === 'pending') {
+    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) {
       return null;
     }
     return collection(db, 'users', tgUser.id, 'liked_looks');
-  }, [db, tgUser, firebaseUser, isUserLoading]);
+  }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
@@ -99,14 +99,14 @@ export default function LooksPage() {
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
     if (isNaN(num)) return '0';
-    return new Intl.NumberFormat('fr-FR').format(num);
+    return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
   };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
+    if (!isVerified || !tgUser || !firebaseUser) {
       toast({ title: t(dictionary.syncing), variant: "destructive" });
       return;
     }
@@ -125,7 +125,7 @@ export default function LooksPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!tgUser || !firebaseUser || tgUser.firebaseUid === 'pending') {
+    if (!isVerified || !tgUser || !firebaseUser) {
       toast({ title: t(dictionary.syncing), variant: "destructive" });
       return;
     }
@@ -153,7 +153,7 @@ export default function LooksPage() {
   };
 
   const handleAddSelectedToCart = async () => {
-    if (!tgUser || !firebaseUser) return;
+    if (!isVerified || !tgUser || !firebaseUser) return;
     
     const itemsToAdd = looks?.filter(l => selectedLookIds.has(l.id)) || [];
     
