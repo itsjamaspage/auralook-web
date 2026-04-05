@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -38,16 +39,19 @@ import {
   Package,
   Send,
   Phone,
-  Ruler
+  Ruler,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export default function AdminDashboard() {
   const db = useFirestore();
+  const { user, isLoading: userLoading } = useTelegramUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
@@ -59,6 +63,8 @@ export default function AdminDashboard() {
     return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
   }, [db]);
   const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'editor';
 
   const confirmDelete = async () => {
     if (!itemToDelete) return;
@@ -115,6 +121,28 @@ export default function AdminDashboard() {
     }
     return size;
   };
+
+  if (userLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 animate-spin neon-text" />
+        <p className="text-foreground font-mono text-[10px] uppercase tracking-widest">{t(dictionary.syncing)}</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto px-6 py-32 text-center space-y-6">
+        <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
+        <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Access Restricted: Protocol violation detected.</p>
+        <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
+          <Link href="/">Back to Surface</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-8 max-w-6xl pb-32">

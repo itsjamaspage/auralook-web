@@ -21,7 +21,8 @@ import {
   Maximize2,
   Minimize2,
   Sun,
-  Moon
+  Moon,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -59,23 +60,17 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
-      // Primary Telegram Protocol: Force max expansion
       tg.expand();
-      // Support for immersive full-screen in newer Telegram versions (v8.0+)
       if (typeof tg.requestFullscreen === 'function') {
         tg.requestFullscreen();
       }
     }
     
-    // Standard browser fallback for desktop/browser testing
     try {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen()
           .then(() => setIsFullscreen(true))
-          .catch(() => {
-            // Browser might block, but we track intention
-            setIsFullscreen(true);
-          });
+          .catch(() => setIsFullscreen(true));
       } else {
         if (document.exitFullscreen) {
           document.exitFullscreen()
@@ -94,10 +89,7 @@ export function Navbar() {
     { code: 'en', label: 'EN' },
   ];
 
-  const menuItems = [
-    { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
-    { label: t(dictionary.adminPanel), icon: LayoutDashboard, href: '/admin' },
-  ];
+  const isAdmin = user?.role === 'admin' || user?.role === 'editor';
 
   if (!mounted) return null;
 
@@ -105,17 +97,13 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative border-foreground/10">
         
-        {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
-        {/* Right: Controls */}
         <div className="flex items-center gap-2 lg:gap-4">
-          
-          {/* Expand Button */}
           <Button 
             variant="ghost" 
             size="sm" 
@@ -125,7 +113,6 @@ export function Navbar() {
             {isFullscreen ? <Minimize2 className="w-4 h-4 neon-text" /> : <Maximize2 className="w-4 h-4 neon-text" />}
           </Button>
 
-          {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-10 lg:h-11 w-10 lg:w-11 p-0 font-black uppercase text-foreground text-[10px] lg:text-xs">
@@ -148,7 +135,6 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="rounded-full h-10 lg:h-11 w-10 lg:w-11 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
@@ -159,17 +145,29 @@ export function Navbar() {
               <div className="px-4 py-3 mb-2 border-b border-foreground/5">
                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
                 {user && (
-                  <p className="text-[10px] font-bold neon-text mt-1 truncate">@{user.username || user.firstName}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-[10px] font-bold neon-text truncate">@{user.username || user.firstName}</p>
+                    {isAdmin && <ShieldCheck className="w-3 h-3 text-primary animate-pulse" />}
+                  </div>
                 )}
               </div>
-              {menuItems.map((item) => (
-                <Link key={item.href} href={item.href}>
+              
+              <Link href="/looks">
+                <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
+                  <Compass className="w-5 h-5 neon-text" />
+                  <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
+                </DropdownMenuItem>
+              </Link>
+
+              {isAdmin && (
+                <Link href="/admin">
                   <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                    <item.icon className="w-5 h-5 neon-text" />
-                    <span className="font-bold text-[11px] uppercase tracking-widest">{item.label}</span>
+                    <LayoutDashboard className="w-5 h-5 neon-text" />
+                    <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.adminPanel)}</span>
                   </DropdownMenuItem>
                 </Link>
-              ))}
+              )}
+
               <DropdownMenuSeparator className="bg-foreground/5 my-2" />
               <DropdownMenuItem 
                 onClick={toggleTheme}

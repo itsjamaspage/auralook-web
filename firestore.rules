@@ -3,45 +3,64 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v4.2.0 Savatcha Expansion)
+    // Assumed Data Model (v5.0.0 RBAC Enforcement)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function getRole() {
+      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getRole() == 'admin';
+    }
+
+    function isEditor() {
+      return isAuthenticated() && (getRole() == 'admin' || getRole() == 'editor');
+    }
+
+    // ROLES (Read-only for self, No write via app)
+    match /roles/{uid} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     // CATALOG
     match /looks/{lookId} {
       allow read: if true;
-      allow write: if false; 
+      allow create, update, delete: if isEditor();
     }
 
     // USERS
     match /users/{userId} {
-      allow read: if isAuthenticated() && (userId == 'tg_demo' || resource.data.firebaseUid == request.auth.uid);
+      allow read: if isAuthenticated() && (userId == 'tg_demo' || resource.data.firebaseUid == request.auth.uid || isAdmin());
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || isAdmin());
       
       match /liked_looks/{lookId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && (request.auth.uid == get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid);
       }
 
-      // SAVATCHA (CART)
       match /cart/{lookId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && (request.auth.uid == get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid);
       }
     }
 
     // ORDERS
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
+      allow read: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || isEditor());
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && resource.data.firebaseUid == request.auth.uid;
+      allow update: if isEditor();
+      allow delete: if isAdmin();
     }
 
     // CONSULTATIONS
     match /consultations/{id} {
-      allow read, write: if isAuthenticated();
+      allow read: if isEditor();
+      allow write: if isAuthenticated();
     }
   }
 }

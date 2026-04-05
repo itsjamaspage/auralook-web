@@ -3,8 +3,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useFirestore, useAuth } from '@/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
+
+export type UserRole = 'admin' | 'editor' | 'viewer';
 
 export interface UserProfile {
   id: string;
@@ -14,6 +16,7 @@ export interface UserProfile {
   phone: string | null;
   photoUrl: string | null;
   firebaseUid: string;
+  role: UserRole;
   lastSeen: any;
   createdAt: any;
   updatedAt: any;
@@ -27,7 +30,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v8.0.0';
+const CACHE_KEY = 'auralook_protocol_v9.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -70,30 +73,43 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       const rawUser = tg.initDataUnsafe.user;
-      const initialProfile: UserProfile = {
+      const initialProfile: Partial<UserProfile> = {
         id: `tg_${rawUser.id}`,
         telegramId: rawUser.id,
         firstName: rawUser.first_name,
         username: rawUser.username || null,
         photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
         firebaseUid: 'pending',
+        role: 'viewer',
         lastSeen: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         phone: null
       };
       
-      setUser(initialProfile);
+      setUser(initialProfile as UserProfile);
       tg.ready();
       tg.expand();
 
       try {
-        // Essential anonymous login
+        // 1. Anonymous Session Initiation
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
-        const profileWithUid = { ...initialProfile, firebaseUid };
-        setUser(profileWithUid);
 
+        // 2. Role Determination
+        const roleRef = doc(db, 'roles', firebaseUid);
+        const roleSnap = await getDoc(roleRef);
+        const assignedRole: UserRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
+
+        const finalProfile: UserProfile = { 
+          ...(initialProfile as UserProfile), 
+          firebaseUid,
+          role: assignedRole
+        };
+        
+        setUser(finalProfile);
+
+        // 3. Signature Handshake
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -102,13 +118,13 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
         if (res.ok) {
           setIsVerified(true);
-          const userRef = doc(db, 'users', profileWithUid.id);
+          const userRef = doc(db, 'users', finalProfile.id);
           await setDoc(userRef, {
-            ...profileWithUid,
+            ...finalProfile,
             lastSeen: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
-          localStorage.setItem(CACHE_KEY, JSON.stringify(profileWithUid));
+          localStorage.setItem(CACHE_KEY, JSON.stringify(finalProfile));
         } else {
           console.warn('Backend Signature Handshake Failed - Operating in local mode');
         }
@@ -124,13 +140,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
   function handleDemoMode() {
     const mockUser: UserProfile = {
-      id: 'tg_6884517020', // Using your actual ID for demo stability
-      telegramId: 6884517020,
-      firstName: 'Auralook Voyager',
-      username: 'auralook_user',
+      id: 'tg_demo_admin',
+      telegramId: 0,
+      firstName: 'Admin Voyager',
+      username: 'admin',
       phone: '+998 90 000 00 00',
-      photoUrl: 'https://ui-avatars.com/api/?name=Auralook+Voyager&background=00FF88&color=000&bold=true',
-      firebaseUid: 'demo_session',
+      photoUrl: 'https://ui-avatars.com/api/?name=Admin+Voyager&background=00FF88&color=000&bold=true',
+      firebaseUid: 'demo_admin_session',
+      role: 'admin',
       lastSeen: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
