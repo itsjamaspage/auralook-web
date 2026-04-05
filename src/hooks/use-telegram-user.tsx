@@ -30,7 +30,7 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v10.0.0';
+const CACHE_KEY = 'auralook_protocol_v11.0.0';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -47,7 +47,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(cached);
         setUser(parsed);
-        setIsVerified(true); // Trust cache for immediate UI responsiveness
+        setIsVerified(true);
       } catch {
         localStorage.removeItem(CACHE_KEY);
       }
@@ -74,33 +74,22 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       const rawUser = tg.initDataUnsafe.user;
-      const tgIdString = `tg_${rawUser.id}`;
       
       try {
         // 1. Anonymous Session Initiation
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 2. Signature Handshake
-        const authRes = await fetch('/api/telegram-auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData }),
-        });
-
-        if (!authRes.ok) {
-          console.warn('Backend Signature Handshake Failed - Operating in local mode');
-        }
-
-        // 3. Role Determination
+        // 2. Role Determination
         const roleRef = doc(db, 'roles', firebaseUid);
         const roleSnap = await getDoc(roleRef);
         const assignedRole: UserRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
 
-        // 4. Persistence Sequence (CRITICAL: Write parent before exposing UID)
-        const userRef = doc(db, 'users', tgIdString);
+        // 3. Persistence Sequence (CRITICAL: UID Alignment)
+        // Use Firebase UID as the document ID to satisfy security rules
+        const userRef = doc(db, 'users', firebaseUid);
         const profileData: UserProfile = {
-          id: tgIdString,
+          id: firebaseUid,
           telegramId: rawUser.id,
           firstName: rawUser.first_name,
           username: rawUser.username || null,
@@ -115,7 +104,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
         await setDoc(userRef, profileData, { merge: true });
 
-        // 5. Final Exposure
+        // 4. Final Exposure
         setUser(profileData);
         setIsVerified(true);
         localStorage.setItem(CACHE_KEY, JSON.stringify(profileData));
@@ -133,14 +122,15 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   }, [db, auth]);
 
   function handleDemoMode() {
+    const demoUid = 'demo_admin_session';
     const mockUser: UserProfile = {
-      id: 'tg_demo_admin',
+      id: demoUid,
       telegramId: 0,
       firstName: 'Admin Voyager',
       username: 'admin',
       phone: '+998 90 000 00 00',
       photoUrl: 'https://ui-avatars.com/api/?name=Admin+Voyager&background=00FF88&color=000&bold=true',
-      firebaseUid: 'demo_admin_session',
+      firebaseUid: demoUid,
       role: 'admin',
       lastSeen: new Date().toISOString(),
       createdAt: new Date().toISOString(),

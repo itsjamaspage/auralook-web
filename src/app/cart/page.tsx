@@ -17,13 +17,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type CheckoutStep = 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 export default function CartPage() {
   const db = useFirestore();
-  const { user: tgUser } = useTelegramUser();
+  const { user: tgUser, isVerified } = useTelegramUser();
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary, lang } = useLanguage();
@@ -41,9 +40,10 @@ export default function CartPage() {
   });
 
   const cartQuery = useMemoFirebase(() => {
-    if (isUserLoading || !tgUser || !firebaseUser) return null;
-    return collection(db, 'users', tgUser.id, 'cart');
-  }, [db, tgUser, firebaseUser, isUserLoading]);
+    // SECURITY: Align with firebaseUid doc path
+    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
+    return collection(db, 'users', firebaseUser.uid, 'cart');
+  }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
 
   const { data: cartItems, isLoading } = useCollection(cartQuery ?? undefined);
 
@@ -57,9 +57,9 @@ export default function CartPage() {
   }, [cartItems]);
 
   const handleRemove = async (itemId: string) => {
-    if (!tgUser) return;
+    if (!firebaseUser) return;
     try {
-      await deleteDoc(doc(db, 'users', tgUser.id, 'cart', itemId));
+      await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', itemId));
     } catch (e) { console.error(e); }
   };
 
@@ -91,7 +91,7 @@ export default function CartPage() {
       
       for (const item of cartItems) {
         const orderData = {
-          userId: tgUser?.id || 'guest',
+          userId: firebaseUser.uid,
           firebaseUid: firebaseUser.uid,
           customerName: tgUser?.firstName || orderDetails.telegram,
           orderDate: new Date().toISOString(),
@@ -132,7 +132,7 @@ export default function CartPage() {
         });
 
         // Clear item from cart
-        await deleteDoc(doc(db, 'users', tgUser!.id, 'cart', item.id));
+        await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', item.id));
       }
 
       toast({ title: t(dictionary.orderSuccessTitle), description: t(dictionary.orderSuccessDescription) });

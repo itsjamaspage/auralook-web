@@ -50,10 +50,11 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
+    // SECURITY: Align with firebaseUid doc path
     if (isUserLoading || !firebaseUser || !tgUser || !isVerified) {
       return null;
     }
-    return collection(db, 'users', tgUser.id, 'liked_looks');
+    return collection(db, 'users', firebaseUser.uid, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
@@ -64,11 +65,11 @@ export default function LooksPage() {
 
     let result = looks.filter(look => {
       // 1. Search Query Filter
-      const name = (typeof look.name === 'string' ? look.name : t(look.name) || '').toLowerCase();
-      const description = (look.description || '').toLowerCase();
+      const lookName = typeof look.name === 'string' ? look.name : '';
+      const lookDesc = look.description || '';
       const search = searchQuery.toLowerCase();
       
-      if (search && !name.includes(search) && !description.includes(search)) {
+      if (search && !lookName.toLowerCase().includes(search) && !lookDesc.toLowerCase().includes(search)) {
         return false;
       }
 
@@ -94,7 +95,7 @@ export default function LooksPage() {
       if (sortBy === 'price_desc') return b.price - a.price;
       return 0;
     });
-  }, [looks, filterCurrency, minPrice, maxPrice, sortBy, searchQuery, t]);
+  }, [looks, filterCurrency, minPrice, maxPrice, sortBy, searchQuery]);
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
@@ -111,7 +112,7 @@ export default function LooksPage() {
       return;
     }
 
-    const likedLookRef = doc(db, 'users', tgUser.id, 'liked_looks', lookId);
+    const likedLookRef = doc(db, 'users', firebaseUser.uid, 'liked_looks', lookId);
     try {
       if (likedLookIds.has(lookId)) {
         await deleteDoc(likedLookRef);
@@ -131,7 +132,7 @@ export default function LooksPage() {
     }
 
     try {
-      const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
+      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
       await setDoc(cartItemRef, {
         lookId: look.id,
         name: look.name,
@@ -141,7 +142,7 @@ export default function LooksPage() {
         addedAt: new Date().toISOString()
       }, { merge: true });
       
-      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : t(look.name) });
+      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : '' });
     } catch (e) { console.error(e); }
   };
 
@@ -158,7 +159,7 @@ export default function LooksPage() {
     const itemsToAdd = looks?.filter(l => selectedLookIds.has(l.id)) || [];
     
     for (const look of itemsToAdd) {
-      const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
+      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
       await setDoc(cartItemRef, {
         lookId: look.id,
         name: look.name,
@@ -323,7 +324,7 @@ export default function LooksPage() {
           {filteredAndSortedLooks.map((look) => {
             const isLiked = likedLookIds.has(look.id);
             const isSelected = selectedLookIds.has(look.id);
-            const lookNameDisplay = typeof look.name === 'string' ? look.name : t(look.name) || 'Unnamed Look';
+            const lookNameDisplay = typeof look.name === 'string' ? look.name : 'Unnamed Look';
             
             return (
               <div key={look.id} className="relative group">
