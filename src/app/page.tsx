@@ -179,7 +179,7 @@ export default function Home() {
             </div>
 
             <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group">
-              <Link href="https://t.me/itsjamaspage" target="_blank">
+              <Link href="https://t.me/jamastore_aibot" target="_blank">
                 {t(dictionary.openApp)}
                 <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
               </Link>
