@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -24,9 +25,19 @@ export function BottomNav() {
 
   const { data: cartItems } = useCollection(cartQuery);
   const cartCount = cartItems?.length || 0;
+
+  const favQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(db, 'users', user.uid, 'liked_looks');
+  }, [db, user]);
+
+  const { data: favItems } = useCollection(favQuery);
+  const favCount = favItems?.length || 0;
   
   const prevCartCount = useRef(cartCount);
-  const [showPlusOne, setShowPlusOne] = useState(false);
+  const prevFavCount = useRef(favCount);
+  const [showPlusOneCart, setShowPlusOneCart] = useState(false);
+  const [showPlusOneFav, setShowPlusOneFav] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -34,13 +45,23 @@ export function BottomNav() {
 
   useEffect(() => {
     if (mounted && cartCount > prevCartCount.current) {
-      setShowPlusOne(true);
-      const timer = setTimeout(() => setShowPlusOne(false), 800);
+      setShowPlusOneCart(true);
+      const timer = setTimeout(() => setShowPlusOneCart(false), 800);
       prevCartCount.current = cartCount;
       return () => clearTimeout(timer);
     }
     prevCartCount.current = cartCount;
   }, [cartCount, mounted]);
+
+  useEffect(() => {
+    if (mounted && favCount > prevFavCount.current) {
+      setShowPlusOneFav(true);
+      const timer = setTimeout(() => setShowPlusOneFav(false), 800);
+      prevFavCount.current = favCount;
+      return () => clearTimeout(timer);
+    }
+    prevFavCount.current = favCount;
+  }, [favCount, mounted]);
 
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
@@ -52,6 +73,7 @@ export function BottomNav() {
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
     const isCart = item.href === '/cart';
+    const isFav = item.href === '/favorites';
     
     return (
       <Link 
@@ -63,7 +85,7 @@ export function BottomNav() {
           isActive 
             ? "neon-bg scale-110" 
             : "glass-surface border border-foreground/10 group-hover:border-foreground/30",
-          isCart && showPlusOne && "animate-pop"
+          (isCart && showPlusOneCart) || (isFav && showPlusOneFav) ? "animate-pop" : ""
         )}>
           {isActive && (
             <div className="absolute inset-0 rounded-full animate-ping neon-bg opacity-20" />
@@ -80,7 +102,13 @@ export function BottomNav() {
             </div>
           )}
 
-          {isCart && showPlusOne && (
+          {isCart && showPlusOneCart && (
+            <span className="absolute -top-12 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
+              +1
+            </span>
+          )}
+
+          {isFav && showPlusOneFav && (
             <span className="absolute -top-12 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
               +1
             </span>

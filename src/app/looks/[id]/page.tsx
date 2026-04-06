@@ -1,3 +1,4 @@
+
 "use client"
 
 import { use, useState, useEffect } from 'react';
@@ -113,8 +114,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         currency: look.currency || 'USD',
         addedAt: new Date().toISOString()
       }, { merge: true });
-      
-      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : '' });
     } catch (e) {
       console.error(e);
     } finally {

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -110,8 +111,9 @@ export default function LooksPage() {
       return;
     }
 
+    const isAdding = !likedLookIds.has(lookId);
     setAnimatingLikeId(lookId);
-    setTimeout(() => setAnimatingLikeId(null), 400);
+    setTimeout(() => setAnimatingLikeId(null), 800);
 
     const likedLookRef = doc(db, 'users', firebaseUser.uid, 'liked_looks', lookId);
     try {
@@ -145,8 +147,6 @@ export default function LooksPage() {
         currency: look.currency || 'USD',
         addedAt: new Date().toISOString()
       }, { merge: true });
-      
-      toast({ title: t(dictionary.addedToCart), description: typeof look.name === 'string' ? look.name : '' });
     } catch (e) { console.error(e); }
   };
 
@@ -174,7 +174,6 @@ export default function LooksPage() {
       }, { merge: true });
     }
 
-    toast({ title: t(dictionary.addedToCart), description: `${selectedLookIds.size} ta element` });
     setSelectedLookIds(new Set());
     setIsSelectMode(false);
   };
@@ -313,6 +312,7 @@ export default function LooksPage() {
             const isSelected = selectedLookIds.has(look.id);
             const lookNameDisplay = typeof look.name === 'string' ? look.name : 'Unnamed Look';
             const isAnimatingCart = animatingCartId === look.id;
+            const isAnimatingLike = animatingLikeId === look.id;
             
             return (
               <div key={look.id} className="relative group">
@@ -340,16 +340,23 @@ export default function LooksPage() {
                       
                       {!isSelectMode && (
                         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-                          <button 
-                            onClick={(e) => handleToggleLike(e, look.id)}
-                            className={cn(
-                              "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
-                              isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
-                              animatingLikeId === look.id && "animate-pop"
+                          <div className="relative">
+                            <button 
+                              onClick={(e) => handleToggleLike(e, look.id)}
+                              className={cn(
+                                "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
+                                isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
+                                isAnimatingLike && "animate-pop"
+                              )}
+                            >
+                              <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
+                            </button>
+                            {isAnimatingLike && !likedLookIds.has(look.id) && (
+                              <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
+                                +1
+                              </span>
                             )}
-                          >
-                            <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
-                          </button>
+                          </div>
                           <div className="relative">
                             <button 
                               onClick={(e) => handleToggleCart(e, look)}

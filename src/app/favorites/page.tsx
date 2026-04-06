@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
@@ -47,7 +48,6 @@ export default function FavoritesPage() {
     setTimeout(async () => {
       try {
         await deleteDoc(doc(db, 'users', tgUser.id, 'liked_looks', lookId));
-        toast({ title: t(dictionary.delete), description: "" });
       } catch (e) {
         console.error(e);
       } finally {
