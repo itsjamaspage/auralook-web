@@ -47,9 +47,7 @@ export default function Home() {
           </p>
           
           <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-            {t(dictionary.wear)} <br />
-            <span className="neon-text">{t(dictionary.tomorrow)}</span> <br />
-            {t(dictionary.today)}.
+            {t(dictionary.heroTitle)}
           </h1>
 
           <p className="text-xs sm:text-sm lg:text-base font-bold text-foreground/60 tracking-[0.3em] uppercase max-w-lg leading-relaxed">
