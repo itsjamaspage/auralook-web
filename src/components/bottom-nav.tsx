@@ -18,6 +18,7 @@ export function BottomNav() {
   const db = useFirestore();
   const { user } = useUser();
 
+  // CART DATA PROTOCOL
   const cartQuery = useMemoFirebase(() => {
     if (!user) return null;
     return collection(db, 'users', user.uid, 'cart');
@@ -26,6 +27,7 @@ export function BottomNav() {
   const { data: cartItems } = useCollection(cartQuery);
   const cartCount = cartItems?.length || 0;
 
+  // FAVORITES DATA PROTOCOL
   const favQuery = useMemoFirebase(() => {
     if (!user) return null;
     return collection(db, 'users', user.uid, 'liked_looks');
@@ -43,6 +45,7 @@ export function BottomNav() {
     setMounted(true);
   }, []);
 
+  // FEEDBACK PULSE: CART
   useEffect(() => {
     if (mounted && cartCount > prevCartCount.current) {
       setShowPlusOneCart(true);
@@ -53,6 +56,7 @@ export function BottomNav() {
     prevCartCount.current = cartCount;
   }, [cartCount, mounted]);
 
+  // FEEDBACK PULSE: FAVORITES
   useEffect(() => {
     if (mounted && favCount > prevFavCount.current) {
       setShowPlusOneFav(true);
@@ -96,12 +100,21 @@ export function BottomNav() {
             isActive ? "text-black stroke-[2.5px]" : "text-foreground group-hover:text-foreground"
           )} />
 
+          {/* CHROMA-SYNC BADGE: FAVORITES */}
+          {isFav && favCount > 0 && (
+            <div className="absolute -top-1 -right-1 neon-bg text-black text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background animate-in zoom-in duration-300 shadow-[0_0_15px_var(--sync-shadow)]">
+              {favCount}
+            </div>
+          )}
+
+          {/* CHROMA-SYNC BADGE: CART */}
           {isCart && cartCount > 0 && (
-            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background animate-in zoom-in duration-300 shadow-[0_0_15px_rgba(var(--primary),0.5)]">
+            <div className="absolute -top-1 -right-1 neon-bg text-black text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background animate-in zoom-in duration-300 shadow-[0_0_15px_var(--sync-shadow)]">
               {cartCount}
             </div>
           )}
 
+          {/* FLOATING FEEDBACK PARTICLES */}
           {isCart && showPlusOneCart && (
             <span className="absolute -top-12 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
               +1
