@@ -102,7 +102,7 @@ export function Navbar() {
         
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            Auralook
+            Yangi Avlod
           </span>
         </Link>
 
@@ -178,7 +178,7 @@ export function Navbar() {
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5 neon-text" /> : <Moon className="w-5 h-5 neon-text" />}
                 <span className="font-bold text-[11px] uppercase tracking-widest">
-                  {t(dictionary.theme)}: {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
+                  {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
                 </span>
               </DropdownMenuItem>
               <Link href="/profile">

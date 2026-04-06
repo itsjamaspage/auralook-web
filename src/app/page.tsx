@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -42,7 +43,7 @@ export default function Home() {
       <section className="relative container mx-auto px-6 pt-16 pb-24 text-center">
         <div className="flex flex-col items-center space-y-8 max-w-5xl mx-auto">
           <p className="text-[10px] font-black tracking-[0.5em] text-foreground/40 uppercase animate-in fade-in slide-in-from-top-4 duration-700">
-            —— AURALOOK.UZ — SS/2025
+            —— YANGI AVLOD KIYUMLARI — SS/2025
           </p>
           
           <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
@@ -199,7 +200,7 @@ export default function Home() {
 
       {/* MINI FOOTER */}
       <footer className="container mx-auto px-6 py-12 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-8">
-        <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
+        <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">YANGI AVLOD</span>
         <div className="flex gap-4">
           <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button>
           <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.delivery)}</Button>

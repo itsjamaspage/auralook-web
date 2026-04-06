@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -8,7 +9,7 @@ const dictionary = {
   // Hero & Navigation
   heroTitle: { 
     uz: 'Yangi Avlod kiyimlari',
-    ru: 'Одежды Нового Поколения',
+    ru: 'Одежда Нового Поколения',
     en: 'New Generation Clothes'
   },
   heroSub: { 
@@ -89,7 +90,7 @@ const dictionary = {
 
   // Landing Page Specific
   landingHeroTitle: { 
-    uz: 'ERTANGI KUNNI BUGUN KIYING.',
+    uz: 'KIYING ERTANGI KUNNI BUGUN.',
     ru: 'НОСИ ЗАВТРАШНЕЕ СЕГОДНЯ.',
     en: 'WEAR TOMORROW TODAY.'
   },
@@ -110,7 +111,7 @@ const dictionary = {
   freeDelivery: { uz: 'BEPUL YETKAZIB BERISH', ru: 'БЕСПЛАТНАЯ ДОСТАВКА', en: 'FREE DELIVERY' },
   orderViaTelegram: { uz: 'TELEGRAM ORQALI BUYURTMA', ru: 'ЗАКАЗ ЧЕРЕЗ TELEGRAM', en: 'ORDER VIA TELEGRAM' },
   goodQuality: { uz: 'YUQORI SIFAT', ru: 'ВЫСОКОЕ КАЧЕСТВО', en: 'GOOD QUALITY' },
-  auralookPromise: { uz: 'AURALOOK VA\'DASI', ru: 'ОБЕЩАНИЕ AURALOOK', en: 'THE AURALOOK PROMISE' },
+  auralookPromise: { uz: 'YANGI AVLOD VA\'DASI', ru: 'ОБЕЩАНИЕ YANGI AVLOD', en: 'THE YANGI AVLOD PROMISE' },
   promiseTitle1: { uz: 'SIZNING USLUBINGIZ.', ru: 'ВАШ СТИЛЬ.', en: 'YOUR STYLE.' },
   promiseTitle2: { uz: 'SARALANGAN.', ru: 'ОТОБРАННЫЙ.', en: 'CURATED.' },
   promiseTitle3: { uz: 'MUROSASIZ.', ru: 'БЕЗ КОМПРОМИССОВ.', en: 'NOT COMPROMISED.' },
@@ -458,9 +459,9 @@ const dictionary = {
 
   // Footer
   allRightsReserved: { 
-    uz: '© 2026 Auralook.uz. Barcha huquqlar himoyalangan.',
-    ru: '© 2026 Auralook.uz. Все права защищены.',
-    en: '© 2026 Auralook.uz. All rights reserved.'
+    uz: '© 2026 Yangi Avlod. Barcha huquqlar himoyalangan.',
+    ru: '© 2026 Yangi Avlod. Все права защищены.',
+    en: '© 2026 Yangi Avlod. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
 };
