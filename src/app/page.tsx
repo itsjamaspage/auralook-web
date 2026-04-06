@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -42,7 +41,6 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="relative container mx-auto px-6 pt-16 pb-24 text-center">
         <div className="flex flex-col items-center space-y-8 max-w-5xl mx-auto">
-          {/* Technical Header Removed per request */}
           
           <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] neon-text">
             {t(dictionary.heroTitle)}
@@ -148,7 +146,7 @@ export default function Home() {
 
       {/* TELEGRAM HIGH-IMPACT CTA */}
       <section className="container mx-auto px-6 mb-32">
-        <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-[#050505] p-12 sm:p-20 shadow-2xl group">
+        <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-background/40 backdrop-blur-md p-12 sm:p-20 shadow-2xl group">
           {/* Futuristic Background Elements */}
           <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--sync-color),transparent_70%)]" />
