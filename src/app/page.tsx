@@ -46,7 +46,7 @@ export default function Home() {
             —— {t(dictionary.heroTitle)} — SS/2025
           </p>
           
-          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] neon-text">
             {t(dictionary.heroTitle)}
           </h1>
 
@@ -126,7 +126,7 @@ export default function Home() {
                   />
                   
                   {/* Status Tag */}
-                  <div className="absolute top-6 left-6 px-3 py-1 bg-primary text-black text-[8px] font-black uppercase tracking-widest rounded-sm">
+                  <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-black text-[8px] font-black uppercase tracking-widest rounded-sm border-none">
                     {index === 0 ? t(dictionary.hotTag) : t(dictionary.newTag)}
                   </div>
 
@@ -174,7 +174,7 @@ export default function Home() {
             </div>
             
             <div className="space-y-4 max-w-2xl">
-              <h2 className="text-4xl sm:text-6xl font-black uppercase italic leading-none tracking-tighter text-foreground">
+              <h2 className="text-4xl sm:text-6xl font-black uppercase italic leading-none tracking-tighter neon-text">
                 {t(dictionary.liveOnTelegram)}
               </h2>
               <p className="text-xs sm:text-sm font-bold text-foreground/40 uppercase tracking-[0.4em]">
