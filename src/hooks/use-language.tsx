@@ -117,14 +117,14 @@ const dictionary = {
   aboutUs: { uz: 'BIZ HAQIMIZDA', ru: 'О НАС', en: 'ABOUT US' },
   est2026: { uz: 'ASOS SOLINGAN 2026 — TOSHKENT, UZ', ru: 'ОСНОВАНО В 2026 — ТАШКЕНТ, УЗ', en: 'EST. 2026 — TASHKENT, UZ' },
   lookExpensivePayLess: { 
-    uz: 'QIMMAT KO\'RINING. KAM TO\'LANG.', 
-    ru: 'ВЫГЛЯДИ ДОРОГО. ПЛАТИ МЕНЬШЕ.', 
-    en: 'LOOK EXPENSIVE. PAY LESS.' 
+    uz: 'Qimmat Kiyining, Kamroq to\'lang', 
+    ru: 'Одевайтесь дорого, платите меньше', 
+    en: 'Look Expensive, Pay Less' 
   },
   aboutDesc: { 
-    uz: 'Yangi Avlod high-end uslub va hamyonboplik o\'rtasidagi to\'siqni yo\'q qiladi. Premium techwear, to\'g\'ridan-to\'g\'ri Xitoydan O\'zbekistonga. Sifatni tanlang, ortiqcha to\'lamang.',
-    ru: 'Yangi Avlod стирает грани между хай-энд стилем и доступностью. Премиальный техвир напрямую из Китая в Узбекистан. Выбирай качество, не переплачивай.',
-    en: 'Yangi Avlod bridges the gap between high-end style and affordability. Premium techwear sourced directly from China to Uzbekistan. Choose quality, don’t overpay.'
+    uz: 'Auralook — Xitoydan O\'zbekistonga to\'g\'ridan-to\'g\'ri premium techwear yetkazib berish. Sifatni tanlang, ortiqcha to\'lamang.',
+    ru: 'Auralook — премиальный техвир напрямую из Китая в Узбекистан. Выбирай качество, не переплачивай.',
+    en: 'Auralook — premium techwear sourced directly from China to Uzbekistan. Choose quality, don’t overpay.'
   },
   ourNumbers: { uz: 'BIZNING RAQAMLAR', ru: 'НАШИ ЦИФРЫ', en: 'OUR NUMBERS' },
   foundedLabel: { uz: 'ASOS SOLINGAN', ru: 'ОСНОВАНО', en: 'FOUNDED' },
@@ -153,7 +153,11 @@ const dictionary = {
   deliveryMethod: { uz: 'Yetkazib berish usuli:', ru: 'Способ доставки:', en: 'Delivery method:' },
   tashkentTaxi: { uz: 'Toshkent: Taksi orqali yetkazib beriladi', ru: 'Ташкент: Доставка курьером на такси', en: 'Tashkent: Delivered via taxi' },
   regionsPost: { uz: 'Boshqa viloyatlar: Pochta xizmati orqali yetkazib beriladi', ru: 'Другие регионы: Доставка через почтовую службу', en: 'Other regions: Delivered via postal service' },
-  whatPeopleSay: { uz: 'ODAMLAR NIMA DEYISHADI', ru: 'ЧТО ГОВОРЯТ ЛЮДИ', en: 'WHAT PEOPLE SAY' },
+  whatPeopleSay: { 
+    uz: 'Biz haqimizda mijozlarning fikri', 
+    ru: 'Что говорят наши клиенты', 
+    en: 'Customer Feedback' 
+  },
   readyToUpgrade: { uz: 'GARDEROBINGIZNI YANGILASHGA TAYYORMISIZ?', ru: 'ГОТОВЫ ОБНОВИТЬ ГАРДЕРОБ?', en: 'READY TO UPGRADE YOUR WARDROBE?' },
   findYourLook: { uz: 'O\'Z LOOKINGIZNI TOPING.', ru: 'НАЙДИТЕ СВОЙ ОБРАЗ.', en: 'FIND YOUR LOOK.' },
   startBrowsing: { uz: 'Bugun ko\'rishni boshlang va uslubingizni kashf qiling.', ru: 'Начните просмотр и откройте свой стиль сегодня.', en: 'Start browsing and discover your style today.' },

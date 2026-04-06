@@ -146,23 +146,44 @@ export default function AboutPage() {
 
         {/* TESTIMONIALS LOOP */}
         <section className="space-y-12">
-          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase text-center italic">—— {t(dictionary.whatPeopleSay)}</h2>
+          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase text-center italic">
+            —— {t(dictionary.whatPeopleSay)}
+          </h2>
           <div className="relative overflow-hidden py-10">
-            <div className="flex animate-marquee-right gap-6 whitespace-nowrap" style={{ animationDuration: '20s' }}>
-              {[...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS].map((test, i) => (
-                <Card key={i} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
-                  <Quote className="w-8 h-8 text-foreground/10" />
-                  <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
-                    "{t(test as any)}"
-                  </p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
-                    <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
-                      {test.name[0]}
+            <div className="flex animate-marquee-right w-fit gap-6" style={{ animationDuration: '20s' }}>
+              {/* Dual-buffer system for seamless loop */}
+              <div className="flex gap-6 shrink-0">
+                {TESTIMONIALS.map((test, i) => (
+                  <Card key={`set1-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
+                    <Quote className="w-8 h-8 text-foreground/10" />
+                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
+                      "{t(test as any)}"
+                    </p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
+                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
+                        {test.name[0]}
+                      </div>
+                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
                     </div>
-                    <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              <div className="flex gap-6 shrink-0">
+                {TESTIMONIALS.map((test, i) => (
+                  <Card key={`set2-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
+                    <Quote className="w-8 h-8 text-foreground/10" />
+                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
+                      "{t(test as any)}"
+                    </p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
+                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
+                        {test.name[0]}
+                      </div>
+                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </section>
