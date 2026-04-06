@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,27 @@ const TESTIMONIALS = [
 
 export default function AboutPage() {
   const { t, dictionary } = useLanguage();
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInteractionStart = () => {
+    setIsPaused(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+  };
+
+  const handleInteractionEnd = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 3000);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden pb-32">
@@ -40,7 +62,7 @@ export default function AboutPage() {
             <p className="text-[10px] font-black tracking-[0.5em] neon-text uppercase italic">
               —— {t(dictionary.est2026)}
             </p>
-            <h1 className="text-5xl sm:text-7xl lg:text-[5.5rem] font-black tracking-tight uppercase italic leading-[0.9] neon-text">
+            <h1 className="text-5xl sm:text-7xl font-black tracking-tight uppercase italic leading-[0.9] neon-text">
               {t(dictionary.lookExpensivePayLess)}
             </h1>
           </div>
@@ -149,57 +171,39 @@ export default function AboutPage() {
           <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase text-center italic">
             —— {t(dictionary.whatPeopleSay)}
           </h2>
-          <div className="relative overflow-hidden py-10">
-            <div className="flex animate-marquee-right w-fit gap-6" style={{ animationDuration: '20s' }}>
+          <div 
+            className="relative overflow-hidden py-10 cursor-grab active:cursor-grabbing"
+            onMouseEnter={handleInteractionStart}
+            onMouseLeave={handleInteractionEnd}
+            onTouchStart={handleInteractionStart}
+            onTouchEnd={handleInteractionEnd}
+          >
+            <div 
+              className="flex animate-marquee-right w-fit gap-6" 
+              style={{ 
+                animationDuration: '40s',
+                animationPlayState: isPaused ? 'paused' : 'running'
+              }}
+            >
               {/* Triple-buffer system for truly seamless loop */}
-              <div className="flex gap-6 shrink-0">
-                {TESTIMONIALS.map((test, i) => (
-                  <Card key={`set1-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
-                    <Quote className="w-8 h-8 text-foreground/10" />
-                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
-                      "{t(test as any)}"
-                    </p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
-                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
-                        {test.name[0]}
+              {[1, 2, 3].map((setIndex) => (
+                <div key={`set-${setIndex}`} className="flex gap-6 shrink-0">
+                  {TESTIMONIALS.map((test, i) => (
+                    <Card key={`card-${setIndex}-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
+                      <Quote className="w-8 h-8 text-foreground/10" />
+                      <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
+                        "{t(test as any)}"
+                      </p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
+                        <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
+                          {test.name[0]}
+                        </div>
+                        <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
                       </div>
-                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              <div className="flex gap-6 shrink-0">
-                {TESTIMONIALS.map((test, i) => (
-                  <Card key={`set2-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
-                    <Quote className="w-8 h-8 text-foreground/10" />
-                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
-                      "{t(test as any)}"
-                    </p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
-                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
-                        {test.name[0]}
-                      </div>
-                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              <div className="flex gap-6 shrink-0">
-                {TESTIMONIALS.map((test, i) => (
-                  <Card key={`set3-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
-                    <Quote className="w-8 h-8 text-foreground/10" />
-                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
-                      "{t(test as any)}"
-                    </p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
-                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
-                        {test.name[0]}
-                      </div>
-                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         </section>
