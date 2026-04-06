@@ -60,9 +60,16 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
+      // Standard expansion for all versions
       tg.expand();
-      if (typeof tg.requestFullscreen === 'function') {
-        tg.requestFullscreen();
+      
+      // Feature check for API v8.0+ requestFullscreen
+      if (tg.isVersionAtLeast?.('8.0') && typeof tg.requestFullscreen === 'function') {
+        try {
+          tg.requestFullscreen();
+        } catch (e) {
+          console.warn("Telegram Fullscreen handshake aborted:", e);
+        }
       }
     }
     
@@ -79,7 +86,7 @@ export function Navbar() {
         }
       }
     } catch (e) {
-      console.warn("Fullscreen handshake aborted:", e);
+      console.warn("Browser Fullscreen handshake aborted:", e);
     }
   };
 
