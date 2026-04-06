@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Template-based order notifications for Telegram.
- * Enhanced with support for Photo delivery (URLs and Data URIs).
+ * Enhanced with Bilateral Notification Protocol (Admin + Customer).
  */
 
 import { z } from 'genkit';
@@ -20,6 +20,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   productName: z.string(),
   phoneNumber: z.string().optional(),
   telegramUsername: z.string().optional(),
+  customerTelegramId: z.number().optional(), // Added for customer messaging
   imageUrl: z.string().optional(),
   estimatedDeliveryDate: z.string().nullable().optional(),
   language: z.enum(['uz']),
@@ -30,14 +31,13 @@ export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOr
 
 /**
  * Dispatches a notification to the Telegram Admin bot.
- * Now supports Photo delivery for outfit visuals.
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
   if (!token || !adminChatId) {
-    console.warn("[Telegram Protocol] ABORTED: Credentials missing.");
+    console.warn("[Telegram Protocol] ABORTED: Admin credentials missing.");
     return;
   }
 
@@ -71,14 +71,13 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     const isDataUri = input.imageUrl?.startsWith('data:');
 
     if (input.imageUrl) {
       if (isDataUri) {
-        // Multi-part form data for Base64/Data URI uploads
         const formData = new FormData();
         formData.append('chat_id', adminChatId);
         formData.append('parse_mode', 'HTML');
@@ -93,11 +92,9 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
 
         await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
           method: 'POST',
-          body: formData,
-          signal: AbortSignal.timeout(15000)
+          body: formData
         });
       } else {
-        // Standard JSON for external URLs
         await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -106,12 +103,10 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
             photo: input.imageUrl,
             caption: finalCaption,
             parse_mode: 'HTML'
-          }),
-          signal: AbortSignal.timeout(10000)
+          })
         });
       }
     } else {
-      // Fallback to simple text if no image provided
       await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,6 +118,36 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       });
     }
   } catch (error) {
-    console.error("[Telegram Protocol] CRITICAL FAILURE:", error);
+    console.error("[Telegram Protocol] ADMIN NOTIFY FAILURE:", error);
+  }
+}
+
+/**
+ * Dispatches a confirmation message to the CUSTOMER.
+ */
+export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !input.customerTelegramId) return;
+
+  try {
+    let message = `<b>✅ Buyurtmangiz qabul qilindi!</b>\n\n`;
+    message += `Hurmatli ${input.customerName},\n`;
+    message += `Sizning <code>${input.orderId.substring(0, 8)}</code> raqamli buyurtmangiz tahlil qilinmoqda.\n\n`;
+    message += `<b>Mahsulot:</b> ${input.productName}\n`;
+    message += `<b>Holat:</b> Kutilmoqda\n\n`;
+    message += `⚡️ Menejerimiz tez orada siz bilan bog'lanib, to'lov turlari va yetkazib berish tafsilotlarini muhokama qiladi.\n\n`;
+    message += `<i>Auralook — Kelajak uslubini tanlaganingiz uchun rahmat!</i>`;
+
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: input.customerTelegramId,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+  } catch (error) {
+    console.error("[Telegram Protocol] CUSTOMER NOTIFY FAILURE:", error);
   }
 }

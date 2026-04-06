@@ -37,7 +37,7 @@ import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
-import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
@@ -180,22 +180,27 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      await notifyAdminOfOrder({
-        customerName: orderData.telegramUsername,
+      // Bilateral Notification Protocol
+      const notificationInput = {
+        customerName: orderData.customerName,
         orderId: docRef.id,
-        currentStatus: 'New',
+        currentStatus: 'New' as const,
         productName: look.name,
         phoneNumber: orderData.phoneNumber,
         telegramUsername: orderData.telegramUsername,
+        customerTelegramId: tgUser?.telegramId, // Critical for customer bot message
         imageUrl: look.imageUrl,
-        language: 'uz',
+        language: 'uz' as const,
         timestamp: timestamp,
         physique: {
           height: orderDetails.height || undefined,
           weight: orderDetails.weight || undefined,
           size: orderData.size,
         }
-      });
+      };
+
+      await notifyAdminOfOrder(notificationInput);
+      await notifyCustomerOfOrder(notificationInput);
 
       toast({
         title: t(dictionary.orderSuccessTitle),

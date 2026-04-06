@@ -16,7 +16,7 @@ import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, R
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
-import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
 type CheckoutStep = 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -114,22 +114,27 @@ export default function CartPage() {
 
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         
-        await notifyAdminOfOrder({
-          customerName: orderData.telegramUsername,
+        // Bilateral Notification Protocol
+        const notificationInput = {
+          customerName: orderData.customerName,
           orderId: docRef.id,
-          currentStatus: 'New',
+          currentStatus: 'New' as const,
           productName: item.name,
           phoneNumber: orderData.phoneNumber,
           telegramUsername: orderData.telegramUsername,
+          customerTelegramId: tgUser?.telegramId, // Critical for customer bot message
           imageUrl: item.imageUrl,
-          language: 'uz',
+          language: 'uz' as const,
           timestamp: timestamp,
           physique: {
             height: orderDetails.height || undefined,
             weight: orderDetails.weight || undefined,
             size: orderData.size,
           }
-        });
+        };
+
+        await notifyAdminOfOrder(notificationInput);
+        await notifyCustomerOfOrder(notificationInput);
 
         // Clear item from cart
         await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', item.id));

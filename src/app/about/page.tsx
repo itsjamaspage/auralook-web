@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Globe, Zap, ArrowRight, Quote } from 'lucide-react';
+import { ShieldCheck, Globe, Zap, ArrowRight, Quote, Bot, MessageSquare, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 const TESTIMONIALS = [
@@ -69,6 +69,35 @@ export default function AboutPage() {
           <p className="text-lg sm:text-xl text-foreground/70 font-medium leading-relaxed max-w-2xl italic">
             {t(dictionary.aboutDesc)}
           </p>
+        </section>
+
+        {/* BOT & SECURITY SECTION */}
+        <section className="space-y-12">
+          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase italic">—— BOT PROTOCOLS</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] space-y-6 bg-black/40">
+              <div className="w-12 h-12 rounded-xl bg-foreground/5 flex items-center justify-center neon-border">
+                <Bot className="w-6 h-6 neon-text" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-xl font-black uppercase italic text-foreground">AVTOMATLASHTIRILGAN TIZIM</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed font-medium">
+                  Bizning Telegram botimiz orqali har bir buyurtma holatini real-vaqtda kuzatib borishingiz mumkin. /start buyrug'i orqali do'konimizning barcha imkoniyatlariga ega bo'lasiz.
+                </p>
+              </div>
+            </Card>
+            <Card className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] space-y-6 bg-black/40">
+              <div className="w-12 h-12 rounded-xl bg-foreground/5 flex items-center justify-center neon-border">
+                <MessageSquare className="w-6 h-6 neon-text" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-xl font-black uppercase italic text-foreground">MIJOZLARNI QO'LLAB QUVVATLASH</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed font-medium">
+                  Har bir buyurtmadan so'ng botimiz sizga tasdiqnoma yuboradi va menejerimiz 30 daqiqa ichida siz bilan bog'lanib, barcha savollaringizga javob beradi.
+                </p>
+              </div>
+            </Card>
+          </div>
         </section>
 
         {/* NUMBERS SECTION */}
@@ -185,7 +214,6 @@ export default function AboutPage() {
                 animationPlayState: isPaused ? 'paused' : 'running'
               }}
             >
-              {/* Triple-buffer system for truly seamless loop */}
               {[1, 2, 3].map((setIndex) => (
                 <div key={`set-${setIndex}`} className="flex gap-6 shrink-0">
                   {TESTIMONIALS.map((test, i) => (
