@@ -35,12 +35,12 @@ export default function AboutPage() {
       <div className="container mx-auto px-6 pt-16 space-y-24 relative z-10">
         
         {/* HERO SECTION */}
-        <section className="space-y-8 max-w-4xl">
+        <section className="space-y-8 max-w-full">
           <div className="space-y-2">
             <p className="text-[10px] font-black tracking-[0.5em] neon-text uppercase italic">
               —— {t(dictionary.est2026)}
             </p>
-            <h1 className="text-6xl sm:text-8xl font-black tracking-tighter uppercase italic leading-none neon-text">
+            <h1 className="text-5xl sm:text-7xl lg:text-[5.5rem] font-black tracking-tight uppercase italic leading-[0.9] neon-text">
               {t(dictionary.lookExpensivePayLess)}
             </h1>
           </div>
@@ -151,7 +151,7 @@ export default function AboutPage() {
           </h2>
           <div className="relative overflow-hidden py-10">
             <div className="flex animate-marquee-right w-fit gap-6" style={{ animationDuration: '20s' }}>
-              {/* Dual-buffer system for seamless loop */}
+              {/* Triple-buffer system for truly seamless loop */}
               <div className="flex gap-6 shrink-0">
                 {TESTIMONIALS.map((test, i) => (
                   <Card key={`set1-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
@@ -171,6 +171,22 @@ export default function AboutPage() {
               <div className="flex gap-6 shrink-0">
                 {TESTIMONIALS.map((test, i) => (
                   <Card key={`set2-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
+                    <Quote className="w-8 h-8 text-foreground/10" />
+                    <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
+                      "{t(test as any)}"
+                    </p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-foreground/5">
+                      <div className="w-8 h-8 rounded-full neon-bg flex items-center justify-center text-black font-black text-[10px]">
+                        {test.name[0]}
+                      </div>
+                      <span className="text-xs font-black uppercase italic text-foreground tracking-widest">{test.name}</span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              <div className="flex gap-6 shrink-0">
+                {TESTIMONIALS.map((test, i) => (
+                  <Card key={`set3-${i}`} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
                     <Quote className="w-8 h-8 text-foreground/10" />
                     <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
                       "{t(test as any)}"
