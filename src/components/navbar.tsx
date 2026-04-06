@@ -102,7 +102,7 @@ export function Navbar() {
         
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            Yangi Avlod
+            Auralook
           </span>
         </Link>
 
