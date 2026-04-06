@@ -113,6 +113,47 @@ const dictionary = {
   newTag: { uz: 'YANGI', ru: 'НОВОЕ', en: 'NEW' },
   lookNumber: { uz: 'LIBOS', ru: 'ОБРАЗ', en: 'LOOK' },
 
+  // About Us Page
+  aboutUs: { uz: 'BIZ HAQIMIZDA', ru: 'О НАС', en: 'ABOUT US' },
+  est2026: { uz: 'ASOS SOLINGAN 2026 — TOSHKENT, UZ', ru: 'ОСНОВАНО В 2026 — ТАШКЕНТ, УЗ', en: 'EST. 2026 — TASHKENT, UZ' },
+  weDressTheBold: { uz: 'BIZ JUR\'ATLI KIYINTIRAMIZ.', ru: 'МЫ ОДЕВАЕМ СМЕЛЫХ.', en: 'WE DRESS THE BOLD.' },
+  aboutDesc: { 
+    uz: 'Auralook 2026-yilda bir oddiy ishonch bilan tashkil etilgan: ajoyib uslub boylik talab qilmasligi kerak. Biz yuqori sifatli kiyimlarni to\'g\'ridan-to\'g\'ri Xitoy ishlab chiqaruvchilaridan olamiz, vositachilarni chetlab o\'tamiz, shunda siz O\'zbekistonda to\'g\'ridan-to\'g\'ri uyingizga yetkazib beriladigan hamyonbop narxlarda premium ko\'rinishga ega bo\'lasiz.',
+    ru: 'Auralook была основана в 2026 году с одной простой верой: отличный стиль не должен стоить целого состояния. Мы закупаем качественную одежду напрямую у производителей в Китае, исключая посредников, чтобы вы получали образы премиум-класса по честным ценам с доставкой прямо к вашей двери в Узбекистане.',
+    en: 'Auralook was founded in 2026 with one simple belief: great style shouldn’t cost a fortune. We source high-quality clothing directly from manufacturers in China, cutting out the middlemen so you get premium looks at honest prices — delivered straight to your door in Uzbekistan.'
+  },
+  ourNumbers: { uz: 'BIZNING RAQAMLAR', ru: 'НАШИ ЦИФРЫ', en: 'OUR NUMBERS' },
+  foundedLabel: { uz: 'ASOS SOLINGAN', ru: 'ОСНОВАНО', en: 'FOUNDED' },
+  ordersPlaced: { uz: 'BUYURTMALAR', ru: 'ЗАКАЗОВ', en: 'ORDERS PLACED' },
+  qualityChecked: { uz: 'SIFAT NAZORATI', ru: 'КОНТРОЛЬ КАЧЕСТВА', en: 'QUALITY CHECKED' },
+  whatWeStandFor: { uz: 'BIZNING QADRIYATLAR', ru: 'НАШИ ЦЕННОСТИ', en: 'WHAT WE STAND FOR' },
+  qualityTitle: { uz: 'SIFAT', ru: 'КАЧЕСТВО', en: 'QUALITY' },
+  qualityDesc: { uz: 'Har bir buyurtma sizga yetib borishidan oldin diqqat bilan tekshiriladi. Noqulayliklarsiz — faqat ishonchli kiyim.', ru: 'Каждый товар тщательно проверяется перед тем, как попасть к вам. Без сюрпризов — только качественная, надежная одежда.', en: 'Every item is carefully checked before it reaches you. No surprises — just solid, reliable clothing.' },
+  honestPriceTitle: { uz: 'HALOL NARX', ru: 'ЧЕСТНАЯ ЦЕНА', en: 'HONEST PRICE' },
+  honestPriceDesc: { uz: 'Xitoydagi yetkazib beruvchilar bilan to\'g\'ridan-to\'g\'ri ishlash orqali biz sifatni yo\'qotmasdan narxlarni adolatli saqlaymiz.', ru: 'Работая напрямую с поставщиками в Китае, мы сохраняем честные и доступные цены без ущерба для качества.', en: 'By working directly with suppliers in China, we keep prices fair and accessible without sacrificing quality.' },
+  fastOrderTitle: { uz: 'TEZKOR BUYURTMA', ru: 'БЫСТРЫЙ ЗАКАЗ', en: 'FAST ORDER' },
+  fastOrderDesc: { uz: 'Buyurtma berish oddiy va tez. Hamma narsa onlayn tarzda, silliq muloqot va yangilanishlar bilan amalga oshiriladi.', ru: 'Заказать легко и быстро. Все обрабатывается онлайн с оперативной связью и обновлениями.', en: 'Ordering is simple and quick. Everything is handled online with smooth communication and updates.' },
+  howItWorks: { uz: 'BU QANDAY ISHLAYDI', ru: 'КАК ЭТО РАБОТАЕТ', en: 'HOW IT WORKS' },
+  step01Title: { uz: 'LIBOSLARNI KO\'ZDAN KECHIRING', ru: 'ПРОСМОТРИТЕ ОБРАЗЫ', en: 'BROWSE THE LOOKS' },
+  step01Desc: { uz: 'Bizning saralangan kolleksiyamizni o\'rganing va uslubingizni tanlang.', ru: 'Изучите нашу коллекцию и выберите свой стиль.', en: 'Explore our curated collection and choose your style.' },
+  step02Title: { uz: 'BUYURTMANI JOYLASHTIRING', ru: 'ОФОРМИТЕ ЗАКАЗ', en: 'PLACE YOUR ORDER' },
+  step02Desc: { uz: 'O\'lchamingizni tanlang va buyurtmani bir necha daqiqada tasdiqlang.', ru: 'Выберите размер и подтвердите заказ за считанные минуты.', en: 'Select your size and confirm your order in minutes.' },
+  step03Title: { uz: 'BIZ QOLGANINI HAL QILAMIZ', ru: 'МЫ СДЕЛАЕМ ОСТАЛЬНОЕ', en: 'WE HANDLE THE REST' },
+  step03Desc: { uz: 'Biz buyurtmani olamiz, sifatini tekshiramiz va to\'g\'ridan-to\'g\'ri sizga yetkazib beramiz.', ru: 'Мы закупаем, проверяем качество и доставляем товар прямо вам.', en: 'We source, quality-check, and deliver your item directly to you.' },
+  deliveryPayment: { uz: 'YETKAZIB BERISH VA TO\'LOV', ru: 'ДОСТАВКА И ОПЛАТА', en: 'DELIVERY & PAYMENT' },
+  chinaDirect: { uz: 'Mahsulotlarni to\'g\'ridan-to\'g\'ri Xitoydan buyurtma qilamiz', ru: 'Заказываем товары напрямую из Китая', en: 'We order products directly from China' },
+  deliveryTimeVal: { uz: 'Yetkazib berish muddati: 7–12 kun', ru: 'Срок доставки: 7–12 дней', en: 'Delivery time: 7–12 days' },
+  prepaymentVal: { uz: 'Buyurtmani tasdiqlash uchun 30% oldindan to\'lov talab qilinadi', ru: 'Для подтверждения заказа требуется предоплата 30%', en: '30% prepayment is required to confirm your order' },
+  remainingPaymentVal: { uz: 'Qolgan to\'lov mahsulot yetib kelganda amalga oshiriladi', ru: 'Оставшаяся часть оплаты производится при получении', en: 'Remaining payment is made when the product arrives' },
+  cargoPaymentVal: { uz: 'Mijozlar kargo/yetkazib berish uchun to\'lov qiladilar', ru: 'Клиенты оплачивают карго/доставку', en: 'Customers pay for cargo/shipping' },
+  deliveryMethod: { uz: 'Yetkazib berish usuli:', ru: 'Способ доставки:', en: 'Delivery method:' },
+  tashkentTaxi: { uz: 'Toshkent: Taksi orqali yetkazib beriladi', ru: 'Ташкент: Доставка курьером на такси', en: 'Tashkent: Delivered via taxi' },
+  regionsPost: { uz: 'Boshqa viloyatlar: Pochta xizmati orqali yetkazib beriladi', ru: 'Другие регионы: Доставка через почтовую службу', en: 'Other regions: Delivered via postal service' },
+  whatPeopleSay: { uz: 'ODAMLAR NIMA DEYISHADI', ru: 'ЧТО ГОВОРЯТ ЛЮДИ', en: 'WHAT PEOPLE SAY' },
+  readyToUpgrade: { uz: 'GARDEROBINGIZNI YANGILASHGA TAYYORMISIZ?', ru: 'ГОТОВЫ ОБНОВИТЬ ГАРДЕРОБ?', en: 'READY TO UPGRADE YOUR WARDROBE?' },
+  findYourLook: { uz: 'O\'Z LOOKINGIZNI TOPING.', ru: 'НАЙДИТЕ СВОЙ ОБРАЗ.', en: 'FIND YOUR LOOK.' },
+  startBrowsing: { uz: 'Bugun ko\'rishni boshlang va uslubingizni kashf qiling.', ru: 'Начните просмотр и откройте свой стиль сегодня.', en: 'Start browsing and discover your style today.' },
+
   // Auth Pages
   welcomeBack: { 
     uz: 'Xush kelibsiz',
@@ -449,9 +490,9 @@ const dictionary = {
 
   // Footer
   allRightsReserved: { 
-    uz: '© 2026 Yangi Avlod. Barcha huquqlar himoyalangan.',
-    ru: '© 2026 Yangi Avlod. Все права защищены.',
-    en: '© 2026 Yangi Avlod. All rights reserved.'
+    uz: '© 2026 Auralook. Barcha huquqlar himoyalangan.',
+    ru: '© 2026 Auralook. Все права защищены.',
+    en: '© 2026 Auralook. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
 };

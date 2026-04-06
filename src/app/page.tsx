@@ -62,8 +62,8 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all">
-              <Link href="/looks">
-                {t(dictionary.exploreLooks)}
+              <Link href="/about">
+                {t(dictionary.about)}
               </Link>
             </Button>
           </div>
@@ -183,7 +183,7 @@ export default function Home() {
             </div>
 
             <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group">
-              <Link href="/looks">
+              <Link href="https://t.me/itsjamaspage" target="_blank">
                 {t(dictionary.openApp)}
                 <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
               </Link>
@@ -200,9 +200,9 @@ export default function Home() {
       <footer className="container mx-auto px-6 py-12 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-8">
         <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
         <div className="flex gap-4">
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button>
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.delivery)}</Button>
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button>
+          <Link href="/about"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button></Link>
+          <Link href="/about"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.delivery)}</Button></Link>
+          <Link href="/profile"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button></Link>
         </div>
       </footer>
     </div>
