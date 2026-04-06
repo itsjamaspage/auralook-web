@@ -27,6 +27,7 @@ import {
   Trash2,
   AlertTriangle
 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -80,15 +81,7 @@ export default function ProfilePage() {
     if (!newEditorUsername || !user) return;
     setIsAddingEditor(true);
     try {
-      // Step 1: User provides @username
-      // Step 2: In a real bot scenario, we'd resolve ID via API. 
-      // For this MVP, we'll store the username and allow them to register.
-      // But per instructions, I will simulate the ID lookup if they use the bot.
-      
-      // MOCK LOGIC: In a real app, this calls an API route.
-      // We will assume the user has already opened the bot.
-      // For now, I'll store it by username as a placeholder ID or use an API route if I had it.
-      
+      // Logic for resolving username to ID would happen here via server action or API
       toast({ title: "Resolution Pending", description: "Username resolution requires bot interaction." });
     } finally {
       setIsAddingEditor(false);
