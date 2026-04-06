@@ -42,9 +42,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="relative container mx-auto px-6 pt-16 pb-24 text-center">
         <div className="flex flex-col items-center space-y-8 max-w-5xl mx-auto">
-          <p className="text-[10px] font-black tracking-[0.5em] text-foreground/40 uppercase animate-in fade-in slide-in-from-top-4 duration-700">
-            —— {t(dictionary.heroTitle)} — SS/2025
-          </p>
+          {/* Technical Header Removed per request */}
           
           <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] neon-text">
             {t(dictionary.heroTitle)}
