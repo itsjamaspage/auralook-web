@@ -201,8 +201,7 @@ export default function Home() {
         <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
         <div className="flex gap-4">
           <Link href="/about"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button></Link>
-          <Link href="/about"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.delivery)}</Button></Link>
-          <Link href="/profile"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button></Link>
+          <Link href="https://t.me/itsjamaspage" target="_blank"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button></Link>
         </div>
       </footer>
     </div>

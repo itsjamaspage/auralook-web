@@ -27,7 +27,7 @@ export function Footer({ className }: { className?: string }) {
           <Link href="/about">
             <span className="hover:neon-text cursor-pointer transition-colors font-bold uppercase tracking-widest text-[10px]">{t(dictionary.about)}</span>
           </Link>
-          <Link href="/profile">
+          <Link href="https://t.me/itsjamaspage" target="_blank">
             <span className="hover:neon-text cursor-pointer transition-colors font-bold uppercase tracking-widest text-[10px]">{t(dictionary.contact)}</span>
           </Link>
         </div>
