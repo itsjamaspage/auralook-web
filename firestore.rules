@@ -3,49 +3,57 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v8.0.0 UID-Aligned RBAC)
+    // Assumed Data Model (v12.0.0 RBAC Protocol)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function getRole() {
-      // Role is stored in the users document by the Telegram bridge
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
-    function isAdmin() {
+    // SUPREME ADMIN BYPASS: @itsjamaspage (Owner)
+    function isOwner() {
+      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
       return isAuthenticated() && (
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getRole() == 'admin') ||
+        userDoc.username == 'itsjamaspage' || 
         request.auth.uid == 'demo_admin_session'
       );
+    }
+
+    // Role check from the roles collection
+    function getRole() {
+      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role;
     }
 
     function isEditor() {
-      return isAuthenticated() && (
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (getRole() == 'admin' || getRole() == 'editor')) ||
-        request.auth.uid == 'demo_admin_session'
+      return isOwner() || (
+        isAuthenticated() && 
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) && 
+        (getRole() == 'editor' || getRole() == 'admin')
       );
     }
 
-    // CATALOG
+    // ROLES MANAGEMENT (Owner Only)
+    match /roles/{uid} {
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isOwner());
+      allow write: if isOwner();
+    }
+
+    // CATALOG (Editors & Owner)
     match /looks/{lookId} {
       allow read: if true;
       allow create, update, delete: if isEditor();
     }
 
-    // USERS (UID Aligned: userId == request.auth.uid)
+    // USERS (Privacy Gated)
     match /users/{userId} {
-      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
       
-      // SUBCOLLECTIONS (Directly aligned with parent userId)
       match /liked_looks/{lookId} {
-        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
       }
 
       match /cart/{lookId} {
-        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
       }
     }
 
@@ -54,7 +62,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || isEditor());
       allow create: if isAuthenticated();
       allow update: if isEditor();
-      allow delete: if isAdmin();
+      allow delete: if isOwner();
     }
 
     // CONSULTATIONS

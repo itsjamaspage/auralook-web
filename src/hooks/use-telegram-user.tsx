@@ -3,10 +3,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useFirestore, useAuth } from '@/firebase';
-import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 
-export type UserRole = 'admin' | 'editor' | 'viewer';
+export type UserRole = 'owner' | 'editor' | 'viewer';
 
 export interface UserProfile {
   id: string;
@@ -33,7 +33,7 @@ const TelegramUserContext = createContext<TelegramUserContextType | undefined>(u
 const CACHE_KEY = 'auralook_protocol_v12.0.0';
 
 // SUPREME ADMIN CONFIGURATION
-const SUPREME_ADMIN_USERNAME = 'itsjamaspage';
+const OWNER_USERNAME = 'itsjamaspage';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -45,17 +45,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   useEffect(() => {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        setUser(parsed);
-        setIsVerified(true);
-      } catch {
-        localStorage.removeItem(CACHE_KEY);
-      }
-    }
-
     const initBridge = async () => {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
@@ -80,49 +69,47 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const cleanUsername = rawUser.username?.toLowerCase() || null;
       
       try {
-        // 1. Anonymous Session Initiation
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 2. Role Determination (Supreme Admin Bypass + Firestore)
-        let assignedRole: UserRole = 'viewer';
-        
-        if (cleanUsername === SUPREME_ADMIN_USERNAME.toLowerCase()) {
-          assignedRole = 'admin';
-        } else {
-          const roleRef = doc(db, 'roles', firebaseUid);
-          const roleSnap = await getDoc(roleRef);
-          assignedRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
-        }
+        // ROLE SYNC: Real-time listener for permissions
+        const roleRef = doc(db, 'roles', firebaseUid);
+        const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
+          let assignedRole: UserRole = 'viewer';
+          
+          if (cleanUsername === OWNER_USERNAME.toLowerCase()) {
+            assignedRole = 'owner';
+          } else if (snap.exists()) {
+            assignedRole = snap.data().role as UserRole;
+          }
 
-        // 3. Persistence Sequence (CRITICAL: UID Alignment)
-        const userRef = doc(db, 'users', firebaseUid);
-        const profileData: UserProfile = {
-          id: firebaseUid,
-          telegramId: rawUser.id,
-          firstName: rawUser.first_name,
-          username: cleanUsername,
-          photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
-          firebaseUid,
-          role: assignedRole,
-          lastSeen: serverTimestamp(),
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          phone: null
-        };
+          const userRef = doc(db, 'users', firebaseUid);
+          const profileData: UserProfile = {
+            id: firebaseUid,
+            telegramId: rawUser.id,
+            firstName: rawUser.first_name,
+            username: cleanUsername,
+            photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
+            firebaseUid,
+            role: assignedRole,
+            lastSeen: serverTimestamp(),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            phone: null
+          };
 
-        await setDoc(userRef, profileData, { merge: true });
+          await setDoc(userRef, profileData, { merge: true });
+          setUser(profileData);
+          setIsVerified(true);
+          setIsLoading(false);
+        });
 
-        // 4. Final Exposure
-        setUser(profileData);
-        setIsVerified(true);
-        localStorage.setItem(CACHE_KEY, JSON.stringify(profileData));
         tg.ready();
         tg.expand();
+        return () => unsubscribeRole();
       } catch (err) {
         console.error('Identity Bridge Critical Error:', err);
         setError(String(err));
-      } finally {
         setIsLoading(false);
       }
     };
@@ -140,7 +127,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       phone: '+998 90 000 00 00',
       photoUrl: 'https://ui-avatars.com/api/?name=Admin+Voyager&background=00FF88&color=000&bold=true',
       firebaseUid: demoUid,
-      role: 'admin', // Demo mode always admin for developer access
+      role: 'owner',
       lastSeen: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
