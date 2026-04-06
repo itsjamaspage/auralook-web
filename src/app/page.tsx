@@ -1,15 +1,13 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Plane, ArrowUpRight, Zap, Award, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Plane, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
-import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { t, dictionary, lang } = useLanguage();
@@ -48,9 +46,9 @@ export default function Home() {
           </p>
           
           <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-            WEAR <br />
-            <span className="neon-text">TOMORROW</span> <br />
-            TODAY.
+            {t(dictionary.wear)} <br />
+            <span className="neon-text">{t(dictionary.tomorrow)}</span> <br />
+            {t(dictionary.today)}.
           </h1>
 
           <p className="text-xs sm:text-sm lg:text-base font-bold text-foreground/60 tracking-[0.3em] uppercase max-w-lg leading-relaxed">
@@ -73,15 +71,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATUS BAR */}
-      <div className="border-y border-foreground/5 bg-foreground/[0.02] py-6 mb-24">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-4 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.newArrivals)}</span>
-            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.limitedEdition)}</span>
-            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.freeDelivery)}</span>
-            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.orderViaTelegram)}</span>
-          </div>
+      {/* STATUS BAR (ANIMATED MARQUEE) */}
+      <div className="border-y border-foreground/5 bg-foreground/[0.02] py-6 mb-24 overflow-hidden relative">
+        <div className="flex animate-marquee-right whitespace-nowrap">
+          {[1, 2].map((i) => (
+            <div key={i} className="flex shrink-0 items-center gap-12 px-6">
+              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.newArrivals)}
+              </span>
+              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.limitedEdition)}
+              </span>
+              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.freeDelivery)}
+              </span>
+              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.orderViaTelegram)}
+              </span>
+              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.goodQuality)}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -117,7 +128,7 @@ export default function Home() {
                   
                   {/* Status Tag */}
                   <div className="absolute top-6 left-6 px-3 py-1 bg-primary text-black text-[8px] font-black uppercase tracking-widest rounded-sm">
-                    {index === 0 ? 'HOT' : 'NEW'}
+                    {index === 0 ? t(dictionary.hotTag) : t(dictionary.newTag)}
                   </div>
 
                   {/* Index Watermark */}
@@ -129,7 +140,7 @@ export default function Home() {
 
                   {/* Info Overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                    <p className="text-[8px] font-black text-foreground/40 uppercase tracking-[0.3em] mb-1">LOOK / 00{index + 1}</p>
+                    <p className="text-[8px] font-black text-foreground/40 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>
                     <h3 className="text-lg font-black text-foreground uppercase italic mb-1 truncate">{look.name}</h3>
                     <p className="neon-text font-black tracking-tighter">
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
@@ -149,11 +160,11 @@ export default function Home() {
           <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-primary/20 m-8" />
           
           <div className="relative z-10 max-w-2xl">
-            <p className="text-[9px] font-black text-primary/60 uppercase tracking-[0.4em] mb-6">—— THE AURALOOK PROMISE</p>
+            <p className="text-[9px] font-black text-primary/60 uppercase tracking-[0.4em] mb-6">—— {t(dictionary.auralookPromise)}</p>
             <h2 className="text-3xl sm:text-5xl font-black uppercase italic leading-tight tracking-tighter mb-10">
-              YOUR STYLE. <br />
-              <span className="neon-text">CURATED.</span> NOT <br />
-              COMPROMISED.
+              {t(dictionary.promiseTitle1)} <br />
+              <span className="neon-text">{t(dictionary.promiseTitle2)}</span> <br />
+              {t(dictionary.promiseTitle3)}
             </h2>
             <Button asChild className="h-14 px-10 rounded-xl bg-transparent border border-foreground/10 text-foreground font-black uppercase text-[10px] tracking-[0.2em] hover:neon-bg hover:text-black hover:border-none transition-all">
               <Link href="/looks">
@@ -190,9 +201,9 @@ export default function Home() {
       <footer className="container mx-auto px-6 py-12 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-8">
         <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
         <div className="flex gap-4">
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">ABOUT</Button>
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">DELIVERY</Button>
-          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">CONTACT</Button>
+          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button>
+          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.delivery)}</Button>
+          <Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button>
         </div>
       </footer>
     </div>

@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -94,6 +93,9 @@ const dictionary = {
     ru: 'НОСИ ЗАВТРАШНЕЕ СЕГОДНЯ.',
     en: 'WEAR TOMORROW TODAY.'
   },
+  wear: { uz: 'KIYING', ru: 'НОСИТЕ', en: 'WEAR' },
+  tomorrow: { uz: 'ERTANGI KUNNI', ru: 'ЗАВТРАШНЕЕ', en: 'TOMORROW' },
+  today: { uz: 'BUGUN', ru: 'СЕГОДНЯ', en: 'TODAY' },
   landingHeroSub: { 
     uz: 'SARALANGAN LIBOSLAR. DARHOL YETKAZIB BERISH.',
     ru: 'КУРИРОВАННЫЕ ОБРАЗЫ. МГНОВЕННАЯ ДОСТАВКА.',
@@ -107,11 +109,18 @@ const dictionary = {
   limitedEdition: { uz: 'CHEKLANGAN TO\'PLAM', ru: 'ЛИМИТИРОВАННАЯ СЕРИЯ', en: 'LIMITED EDITION' },
   freeDelivery: { uz: 'BEPUL YETKAZIB BERISH', ru: 'БЕСПЛАТНАЯ ДОСТАВКА', en: 'FREE DELIVERY' },
   orderViaTelegram: { uz: 'TELEGRAM ORQALI BUYURTMA', ru: 'ЗАКАЗ ЧЕРЕЗ TELEGRAM', en: 'ORDER VIA TELEGRAM' },
-  promiseTitle: { uz: 'SIZNING USLUBINGIZ. SARALANGAN. MUROSASIZ.', ru: 'ВАШ СТИЛЬ. КУРИРОВАННЫЙ. БЕЗ КОМПРОМИССОВ.', en: 'YOUR STYLE. CURATED. NOT COMPROMISED.' },
+  goodQuality: { uz: 'YUQORI SIFAT', ru: 'ВЫСОКОЕ КАЧЕСТВО', en: 'GOOD QUALITY' },
+  auralookPromise: { uz: 'AURALOOK VA\'DASI', ru: 'ОБЕЩАНИЕ AURALOOK', en: 'THE AURALOOK PROMISE' },
+  promiseTitle1: { uz: 'SIZNING USLUBINGIZ.', ru: 'ВАШ СТИЛЬ.', en: 'YOUR STYLE.' },
+  promiseTitle2: { uz: 'SARALANGAN.', ru: 'ОТОБРАННЫЙ.', en: 'CURATED.' },
+  promiseTitle3: { uz: 'MUROSASIZ.', ru: 'БЕЗ КОМПРОМИССОВ.', en: 'NOT COMPROMISED.' },
   claimYourLook: { uz: 'LIBOSINGIZNI OLING', ru: 'ЗАБЕРИТЕ СВОЙ ОБРАЗ', en: 'CLAIM YOUR LOOK' },
   liveOnTelegram: { uz: 'TELEGRAMDA FAOL', ru: 'В TELEGRAM', en: 'LIVE ON TELEGRAM' },
   openApp: { uz: 'ILOVAGA KIRISH', ru: 'ОТКРЫТЬ ПРИЛОЖЕНИЕ', en: 'OPEN APP' },
   browseOrderTelegram: { uz: 'Telegram orqali to\'g\'ridan-to\'g\'ri buyurtma bering', ru: 'Заказывайте напрямую через Telegram', en: 'Browse & order directly from the app' },
+  hotTag: { uz: 'QAYNOQ', ru: 'ГОРЯЧО', en: 'HOT' },
+  newTag: { uz: 'YANGI', ru: 'НОВОЕ', en: 'NEW' },
+  lookNumber: { uz: 'LIBOS', ru: 'ОБРАЗ', en: 'LOOK' },
 
   // Auth Pages
   welcomeBack: { 
@@ -429,6 +438,8 @@ const dictionary = {
   
   // New Localizations for Checkout & Actions
   countryLabel: { uz: 'Mamlakat', ru: 'Страна', en: 'Country' },
+  about: { uz: 'BIZ HAQIMIZDA', ru: 'О НАС', en: 'ABOUT' },
+  delivery: { uz: 'YETKAZIB BERISH', ru: 'ДОСТАВКА', en: 'DELIVERY' },
   selectPlaceholder: { uz: 'Tanlang', ru: 'Выберите', en: 'Select' },
   missingInformation: { uz: "Ma'lumotlar yetarli emas", ru: 'Недостаточно информации', en: 'Missing information' },
   phoneAndTelegramRequired: { uz: "Telefon raqami (to'liq) va Telegram username majburiy.", ru: 'Номер телефона (полный) и имя пользователя Telegram обязательны.', en: 'Phone number (full) and Telegram username are required.' },
@@ -451,7 +462,7 @@ const dictionary = {
     ru: '© 2026 Auralook.uz. Все права защищены.',
     en: '© 2026 Auralook.uz. All rights reserved.'
   },
-  contact: { uz: 'Bog\'lanish', ru: 'Контакт', en: 'Contact' },
+  contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
 };
 
 interface LanguageContextType {
