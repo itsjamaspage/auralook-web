@@ -119,7 +119,6 @@ export default function LooksPage() {
       return;
     }
 
-    const isAdding = !likedLookIds.has(lookId);
     setAnimatingLikeId(lookId);
     setTimeout(() => setAnimatingLikeId(null), 800);
 
@@ -144,25 +143,25 @@ export default function LooksPage() {
 
     const isInCart = cartLookIds.has(look.id);
     
-    if (isInCart) {
-      // If already in cart, navigate to cart or show removal?
-      // Requirement: Highlight cart icon. If they press it again, we just do another add (idempotent)
-      // or we can remove it. Let's keep it simple: Add/Update.
-    }
-
     setAnimatingCartId(look.id);
     setTimeout(() => setAnimatingCartId(null), 800);
 
+    const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
     try {
-      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
-      await setDoc(cartItemRef, {
-        lookId: look.id,
-        name: look.name,
-        imageUrl: look.imageUrl,
-        price: look.price,
-        currency: look.currency || 'USD',
-        addedAt: new Date().toISOString()
-      }, { merge: true });
+      if (isInCart) {
+        // Toggle logic: If already in cart, remove it
+        await deleteDoc(cartItemRef);
+      } else {
+        // Toggle logic: If not in cart, add it
+        await setDoc(cartItemRef, {
+          lookId: look.id,
+          name: look.name,
+          imageUrl: look.imageUrl,
+          price: look.price,
+          currency: look.currency || 'USD',
+          addedAt: new Date().toISOString()
+        }, { merge: true });
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -385,7 +384,7 @@ export default function LooksPage() {
                             >
                               <ShoppingCart className={cn("w-5 h-5", isInCart ? "neon-text" : "text-foreground")} />
                             </button>
-                            {isAnimatingCart && (
+                            {isAnimatingCart && !cartLookIds.has(look.id) && (
                               <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
                                 +1
                               </span>
