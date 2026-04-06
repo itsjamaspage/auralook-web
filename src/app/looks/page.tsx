@@ -63,6 +63,14 @@ export default function LooksPage() {
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
+  // CART SYNCHRONIZATION PROTOCOL
+  const cartItemsQuery = useMemoFirebase(() => {
+    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
+    return collection(db, 'users', firebaseUser.uid, 'cart');
+  }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
+  const { data: cartItemsData } = useCollection(cartItemsQuery ?? undefined);
+  const cartLookIds = useMemo(() => new Set(cartItemsData?.map(item => item.lookId) || []), [cartItemsData]);
+
   const filteredAndSortedLooks = useMemo(() => {
     if (!looks) return [];
 
@@ -132,6 +140,14 @@ export default function LooksPage() {
     if (!isVerified || !tgUser || !firebaseUser) {
       toast({ title: t(dictionary.syncing), variant: "destructive" });
       return;
+    }
+
+    const isInCart = cartLookIds.has(look.id);
+    
+    if (isInCart) {
+      // If already in cart, navigate to cart or show removal?
+      // Requirement: Highlight cart icon. If they press it again, we just do another add (idempotent)
+      // or we can remove it. Let's keep it simple: Add/Update.
     }
 
     setAnimatingCartId(look.id);
@@ -309,6 +325,7 @@ export default function LooksPage() {
         <div className={cn("pb-48 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
           {filteredAndSortedLooks.map((look) => {
             const isLiked = likedLookIds.has(look.id);
+            const isInCart = cartLookIds.has(look.id);
             const isSelected = selectedLookIds.has(look.id);
             const lookNameDisplay = typeof look.name === 'string' ? look.name : 'Unnamed Look';
             const isAnimatingCart = animatingCartId === look.id;
@@ -361,11 +378,12 @@ export default function LooksPage() {
                             <button 
                               onClick={(e) => handleToggleCart(e, look)}
                               className={cn(
-                                "w-10 h-10 rounded-full glass-surface border border-foreground/10 text-foreground hover:neon-text hover:neon-border flex items-center justify-center transition-all",
+                                "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
+                                isInCart ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
                                 isAnimatingCart && "animate-pop"
                               )}
                             >
-                              <ShoppingCart className="w-5 h-5" />
+                              <ShoppingCart className={cn("w-5 h-5", isInCart ? "neon-text" : "text-foreground")} />
                             </button>
                             {isAnimatingCart && (
                               <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">

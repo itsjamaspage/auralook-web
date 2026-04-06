@@ -43,6 +43,13 @@ export function Navbar() {
       if (savedTheme === 'dark') document.documentElement.classList.add('dark');
       else document.documentElement.classList.remove('dark');
     }
+
+    // Sync fullscreen state with document listener
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
   const toggleTheme = () => {
@@ -59,16 +66,33 @@ export function Navbar() {
 
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
-    if (tg) {
-      // Standard expansion for all versions
-      tg.expand();
+    
+    // CASE 1: Currently Fullscreen -> Request Exit
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
       
-      // Feature check for API v8.0+ requestFullscreen
+      // Modern TG Exit Protocol
+      if (tg?.isVersionAtLeast?.('8.0') && typeof tg.exitFullscreen === 'function') {
+        try {
+          tg.exitFullscreen();
+        } catch (e) {
+          console.warn("TG ExitFullscreen handshake aborted:", e);
+        }
+      }
+      setIsFullscreen(false);
+      return;
+    }
+
+    // CASE 2: Not Fullscreen -> Request Entry
+    if (tg) {
+      tg.expand();
       if (tg.isVersionAtLeast?.('8.0') && typeof tg.requestFullscreen === 'function') {
         try {
           tg.requestFullscreen();
         } catch (e) {
-          console.warn("Telegram Fullscreen handshake aborted:", e);
+          console.warn("TG RequestFullscreen handshake aborted:", e);
         }
       }
     }
@@ -78,15 +102,9 @@ export function Navbar() {
         document.documentElement.requestFullscreen()
           .then(() => setIsFullscreen(true))
           .catch(() => setIsFullscreen(true));
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen()
-            .then(() => setIsFullscreen(false))
-            .catch(() => {});
-        }
       }
     } catch (e) {
-      console.warn("Browser Fullscreen handshake aborted:", e);
+      console.warn("Browser Fullscreen entry aborted:", e);
     }
   };
 
