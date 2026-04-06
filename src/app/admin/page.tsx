@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                           <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-12 h-16 object-cover rounded-lg border border-foreground/10" alt="" />
                         </TableCell>
                         <TableCell className="font-bold text-foreground/90">
-                          {typeof look.name === 'string' ? look.name : t(look.name) || 'Unnamed Look'}
+                          {typeof look.name === 'string' ? look.name : look.name?.uz || 'Unnamed Look'}
                         </TableCell>
                         <TableCell className="neon-text font-black tracking-tighter">
                           {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
                 <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-20 h-24 object-cover rounded-xl border border-foreground/10" alt="" />
                 <div className="flex-grow space-y-1">
                   <h3 className="text-sm font-black text-foreground uppercase italic truncate">
-                    {typeof look.name === 'string' ? look.name : t(look.name) || 'Unnamed'}
+                    {typeof look.name === 'string' ? look.name : look.name?.uz || 'Unnamed'}
                   </h3>
                   <p className="neon-text font-black tracking-tighter text-sm">
                     {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
