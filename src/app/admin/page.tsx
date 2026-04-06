@@ -56,18 +56,25 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
 
-  const looksQuery = useMemoFirebase(() => collection(db, 'looks'), [db]);
-  const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
-
-  const ordersQuery = useMemoFirebase(() => {
-    return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
-  }, [db]);
-  const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
-
   // SUPREME ADMIN ACCESS CHECK
   const isAdmin = user?.username?.toLowerCase() === 'itsjamaspage' || 
                   user?.role === 'admin' || 
                   user?.firebaseUid === 'demo_admin_session';
+
+  // SECURE QUERY GATING: Only run queries if admin identity is confirmed
+  const looksQuery = useMemoFirebase(() => {
+    if (!isAdmin) return null;
+    return collection(db, 'looks');
+  }, [db, isAdmin]);
+  
+  const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
+
+  const ordersQuery = useMemoFirebase(() => {
+    if (!isAdmin) return null;
+    return query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+  }, [db, isAdmin]);
+  
+  const { data: orders, isLoading: ordersLoading } = useCollection(ordersQuery);
 
   const confirmDelete = async () => {
     if (!itemToDelete) return;
