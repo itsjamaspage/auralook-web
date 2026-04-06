@@ -88,6 +88,31 @@ const dictionary = {
     en: 'Dark'
   },
 
+  // Landing Page Specific
+  landingHeroTitle: { 
+    uz: 'ERTANGI KUNNI BUGUN KIYING.',
+    ru: 'НОСИ ЗАВТРАШНЕЕ СЕГОДНЯ.',
+    en: 'WEAR TOMORROW TODAY.'
+  },
+  landingHeroSub: { 
+    uz: 'SARALANGAN LIBOSLAR. DARHOL YETKAZIB BERISH.',
+    ru: 'КУРИРОВАННЫЕ ОБРАЗЫ. МГНОВЕННАЯ ДОСТАВКА.',
+    en: 'CURATED LOOKS. DELIVERED INSTANTLY.'
+  },
+  shopTheDrop: { uz: 'TO\'PLAMNI KO\'RISH', ru: 'КУПИТЬ КОЛЛЕКЦИЮ', en: 'SHOP THE DROP' },
+  exploreLooks: { uz: 'LIBOSLARNI O\'RGANISH', ru: 'ИЗУЧИТЬ ОБРАЗЫ', en: 'EXPLORE LOOKS' },
+  featuredLooks: { uz: 'SARALANGAN LIBOSLAR', ru: 'ПОПУЛЯРНЫЕ ОБРАЗЫ', en: 'FEATURED LOOKS' },
+  viewAll: { uz: 'BARCHASI', ru: 'ВСЕ', en: 'VIEW ALL' },
+  newArrivals: { uz: 'YANGI KELGANLAR', ru: 'НОВИНКИ', en: 'NEW ARRIVALS' },
+  limitedEdition: { uz: 'CHEKLANGAN TO\'PLAM', ru: 'ЛИМИТИРОВАННАЯ СЕРИЯ', en: 'LIMITED EDITION' },
+  freeDelivery: { uz: 'BEPUL YETKAZIB BERISH', ru: 'БЕСПЛАТНАЯ ДОСТАВКА', en: 'FREE DELIVERY' },
+  orderViaTelegram: { uz: 'TELEGRAM ORQALI BUYURTMA', ru: 'ЗАКАЗ ЧЕРЕЗ TELEGRAM', en: 'ORDER VIA TELEGRAM' },
+  promiseTitle: { uz: 'SIZNING USLUBINGIZ. SARALANGAN. MUROSASIZ.', ru: 'ВАШ СТИЛЬ. КУРИРОВАННЫЙ. БЕЗ КОМПРОМИССОВ.', en: 'YOUR STYLE. CURATED. NOT COMPROMISED.' },
+  claimYourLook: { uz: 'LIBOSINGIZNI OLING', ru: 'ЗАБЕРИТЕ СВОЙ ОБРАЗ', en: 'CLAIM YOUR LOOK' },
+  liveOnTelegram: { uz: 'TELEGRAMDA FAOL', ru: 'В TELEGRAM', en: 'LIVE ON TELEGRAM' },
+  openApp: { uz: 'ILOVAGA KIRISH', ru: 'ОТКРЫТЬ ПРИЛОЖЕНИЕ', en: 'OPEN APP' },
+  browseOrderTelegram: { uz: 'Telegram orqali to\'g\'ridan-to\'g\'ri buyurtma bering', ru: 'Заказывайте напрямую через Telegram', en: 'Browse & order directly from the app' },
+
   // Auth Pages
   welcomeBack: { 
     uz: 'Xush kelibsiz',
@@ -118,11 +143,6 @@ const dictionary = {
     uz: 'Parol',
     ru: 'Пароль',
     en: 'Password'
-  },
-  telegramUsername: { 
-    uz: 'Telegram username',
-    ru: 'Имя пользователя Telegram',
-    en: 'Telegram Username'
   },
   emailPlaceholder: { 
     uz: 'ism@misol.com',
@@ -321,7 +341,7 @@ const dictionary = {
   selectMultiple: { uz: 'Tanlash', ru: 'Выбрать несколько', en: 'Select Mode' },
   addToCart: { uz: 'Savatchaga', ru: 'В корзину', en: 'Add to Cart' },
   itemsSelected: { uz: 'ta tanlandi', ru: 'выбрано', en: 'selected' },
-  addedToCart: { uz: 'Savatchaga qo\'shildi', ru: 'Добавлено в корзину', en: 'Added to Cart' },
+  addedToCart: { uz: 'Savatchaga qo\'shildi', ru: 'Добавлено в korzinu', en: 'Added to Cart' },
 
   // Admin Dashboard
   adminDashboard: {
