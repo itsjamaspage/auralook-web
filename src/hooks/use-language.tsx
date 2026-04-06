@@ -32,11 +32,6 @@ const dictionary = {
     ru: 'Корзина',
     en: 'Cart'
   },
-  razmeringiz: {
-    uz: 'O\'lchamingiz',
-    ru: 'Ваш размер',
-    en: 'Your Size'
-  },
   profile: {
     uz: 'Profil',
     ru: 'Профиль',
@@ -95,7 +90,7 @@ const dictionary = {
     en: 'WEAR TOMORROW TODAY.'
   },
   wear: { uz: 'KIYING', ru: 'НОСИТЕ', en: 'WEAR' },
-  tomorrow: { uz: 'ERTANGI KUNNI', ru: 'ЗАВТРАШНЕЕ', en: 'TOMORROW' },
+  tomorrow: { uz: 'ERTANGI KUNNI', ru: 'ЗАВТРАШНЕE', en: 'TOMORROW' },
   today: { uz: 'BUGUN', ru: 'СЕГОДНЯ', en: 'TODAY' },
   landingHeroSub: { 
     uz: 'SARALANGAN LIBOSLAR. DARHOL YETKAZIB BERISH.',
@@ -111,14 +106,9 @@ const dictionary = {
   freeDelivery: { uz: 'BEPUL YETKAZIB BERISH', ru: 'БЕСПЛАТНАЯ ДОСТАВКА', en: 'FREE DELIVERY' },
   orderViaTelegram: { uz: 'TELEGRAM ORQALI BUYURTMA', ru: 'ЗАКАЗ ЧЕРЕЗ TELEGRAM', en: 'ORDER VIA TELEGRAM' },
   goodQuality: { uz: 'YUQORI SIFAT', ru: 'ВЫСОКОЕ КАЧЕСТВО', en: 'GOOD QUALITY' },
-  auralookPromise: { uz: 'YANGI AVLOD VA\'DASI', ru: 'ОБЕЩАНИЕ YANGI AVLOD', en: 'THE YANGI AVLOD PROMISE' },
-  promiseTitle1: { uz: 'SIZNING USLUBINGIZ.', ru: 'ВАШ СТИЛЬ.', en: 'YOUR STYLE.' },
-  promiseTitle2: { uz: 'SARALANGAN.', ru: 'ОТОБРАННЫЙ.', en: 'CURATED.' },
-  promiseTitle3: { uz: 'MUROSASIZ.', ru: 'БЕЗ КОМПРОМИССОВ.', en: 'NOT COMPROMISED.' },
-  claimYourLook: { uz: 'LIBOSINGIZNI OLING', ru: 'ЗАБЕРИТЕ СВОЙ ОБРАЗ', en: 'CLAIM YOUR LOOK' },
-  liveOnTelegram: { uz: 'TELEGRAMDA FAOL', ru: 'В TELEGRAM', en: 'LIVE ON TELEGRAM' },
-  openApp: { uz: 'ILOVAGA KIRISH', ru: 'ОТКРЫТЬ ПРИЛОЖЕНИЕ', en: 'OPEN APP' },
-  browseOrderTelegram: { uz: 'Telegram orqali to\'g\'ridan-to\'g\'ri buyurtma bering', ru: 'Заказывайте напрямую через Telegram', en: 'Browse & order directly from the app' },
+  liveOnTelegram: { uz: 'BOTGA O\'TISH', ru: 'ПЕРЕЙТИ В БОТ', en: 'MOVE TO BOT' },
+  openApp: { uz: 'BUYURTMA BERISH', ru: 'ЗАКАЗАТЬ СЕЙЧАС', en: 'ORDER NOW' },
+  browseOrderTelegram: { uz: 'Telegram botimizga o\'ting va hoziroq buyurtma bering', ru: 'Перейдите в наш бот и закажите прямо сейчас', en: 'Move to our telegram bot and order now' },
   hotTag: { uz: 'QAYNOQ', ru: 'ГОРЯЧО', en: 'HOT' },
   newTag: { uz: 'YANGI', ru: 'НОВОЕ', en: 'NEW' },
   lookNumber: { uz: 'LIBOS', ru: 'ОБРАЗ', en: 'LOOK' },

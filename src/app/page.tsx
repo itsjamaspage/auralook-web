@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Plane, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Send, ArrowUpRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -154,47 +154,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PROMISE SECTION */}
+      {/* TELEGRAM HIGH-IMPACT CTA */}
       <section className="container mx-auto px-6 mb-32">
-        <div className="relative p-12 sm:p-20 rounded-[3rem] border border-foreground/5 bg-foreground/[0.01] overflow-hidden group">
-          <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-primary/20 m-8" />
-          <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-primary/20 m-8" />
-          
-          <div className="relative z-10 max-w-2xl">
-            <p className="text-[9px] font-black text-primary/60 uppercase tracking-[0.4em] mb-6">—— {t(dictionary.auralookPromise)}</p>
-            <h2 className="text-3xl sm:text-5xl font-black uppercase italic leading-tight tracking-tighter mb-10">
-              {t(dictionary.promiseTitle1)} <br />
-              <span className="neon-text">{t(dictionary.promiseTitle2)}</span> <br />
-              {t(dictionary.promiseTitle3)}
-            </h2>
-            <Button asChild className="h-14 px-10 rounded-xl bg-transparent border border-foreground/10 text-foreground font-black uppercase text-[10px] tracking-[0.2em] hover:neon-bg hover:text-black hover:border-none transition-all">
+        <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-[#050505] p-12 sm:p-20 shadow-2xl group">
+          {/* Futuristic Background Elements */}
+          <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--sync-color),transparent_70%)]" />
+            <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center text-center space-y-8">
+            <div className="w-20 h-20 rounded-full bg-foreground/5 flex items-center justify-center border border-foreground/10 animate-pulse">
+              <Send className="w-10 h-10 neon-text -rotate-12" />
+            </div>
+            
+            <div className="space-y-4 max-w-2xl">
+              <h2 className="text-4xl sm:text-6xl font-black uppercase italic leading-none tracking-tighter text-foreground">
+                {t(dictionary.liveOnTelegram)}
+              </h2>
+              <p className="text-xs sm:text-sm font-bold text-foreground/40 uppercase tracking-[0.4em]">
+                {t(dictionary.browseOrderTelegram)}
+              </p>
+            </div>
+
+            <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group">
               <Link href="/looks">
-                {t(dictionary.claimYourLook)}
-                <ArrowUpRight className="ml-3 w-4 h-4" />
+                {t(dictionary.openApp)}
+                <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
               </Link>
             </Button>
           </div>
-        </div>
-      </section>
 
-      {/* TELEGRAM BANNER */}
-      <section className="container mx-auto px-6 mb-24">
-        <div className="bg-[#050a0a] border border-foreground/5 rounded-[2.5rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-8 group hover:border-primary/10 transition-all">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Plane className="w-8 h-8 text-primary -rotate-45" />
-            </div>
-            <div className="text-left space-y-1">
-              <h3 className="text-lg font-black uppercase italic text-foreground tracking-tight">{t(dictionary.liveOnTelegram)}</h3>
-              <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t(dictionary.browseOrderTelegram)}</p>
-            </div>
-          </div>
-          <Button asChild className="h-14 px-10 rounded-xl border border-foreground/10 bg-transparent text-foreground font-black uppercase text-[10px] tracking-[0.2em] hover:neon-text transition-all w-full sm:w-auto">
-            <Link href="/looks">
-              {t(dictionary.openApp)}
-              <ArrowUpRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
+          {/* Glitch Decorative Lines */}
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sync-color)] to-transparent opacity-20" />
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sync-color)] to-transparent opacity-20" />
         </div>
       </section>
 
