@@ -30,7 +30,10 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v11.0.0';
+const CACHE_KEY = 'auralook_protocol_v12.0.0';
+
+// SUPREME ADMIN CONFIGURATION
+const SUPREME_ADMIN_USERNAME = 'itsjamaspage';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -74,25 +77,31 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       const rawUser = tg.initDataUnsafe.user;
+      const cleanUsername = rawUser.username?.toLowerCase() || null;
       
       try {
         // 1. Anonymous Session Initiation
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 2. Role Determination
-        const roleRef = doc(db, 'roles', firebaseUid);
-        const roleSnap = await getDoc(roleRef);
-        const assignedRole: UserRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
+        // 2. Role Determination (Supreme Admin Bypass + Firestore)
+        let assignedRole: UserRole = 'viewer';
+        
+        if (cleanUsername === SUPREME_ADMIN_USERNAME.toLowerCase()) {
+          assignedRole = 'admin';
+        } else {
+          const roleRef = doc(db, 'roles', firebaseUid);
+          const roleSnap = await getDoc(roleRef);
+          assignedRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : 'viewer';
+        }
 
         // 3. Persistence Sequence (CRITICAL: UID Alignment)
-        // Use Firebase UID as the document ID to satisfy security rules
         const userRef = doc(db, 'users', firebaseUid);
         const profileData: UserProfile = {
           id: firebaseUid,
           telegramId: rawUser.id,
           firstName: rawUser.first_name,
-          username: rawUser.username || null,
+          username: cleanUsername,
           photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
           firebaseUid,
           role: assignedRole,
@@ -127,11 +136,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       id: demoUid,
       telegramId: 0,
       firstName: 'Admin Voyager',
-      username: 'admin',
+      username: 'admin_tester',
       phone: '+998 90 000 00 00',
       photoUrl: 'https://ui-avatars.com/api/?name=Admin+Voyager&background=00FF88&color=000&bold=true',
       firebaseUid: demoUid,
-      role: 'admin',
+      role: 'admin', // Demo mode always admin for developer access
       lastSeen: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
