@@ -50,10 +50,6 @@ export default function Home() {
             {t(dictionary.heroTitle)}
           </h1>
 
-          <p className="text-xs sm:text-sm lg:text-base font-bold text-foreground/60 tracking-[0.3em] uppercase max-w-lg leading-relaxed">
-            {t(dictionary.landingHeroSub)}
-          </p>
-
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-8">
             <Button asChild className="flex-1 h-14 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
               <Link href="/looks">
