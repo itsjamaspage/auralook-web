@@ -106,7 +106,7 @@ const dictionary = {
   freeDelivery: { uz: 'BEPUL YETKAZIB BERISH', ru: 'БЕСПЛАТНАЯ ДОСТАВКА', en: 'FREE DELIVERY' },
   orderViaTelegram: { uz: 'TELEGRAM ORQALI BUYURTMA', ru: 'ЗАКАЗ ЧЕРЕЗ TELEGRAM', en: 'ORDER VIA TELEGRAM' },
   goodQuality: { uz: 'YUQORI SIFAT', ru: 'ВЫСОКОЕ КАЧЕСТВО', en: 'GOOD QUALITY' },
-  liveOnTelegram: { uz: 'BOTGA O\'TISH', ru: 'ПЕРЕЙТИ В БОТ', en: 'MOVE TO BOT' },
+  liveOnTelegram: { uz: 'BOTGA O\'TISH', ru: 'ПЕРЕЙTI В БОТ', en: 'MOVE TO BOT' },
   openApp: { uz: 'BUYURTMA BERISH', ru: 'ЗАКАЗАТЬ СЕЙЧАС', en: 'ORDER NOW' },
   browseOrderTelegram: { uz: 'Telegram botimizga o\'ting va hoziroq buyurtma bering', ru: 'Перейдите в наш бот и закажите прямо сейчас', en: 'Move to our telegram bot and order now' },
   hotTag: { uz: 'QAYNOQ', ru: 'ГОРЯЧО', en: 'HOT' },
@@ -116,11 +116,15 @@ const dictionary = {
   // About Us Page
   aboutUs: { uz: 'BIZ HAQIMIZDA', ru: 'О НАС', en: 'ABOUT US' },
   est2026: { uz: 'ASOS SOLINGAN 2026 — TOSHKENT, UZ', ru: 'ОСНОВАНО В 2026 — ТАШКЕНТ, УЗ', en: 'EST. 2026 — TASHKENT, UZ' },
-  weDressTheBold: { uz: 'BIZ JUR\'ATLI KIYINTIRAMIZ.', ru: 'МЫ ОДЕВАЕМ СМЕЛЫХ.', en: 'WE DRESS THE BOLD.' },
+  lookExpensivePayLess: { 
+    uz: 'QIMMAT KO\'RINING. KAM TO\'LANG.', 
+    ru: 'ВЫГЛЯДИ ДОРОГО. ПЛАТИ МЕНЬШЕ.', 
+    en: 'LOOK EXPENSIVE. PAY LESS.' 
+  },
   aboutDesc: { 
-    uz: 'Auralook 2026-yilda bir oddiy ishonch bilan tashkil etilgan: ajoyib uslub boylik talab qilmasligi kerak. Biz yuqori sifatli kiyimlarni to\'g\'ridan-to\'g\'ri Xitoy ishlab chiqaruvchilaridan olamiz, vositachilarni chetlab o\'tamiz, shunda siz O\'zbekistonda to\'g\'ridan-to\'g\'ri uyingizga yetkazib beriladigan hamyonbop narxlarda premium ko\'rinishga ega bo\'lasiz.',
-    ru: 'Auralook была основана в 2026 году с одной простой верой: отличный стиль не должен стоить целого состояния. Мы закупаем качественную одежду напрямую у производителей в Китае, исключая посредников, чтобы вы получали образы премиум-класса по честным ценам с доставкой прямо к вашей двери в Узбекистане.',
-    en: 'Auralook was founded in 2026 with one simple belief: great style shouldn’t cost a fortune. We source high-quality clothing directly from manufacturers in China, cutting out the middlemen so you get premium looks at honest prices — delivered straight to your door in Uzbekistan.'
+    uz: 'Yangi Avlod high-end uslub va hamyonboplik o\'rtasidagi to\'siqni yo\'q qiladi. Premium techwear, to\'g\'ridan-to\'g\'ri Xitoydan O\'zbekistonga. Sifatni tanlang, ortiqcha to\'lamang.',
+    ru: 'Yangi Avlod стирает грани между хай-энд стилем и доступностью. Премиальный техвир напрямую из Китая в Узбекистан. Выбирай качество, не переплачивай.',
+    en: 'Yangi Avlod bridges the gap between high-end style and affordability. Premium techwear sourced directly from China to Uzbekistan. Choose quality, don’t overpay.'
   },
   ourNumbers: { uz: 'BIZNING RAQAMLAR', ru: 'НАШИ ЦИФРЫ', en: 'OUR NUMBERS' },
   foundedLabel: { uz: 'ASOS SOLINGAN', ru: 'ОСНОВАНО', en: 'FOUNDED' },
@@ -422,7 +426,7 @@ const dictionary = {
   orderPending: { uz: 'Kutilmoqda', ru: 'Ожидается', en: 'Pending' },
   orderAccepted: { uz: 'Tasdiqlandi', ru: 'Принято', en: 'Accepted' },
   orderShipped: { uz: 'Yuborildi', ru: 'Отправлено', en: 'Shipped' },
-  orderDelivered: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
+  orderYetkazildi: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
   configPending: { uz: 'Sozlash kutilmoqda', ru: 'Ожидание настройки', en: 'Configuration Pending' },
   protocolLive: { uz: 'Bayonnoma faol', ru: 'Протокол активен', en: 'Protocol Live' },
 

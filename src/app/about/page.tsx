@@ -4,7 +4,7 @@
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Globe, ShieldCheck, Zap, ArrowRight, Quote } from 'lucide-react';
+import { ShieldCheck, Globe, Zap, ArrowRight, Quote } from 'lucide-react';
 import Link from 'next/link';
 
 const TESTIMONIALS = [
@@ -41,7 +41,7 @@ export default function AboutPage() {
               —— {t(dictionary.est2026)}
             </p>
             <h1 className="text-6xl sm:text-8xl font-black tracking-tighter uppercase italic leading-none neon-text">
-              {t(dictionary.weDressTheBold)}
+              {t(dictionary.lookExpensivePayLess)}
             </h1>
           </div>
           <p className="text-lg sm:text-xl text-foreground/70 font-medium leading-relaxed max-w-2xl italic">
@@ -56,7 +56,7 @@ export default function AboutPage() {
             <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em]">{t(dictionary.foundedLabel)}</p>
           </div>
           <div className="space-y-2">
-            <h2 className="text-5xl font-black neon-text italic tracking-tighter">500+</h2>
+            <h2 className="text-5xl font-black neon-text italic tracking-tighter">100+</h2>
             <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em]">{t(dictionary.ordersPlaced)}</p>
           </div>
           <div className="space-y-2">
@@ -67,7 +67,7 @@ export default function AboutPage() {
 
         {/* VALUES SECTION */}
         <section className="space-y-12">
-          <h2 className="text-[10px] font-black tracking-[0.5em] text-foreground/40 uppercase">—— {t(dictionary.whatWeStandFor)}</h2>
+          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase italic">—— {t(dictionary.whatWeStandFor)}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { icon: ShieldCheck, title: t(dictionary.qualityTitle), desc: t(dictionary.qualityDesc) },
@@ -89,7 +89,7 @@ export default function AboutPage() {
 
         {/* HOW IT WORKS */}
         <section className="space-y-12">
-          <h2 className="text-[10px] font-black tracking-[0.5em] text-foreground/40 uppercase">—— {t(dictionary.howItWorks)}</h2>
+          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase italic">—— {t(dictionary.howItWorks)}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               { id: '01', title: t(dictionary.step01Title), desc: t(dictionary.step01Desc) },
@@ -146,10 +146,10 @@ export default function AboutPage() {
 
         {/* TESTIMONIALS LOOP */}
         <section className="space-y-12">
-          <h2 className="text-[10px] font-black tracking-[0.5em] text-foreground/40 uppercase text-center">—— {t(dictionary.whatPeopleSay)}</h2>
+          <h2 className="text-[10px] font-black tracking-[0.5em] neon-text uppercase text-center italic">—— {t(dictionary.whatPeopleSay)}</h2>
           <div className="relative overflow-hidden py-10">
-            <div className="flex animate-marquee-right gap-6 whitespace-nowrap">
-              {[...TESTIMONIALS, ...TESTIMONIALS].map((test, i) => (
+            <div className="flex animate-marquee-right gap-6 whitespace-nowrap" style={{ animationDuration: '20s' }}>
+              {[...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS].map((test, i) => (
                 <Card key={i} className="glass-surface border-foreground/5 p-8 rounded-[2.5rem] min-w-[320px] max-w-[320px] space-y-6 shrink-0 inline-block align-top whitespace-normal">
                   <Quote className="w-8 h-8 text-foreground/10" />
                   <p className="text-sm text-foreground/80 italic font-medium leading-relaxed">
