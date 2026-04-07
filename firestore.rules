@@ -3,33 +3,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v12.1.0 Stability Protocol)
+    // Assumed Data Model (v13.0.0 Unified RBAC Protocol)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // SUPREME ADMIN BYPASS: @itsjamaspage (Owner)
-    // Hardened with existence check to prevent evaluation crashes for new users
+    // Role detection from the roles collection (Source of Truth)
+    function getRole() {
+      let rolePath = /databases/$(database)/documents/roles/$(request.auth.uid);
+      return exists(rolePath) ? get(rolePath).data.role : 'viewer';
+    }
+
+    // SUPREME ADMIN & OWNER CHECK
     function isOwner() {
       let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
       return isAuthenticated() && (
+        getRole() == 'owner' ||
         (exists(userPath) && get(userPath).data.username == 'itsjamaspage') || 
         request.auth.uid == 'demo_admin_session'
       );
     }
 
-    // Role check from the roles collection
-    function getRole() {
-      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role;
-    }
-
+    // PRIVILEGED ACCESS (Owner or Editor)
     function isEditor() {
+      let role = getRole();
       return isOwner() || (
         isAuthenticated() && 
-        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) && 
-        (getRole() == 'editor' || getRole() == 'admin')
+        (role == 'editor' || role == 'admin')
       );
     }
 

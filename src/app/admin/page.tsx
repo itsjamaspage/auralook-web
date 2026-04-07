@@ -56,10 +56,11 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
 
-  // SUPREME ADMIN ACCESS CHECK
-  const isAdmin = user?.username?.toLowerCase() === 'itsjamaspage' || 
-                  user?.role === 'admin' || 
-                  user?.firebaseUid === 'demo_admin_session';
+  // UNIFIED ADMIN ACCESS PROTOCOL: Recognize both Owner and Editor
+  const isAdmin = user?.role === 'owner' || 
+                  user?.role === 'editor' || 
+                  user?.firebaseUid === 'demo_admin_session' ||
+                  user?.username?.toLowerCase() === 'itsjamaspage';
 
   // SECURE QUERY GATING: Only run queries if admin identity is confirmed
   const looksQuery = useMemoFirebase(() => {
@@ -146,7 +147,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
         <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Access Restricted: Supreme Admin identity mismatch.</p>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Access Restricted: Unified RBAC authorization failed.</p>
         <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
           <Link href="/">Back to Surface</Link>
         </Button>
