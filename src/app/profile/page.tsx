@@ -32,7 +32,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, serverTimestamp, collection, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, collection, deleteDoc, query, where, getDocs, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
@@ -81,8 +81,45 @@ export default function ProfilePage() {
     if (!newEditorUsername || !user) return;
     setIsAddingEditor(true);
     try {
-      // Logic for resolving username to ID would happen here via server action or API
-      toast({ title: "Resolution Pending", description: "Username resolution requires bot interaction." });
+      const cleanTargetUsername = newEditorUsername.replace('@', '').toLowerCase().trim();
+      
+      // Step 1: Find the target user in the local database
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', cleanTargetUsername));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        toast({ 
+          variant: "destructive", 
+          title: "Foydalanuvchi topilmadi", 
+          description: "Iltimos, editor bo'ladigan shaxs avval botni ishga tushirganiga ishonch hosil qiling." 
+        });
+        return;
+      }
+
+      const targetUserDoc = querySnapshot.docs[0];
+      const targetUid = targetUserDoc.id;
+
+      // Step 2: Grant the 'editor' role
+      await setDoc(doc(db, 'roles', targetUid), {
+        role: 'editor',
+        username: cleanTargetUsername,
+        addedAt: serverTimestamp(),
+        addedBy: user.id
+      });
+
+      toast({ 
+        title: "Muvaffaqiyatli", 
+        description: `@${cleanTargetUsername} endi do'kon editori huquqiga ega.` 
+      });
+      setNewEditorUsername('');
+    } catch (e) {
+      console.error("[RBAC Error]", e);
+      toast({ 
+        variant: "destructive", 
+        title: "Tizim xatosi", 
+        description: "Editor qo'shishda muammo yuz berdi." 
+      });
     } finally {
       setIsAddingEditor(false);
     }
@@ -91,9 +128,9 @@ export default function ProfilePage() {
   const handleRemoveEditor = async (uid: string) => {
     try {
       await deleteDoc(doc(db, 'roles', uid));
-      toast({ title: "Editor Removed" });
+      toast({ title: "Editor huquqi olib tashlandi" });
     } catch (e) {
-      toast({ variant: "destructive", title: "Action Failed" });
+      toast({ variant: "destructive", title: "Amal bajarilmadi" });
     }
   };
 
