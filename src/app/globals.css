@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,22 +25,6 @@
     --input: 240 3.7% 15.9%;
     --ring: 0 100% 50%;
     --radius: 1.5rem;
-  }
-
-  :root[data-theme='light'] {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --primary: 0 100% 50%;
   }
 }
 
@@ -94,17 +79,6 @@
   animation: float-up-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-}
-
 :root {
   animation: master-sync-pulse 10s infinite linear;
 }
@@ -118,44 +92,20 @@ body {
 
 .neon-text {
   color: var(--sync-color) !important;
-  transition: none !important;
 }
 
 .neon-border {
   border-color: var(--sync-color) !important;
-  transition: none !important;
 }
 
 .neon-bg {
   background-color: var(--sync-color) !important;
   color: #000 !important;
   box-shadow: 0 0 30px var(--sync-shadow) !important;
-  transition: none !important;
 }
 
 .glass-surface {
-  @apply bg-card/80 backdrop-blur-3xl border border-foreground/10 shadow-2xl;
-}
-
-.energy-line {
-  stroke: var(--sync-color);
-  opacity: 0.3;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: energy-flow 15s linear infinite;
-  filter: blur(1px);
-}
-
-@keyframes energy-flow {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.hero-glow {
-  @apply absolute rounded-full pointer-events-none filter blur-[120px];
-  background: radial-gradient(circle, var(--sync-color) 0%, transparent 70%);
-  opacity: 0.15;
+  @apply bg-card/80 backdrop-blur-3xl border border-foreground/10;
 }
 
 @layer base {

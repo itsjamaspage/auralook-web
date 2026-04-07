@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, Grid2x2, List, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search } from 'lucide-react';
+import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -31,7 +31,7 @@ export default function LooksPage() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode] = useState<'grid'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [minPrice, setMinPrice] = useState<string>('');
@@ -39,11 +39,9 @@ export default function LooksPage() {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Multi-selection state
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedLookIds, setSelectedLookIds] = useState<Set<string>>(new Set());
 
-  // Interaction feedback
   const [animatingLikeId, setAnimatingLikeId] = useState<string | null>(null);
   const [animatingCartId, setAnimatingCartId] = useState<string | null>(null);
 
@@ -54,16 +52,13 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) {
-      return null;
-    }
+    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
     return collection(db, 'users', firebaseUser.uid, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
-  // CART SYNCHRONIZATION PROTOCOL
   const cartItemsQuery = useMemoFirebase(() => {
     if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
     return collection(db, 'users', firebaseUser.uid, 'cart');
@@ -76,12 +71,8 @@ export default function LooksPage() {
 
     let result = looks.filter(look => {
       const lookName = typeof look.name === 'string' ? look.name : '';
-      const lookDesc = look.description || '';
       const search = searchQuery.toLowerCase();
-      
-      if (search && !lookName.toLowerCase().includes(search) && !lookDesc.toLowerCase().includes(search)) {
-        return false;
-      }
+      if (search && !lookName.toLowerCase().includes(search)) return false;
 
       const matchesCurrency = filterCurrency === 'ALL' || look.currency === filterCurrency;
       if (!matchesCurrency) return false;
@@ -89,10 +80,7 @@ export default function LooksPage() {
       const price = Number(look.price || 0);
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
-
-      if (filterCurrency !== 'ALL') {
-        if (price < min || price > max) return false;
-      }
+      if (filterCurrency !== 'ALL' && (price < min || price > max)) return false;
       
       return true;
     });
@@ -106,330 +94,160 @@ export default function LooksPage() {
 
   const formatPrice = (val: any) => {
     const num = Number(val || 0);
-    if (isNaN(num)) return '0';
     return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
   };
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!isVerified || !tgUser || !firebaseUser) {
-      toast({ title: t(dictionary.syncing), variant: "destructive" });
-      return;
-    }
+    e.preventDefault(); e.stopPropagation();
+    if (!isVerified || !firebaseUser) return;
 
     setAnimatingLikeId(lookId);
     setTimeout(() => setAnimatingLikeId(null), 800);
 
     const likedLookRef = doc(db, 'users', firebaseUser.uid, 'liked_looks', lookId);
-    try {
-      if (likedLookIds.has(lookId)) {
-        await deleteDoc(likedLookRef);
-      } else {
-        await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
-      }
-    } catch (e) { console.error(e); }
+    if (likedLookIds.has(lookId)) await deleteDoc(likedLookRef);
+    else await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
   };
 
   const handleToggleCart = async (e: React.MouseEvent, look: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!isVerified || !tgUser || !firebaseUser) {
-      toast({ title: t(dictionary.syncing), variant: "destructive" });
-      return;
-    }
+    e.preventDefault(); e.stopPropagation();
+    if (!isVerified || !firebaseUser) return;
 
     const isInCart = cartLookIds.has(look.id);
-    
     setAnimatingCartId(look.id);
     setTimeout(() => setAnimatingCartId(null), 800);
 
     const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
-    try {
-      if (isInCart) {
-        // Toggle logic: If already in cart, remove it
-        await deleteDoc(cartItemRef);
-      } else {
-        // Toggle logic: If not in cart, add it
-        await setDoc(cartItemRef, {
-          lookId: look.id,
-          name: look.name,
-          imageUrl: look.imageUrl,
-          price: look.price,
-          currency: look.currency || 'USD',
-          addedAt: new Date().toISOString()
-        }, { merge: true });
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleToggleSelection = (lookId: string) => {
-    const newSelected = new Set(selectedLookIds);
-    if (newSelected.has(lookId)) newSelected.delete(lookId);
-    else newSelected.add(lookId);
-    setSelectedLookIds(newSelected);
-  };
-
-  const handleAddSelectedToCart = async () => {
-    if (!isVerified || !tgUser || !firebaseUser) return;
-    
-    const itemsToAdd = looks?.filter(l => selectedLookIds.has(l.id)) || [];
-    
-    for (const look of itemsToAdd) {
-      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
-      await setDoc(cartItemRef, {
-        lookId: look.id,
-        name: look.name,
-        imageUrl: look.imageUrl,
-        price: look.price,
-        currency: look.currency || 'USD',
-        addedAt: new Date().toISOString()
-      }, { merge: true });
-    }
-
-    setSelectedLookIds(new Set());
-    setIsSelectMode(false);
+    if (isInCart) await deleteDoc(cartItemRef);
+    else await setDoc(cartItemRef, {
+      lookId: look.id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
+    });
   };
 
   return (
-    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative">
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-grow group">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-foreground/40 group-focus-within:neon-text transition-colors" />
-            </div>
-            <Input 
-              placeholder={t(dictionary.searchPlaceholder)}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-background border-border h-14 rounded-2xl pl-12 pr-12 focus:neon-border text-foreground font-medium shadow-xl transition-all"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-4 flex items-center text-foreground/40 hover:text-foreground transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
+    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative pb-48">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-grow group">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search className="w-5 h-5 text-foreground/40 group-focus-within:neon-text" />
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Button 
-              onClick={() => setShowFilters(!showFilters)} 
-              variant="outline" 
-              className={cn(
-                "h-14 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
-                showFilters && "neon-border neon-text"
-              )}
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              {t(dictionary.filter)}
-            </Button>
-            <Button 
-              onClick={() => {
-                setIsSelectMode(!isSelectMode);
-                if (isSelectMode) setSelectedLookIds(new Set());
-              }} 
-              variant="outline" 
-              className={cn(
-                "h-14 px-6 rounded-2xl border-border glass-surface text-foreground hover:neon-border hover:neon-text transition-all font-bold shadow-xl shrink-0",
-                isSelectMode && "neon-border neon-text"
-              )}
-            >
-              <CheckSquare className="w-4 h-4 mr-2" />
-              {t(dictionary.selectMultiple)}
-            </Button>
-          </div>
+          <Input 
+            placeholder={t(dictionary.searchPlaceholder)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-background border-border h-14 rounded-2xl pl-12 pr-12 focus:neon-border text-foreground font-medium shadow-xl"
+          />
         </div>
-
-        {showFilters && (
-          <Card className="glass-surface border-border rounded-[2.5rem] p-8 space-y-10 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic">{t(dictionary.filterParameters)}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="text-foreground hover:text-primary">
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
-                <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6 flex-wrap">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALL" id="all" />
-                    <Label htmlFor="all" className="text-xs font-bold text-foreground">{t(dictionary.all)}</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="USD" id="usd" />
-                    <Label htmlFor="usd" className="text-xs font-bold text-foreground">USD ($)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="UZS" id="uzs" />
-                    <Label htmlFor="uzs" className="text-xs font-bold text-foreground">UZS (so'm)</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.priceRange)} ({filterCurrency === 'ALL' ? '-' : filterCurrency})</Label>
-                <div className="flex items-center gap-3">
-                  <Input 
-                    type="number" 
-                    placeholder="Min" 
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    disabled={filterCurrency === 'ALL'}
-                    className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold placeholder:text-foreground/20"
-                  />
-                  <div className="w-4 h-0.5 bg-foreground/10" />
-                  <Input 
-                    type="number" 
-                    placeholder="Max" 
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    disabled={filterCurrency === 'ALL'}
-                    className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold placeholder:text-foreground/20"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground text-sm font-bold">
-                    <div className="flex items-center gap-2">
-                      <ArrowUpDown className="w-3 h-3 neon-text" />
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="glass-surface border-border">
-                    <SelectItem value="newest" className="font-bold">{t(dictionary.newest)}</SelectItem>
-                    <SelectItem value="price_asc" className="font-bold">{t(dictionary.priceAsc)}</SelectItem>
-                    <SelectItem value="price_desc" className="font-bold">{t(dictionary.priceDesc)}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-        )}
+        <div className="flex gap-2">
+          <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className={cn("h-14 px-6 rounded-2xl glass-surface text-foreground font-bold", showFilters && "neon-border neon-text")}>
+            <Filter className="w-4 h-4 mr-2" /> {t(dictionary.filter)}
+          </Button>
+          <Button onClick={() => setIsSelectMode(!isSelectMode)} variant="outline" className={cn("h-14 px-6 rounded-2xl glass-surface text-foreground font-bold", isSelectMode && "neon-border neon-text")}>
+            <CheckSquare className="w-4 h-4 mr-2" /> {t(dictionary.selectMultiple)}
+          </Button>
+        </div>
       </div>
+
+      {showFilters && (
+        <Card className="glass-surface border-border rounded-[2.5rem] p-8 space-y-10 shadow-2xl">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-4">
+              <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
+              <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6">
+                {['ALL', 'USD', 'UZS'].map(curr => (
+                  <div key={curr} className="flex items-center space-x-2">
+                    <RadioGroupItem value={curr} id={curr} />
+                    <Label htmlFor={curr} className="text-xs font-bold text-foreground">{curr === 'ALL' ? t(dictionary.all) : curr}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div className="space-y-4">
+              <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground font-bold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="glass-surface border-border">
+                  <SelectItem value="newest">{t(dictionary.newest)}</SelectItem>
+                  <SelectItem value="price_asc">{t(dictionary.priceAsc)}</SelectItem>
+                  <SelectItem value="price_desc">{t(dictionary.priceDesc)}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {looksLoading ? (
         <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
       ) : (
-        <div className={cn("pb-48 gap-6", viewMode === 'grid' ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col")}>
-          {filteredAndSortedLooks.map((look) => {
-            const isLiked = likedLookIds.has(look.id);
-            const isInCart = cartLookIds.has(look.id);
-            const isSelected = selectedLookIds.has(look.id);
-            const lookNameDisplay = typeof look.name === 'string' ? look.name : 'Unnamed Look';
-            const isAnimatingCart = animatingCartId === look.id;
-            const isAnimatingLike = animatingLikeId === look.id;
-            
-            return (
-              <div key={look.id} className="relative group">
-                <div onClick={() => isSelectMode && handleToggleSelection(look.id)} className={isSelectMode ? "cursor-pointer" : ""}>
-                  <Card className={cn(
-                    "bg-card border border-border overflow-hidden transition-all shadow-lg hover:shadow-2xl relative",
-                    isSelected ? "neon-border" : "hover:border-primary/20",
-                    viewMode === 'grid' ? "rounded-[2rem]" : "rounded-[2.5rem] flex flex-col sm:flex-row items-center p-4 gap-6"
-                  )}>
-                    {isSelectMode && (
-                      <div className="absolute top-4 left-4 z-20">
-                        {isSelected ? <CheckSquare className="w-6 h-6 neon-text" /> : <Square className="w-6 h-6 text-foreground/40" />}
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredAndSortedLooks.map((look) => (
+            <div key={look.id} className="relative group">
+              <Card className={cn("bg-card border border-border overflow-hidden transition-all shadow-lg rounded-[2rem] relative", selectedLookIds.has(look.id) && "neon-border")}>
+                {isSelectMode && (
+                  <button onClick={() => {
+                    const newSet = new Set(selectedLookIds);
+                    if (newSet.has(look.id)) newSet.delete(look.id); else newSet.add(look.id);
+                    setSelectedLookIds(newSet);
+                  }} className="absolute top-4 left-4 z-20">
+                    {selectedLookIds.has(look.id) ? <CheckSquare className="w-6 h-6 neon-text" /> : <Square className="w-6 h-6 text-foreground/40" />}
+                  </button>
+                )}
+                <Link href={isSelectMode ? '#' : `/looks/${look.id}`} className="block relative aspect-[4/5] overflow-hidden p-1">
+                  <Image src={look.imageUrl || 'https://picsum.photos/seed/look/600/800'} alt={look.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]" />
+                  {!isSelectMode && (
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                      <div className="relative">
+                        <button onClick={(e) => handleToggleLike(e, look.id)} className={cn("w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all", likedLookIds.has(look.id) ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground")}>
+                          <Heart className={cn("w-5 h-5", likedLookIds.has(look.id) && "fill-current")} />
+                        </button>
+                        {animatingLikeId === look.id && !likedLookIds.has(look.id) && <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl animate-float-up">+1</span>}
                       </div>
-                    )}
-
-                    <div className={cn("relative overflow-hidden p-1", viewMode === 'grid' ? "aspect-[4/5] w-full" : "aspect-[4/5] w-full sm:w-48 shrink-0")}>
-                      <Link href={isSelectMode ? '#' : `/looks/${look.id}`} onClick={(e) => isSelectMode && e.preventDefault()}>
-                        <Image
-                          src={look.imageUrl || 'https://picsum.photos/seed/default/600/800'}
-                          alt={lookNameDisplay}
-                          fill
-                          className={cn("object-cover transition-transform duration-700 group-hover:scale-105", viewMode === 'grid' ? "rounded-[1.8rem]" : "rounded-[2rem]")}
-                        />
-                      </Link>
-                      
-                      {!isSelectMode && (
-                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-                          <div className="relative">
-                            <button 
-                              onClick={(e) => handleToggleLike(e, look.id)}
-                              className={cn(
-                                "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
-                                isLiked ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
-                                isAnimatingLike && "animate-pop"
-                              )}
-                            >
-                              <Heart className={cn("w-5 h-5", isLiked ? "neon-text fill-current" : "text-foreground")} />
-                            </button>
-                            {isAnimatingLike && !likedLookIds.has(look.id) && (
-                              <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
-                                +1
-                              </span>
-                            )}
-                          </div>
-                          <div className="relative">
-                            <button 
-                              onClick={(e) => handleToggleCart(e, look)}
-                              className={cn(
-                                "w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all",
-                                isInCart ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground hover:neon-text hover:neon-border",
-                                isAnimatingCart && "animate-pop"
-                              )}
-                            >
-                              <ShoppingCart className={cn("w-5 h-5", isInCart ? "neon-text" : "text-foreground")} />
-                            </button>
-                            {isAnimatingCart && !cartLookIds.has(look.id) && (
-                              <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl pointer-events-none animate-float-up">
-                                +1
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={cn("space-y-2", viewMode === 'grid' ? "p-4" : "p-2 flex-grow")}>
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base font-black neon-text italic tracking-tighter">
-                            {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${formatPrice(look.price)}`}
-                          </span>
-                          <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
-                        </div>
-                        <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{lookNameDisplay}</h3>
+                      <div className="relative">
+                        <button onClick={(e) => handleToggleCart(e, look)} className={cn("w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all", cartLookIds.has(look.id) ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground")}>
+                          <ShoppingCart className="w-5 h-5" />
+                        </button>
+                        {animatingCartId === look.id && !cartLookIds.has(look.id) && <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl animate-float-up">+1</span>}
                       </div>
                     </div>
-                  </Card>
+                  )}
+                </Link>
+                <div className="p-4 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-black neon-text italic tracking-tighter">{look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}</span>
+                    <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
+                  </div>
+                  <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{look.name}</h3>
                 </div>
-              </div>
-            );
-          })}
+              </Card>
+            </div>
+          ))}
         </div>
       )}
 
       {selectedLookIds.size > 0 && (
-        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10 duration-500">
-          <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10">
+          <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 neon-bg rounded-xl flex items-center justify-center text-black font-black">
-                {selectedLookIds.size}
-              </div>
+              <div className="w-10 h-10 neon-bg rounded-xl flex items-center justify-center text-black font-black">{selectedLookIds.size}</div>
               <p className="text-xs font-black uppercase text-foreground">{t(dictionary.itemsSelected)}</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => setSelectedLookIds(new Set())} className="text-foreground/60 hover:text-foreground">
-                <X className="w-4 h-4 mr-2" />
-                {t(dictionary.cancel)}
-              </Button>
-              <Button onClick={handleAddSelectedToCart} className="neon-bg text-black font-black px-6 rounded-xl h-12 transition-transform hover:scale-105 active:scale-95">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                {t(dictionary.addToCart)}
+              <Button variant="ghost" onClick={() => setSelectedLookIds(new Set())} className="text-foreground/60">{t(dictionary.cancel)}</Button>
+              <Button onClick={async () => {
+                for (const id of Array.from(selectedLookIds)) {
+                  const look = looks?.find(l => l.id === id);
+                  if (look && !cartLookIds.has(id)) {
+                    await setDoc(doc(db, 'users', firebaseUser!.uid, 'cart', id), {
+                      lookId: id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
+                    });
+                  }
+                }
+                setSelectedLookIds(new Set()); setIsSelectMode(false);
+              }} className="neon-bg text-black font-black px-6 rounded-xl">
+                <ShoppingCart className="w-4 h-4 mr-2" /> {t(dictionary.addToCart)}
               </Button>
             </div>
           </Card>

@@ -20,12 +20,10 @@ import {
   Save, 
   Loader2, 
   Send, 
-  Phone, 
   ShieldCheck, 
   PlusCircle, 
   Users, 
-  Trash2,
-  AlertTriangle
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -56,82 +54,37 @@ export default function ProfilePage() {
   const { data: editors } = useCollection(rolesQuery);
 
   useEffect(() => {
-    if (user?.phone) {
-      setPhone(user.phone);
-    }
+    if (user?.phone) setPhone(user.phone);
   }, [user]);
 
   const handleUpdatePhone = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      await updateDoc(doc(db, 'users', user.id), {
-        phone: phone,
-        updatedAt: serverTimestamp()
-      });
-      toast({ title: t(dictionary.success), description: t(dictionary.detailsUpdated) });
-    } catch (e) {
-      toast({ variant: "destructive", title: t(dictionary.errorTitle) });
-    } finally {
-      setIsSaving(false);
-    }
+      await updateDoc(doc(db, 'users', user.id), { phone, updatedAt: serverTimestamp() });
+      toast({ title: t(dictionary.success) });
+    } catch (e) { toast({ variant: "destructive", title: t(dictionary.errorTitle) }); }
+    finally { setIsSaving(false); }
   };
 
   const handleAddEditor = async () => {
     if (!newEditorUsername || !user) return;
     setIsAddingEditor(true);
     try {
-      const cleanTargetUsername = newEditorUsername.replace('@', '').toLowerCase().trim();
+      const cleanName = newEditorUsername.replace('@', '').toLowerCase().trim();
+      const q = query(collection(db, 'users'), where('username', '==', cleanName));
+      const snap = await getDocs(q);
       
-      // Step 1: Find the target user in the local database
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('username', '==', cleanTargetUsername));
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        toast({ 
-          variant: "destructive", 
-          title: "Foydalanuvchi topilmadi", 
-          description: "Iltimos, editor bo'ladigan shaxs avval botni ishga tushirganiga ishonch hosil qiling." 
-        });
+      if (snap.empty) {
+        toast({ variant: "destructive", title: "Not Found", description: "User must start the bot first." });
         return;
       }
 
-      const targetUserDoc = querySnapshot.docs[0];
-      const targetUid = targetUserDoc.id;
-
-      // Step 2: Grant the 'editor' role
-      await setDoc(doc(db, 'roles', targetUid), {
-        role: 'editor',
-        username: cleanTargetUsername,
-        addedAt: serverTimestamp(),
-        addedBy: user.id
-      });
-
-      toast({ 
-        title: "Muvaffaqiyatli", 
-        description: `@${cleanTargetUsername} endi do'kon editori huquqiga ega.` 
-      });
+      await setDoc(doc(db, 'roles', snap.docs[0].id), { role: 'editor', username: cleanName, addedAt: serverTimestamp(), addedBy: user.id });
+      toast({ title: "Success", description: `@${cleanName} is now an Editor.` });
       setNewEditorUsername('');
-    } catch (e) {
-      console.error("[RBAC Error]", e);
-      toast({ 
-        variant: "destructive", 
-        title: "Tizim xatosi", 
-        description: "Editor qo'shishda muammo yuz berdi." 
-      });
-    } finally {
-      setIsAddingEditor(false);
-    }
-  };
-
-  const handleRemoveEditor = async (uid: string) => {
-    try {
-      await deleteDoc(doc(db, 'roles', uid));
-      toast({ title: "Editor huquqi olib tashlandi" });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Amal bajarilmadi" });
-    }
+    } catch (e) { toast({ variant: "destructive", title: "Error" }); }
+    finally { setIsAddingEditor(false); }
   };
 
   if (isLoading && !user) {
@@ -160,62 +113,33 @@ export default function ProfilePage() {
       <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
         <div className="relative">
           <div className="absolute -inset-4 neon-bg opacity-20 blur-2xl rounded-full" />
-          <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-background shadow-2xl">
+          <Avatar className="w-24 h-24 border-2 neon-border p-1 bg-background">
             <AvatarImage src={user.photoUrl || undefined} alt={user.firstName} />
-            <AvatarFallback className="bg-foreground/5">
-              <User className="w-10 h-10 neon-text" />
-            </AvatarFallback>
+            <AvatarFallback><User className="w-10 h-10 neon-text" /></AvatarFallback>
           </Avatar>
-          {isPrivileged && (
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full neon-bg flex items-center justify-center border-2 border-background">
-              <ShieldCheck className="w-4 h-4 text-black" />
-            </div>
-          )}
+          {isPrivileged && <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full neon-bg flex items-center justify-center border-2 border-background"><ShieldCheck className="w-4 h-4 text-black" /></div>}
         </div>
-        
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
-            {user.firstName}
-          </h1>
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-2">
-              <Send className="w-3 h-3 neon-text" />
-              <p className="text-[10px] font-bold neon-text uppercase tracking-[0.2em] font-mono">
-                @{user.username || 'user'}
-              </p>
-            </div>
-            <p className="text-[9px] font-black text-foreground/70 uppercase tracking-widest">
-              {user.role === 'owner' ? 'Supreme Admin' : user.role === 'editor' ? 'Shop Editor' : t(dictionary.activeNode)}
+          <h1 className="text-2xl font-black text-foreground uppercase tracking-tight italic">{user.firstName}</h1>
+          <p className="text-[10px] font-bold neon-text uppercase tracking-widest font-mono">@{user.username || 'user'}</p>
+          <div className="mt-2 inline-block px-3 py-1 rounded-full bg-foreground/5 border border-foreground/10">
+            <p className="text-[9px] font-black text-primary uppercase tracking-widest">
+              {user.role === 'owner' ? 'Supreme Admin' : user.role === 'editor' ? 'Shop Editor' : 'Active Node'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ADMIN & EDITOR ACTIONS */}
       {isPrivileged && (
         <div className="space-y-4">
-          <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— Do'kon boshqaruvi</p>
+          <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— Admin Actions</p>
           <div className="grid grid-cols-1 gap-3">
             <Button asChild className="h-16 rounded-[2rem] glass-surface border-foreground/10 hover:neon-border text-foreground font-black uppercase text-xs tracking-widest justify-between px-8">
-              <Link href="/admin/looks/new">
-                <div className="flex items-center gap-4">
-                  <PlusCircle className="w-5 h-5 neon-text" />
-                  Yangi kiyim qo'shish
-                </div>
-                <ChevronRight className="w-4 h-4 opacity-20" />
-              </Link>
+              <Link href="/admin/looks/new"><div className="flex items-center gap-4"><PlusCircle className="w-5 h-5 neon-text" /> Add New Look</div><ChevronRight className="w-4 h-4 opacity-20" /></Link>
             </Button>
-            
             {user.role === 'owner' && (
-              <Button 
-                onClick={() => setShowAdminPanel(true)}
-                className="h-16 rounded-[2rem] glass-surface border-foreground/10 hover:neon-border text-foreground font-black uppercase text-xs tracking-widest justify-between px-8"
-              >
-                <div className="flex items-center gap-4">
-                  <Users className="w-5 h-5 neon-text" />
-                  Adminlarni boshqarish
-                </div>
-                <ChevronRight className="w-4 h-4 opacity-20" />
+              <Button onClick={() => setShowAdminPanel(true)} className="h-16 rounded-[2rem] glass-surface border-foreground/10 hover:neon-border text-foreground font-black uppercase text-xs tracking-widest justify-between px-8">
+                <div className="flex items-center gap-4"><Users className="w-5 h-5 neon-text" /> Manage Team</div><ChevronRight className="w-4 h-4 opacity-20" />
               </Button>
             )}
           </div>
@@ -223,96 +147,37 @@ export default function ProfilePage() {
       )}
 
       <div className="space-y-4">
-        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— {t(dictionary.contactInformation)}</p>
-        <Card className="glass-surface border-foreground/10 p-6 rounded-[2.5rem] flex gap-3 shadow-2xl relative overflow-hidden group">
-          <Input 
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+998 90 123 45 67"
-            className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground text-base transition-all"
-          />
-          <Button 
-            onClick={handleUpdatePhone}
-            disabled={isSaving}
-            className="h-14 w-14 rounded-2xl neon-bg border-none shadow-xl hover:scale-105 active:scale-95 transition-transform"
-          >
-            {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}
-          </Button>
+        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— Account Settings</p>
+        <Card className="glass-surface border-foreground/10 p-6 rounded-[2.5rem] flex gap-3 shadow-2xl">
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground" />
+          <Button onClick={handleUpdatePhone} disabled={isSaving} className="h-14 w-14 rounded-2xl neon-bg shadow-xl">{isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}</Button>
+        </Card>
+        <Card onClick={() => router.push('/orders')} className="glass-surface border-foreground/10 p-5 flex items-center justify-between group hover:border-primary/20 rounded-[2rem] cursor-pointer">
+          <div className="flex items-center gap-4"><div className="p-3 bg-foreground/5 rounded-xl"><Package className="w-5 h-5 neon-text" /></div><span className="font-bold text-sm text-foreground uppercase tracking-widest">{t(dictionary.orderHistory)}</span></div>
+          <ChevronRight className="w-5 h-5 text-foreground/20" />
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— {t(dictionary.myOrders)}</p>
-        <Card 
-          onClick={() => router.push('/orders')}
-          className="glass-surface border-foreground/10 p-5 flex items-center justify-between group hover:border-primary/20 active:scale-[0.98] transition-all cursor-pointer rounded-[2rem]"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-foreground/5 rounded-xl group-hover:neon-border transition-colors">
-              <Package className="w-5 h-5 neon-text" />
-            </div>
-            <span className="font-bold text-sm text-foreground uppercase tracking-widest">{t(dictionary.orderHistory)}</span>
-          </div>
-          <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:neon-text transition-all" />
-        </Card>
-      </div>
-
-      {/* MANAGE ADMINS DIALOG */}
       <Dialog open={showAdminPanel} onOpenChange={setShowAdminPanel}>
-        <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-3">
-              <Users className="w-6 h-6" />
-              Admin Paneli
-            </DialogTitle>
-          </DialogHeader>
-
+        <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-md shadow-2xl">
+          <DialogHeader className="mb-6"><DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-3"><Users className="w-6 h-6" /> Team Protocol</DialogTitle></DialogHeader>
           <div className="space-y-8">
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Yangi Editor Qo'shish</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Promote to Editor</Label>
               <div className="flex gap-2">
-                <Input 
-                  placeholder="@username" 
-                  value={newEditorUsername}
-                  onChange={(e) => setNewEditorUsername(e.target.value)}
-                  className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground"
-                />
-                <Button 
-                  onClick={handleAddEditor}
-                  disabled={isAddingEditor || !newEditorUsername}
-                  className="neon-bg text-black font-black px-6 rounded-xl h-12"
-                >
-                  {isAddingEditor ? <Loader2 className="animate-spin" /> : 'Qo\'shish'}
-                </Button>
+                <Input placeholder="@username" value={newEditorUsername} onChange={(e) => setNewEditorUsername(e.target.value)} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground" />
+                <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorUsername} className="neon-bg text-black font-black px-6 rounded-xl h-12">{isAddingEditor ? <Loader2 className="animate-spin" /> : 'Grant'}</Button>
               </div>
-              <p className="text-[10px] text-foreground/40 italic">
-                * Foydalanuvchi avval botimizni ishga tushirgan bo'lishi kerak.
-              </p>
             </div>
-
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Faol Editorlar</Label>
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                {editors?.length === 0 ? (
-                  <p className="text-center py-8 text-xs text-foreground/20 uppercase font-black">Editorlar topilmadi</p>
-                ) : (
-                  editors?.map((editor) => (
-                    <div key={editor.id} className="flex items-center justify-between p-4 bg-foreground/5 rounded-2xl border border-foreground/5">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-black text-foreground italic">@{editor.username || 'Noma\'lum'}</span>
-                        <span className="text-[9px] font-bold text-primary uppercase">{editor.role}</span>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleRemoveEditor(editor.id)}
-                        className="text-destructive hover:bg-destructive/10 rounded-xl"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))
-                )}
+              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Active Editors</Label>
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                {editors?.map((editor) => (
+                  <div key={editor.id} className="flex items-center justify-between p-4 bg-foreground/5 rounded-2xl border border-foreground/5">
+                    <div className="flex flex-col"><span className="text-sm font-black text-foreground italic">@{editor.username}</span><span className="text-[9px] font-bold text-primary uppercase">{editor.role}</span></div>
+                    <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: "Revoked" }); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

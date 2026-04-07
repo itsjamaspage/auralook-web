@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useFirestore, useAuth } from '@/firebase';
-import { doc, setDoc, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 
 export type UserRole = 'owner' | 'editor' | 'viewer';
@@ -31,7 +31,6 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-// SUPREME ADMIN CONFIGURATION
 const OWNER_USERNAME = 'itsjamaspage';
 
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
@@ -66,8 +65,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // SECURE IDENTITY VERIFICATION: Check signature via API
       try {
+        // SECURE IDENTITY VERIFICATION: Handshake via backend signature verification
         const verifyRes = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -84,7 +83,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // ROLE SYNC: Real-time listener for permissions
         const roleRef = doc(db, 'roles', firebaseUid);
         const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
           let assignedRole: UserRole = 'viewer';
