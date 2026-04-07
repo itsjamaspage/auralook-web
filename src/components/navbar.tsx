@@ -122,7 +122,7 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 py-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 pt-14 pb-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative border-foreground/10">
         
         <Link href="/" className="flex items-center gap-2 group">

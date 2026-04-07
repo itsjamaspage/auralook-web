@@ -224,7 +224,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="min-h-screen lg:min-h-[calc(100vh-100px)] bg-background text-foreground flex items-start lg:items-center justify-center py-6 lg:py-4">
-      <div className="container mx-auto px-4 max-w-5xl relative pb-32 lg:pb-0">
+      <div className="container mx-auto px-4 max-w-5xl relative pb-10 lg:pb-0">
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
           <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-md">
