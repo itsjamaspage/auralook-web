@@ -66,10 +66,21 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const rawUser = tg.initDataUnsafe.user;
-      const cleanUsername = rawUser.username?.toLowerCase() || null;
-      
+      // SECURE IDENTITY VERIFICATION: Check signature via API
       try {
+        const verifyRes = await fetch('/api/telegram-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData })
+        });
+
+        if (!verifyRes.ok) {
+          throw new Error('Identity verification failed.');
+        }
+
+        const rawUser = await verifyRes.json();
+        const cleanUsername = rawUser.username?.toLowerCase() || null;
+        
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
