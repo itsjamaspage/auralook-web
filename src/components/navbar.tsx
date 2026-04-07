@@ -120,8 +120,8 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 pt-20 pb-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative border-foreground/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-4 pt-12 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between py-2">
         
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
