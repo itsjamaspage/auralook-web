@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   // Benign flag toggle to force build artifact refresh and clear Turbopack runtime chunks
-  productionBrowserSourceMaps: false,
+  // Changed from false to true to bust Telegram's internal browser cache
+  productionBrowserSourceMaps: true,
   images: {
     remotePatterns: [
       {

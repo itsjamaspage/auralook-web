@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v12.0.0 RBAC Protocol)
+    // Assumed Data Model (v12.1.0 Stability Protocol)
     // ===============================================================
     
     function isAuthenticated() {
@@ -11,10 +11,11 @@ service cloud.firestore {
     }
 
     // SUPREME ADMIN BYPASS: @itsjamaspage (Owner)
+    // Hardened with existence check to prevent evaluation crashes for new users
     function isOwner() {
-      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
       return isAuthenticated() && (
-        userDoc.username == 'itsjamaspage' || 
+        (exists(userPath) && get(userPath).data.username == 'itsjamaspage') || 
         request.auth.uid == 'demo_admin_session'
       );
     }

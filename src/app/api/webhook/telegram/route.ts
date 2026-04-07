@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
 
       const welcomeMessage = `<b>Xush kelibsiz Auralook.uz rasmiy botiga!</b> ⚡️\n\n` +
-        `Salom, ${firstName}! Biz O'zbekistondagi birinchi futuristic techwear va cyber-fashion platformasimiz.\n\n` +
+        `Salom, ${firstName}! Biz O'zbekistondagi birinchi Xitoydan kiyim olib keladigan va o'zining telegram mini ilovasi bor platformasimiz.\n\n` +
         `🛸 <b>Biz haqimizda:</b>\n` +
-        `• Xitoydan to'g'ridan-to'g'ri premium yetkazib berish.\n` +
-        `• Sifat nazorati va halol narxlar.\n` +
+        `• Xitoydan to'g'ridan-to'g'ri yetkazib berish.\n` +
+        `• Yaxshi sifat va arzon narxlar.\n` +
         `• 7-12 kunda yetkazib berish.\n\n` +
         `Pastdagi tugmani bosib Mini App-ni oching va eng so'nggi to'plamlarimizni ko'ring!`;
 
