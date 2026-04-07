@@ -67,13 +67,11 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     
-    // CASE 1: Currently Fullscreen -> Request Exit
     if (document.fullscreenElement) {
       if (document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
       
-      // Modern TG Exit Protocol
       if (tg?.isVersionAtLeast?.('8.0') && typeof tg.exitFullscreen === 'function') {
         try {
           tg.exitFullscreen();
@@ -85,7 +83,6 @@ export function Navbar() {
       return;
     }
 
-    // CASE 2: Not Fullscreen -> Request Entry
     if (tg) {
       tg.expand();
       if (tg.isVersionAtLeast?.('8.0') && typeof tg.requestFullscreen === 'function') {
@@ -114,15 +111,16 @@ export function Navbar() {
     { code: 'en', label: 'EN' },
   ];
 
-  // SUPREME ADMIN ACCESS CHECK
   const isAdmin = user?.username?.toLowerCase() === 'itsjamaspage' || 
                   user?.role === 'admin' || 
+                  user?.role === 'editor' ||
+                  user?.role === 'owner' ||
                   user?.firebaseUid === 'demo_admin_session';
 
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 pt-14 pb-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-6 pt-20 pb-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between glass-surface rounded-3xl lg:rounded-[2.5rem] px-6 lg:px-10 py-4 lg:py-5 relative border-foreground/10">
         
         <Link href="/" className="flex items-center gap-2 group">

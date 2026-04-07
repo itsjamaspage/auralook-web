@@ -3,20 +3,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v14.1.0 Unified RBAC Protocol)
+    // Assumed Data Model (v14.2.0 Permission Stability Protocol)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Role detection from the roles collection (Source of Truth)
     function getRole() {
       let rolePath = /databases/$(database)/documents/roles/$(request.auth.uid);
       return exists(rolePath) ? get(rolePath).data.role : 'viewer';
     }
 
-    // SUPREME ADMIN & OWNER CHECK
     function isOwner() {
       let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
       let role = getRole();
@@ -27,7 +25,6 @@ service cloud.firestore {
       );
     }
 
-    // PRIVILEGED ACCESS (Owner or Editor)
     function isEditor() {
       let role = getRole();
       return isOwner() || (
@@ -36,19 +33,16 @@ service cloud.firestore {
       );
     }
 
-    // ROLES MANAGEMENT (Owner Only)
     match /roles/{uid} {
       allow read: if isAuthenticated() && (request.auth.uid == uid || isOwner());
       allow write: if isOwner();
     }
 
-    // CATALOG (Editors & Owner)
     match /looks/{lookId} {
       allow read: if true;
       allow create, update, delete: if isEditor();
     }
 
-    // USERS (Privacy Gated)
     match /users/{userId} {
       allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
       
@@ -61,12 +55,11 @@ service cloud.firestore {
       }
     }
 
-    // ORDERS
     match /orders/{orderId} {
       allow read: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || isEditor());
       allow create: if isAuthenticated();
       allow update: if isEditor() || (
-        // Allow customers to cancel their own orders
+        // STABILITY FIX: Explicitly allow order owners to cancel their own orders
         isAuthenticated() && 
         resource.data.firebaseUid == request.auth.uid && 
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']) &&
@@ -75,7 +68,6 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
 
-    // CONSULTATIONS
     match /consultations/{id} {
       allow read: if isEditor();
       allow write: if isAuthenticated();

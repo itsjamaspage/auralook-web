@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Template-based order notifications for Telegram.
- * Enhanced with Bilateral Notification Protocol (Admin + Customer).
+ * Enhanced with Multi-Admin Bilateral Notification Protocol.
  */
 
 import { z } from 'genkit';
@@ -20,7 +20,7 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
   productName: z.string(),
   phoneNumber: z.string().optional(),
   telegramUsername: z.string().optional(),
-  customerTelegramId: z.number().optional(), // Added for customer messaging
+  customerTelegramId: z.number().optional(),
   imageUrl: z.string().optional(),
   estimatedDeliveryDate: z.string().nullable().optional(),
   language: z.enum(['uz']),
@@ -30,13 +30,14 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
 /**
- * Dispatches a notification to the Telegram Admin bot.
+ * Dispatches a notification to the Telegram Admin bot (Sends to all editors in list).
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  // Support comma-separated list of IDs for all editors
+  const adminChatIds = (process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
 
-  if (!token || !adminChatId) {
+  if (!token || adminChatIds.length === 0) {
     console.warn("[Telegram Protocol] ABORTED: Admin credentials missing.");
     return;
   }
@@ -76,46 +77,49 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
 
     const isDataUri = input.imageUrl?.startsWith('data:');
 
-    if (input.imageUrl) {
-      if (isDataUri) {
-        const formData = new FormData();
-        formData.append('chat_id', adminChatId);
-        formData.append('parse_mode', 'HTML');
-        formData.append('caption', finalCaption);
-        
-        const [meta, base64] = input.imageUrl.split(',');
-        const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
-        const binary = Buffer.from(base64, 'base64');
-        const blob = new Blob([binary], { type: mime });
-        
-        formData.append('photo', blob, 'outfit.jpg');
+    // Loop through all admin/editor chat IDs to inform everyone
+    for (const chatId of adminChatIds) {
+      if (input.imageUrl) {
+        if (isDataUri) {
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+          formData.append('parse_mode', 'HTML');
+          formData.append('caption', finalCaption);
+          
+          const [meta, base64] = input.imageUrl.split(',');
+          const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
+          const binary = Buffer.from(base64, 'base64');
+          const blob = new Blob([binary], { type: mime });
+          
+          formData.append('photo', blob, 'outfit.jpg');
 
-        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-          method: 'POST',
-          body: formData
-        });
+          await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+          });
+        } else {
+          await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              photo: input.imageUrl,
+              caption: finalCaption,
+              parse_mode: 'HTML'
+            })
+          });
+        }
       } else {
-        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: adminChatId,
-            photo: input.imageUrl,
-            caption: finalCaption,
+            chat_id: chatId,
+            text: finalCaption,
             parse_mode: 'HTML'
           })
         });
       }
-    } else {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: adminChatId,
-          text: finalCaption,
-          parse_mode: 'HTML'
-        })
-      });
     }
   } catch (error) {
     console.error("[Telegram Protocol] ADMIN NOTIFY FAILURE:", error);
