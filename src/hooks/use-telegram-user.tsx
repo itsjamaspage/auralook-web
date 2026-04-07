@@ -30,7 +30,6 @@ interface TelegramUserContextType {
 }
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
-const CACHE_KEY = 'auralook_protocol_v12.0.0';
 
 // SUPREME ADMIN CONFIGURATION
 const OWNER_USERNAME = 'itsjamaspage';
@@ -55,9 +54,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       const tg = getTG();
-      const isDev = window.location.hostname.includes('hosted.app') || 
-                    window.location.hostname.includes('cloudworkstations.dev') ||
-                    window.location.hostname === 'localhost';
+      const isDev = typeof window !== 'undefined' && (
+        window.location.hostname.includes('hosted.app') || 
+        window.location.hostname.includes('cloudworkstations.dev') ||
+        window.location.hostname === 'localhost'
+      );
 
       if (!tg?.initDataUnsafe?.user) {
         if (isDev) handleDemoMode();

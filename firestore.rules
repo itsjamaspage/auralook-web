@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v13.0.0 Unified RBAC Protocol)
+    // Assumed Data Model (v14.0.0 Unified RBAC Protocol)
     // ===============================================================
     
     function isAuthenticated() {
@@ -19,8 +19,9 @@ service cloud.firestore {
     // SUPREME ADMIN & OWNER CHECK
     function isOwner() {
       let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      let role = getRole();
       return isAuthenticated() && (
-        getRole() == 'owner' ||
+        role == 'owner' ||
         (exists(userPath) && get(userPath).data.username == 'itsjamaspage') || 
         request.auth.uid == 'demo_admin_session'
       );
