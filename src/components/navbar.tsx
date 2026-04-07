@@ -120,28 +120,28 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-4 pt-12 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
-      <div className="max-w-7xl mx-auto flex items-center justify-between py-2">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-2 pt-8 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-xl lg:text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex items-center gap-2">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
-            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-10 w-10 lg:h-11 lg:w-11 p-0 group"
+            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-9 w-9 lg:h-10 lg:w-10 p-0 group"
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4 neon-text" /> : <Maximize2 className="w-4 h-4 neon-text" />}
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 neon-text" /> : <Maximize2 className="w-3.5 h-3.5 neon-text" />}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-10 lg:h-11 w-10 lg:w-11 p-0 font-black uppercase text-foreground text-[10px] lg:text-xs">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-9 lg:h-10 w-9 lg:w-10 p-0 font-black uppercase text-foreground text-[10px]">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -163,8 +163,8 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-10 lg:h-11 w-10 lg:w-11 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-5 h-5 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-9 lg:h-10 w-9 lg:w-10 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-4.5 h-4.5 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 w-64 mt-2">
