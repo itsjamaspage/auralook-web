@@ -52,7 +52,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { toast } = useToast();
   const db = useFirestore();
   const router = useRouter();
-  const { user: tgUser } = useTelegramUser();
+  const { user: tgUser, isVerified } = useTelegramUser();
   const { user: firebaseUser } = useUser();
   
   const [showCheckout, setShowCheckout] = useState(false);
@@ -69,15 +69,16 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     telegram: ''
   });
 
+  // IDENTITY RECOGNITION PROTOCOL
   useEffect(() => {
-    if (tgUser) {
+    if (tgUser && isVerified) {
       setOrderDetails(prev => ({
         ...prev,
-        telegram: tgUser.username || '',
-        phone: '+998 '
+        telegram: tgUser.username ? `@${tgUser.username.replace('@', '')}` : prev.telegram,
+        phone: tgUser.phone || prev.phone || '+998 '
       }));
     }
-  }, [tgUser]);
+  }, [tgUser, isVerified]);
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
@@ -180,7 +181,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
       const docRef = await addDoc(collection(db, 'orders'), orderData);
 
-      // Bilateral Notification Protocol
       const notificationInput = {
         customerName: orderData.customerName,
         orderId: docRef.id,
@@ -188,7 +188,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         productName: look.name,
         phoneNumber: orderData.phoneNumber,
         telegramUsername: orderData.telegramUsername,
-        customerTelegramId: tgUser?.telegramId, // Critical for customer bot message
+        customerTelegramId: tgUser?.telegramId,
         imageUrl: look.imageUrl,
         language: 'uz' as const,
         timestamp: timestamp,

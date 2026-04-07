@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
@@ -38,6 +38,17 @@ export default function CartPage() {
     phone: '+998 ',
     telegram: ''
   });
+
+  // IDENTITY RECOGNITION PROTOCOL
+  useEffect(() => {
+    if (tgUser && isVerified) {
+      setOrderDetails(prev => ({
+        ...prev,
+        telegram: tgUser.username ? `@${tgUser.username.replace('@', '')}` : prev.telegram,
+        phone: tgUser.phone || prev.phone
+      }));
+    }
+  }, [tgUser, isVerified]);
 
   const cartQuery = useMemoFirebase(() => {
     if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
@@ -104,17 +115,16 @@ export default function CartPage() {
           size: selectedSize || `M (${t(dictionary.managerAdviceLabel)})`,
           phoneNumber: orderDetails.phone,
           telegramUsername: orderDetails.telegram,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
           measurements: {
             height: orderDetails.height || 'Noma\'lum',
             weight: orderDetails.weight || 'Noma\'lum',
-          },
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
+          }
         };
 
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         
-        // Bilateral Notification Protocol
         const notificationInput = {
           customerName: orderData.customerName,
           orderId: docRef.id,
@@ -122,7 +132,7 @@ export default function CartPage() {
           productName: item.name,
           phoneNumber: orderData.phoneNumber,
           telegramUsername: orderData.telegramUsername,
-          customerTelegramId: tgUser?.telegramId, // Critical for customer bot message
+          customerTelegramId: tgUser?.telegramId,
           imageUrl: item.imageUrl,
           language: 'uz' as const,
           timestamp: timestamp,
@@ -136,7 +146,6 @@ export default function CartPage() {
         await notifyAdminOfOrder(notificationInput);
         await notifyCustomerOfOrder(notificationInput);
 
-        // Clear item from cart
         await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', item.id));
       }
 
