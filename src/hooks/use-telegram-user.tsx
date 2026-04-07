@@ -83,6 +83,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
+        // Listen to roles for dynamic RBAC updates
         const roleRef = doc(db, 'roles', firebaseUid);
         const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
           let assignedRole: UserRole = 'viewer';

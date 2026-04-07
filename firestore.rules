@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v17.0.0 Hardened Identity Protocol)
+    // Assumed Data Model (v18.0.0 Dynamic RBAC Protocol)
     // ===============================================================
     
     function isAuthenticated() {
@@ -47,7 +47,7 @@ service cloud.firestore {
 
     match /looks/{lookId} {
       allow read: if true;
-      allow list: if request.query.limit <= 50; // Mass-fetch prevention
+      allow list: if request.query.limit <= 50; 
       allow create: if isEditor() && isValidLook(request.resource.data) && request.resource.data.createdAt == request.time;
       allow update: if isEditor() && isValidLook(request.resource.data);
       allow delete: if isEditor();
@@ -70,7 +70,7 @@ service cloud.firestore {
       allow list: if isEditor() || (isAuthenticated() && request.query.limit <= 20);
       allow create: if isAuthenticated() 
                     && request.resource.data.createdAt == request.time
-                    && request.resource.data.firebaseUid == request.auth.uid; // Identity Pinning
+                    && request.resource.data.firebaseUid == request.auth.uid; 
       allow update: if isEditor() || (
         isAuthenticated() && 
         resource.data.firebaseUid == request.auth.uid && 

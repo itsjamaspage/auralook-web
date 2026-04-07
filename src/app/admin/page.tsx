@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
 
-  // UNIFIED ADMIN ACCESS PROTOCOL: Recognize both Owner and Editor
+  // UNIFIED ADMIN ACCESS PROTOCOL: Recognizes roles dynamically assigned via database
   const isAdmin = user?.role === 'owner' || 
                   user?.role === 'editor' || 
                   user?.firebaseUid === 'demo_admin_session' ||
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   // SECURE QUERY GATING: Only run queries if admin identity is confirmed
   const looksQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
-    return collection(db, 'looks');
+    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
   }, [db, isAdmin]);
   
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
     try {
       const collectionName = itemToDelete.type === 'look' ? 'looks' : 'orders';
       await deleteDoc(doc(db, collectionName, itemToDelete.id));
-      toast({ title: t(dictionary.delete) + " ok." });
+      toast({ title: t(dictionary.operationSuccess) });
     } catch (e) {
       toast({ variant: "destructive", title: "Delete Failed" });
     } finally {
@@ -107,7 +107,8 @@ export default function AdminDashboard() {
       case 'New': return t(dictionary.orderPending);
       case 'Confirmed': return t(dictionary.orderAccepted);
       case 'Shipped': return t(dictionary.orderShipped);
-      case 'Delivered': return t(dictionary.orderDelivered);
+      case 'Delivered': return t(dictionary.orderYetkazildi);
+      case 'Cancelled': return t(dictionary.orderCancelled);
       default: return status || 'Unknown';
     }
   };
@@ -125,14 +126,6 @@ export default function AdminDashboard() {
     return new Intl.NumberFormat('uz-UZ').format(num).replace(/,/g, ' ');
   };
 
-  const translateSize = (size: any) => {
-    if (!size || typeof size !== 'string') return 'N/A';
-    if (size.includes('(Menejer maslahati)')) {
-      return size.replace('(Menejer maslahati)', `(${t(dictionary.managerAdviceLabel)})`);
-    }
-    return size;
-  };
-
   if (userLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -147,7 +140,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
         <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Access Restricted: Unified RBAC authorization failed.</p>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Dynamic RBAC Authorization Failed.</p>
         <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
           <Link href="/">Back to Surface</Link>
         </Button>
@@ -176,7 +169,7 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="orders" className="space-y-6">
-        <TabsList className="bg-foreground/5 border border-foreground/10 p-1 rounded-2xl h-12 flex w-full sm:w-fit overflow-x-auto overflow-y-hidden">
+        <TabsList className="bg-foreground/5 border border-foreground/10 p-1 rounded-2xl h-12 flex w-full sm:w-fit">
           <TabsTrigger value="orders" className="rounded-xl px-6 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-widest text-[10px] data-[state=active]:neon-bg data-[state=active]:text-black transition-all">
             {t(dictionary.orders)}
           </TabsTrigger>
@@ -186,11 +179,11 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="inventory" className="space-y-6">
-          <div className="hidden md:block">
-            <Card className="glass-surface border-foreground/10 rounded-[2rem] overflow-hidden shadow-2xl relative">
-              {looksLoading ? (
-                <div className="p-32 flex flex-col items-center gap-6"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
-              ) : (
+          <Card className="glass-surface border-foreground/10 rounded-[2rem] overflow-hidden shadow-2xl relative">
+            {looksLoading ? (
+              <div className="p-32 flex flex-col items-center gap-6"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
+            ) : (
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-foreground/5">
                     <TableRow className="border-none">
@@ -207,7 +200,7 @@ export default function AdminDashboard() {
                           <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-12 h-16 object-cover rounded-lg border border-foreground/10" alt="" />
                         </TableCell>
                         <TableCell className="font-bold text-foreground/90">
-                          {typeof look.name === 'string' ? look.name : look.name?.uz || 'Unnamed Look'}
+                          {look.name}
                         </TableCell>
                         <TableCell className="neon-text font-black tracking-tighter">
                           {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
@@ -222,39 +215,9 @@ export default function AdminDashboard() {
                     ))}
                   </TableBody>
                 </Table>
-              )}
-            </Card>
-          </div>
-
-          <div className="md:hidden grid grid-cols-1 gap-4">
-            {looks?.map((look) => (
-              <Card key={look.id} className="glass-surface border-foreground/5 p-4 rounded-[2rem] flex items-center gap-4">
-                <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-20 h-24 object-cover rounded-xl border border-foreground/10" alt="" />
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-sm font-black text-foreground uppercase italic truncate">
-                    {typeof look.name === 'string' ? look.name : look.name?.uz || 'Unnamed'}
-                  </h3>
-                  <p className="neon-text font-black tracking-tighter text-sm">
-                    {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
-                  </p>
-                  <div className="flex gap-2 pt-2">
-                    <Link href={`/admin/looks/${look.id}/edit`} className="flex-1">
-                      <Button variant="outline" className="w-full h-9 rounded-lg border-foreground/10 text-[10px] font-black uppercase text-foreground">
-                        <Edit3 className="w-3 h-3 mr-1" /> {t(dictionary.edit)}
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => setItemToDelete({ id: look.id, type: 'look' })} 
-                      className="h-9 w-9 rounded-lg bg-foreground/5 text-destructive"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+              </div>
+            )}
+          </Card>
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
@@ -270,7 +233,7 @@ export default function AdminDashboard() {
                       <h3 className="text-lg sm:text-xl font-black text-foreground italic tracking-tight leading-tight uppercase line-clamp-2">
                         {order.lookName || t(dictionary.outfit)}
                       </h3>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{t(dictionary.size)}: {translateSize(order.size)}</p>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{t(dictionary.size)}: {order.size}</p>
                     </div>
                     <div className="flex flex-col items-end gap-3 shrink-0">
                       <div className="flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-full border border-foreground/10 whitespace-nowrap">
@@ -316,17 +279,6 @@ export default function AdminDashboard() {
                         <p className="text-sm text-foreground font-mono">{order.phoneNumber || 'N/A'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center">
-                        <Ruler className="w-4 h-4 text-foreground" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-foreground uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</span>
-                        <p className="text-sm text-foreground font-mono">
-                          {order.measurements?.height || '?'}cm / {order.measurements?.weight || '?'}kg
-                        </p>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-2 relative z-10 gap-4">
@@ -339,14 +291,14 @@ export default function AdminDashboard() {
                     
                     <div className="relative">
                       <select 
-                        className="appearance-none bg-primary text-black text-[10px] font-black rounded-xl pl-4 pr-10 h-12 w-full sm:w-auto outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer uppercase tracking-widest shadow-[0_0_20px_rgba(var(--sync-color),0.3)]"
+                        className="appearance-none bg-primary text-black text-[10px] font-black rounded-xl pl-4 pr-10 h-12 w-full sm:w-auto outline-none cursor-pointer uppercase tracking-widest shadow-[0_0_20px_rgba(var(--sync-color),0.3)]"
                         value={order.status || 'New'}
                         onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
                       >
                         <option value="New">{t(dictionary.orderPending)}</option>
                         <option value="Confirmed">{t(dictionary.orderAccepted)}</option>
                         <option value="Shipped">{t(dictionary.orderShipped)}</option>
-                        <option value="Delivered">{t(dictionary.orderDelivered)}</option>
+                        <option value="Delivered">{t(dictionary.orderYetkazildi)}</option>
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black pointer-events-none stroke-[3px]" />
                     </div>
@@ -357,7 +309,7 @@ export default function AdminDashboard() {
               {(!orders || orders.length === 0) && (
                 <div className="col-span-full py-32 text-center">
                   <Package className="w-16 h-16 text-foreground/10 mx-auto mb-4" />
-                  <p className="text-foreground uppercase font-black italic tracking-[0.2em]">{t(dictionary.repositoryEmpty)}</p>
+                  <p className="text-foreground uppercase font-black italic tracking-[0.2em]">{t(dictionary.nothingFound)}</p>
                 </div>
               )}
             </div>
@@ -366,7 +318,7 @@ export default function AdminDashboard() {
       </Tabs>
 
       <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
-        <AlertDialogContent className="glass-surface border-foreground/10 rounded-[2rem] sm:rounded-[2.5rem] text-foreground shadow-[0_0_50px_rgba(0,0,0,0.5)] mx-4">
+        <AlertDialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground shadow-2xl mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl sm:text-2xl font-black neon-text uppercase italic">{t(dictionary.confirmDeleteTitle)}</AlertDialogTitle>
             <AlertDialogDescription className="text-foreground font-medium">{t(dictionary.confirmDeleteDesc)}</AlertDialogDescription>

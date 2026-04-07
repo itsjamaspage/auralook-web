@@ -15,7 +15,8 @@ export function verifyTelegramInitData(initData: string): boolean {
   
   if (!hash || !authDate) return false;
 
-  // 1. Replay Attack Prevention: Reject if the initData is older than 5 minutes
+  // 1. Replay Attack Prevention: Reject if the initData is older than 5 minutes (300 seconds)
+  // Industry standard for Telegram Mini Apps to prevent session theft.
   const ageSeconds = Math.floor(Date.now() / 1000) - authDate;
   if (ageSeconds > 300) {
     console.warn('[Security] Expired Telegram initData rejected.');
