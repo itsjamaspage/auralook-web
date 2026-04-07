@@ -77,6 +77,17 @@
         "currency": { "type": "string" },
         "firebaseUid": { "type": "string" }
       }
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "performedBy": { "type": "string" },
+        "targetId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" }
+      }
     }
   },
   "auth": {
@@ -121,6 +132,15 @@
           "entityName": "Order",
           "schema": {
             "$ref": "#/backend/entities/Order"
+          }
+        }
+      },
+      {
+        "path": "/audit_logs/{logId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
           }
         }
       }
