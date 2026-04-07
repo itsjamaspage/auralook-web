@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v18.0.0 Dynamic RBAC Protocol)
+    // Assumed Data Model (v19.0.0 Dynamic RBAC Protocol)
     // ===============================================================
     
     function isAuthenticated() {

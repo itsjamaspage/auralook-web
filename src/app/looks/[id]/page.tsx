@@ -222,18 +222,18 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="min-h-screen lg:min-h-[calc(100vh-100px)] bg-background text-foreground flex items-start lg:items-center justify-center py-6 lg:py-4">
+    <div className="min-h-[calc(100vh-100px)] bg-background text-foreground flex items-start lg:items-center justify-center py-4">
       <div className="container mx-auto px-4 max-w-5xl relative">
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
-          <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-md">
+          <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-sm">
             <div className="absolute -top-10 left-0 z-20">
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
-                className="rounded-full w-10 h-10 p-0 border border-foreground/10 glass-surface hover:neon-border text-foreground transition-all"
+                className="rounded-full w-9 h-9 p-0 border border-foreground/10 glass-surface hover:neon-border text-foreground transition-all"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </Button>
             </div>
 
@@ -249,41 +249,41 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
 
           <div className="lg:col-span-7 flex flex-col h-full justify-center">
-            <div className="space-y-6 lg:space-y-8 glass-surface border-foreground/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl">
-              <div className="space-y-4">
+            <div className="space-y-5 lg:space-y-6 glass-surface border-foreground/10 rounded-[2rem] p-6 lg:p-10 shadow-2xl">
+              <div className="space-y-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl lg:text-4xl font-black text-foreground tracking-tighter">
+                  <span className="text-2xl lg:text-3xl font-black text-foreground tracking-tighter">
                     {look.currency === 'UZS' ? `${formatPrice(look.price)}` : `$${formatPrice(look.price)}`}
                   </span>
-                  <span className="text-[10px] font-black text-foreground/60 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
+                  <span className="text-[9px] font-black text-foreground/60 uppercase tracking-[0.2em]">{look.currency || 'USD'}</span>
                 </div>
-                <h1 className="text-xl lg:text-2xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
+                <h1 className="text-lg lg:text-xl font-black neon-text italic uppercase tracking-tight leading-tight">{look.name}</h1>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[9px] font-black text-foreground/60 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
-                <div className="text-sm text-foreground/80 font-medium italic leading-relaxed whitespace-pre-line">
+                <p className="text-[8px] font-black text-foreground/60 uppercase tracking-[0.2em]">{t(dictionary.technicalDetails)}</p>
+                <div className="text-xs text-foreground/80 font-medium italic leading-relaxed whitespace-pre-line">
                   {look.description}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 pt-4">
+              <div className="grid grid-cols-1 gap-3 pt-2">
                 <Button 
                   onClick={() => setShowCheckout(true)}
-                  className="w-full h-14 lg:h-16 rounded-2xl neon-bg text-black font-black text-sm uppercase tracking-[0.2em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-12 lg:h-14 rounded-xl lg:rounded-2xl neon-bg text-black font-black text-[10px] lg:text-xs uppercase tracking-[0.15em] border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {t(dictionary.executePurchase)}
-                  <ArrowRight className="ml-2 w-5 h-5 lg:w-6 lg:h-6 text-black" />
+                  <ArrowRight className="ml-2 w-4 h-4 lg:w-5 lg:h-5 text-black" />
                 </Button>
                 <Button 
                   onClick={handleAddToCart}
                   disabled={isAddingToCart}
                   variant="outline"
-                  className="w-full h-14 lg:h-16 rounded-2xl border-foreground/10 text-foreground font-black text-sm uppercase tracking-[0.2em] hover:neon-border transition-all"
+                  className="w-full h-12 lg:h-14 rounded-xl lg:rounded-2xl border-foreground/10 text-foreground font-black text-[10px] lg:text-xs uppercase tracking-[0.15em] hover:neon-border transition-all"
                 >
                   {isAddingToCart ? <Loader2 className="animate-spin" /> : (
                     <>
-                      <ShoppingCart className="mr-2 w-5 h-5" />
+                      <ShoppingCart className="mr-2 w-4 h-4" />
                       {t(dictionary.addToCart)}
                     </>
                   )}

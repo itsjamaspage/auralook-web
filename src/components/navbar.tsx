@@ -66,26 +66,32 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     
-    if (document.fullscreenElement) {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-      setIsFullscreen(false);
-      return;
-    }
-
     if (tg) {
-      tg.expand();
+      if (tg.isExpanded) {
+        // Unfortunately, TG WebApp doesn't have a direct 'shrink' but we can toggle browser FS
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+          setIsFullscreen(false);
+        } else {
+          tg.expand();
+          setIsFullscreen(true);
+        }
+      } else {
+        tg.expand();
+        setIsFullscreen(true);
+      }
     }
     
-    try {
-      if (!document.fullscreenElement) {
+    // Standard fallback for browser testing
+    if (!tg) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+        setIsFullscreen(false);
+      } else {
         document.documentElement.requestFullscreen()
           .then(() => setIsFullscreen(true))
           .catch(() => setIsFullscreen(true));
       }
-    } catch (e) {
-      console.warn("Browser Fullscreen entry aborted:", e);
     }
   };
 
@@ -104,11 +110,11 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-2 pt-6 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-10">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-4 pb-2 pt-4 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-8">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-lg lg:text-xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-base lg:text-lg font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
@@ -118,14 +124,14 @@ export function Navbar() {
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
-            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-8 w-8 p-0 group"
+            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-7 w-7 p-0 group"
           >
             {isFullscreen ? <Minimize2 className="w-3 h-3 neon-text" /> : <Maximize2 className="w-3 h-3 neon-text" />}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-8 w-8 p-0 font-black uppercase text-foreground text-[9px]">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-7 w-7 p-0 font-black uppercase text-foreground text-[8px]">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -147,8 +153,8 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-8 w-8 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-4 h-4 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-7 w-7 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-3.5 h-3.5 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 w-64 mt-2">
