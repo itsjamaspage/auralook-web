@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -19,15 +18,7 @@ import {
   TabsContent, 
   TabsList, 
   TabsTrigger 
-} from "@/components/ui/tabs";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+} from "@/TabsContent";
 import { 
   Plus, 
   Loader2,
@@ -178,46 +169,46 @@ export default function AdminDashboard() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="inventory" className="space-y-6">
-          <Card className="glass-surface border-foreground/10 rounded-[2rem] overflow-hidden shadow-2xl relative">
+        <TabsContent value="inventory" className="space-y-6 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {looksLoading ? (
-              <div className="p-32 flex flex-col items-center gap-6"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
+              <div className="col-span-full p-32 flex justify-center"><Loader2 className="animate-spin w-10 h-10 neon-text" /></div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-foreground/5">
-                    <TableRow className="border-none">
-                      <TableHead className="pl-8 text-[10px] uppercase tracking-widest text-foreground">{t(dictionary.visual)}</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-widest text-foreground">{t(dictionary.itemName)}</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-widest text-foreground">{t(dictionary.amount)}</TableHead>
-                      <TableHead className="text-right pr-8 text-[10px] uppercase tracking-widest text-foreground">{t(dictionary.action)}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {looks?.map((look) => (
-                      <TableRow key={look.id} className="border-foreground/5 hover:bg-foreground/[0.03] transition-colors">
-                        <TableCell className="pl-8 py-4">
-                          <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-12 h-16 object-cover rounded-lg border border-foreground/10" alt="" />
-                        </TableCell>
-                        <TableCell className="font-bold text-foreground/90">
-                          {look.name}
-                        </TableCell>
-                        <TableCell className="neon-text font-black tracking-tighter">
-                          {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
-                        </TableCell>
-                        <TableCell className="text-right pr-8">
-                          <div className="flex justify-end gap-2">
-                            <Link href={`/admin/looks/${look.id}/edit`}><Button variant="ghost" size="icon" className="hover:neon-text text-foreground"><Edit3 className="w-4 h-4" /></Button></Link>
-                            <Button variant="ghost" size="icon" onClick={() => setItemToDelete({ id: look.id, type: 'look' })} className="hover:text-destructive text-foreground"><Trash2 className="w-4 h-4" /></Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              looks?.map((look) => (
+                <Card key={look.id} className="glass-surface border-foreground/5 p-4 rounded-[2.5rem] flex items-center gap-4 group hover:border-foreground/20 transition-all shadow-xl">
+                  <div className="relative w-16 h-20 shrink-0 rounded-xl overflow-hidden border border-foreground/10 bg-muted/20">
+                    <img src={look.imageUrl || 'https://picsum.photos/seed/placeholder/100/100'} className="w-full h-full object-cover" alt="" />
+                  </div>
+                  <div className="flex-grow space-y-1 min-w-0">
+                    <h3 className="text-sm font-black text-foreground uppercase italic truncate">{look.name}</h3>
+                    <p className="text-[9px] font-bold text-foreground/40 uppercase tracking-widest">{look.id.substring(0, 8)}</p>
+                    <p className="neon-text font-black tracking-tighter text-sm">
+                      {look.currency === 'UZS' ? `${formatCurrencyValue(look.price)} UZS` : `$${formatCurrencyValue(look.price)}`}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-foreground/5 text-foreground hover:neon-text">
+                      <Link href={`/admin/looks/${look.id}/edit`}><Edit3 className="w-4 h-4" /></Link>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setItemToDelete({ id: look.id, type: 'look' })} 
+                      className="h-9 w-9 rounded-xl bg-foreground/5 text-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </Card>
+              ))
             )}
-          </Card>
+          </div>
+          {(!looks || looks.length === 0) && !looksLoading && (
+            <div className="py-32 text-center">
+              <Package className="w-16 h-16 text-foreground/10 mx-auto mb-4" />
+              <p className="text-foreground uppercase font-black italic tracking-[0.2em]">{t(dictionary.nothingFound)}</p>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">

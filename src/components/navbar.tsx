@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -67,31 +66,20 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg) {
-      if (tg.isExpanded) {
-        // Unfortunately, TG WebApp doesn't have a direct 'shrink' but we can toggle browser FS
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-          setIsFullscreen(false);
-        } else {
-          tg.expand();
-          setIsFullscreen(true);
-        }
-      } else {
-        tg.expand();
-        setIsFullscreen(true);
-      }
+      // Force Telegram to expand to maximum height
+      tg.expand();
+      setIsFullscreen(true);
+      return;
     }
     
     // Standard fallback for browser testing
-    if (!tg) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-        setIsFullscreen(false);
-      } else {
-        document.documentElement.requestFullscreen()
-          .then(() => setIsFullscreen(true))
-          .catch(() => setIsFullscreen(true));
-      }
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    } else {
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(() => setIsFullscreen(false));
     }
   };
 
