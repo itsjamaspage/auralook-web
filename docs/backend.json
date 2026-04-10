@@ -64,7 +64,8 @@
         "price": { "type": "number" },
         "currency": { "type": "string" },
         "imageUrl": { "type": "string" },
-        "discount": { "type": "number" }
+        "discount": { "type": "number" },
+        "category": { "type": "string" }
       }
     },
     "Order": {
