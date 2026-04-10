@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { postNewLookToChannel } from '@/ai/flows/ai-telegram-order-status-notification';
 
 export default function NewLookPage() {
   const [saving, setSaving] = useState(false);
@@ -41,12 +42,10 @@ export default function NewLookPage() {
   };
 
   const parseNumericValue = (val: string, curr: string) => {
-    // Definitive fix for UZS price truncation: strip ALL non-digit characters
     if (curr === 'UZS') {
       const onlyDigits = val.replace(/\D/g, '');
       return parseInt(onlyDigits, 10) || 0;
     }
-    // For USD, handle decimal points correctly
     const cleaned = val.replace(/[^\d.]/g, '');
     return parseFloat(cleaned) || 0;
   };
@@ -67,7 +66,7 @@ export default function NewLookPage() {
       const numericDiscount = parseFloat(discount) || 0;
 
       const lookData = {
-        name: `Look ${new Date().toLocaleDateString()}`,
+        name: `Outfit ${new Date().toLocaleDateString()}`,
         description,
         price: numericPrice,
         discount: numericDiscount,
@@ -76,10 +75,21 @@ export default function NewLookPage() {
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, 'looks'), lookData);
+      const docRef = await addDoc(collection(db, 'looks'), lookData);
+
+      // PROTOCOL: Automated Broadcast to Telegram Channel
+      await postNewLookToChannel({
+        id: docRef.id,
+        name: lookData.name,
+        price: lookData.price,
+        currency: lookData.currency,
+        description: lookData.description,
+        imageUrl: lookData.imageUrl
+      });
 
       toast({ 
-        title: t(dictionary.lookSavedSuccess)
+        title: t(dictionary.lookSavedSuccess),
+        description: "Product published and posted to Telegram channel."
       });
       router.push('/admin');
     } catch (e) {

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -18,7 +19,7 @@ import {
   TabsContent, 
   TabsList, 
   TabsTrigger 
-} from "@/TabsContent";
+} from "@/components/ui/tabs";
 import { 
   Plus, 
   Loader2,
@@ -31,14 +32,16 @@ import {
   Send,
   Phone,
   Ruler,
-  ShieldAlert
+  ShieldAlert,
+  Link as LinkIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { getProductDeepLink } from '@/lib/telegram-link';
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -91,6 +94,17 @@ export default function AdminDashboard() {
     } catch (e) {
       toast({ variant: "destructive", title: "Update Failed" });
     }
+  };
+
+  const handleCopyProductLink = (e: React.MouseEvent, productId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const link = getProductDeepLink(productId);
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link Copied",
+      description: "Direct link to this look is in your clipboard."
+    });
   };
 
   const getStatusLabel = (status: string) => {
@@ -187,6 +201,14 @@ export default function AdminDashboard() {
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={(e) => handleCopyProductLink(e, look.id)}
+                      className="h-9 w-9 rounded-xl bg-foreground/5 text-foreground hover:neon-text"
+                    >
+                      <LinkIcon className="w-4 h-4" />
+                    </Button>
                     <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-foreground/5 text-foreground hover:neon-text">
                       <Link href={`/admin/looks/${look.id}/edit`}><Edit3 className="w-4 h-4" /></Link>
                     </Button>

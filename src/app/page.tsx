@@ -4,15 +4,18 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Send, ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
 
 export default function Home() {
   const { t, dictionary, lang } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [isDeepLinking, setIsDeepLinking] = useState(false);
+  const router = useRouter();
   const db = useFirestore();
 
   const featuredQuery = useMemoFirebase(() => {
@@ -23,13 +26,33 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // PROTOCOL: Start-app Parameter Handling (Deep Linking)
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      const startParam = tg.initDataUnsafe?.start_param;
+      if (startParam && startParam.startsWith('product_')) {
+        const productId = startParam.replace('product_', '');
+        setIsDeepLinking(true);
+        router.replace(`/looks/${productId}`);
+      }
+    }
+  }, [router]);
 
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
   };
 
   if (!mounted) return null;
+
+  if (isDeepLinking) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
+        <Loader2 className="w-10 h-10 animate-spin neon-text" />
+        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Routing to Product Interface...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">

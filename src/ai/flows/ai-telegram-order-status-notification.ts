@@ -1,11 +1,12 @@
 
 'use server';
 /**
- * @fileOverview Template-based order notifications for Telegram.
- * Enhanced with Multi-Admin Bilateral Notification Protocol.
+ * @fileOverview Template-based order and broadcast notifications for Telegram.
+ * Enhanced with Multi-Admin Protocol and Channel Broadcast Engine.
  */
 
 import { z } from 'genkit';
+import { getProductDeepLink } from '@/lib/telegram-link';
 
 const PhysiqueSchema = z.object({
   height: z.string().optional(),
@@ -30,11 +31,10 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
 /**
- * Dispatches a notification to the Telegram Admin bot (Sends to all editors in list).
+ * Dispatches a notification to the Telegram Admin bot.
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  // Support comma-separated list of IDs for all editors
   const adminChatIds = (process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
 
   if (!token || adminChatIds.length === 0) {
@@ -75,51 +75,8 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
-    const isDataUri = input.imageUrl?.startsWith('data:');
-
-    // Loop through all admin/editor chat IDs to inform everyone
     for (const chatId of adminChatIds) {
-      if (input.imageUrl) {
-        if (isDataUri) {
-          const formData = new FormData();
-          formData.append('chat_id', chatId);
-          formData.append('parse_mode', 'HTML');
-          formData.append('caption', finalCaption);
-          
-          const [meta, base64] = input.imageUrl.split(',');
-          const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
-          const binary = Buffer.from(base64, 'base64');
-          const blob = new Blob([binary], { type: mime });
-          
-          formData.append('photo', blob, 'outfit.jpg');
-
-          await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-          });
-        } else {
-          await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: chatId,
-              photo: input.imageUrl,
-              caption: finalCaption,
-              parse_mode: 'HTML'
-            })
-          });
-        }
-      } else {
-        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: finalCaption,
-            parse_mode: 'HTML'
-          })
-        });
-      }
+      await sendTelegramMessage(token, chatId, finalCaption, input.imageUrl);
     }
   } catch (error) {
     console.error("[Telegram Protocol] ADMIN NOTIFY FAILURE:", error);
@@ -142,16 +99,86 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
     message += `⚡️ Menejerimiz tez orada siz bilan bog'lanib, to'lov turlari va yetkazib berish tafsilotlarini muhokama qiladi.\n\n`;
     message += `<i>Auralook — Kelajak uslubini tanlaganingiz uchun rahmat!</i>`;
 
+    await sendTelegramMessage(token, input.customerTelegramId.toString(), message);
+  } catch (error) {
+    console.error("[Telegram Protocol] CUSTOMER NOTIFY FAILURE:", error);
+  }
+}
+
+/**
+ * AUTOMATED BROADCAST: Posts a new look to the Telegram channel.
+ */
+export async function postNewLookToChannel(look: { id: string, name: string, price: number, currency: string, description: string, imageUrl: string }): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const channelId = process.env.TELEGRAM_CHANNEL_ID || '@auralook_uz';
+
+  if (!token) return;
+
+  const deepLink = getProductDeepLink(look.id);
+  const formattedPrice = new Intl.NumberFormat('uz-UZ').format(look.price).replace(/,/g, ' ');
+
+  let caption = `👗 <b>${look.name.toUpperCase()}</b>\n\n`;
+  caption += `💰 <b>NARXI:</b> ${formattedPrice} ${look.currency}\n\n`;
+  caption += `${look.description}\n\n`;
+  caption += `🛸 <i>Kelajak uslubi hoziroq buyurtma berish uchun tayyor!</i>`;
+
+  const replyMarkup = {
+    inline_keyboard: [[
+      { text: '🛍 KO\'RISH VA BUYURTMA', url: deepLink }
+    ]]
+  };
+
+  try {
+    await sendTelegramMessage(token, channelId, caption, look.imageUrl, replyMarkup);
+  } catch (error) {
+    console.error("[Telegram Protocol] CHANNEL BROADCAST FAILURE:", error);
+  }
+}
+
+/**
+ * Internal helper to send Telegram messages (Photo or Text).
+ */
+async function sendTelegramMessage(token: string, chatId: string, text: string, imageUrl?: string, replyMarkup?: any) {
+  const isDataUri = imageUrl?.startsWith('data:');
+  
+  if (imageUrl) {
+    if (isDataUri) {
+      const formData = new FormData();
+      formData.append('chat_id', chatId);
+      formData.append('parse_mode', 'HTML');
+      formData.append('caption', text);
+      if (replyMarkup) formData.append('reply_markup', JSON.stringify(replyMarkup));
+      
+      const [meta, base64] = imageUrl.split(',');
+      const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const binary = Buffer.from(base64, 'base64');
+      const blob = new Blob([binary], { type: mime });
+      formData.append('photo', blob, 'outfit.jpg');
+
+      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData });
+    } else {
+      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          photo: imageUrl,
+          caption: text,
+          parse_mode: 'HTML',
+          reply_markup: replyMarkup
+        })
+      });
+    }
+  } else {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: input.customerTelegramId,
-        text: message,
-        parse_mode: 'HTML'
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup
       })
     });
-  } catch (error) {
-    console.error("[Telegram Protocol] CUSTOMER NOTIFY FAILURE:", error);
   }
 }

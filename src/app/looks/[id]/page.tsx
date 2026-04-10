@@ -30,7 +30,8 @@ import {
   Sparkles,
   Send,
   Globe,
-  ShoppingCart
+  ShoppingCart,
+  Link as LinkIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
@@ -39,6 +40,7 @@ import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
+import { getProductDeepLink } from '@/lib/telegram-link';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -119,6 +121,15 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     } finally {
       setIsAddingToCart(false);
     }
+  };
+
+  const handleCopyLink = () => {
+    const link = getProductDeepLink(id);
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link copied!",
+      description: "Direct link to this outfit is in your clipboard."
+    });
   };
 
   if (lookLoading) {
@@ -227,13 +238,20 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
           
           <div className="lg:col-span-5 flex flex-col relative mx-auto w-full max-w-sm">
-            <div className="absolute -top-10 left-0 z-20">
+            <div className="absolute -top-10 left-0 z-20 flex gap-2">
               <Button 
                 variant="ghost" 
                 onClick={() => router.back()}
                 className="rounded-full w-9 h-9 p-0 border border-foreground/10 glass-surface hover:neon-border text-foreground transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={handleCopyLink}
+                className="rounded-full w-9 h-9 p-0 border border-foreground/10 glass-surface hover:neon-border text-foreground transition-all"
+              >
+                <LinkIcon className="w-4 h-4" />
               </Button>
             </div>
 

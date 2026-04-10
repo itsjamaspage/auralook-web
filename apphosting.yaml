@@ -16,3 +16,5 @@ env:
     value: "7753160211:AAEwvUukuDraQxy4NQrujVnshkEIYnLqZJM"
   - variable: TELEGRAM_ADMIN_CHAT_ID
     value: "7213073025"
+  - variable: TELEGRAM_CHANNEL_ID
+    value: "@auralook_uz"
