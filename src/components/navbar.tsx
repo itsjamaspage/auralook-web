@@ -98,38 +98,38 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-4 pb-2 pt-4 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-4 pt-14 shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-14">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-base lg:text-lg font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-xl lg:text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
-            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-7 w-7 p-0 group"
+            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-11 w-11 p-0 group"
           >
-            {isFullscreen ? <Minimize2 className="w-3 h-3 neon-text" /> : <Maximize2 className="w-3 h-3 neon-text" />}
+            {isFullscreen ? <Minimize2 className="w-5 h-5 neon-text" /> : <Maximize2 className="w-5 h-5 neon-text" />}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-7 w-7 p-0 font-black uppercase text-foreground text-[8px]">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-11 w-11 p-0 font-black uppercase text-foreground text-xs">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 min-w-[80px]">
+            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 min-w-[100px]">
               {languages.map((l) => (
                 <DropdownMenuItem 
                   key={l.code} 
                   onClick={() => setLang(l.code)}
                   className={cn(
-                    "font-bold text-xs py-2 px-4 rounded-lg cursor-pointer transition-colors",
+                    "font-bold text-sm py-3 px-5 rounded-lg cursor-pointer transition-colors",
                     lang === l.code ? "bg-foreground/10 neon-text" : "text-foreground hover:bg-foreground/5"
                   )}
                 >
@@ -141,33 +141,33 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-7 w-7 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-3.5 h-3.5 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-11 w-11 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-5 h-5 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 w-64 mt-2">
-              <div className="px-4 py-3 mb-2 border-b border-foreground/5">
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
+            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-3 w-72 mt-2">
+              <div className="px-4 py-4 mb-2 border-b border-foreground/5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
                 {user && (
                   <div className="flex items-center gap-2 mt-1">
-                    <p className="text-[10px] font-bold neon-text truncate">@{user.username || user.firstName}</p>
-                    {isAdmin && <ShieldCheck className="w-3 h-3 text-primary animate-pulse" />}
+                    <p className="text-xs font-bold neon-text truncate">@{user.username || user.firstName}</p>
+                    {isAdmin && <ShieldCheck className="w-4 h-4 text-primary animate-pulse" />}
                   </div>
                 )}
               </div>
               
               <Link href="/looks">
-                <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                  <Compass className="w-5 h-5 neon-text" />
-                  <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
+                <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
+                  <Compass className="w-6 h-6 neon-text" />
+                  <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
                 </DropdownMenuItem>
               </Link>
 
               {isAdmin && (
                 <Link href="/admin">
-                  <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                    <LayoutDashboard className="w-5 h-5 neon-text" />
-                    <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.adminPanel)}</span>
+                  <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
+                    <LayoutDashboard className="w-6 h-6 neon-text" />
+                    <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.adminPanel)}</span>
                   </DropdownMenuItem>
                 </Link>
               )}
@@ -175,17 +175,17 @@ export function Navbar() {
               <DropdownMenuSeparator className="bg-foreground/5 my-2" />
               <DropdownMenuItem 
                 onClick={toggleTheme}
-                className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5"
+                className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5"
               >
-                {theme === 'dark' ? <Sun className="w-5 h-5 neon-text" /> : <Moon className="w-5 h-5 neon-text" />}
-                <span className="font-bold text-[11px] uppercase tracking-widest">
+                {theme === 'dark' ? <Sun className="w-6 h-6 neon-text" /> : <Moon className="w-6 h-6 neon-text" />}
+                <span className="font-bold text-xs uppercase tracking-widest">
                   {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
                 </span>
               </DropdownMenuItem>
               <Link href="/profile">
-                <DropdownMenuItem className="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                  <User className="w-5 h-5 neon-text" />
-                  <span className="font-bold text-[11px] uppercase tracking-widest">{t(dictionary.profile)}</span>
+                <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
+                  <User className="w-6 h-6 neon-text" />
+                  <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.profile)}</span>
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -35,7 +34,7 @@ export default function RootLayout({
           <LanguageProvider>
             <TelegramUserProvider>
               <Navbar />
-              <main className="flex-grow pt-20 pb-24 lg:pb-0">
+              <main className="flex-grow pt-36 pb-24 lg:pb-0">
                 {children}
                 <Footer className="lg:hidden" />
               </main>
