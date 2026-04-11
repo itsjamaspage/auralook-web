@@ -33,6 +33,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isInsideTelegram, setIsInsideTelegram] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -53,8 +54,9 @@ export function Navbar() {
     // TELEGRAM MINI APP SYNC PROTOCOL
     const syncTG = () => {
       const tg = (window as any).Telegram?.WebApp;
-      if (tg) {
+      if (tg && tg.initData) {
         tg.ready();
+        setIsInsideTelegram(true);
         setIsFullscreen(tg.isExpanded);
         
         const onViewportChanged = () => {
@@ -106,7 +108,7 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg && tg.expand) {
-      // Prioritize Telegram Native Expand
+      // Prioritize Telegram Native Expand Protocol
       tg.ready();
       tg.expand();
       // Optimistic update for UI feedback
@@ -114,15 +116,17 @@ export function Navbar() {
       return;
     }
     
-    // Standard Browser Fallback
-    const doc = document.documentElement;
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
-    } else {
-      doc.requestFullscreen()
-        .then(() => setIsFullscreen(true))
-        .catch(() => setIsFullscreen(false));
+    // Standard Browser Fallback (only if not inside Telegram)
+    if (!isInsideTelegram) {
+      const doc = document.documentElement;
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+        setIsFullscreen(false);
+      } else {
+        doc.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(() => setIsFullscreen(false));
+      }
     }
   };
 
@@ -141,31 +145,33 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-6 pt-14 shadow-[0_10px_50px_rgba(0,0,0,0.4)]">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-8 pt-20 shadow-[0_10px_50px_rgba(0,0,0,0.4)]">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl lg:text-4xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-3xl lg:text-4xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={toggleFullscreen}
-            className={cn(
-              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
-              isFullscreen && "neon-border"
-            )}
-          >
-            {isFullscreen ? (
-              <Minimize2 className="w-6 h-6 neon-text" />
-            ) : (
-              <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
-            )}
-          </Button>
+          {isInsideTelegram && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={toggleFullscreen}
+              className={cn(
+                "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
+                isFullscreen && "neon-border"
+              )}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-6 h-6 neon-text" />
+              ) : (
+                <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
+              )}
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -39,6 +39,15 @@ export default function Home() {
     }
   }, [router]);
 
+  const handleOpenBot = (e: React.MouseEvent) => {
+    // This is now handled by the a href for better reliability, 
+    // but kept as fallback or for manual tracking if needed.
+    const url = "https://t.me/jamastore_aibot/app?startapp=from_web";
+    if (/iPhone|Android/i.test(navigator.userAgent)) {
+      window.location.assign(url);
+    }
+  };
+
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
   };
@@ -53,9 +62,6 @@ export default function Home() {
       </div>
     );
   }
-
-  // Telegram Funnel URL with referral tracking
-  const TELEGRAM_MINI_APP_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -80,11 +86,11 @@ export default function Home() {
                 <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all">
-              <Link href={TELEGRAM_MINI_APP_URL} target="_blank">
+            <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
+              <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
                 <Send className="w-4 h-4 mr-2" />
                 {t(dictionary.openApp)}
-              </Link>
+              </a>
             </Button>
           </div>
         </div>
@@ -202,12 +208,12 @@ export default function Home() {
               </p>
             </div>
 
-            <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group">
-              <Link href={TELEGRAM_MINI_APP_URL} target="_blank">
+            <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group cursor-pointer">
+              <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
                 <Send className="mr-3 w-6 h-6" />
                 {t(dictionary.openApp)}
                 <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
-              </Link>
+              </a>
             </Button>
           </div>
 

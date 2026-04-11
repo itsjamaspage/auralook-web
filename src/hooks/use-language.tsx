@@ -495,6 +495,7 @@ const dictionary = {
   emptyCart: { uz: 'Savatchangiz bo\'sh', ru: 'Ваша корзина пуста', en: 'Your cart is empty' },
   checkout: { uz: 'Sotib olish', ru: 'Оформить заказ', en: 'Checkout' },
   clearCart: { uz: 'Tozalash', ru: 'Очистить', en: 'Clear Cart' },
+  liveOnTelegram: { uz: 'Telegramda faol', ru: 'В Telegram', en: 'Live on Telegram' },
 
   // Footer
   allRightsReserved: { 

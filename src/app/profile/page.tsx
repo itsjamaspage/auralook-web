@@ -48,6 +48,7 @@ export default function ProfilePage() {
 
   // SECURE TEAM QUERY: Only starts if verified AND definitively an owner to prevent permission errors
   const rolesQuery = useMemoFirebase(() => {
+    // CRITICAL: Prevent unauthorized list attempts by checking state before query initialization
     if (!isVerified || !user || user.role !== 'owner') return null;
     return collection(db, 'roles');
   }, [db, user, isVerified]);
