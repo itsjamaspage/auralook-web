@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com",
               "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://api.telegram.org",
               "img-src 'self' data: https://images.unsplash.com https://picsum.photos https://ui-avatars.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

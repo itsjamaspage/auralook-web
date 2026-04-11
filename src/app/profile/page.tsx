@@ -46,11 +46,11 @@ export default function ProfilePage() {
   const [newEditorUsername, setNewEditorUsername] = useState('');
   const [isAddingEditor, setIsAddingEditor] = useState(false);
 
-  // SECURE TEAM QUERY: Only starts if verified and is owner to prevent permission errors
+  // SECURE TEAM QUERY: Only starts if verified AND definitively an owner to prevent permission errors
   const rolesQuery = useMemoFirebase(() => {
-    if (!isVerified || user?.role !== 'owner') return null;
+    if (!isVerified || !user || user.role !== 'owner') return null;
     return collection(db, 'roles');
-  }, [db, user?.role, isVerified]);
+  }, [db, user, isVerified]);
 
   const { data: editors } = useCollection(rolesQuery);
 
