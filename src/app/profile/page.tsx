@@ -36,7 +36,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProfilePage() {
   const router = useRouter();
   const { t, dictionary } = useLanguage();
-  const { user, isLoading } = useTelegramUser();
+  const { user, isLoading, isVerified } = useTelegramUser();
   const db = useFirestore();
   const { toast } = useToast();
   
@@ -46,10 +46,11 @@ export default function ProfilePage() {
   const [newEditorUsername, setNewEditorUsername] = useState('');
   const [isAddingEditor, setIsAddingEditor] = useState(false);
 
+  // SECURE TEAM QUERY: Only starts if verified and is owner to prevent permission errors
   const rolesQuery = useMemoFirebase(() => {
-    if (user?.role !== 'owner') return null;
+    if (!isVerified || user?.role !== 'owner') return null;
     return collection(db, 'roles');
-  }, [db, user?.role]);
+  }, [db, user?.role, isVerified]);
 
   const { data: editors } = useCollection(rolesQuery);
 

@@ -109,6 +109,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             phone: null
           };
 
+          // CRITICAL: Await the database write before establishing verification state
           await setDoc(userRef, profileData, { merge: true });
           setUser(profileData);
           setIsVerified(true);

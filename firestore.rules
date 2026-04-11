@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v19.0.0 Dynamic RBAC Protocol)
+    // Assumed Data Model (v20.0.0 Handshake Guard)
     // ===============================================================
     
     function isAuthenticated() {
@@ -41,7 +41,8 @@ service cloud.firestore {
     }
 
     match /roles/{uid} {
-      allow read: if isAuthenticated() && (request.auth.uid == uid || isOwner());
+      allow get: if isAuthenticated() && (request.auth.uid == uid || isOwner());
+      allow list: if isOwner();
       allow write: if isOwner();
     }
 
