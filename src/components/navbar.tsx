@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -30,86 +31,57 @@ export function Navbar() {
   const { user } = useTelegramUser();
   const [mounted, setMounted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isInsideTelegram, setIsInsideTelegram] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     
-    const savedTheme = localStorage.getItem('auralook_theme') as 'dark' | 'light';
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-    }
+    // Sync UI with actual fullscreen state
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
 
-    const syncViewport = () => {
-      const tg = (window as any).Telegram?.WebApp;
-      
-      const updateState = () => {
-        const isFs = !!document.fullscreenElement || (tg?.isExpanded ?? false);
-        setIsFullscreen(isFs);
-      };
-
-      if (tg && tg.initData) {
-        setIsInsideTelegram(true);
-        tg.onEvent('viewportChanged', updateState);
-        tg.ready();
-      }
-      
-      document.addEventListener('fullscreenchange', updateState);
-      updateState();
-
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.initData) {
+      setIsInsideTelegram(true);
+      tg.ready();
+      // Expanded state polling for Telegram
+      const pollInterval = setInterval(() => {
+        if (tg.isExpanded !== isFullscreen) setIsFullscreen(tg.isExpanded);
+      }, 500);
       return () => {
-        if (tg) tg.offEvent('viewportChanged', updateState);
-        document.removeEventListener('fullscreenchange', updateState);
+        clearInterval(pollInterval);
+        document.removeEventListener('fullscreenchange', handleFsChange);
       };
-    };
-
-    const cleanup = syncViewport();
-    return () => {
-      if (typeof cleanup === 'function') cleanup();
-    };
-  }, []);
+    }
+    
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, [isFullscreen]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('auralook_theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    if (newTheme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
-    
-    // Check if we are currently in any kind of fullscreen mode
-    const isNowFullscreen = !!document.fullscreenElement || (tg && tg.isExpanded);
+    const isNowFs = !!document.fullscreenElement || (tg?.isExpanded ?? false);
 
-    if (!isNowFullscreen) {
-      // ENTER FULLSCREEN PROTOCOL
+    if (!isNowFs) {
       if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch((e) => {
-          console.warn("Fullscreen expansion denied:", e);
-        });
+        document.documentElement.requestFullscreen().catch(() => {});
       }
-      
       if (tg) {
         tg.ready();
         tg.expand();
       }
       setIsFullscreen(true);
     } else {
-      // EXIT FULLSCREEN PROTOCOL (UNEXPAND)
       if (document.exitFullscreen) {
-        document.exitFullscreen().catch((e) => {
-          console.warn("Fullscreen exit denied:", e);
-        });
+        document.exitFullscreen().catch(() => {});
       }
-      // Note: tg.isExpanded might stay true in some environments, 
-      // but we force the local state to satisfy the "unexpand" toggle behavior.
+      // Note: Telegram doesn't have an 'unexpand' API, but we toggle the UI state
       setIsFullscreen(false);
     }
   };
@@ -131,49 +103,40 @@ export function Navbar() {
   const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 py-4 shadow-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-6 py-4 shadow-sm">
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
         
-        {/* BRAND LOGO - ALInitials */}
         <Link href="/" className="flex items-center gap-2 group shrink-0">
           <span className="text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             AL
           </span>
         </Link>
 
-        {/* ACTION BUTTONS - Centered Proximity */}
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
             className={cn(
-              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
-              isFullscreen && "neon-border"
+              "rounded-full border border-border hover:bg-secondary h-12 w-12 p-0 transition-all",
+              isFullscreen && "neon-border neon-text"
             )}
           >
-            {isFullscreen ? (
-              <Minimize2 className="w-6 h-6 neon-text" />
-            ) : (
-              <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
-            )}
+            {isFullscreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-12 w-12 p-0 font-black uppercase text-foreground text-xs">
-                {lang}
+              <Button variant="ghost" size="sm" className="rounded-full border border-border hover:bg-secondary h-12 w-12 p-0 font-black text-xs">
+                {lang.toUpperCase()}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 min-w-[120px]">
+            <DropdownMenuContent align="end" className="bg-background border-border p-2">
               {languages.map((l) => (
                 <DropdownMenuItem 
                   key={l.code} 
                   onClick={() => setLang(l.code)}
-                  className={cn(
-                    "font-bold text-xs py-2.5 px-4 rounded-lg cursor-pointer transition-colors",
-                    lang === l.code ? "bg-foreground/10 neon-text" : "text-foreground hover:bg-foreground/5"
-                  )}
+                  className={cn("font-bold text-xs py-2 px-4 rounded-lg cursor-pointer", lang === l.code && "neon-text bg-secondary")}
                 >
                   {l.label}
                 </DropdownMenuItem>
@@ -183,12 +146,12 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-12 w-12 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-6 h-6 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-12 w-12 p-0 border border-border bg-secondary hover:neon-border">
+                <Menu className="w-6 h-6 text-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-3 w-64 mt-2">
-              <div className="px-3 py-3 mb-1 border-b border-foreground/5">
+            <DropdownMenuContent align="end" className="bg-background border-border p-3 w-64 mt-2 shadow-2xl">
+              <div className="px-3 py-3 mb-1 border-b border-border">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
                 {user && (
                   <div className="flex items-center gap-2 mt-1">
@@ -199,7 +162,7 @@ export function Navbar() {
               </div>
               
               <Link href="/looks">
-                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
                   <Compass className="w-5 h-5 neon-text" />
                   <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
                 </DropdownMenuItem>
@@ -207,25 +170,20 @@ export function Navbar() {
 
               {isAdmin && (
                 <Link href="/admin">
-                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
                     <LayoutDashboard className="w-5 h-5 neon-text" />
                     <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.adminPanel)}</span>
                   </DropdownMenuItem>
                 </Link>
               )}
 
-              <DropdownMenuSeparator className="bg-foreground/5 my-2" />
-              <DropdownMenuItem 
-                onClick={toggleTheme}
-                className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5"
-              >
+              <DropdownMenuSeparator className="bg-border my-2" />
+              <DropdownMenuItem onClick={toggleTheme} className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
                 {theme === 'dark' ? <Sun className="w-5 h-5 neon-text" /> : <Moon className="w-5 h-5 neon-text" />}
-                <span className="font-bold text-xs uppercase tracking-widest">
-                  {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
-                </span>
+                <span className="font-bold text-xs uppercase tracking-widest">{theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}</span>
               </DropdownMenuItem>
               <Link href={isInsideTelegram ? "/profile" : BOT_URL} target={isInsideTelegram ? "_self" : "_blank"}>
-                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
                   <User className="w-5 h-5 neon-text" />
                   <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.profile)}</span>
                 </DropdownMenuItem>

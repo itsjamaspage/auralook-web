@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -11,7 +12,7 @@ import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'AL | Auralook',
-  description: 'AI-powered clothing store with futuristic techwear looks.',
+  description: 'Futuristic techwear looks for the new generation.',
   icons: {
     icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2272%22 x=%2250%22 font-size=%2265%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AL</text></svg>',
     shortcut: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2272%22 x=%2250%22 font-size=%2265%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AL</text></svg>',
@@ -25,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -33,7 +34,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col" suppressHydrationWarning>
         <Script 
-          src="https://telegram.org/js/telegram-web-app.js" 
+          src="https://telegram.org/js/telegram-web-app.js?v=1" 
           strategy="beforeInteractive"
         />
         <FirebaseClientProvider>

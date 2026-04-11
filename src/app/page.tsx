@@ -21,7 +21,9 @@ export default function Home() {
   const db = useFirestore();
 
   const featuredQuery = useMemoFirebase(() => {
-    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(featuredViewMode === 'grid' ? 3 : 5));
+    // Increase limit if single mode to allow browsing more
+    const count = featuredViewMode === 'grid' ? 3 : 10;
+    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(count));
   }, [db, featuredViewMode]);
 
   const { data: featuredLooks, isLoading } = useCollection(featuredQuery);
@@ -51,30 +53,24 @@ export default function Home() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-white/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Routing to Product Interface...</p>
+        <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Routing to Product Interface...</p>
       </div>
     );
   }
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* BACKGROUND ELEMENTS */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[100px]" />
-      </div>
-
       {/* HERO SECTION */}
       <section className="relative container mx-auto px-6 pt-16 pb-24 text-center">
         <div className="flex flex-col items-center space-y-8 max-w-5xl mx-auto">
           
-          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] neon-text">
+          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-tight uppercase italic neon-text drop-shadow-sm">
             {t(dictionary.heroTitle)}
           </h1>
 
           <div className="flex flex-col items-center gap-6 pt-8 w-full max-w-2xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Button asChild className="h-14 px-8 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
+              <Button asChild className="h-14 px-8 rounded-xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
                 <Link href="/looks">
                   {t(dictionary.shopTheDrop)}
                   <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -99,26 +95,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATUS BAR (ANIMATED MARQUEE) */}
+      {/* STATUS BAR */}
       <div className="border-y border-foreground/5 bg-foreground/[0.02] py-6 mb-24 overflow-hidden relative">
         <div className="flex animate-marquee-right whitespace-nowrap">
           {[1, 2].map((i) => (
             <div key={i} className="flex shrink-0 items-center gap-12 px-6">
-              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.newArrivals)}
-              </span>
-              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.limitedEdition)}
-              </span>
-              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.freeDelivery)}
-              </span>
-              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.orderViaTelegram)}
-              </span>
-              <span className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
-                <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictionary.goodQuality)}
-              </span>
+              {[
+                dictionary.newArrivals,
+                dictionary.limitedEdition,
+                dictionary.freeDelivery,
+                dictionary.orderViaTelegram,
+                dictionary.goodQuality
+              ].map((dictKey, idx) => (
+                <span key={idx} className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                  <div className="w-1.5 h-1.5 neon-bg rotate-45" /> {t(dictKey)}
+                </span>
+              ))}
             </div>
           ))}
         </div>
@@ -126,36 +118,34 @@ export default function Home() {
 
       {/* FEATURED LOOKS */}
       <section className="container mx-auto px-6 mb-32">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-end mb-12 gap-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-12 gap-6">
           <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-widest neon-text">
             {t(dictionary.featuredLooks)}
           </h2>
           
           <div className="flex items-center gap-4">
-            <div className="flex bg-foreground/5 p-1 rounded-xl border border-foreground/10">
+            <div className="flex bg-secondary p-1 rounded-xl border border-border">
               <Button 
                 variant="ghost" 
-                size="sm" 
+                size="icon" 
                 onClick={() => setFeaturedViewMode('grid')}
                 className={cn(
-                  "rounded-lg h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all",
-                  featuredViewMode === 'grid' ? "neon-bg text-black" : "text-foreground/40 hover:text-foreground"
+                  "rounded-lg h-9 w-10 transition-all",
+                  featuredViewMode === 'grid' ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
                 )}
               >
-                <LayoutGrid className="w-3.5 h-3.5 mr-2" />
-                {t(dictionary.viewModeGrid)}
+                <LayoutGrid className="w-4 h-4" />
               </Button>
               <Button 
                 variant="ghost" 
-                size="sm" 
+                size="icon" 
                 onClick={() => setFeaturedViewMode('single')}
                 className={cn(
-                  "rounded-lg h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all",
-                  featuredViewMode === 'single' ? "neon-bg text-black" : "text-foreground/40 hover:text-foreground"
+                  "rounded-lg h-9 w-10 transition-all",
+                  featuredViewMode === 'single' ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
                 )}
               >
-                <Square className="w-3.5 h-3.5 mr-2" />
-                {t(dictionary.viewModeSingle)}
+                <Square className="w-4 h-4" />
               </Button>
             </div>
 
@@ -191,7 +181,7 @@ export default function Home() {
                 )}
               >
                 <div className={cn(
-                  "relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-surface border-foreground/5 transition-all group-hover:border-primary/20 shadow-2xl",
+                  "relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-surface border-foreground/5 transition-all group-hover:border-primary/20 shadow-xl",
                   featuredViewMode === 'single' && "ring-1 ring-primary/20"
                 )}>
                   <Image 
@@ -200,32 +190,18 @@ export default function Home() {
                     fill 
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
                   />
-                  
-                  {/* Status Tag */}
-                  <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-black text-[8px] font-black uppercase tracking-widest rounded-sm border-none z-10">
+                  <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-white text-[8px] font-black uppercase tracking-widest rounded-sm z-10">
                     {index === 0 ? t(dictionary.hotTag) : t(dictionary.newTag)}
                   </div>
-
-                  {/* Index Watermark */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-[120px] font-black text-white/5 uppercase italic tracking-tighter">
+                    <span className="text-[120px] font-black text-black/5 uppercase italic tracking-tighter">
                       0{index + 1}
                     </span>
                   </div>
-
-                  {/* Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                    <p className="text-[8px] font-black text-foreground/40 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>
-                    <h3 className={cn(
-                      "font-black text-foreground uppercase italic mb-1 truncate",
-                      featuredViewMode === 'single' ? "text-2xl" : "text-lg"
-                    )}>
-                      {look.name}
-                    </h3>
-                    <p className={cn(
-                      "neon-text font-black tracking-tighter",
-                      featuredViewMode === 'single' ? "text-xl" : "text-base"
-                    )}>
+                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+                    <p className="text-[8px] font-black text-white/60 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>
+                    <h3 className={cn("font-black text-white uppercase italic mb-1 truncate", featuredViewMode === 'single' ? "text-2xl" : "text-lg")}>{look.name}</h3>
+                    <p className={cn("neon-text font-black tracking-tighter", featuredViewMode === 'single' ? "text-xl" : "text-base")}>
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${formatPrice(look.price)}`}
                     </p>
                   </div>
@@ -236,27 +212,13 @@ export default function Home() {
         )}
       </section>
 
-      {/* TELEGRAM HIGH-IMPACT CTA FUNNEL */}
+      {/* TELEGRAM CTA */}
       <section className="container mx-auto px-6 mb-32">
-        <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-background/40 backdrop-blur-md p-12 sm:p-20 shadow-2xl group">
-          {/* Futuristic Background Elements */}
-          <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--sync-color),transparent_70%)]" />
-            <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-
+        <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-secondary/20 p-12 sm:p-20 shadow-2xl group">
           <div className="relative z-10 flex flex-col items-center text-center space-y-8">
             <div className="w-20 h-20 rounded-full bg-foreground/5 flex items-center justify-center border border-foreground/10 animate-pulse">
               <Send className="w-10 h-10 neon-text -rotate-12" />
             </div>
-            
             <div className="space-y-4 max-w-2xl">
               <h2 className="text-4xl sm:text-6xl font-black uppercase italic leading-none tracking-tighter neon-text">
                 {t(dictionary.liveOnTelegram)}
@@ -265,29 +227,16 @@ export default function Home() {
                 {t(dictionary.browseOrderTelegram)}
               </p>
             </div>
-
-            <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group cursor-pointer">
+            <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-white font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-2xl cursor-pointer">
               <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
                 <Send className="mr-3 w-6 h-6" />
                 {t(dictionary.openApp)}
-                <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
+                <Sparkles className="ml-3 w-5 h-5" />
               </a>
             </Button>
           </div>
-
-          {/* Glitch Decorative Lines */}
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sync-color)] to-transparent opacity-20" />
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sync-color)] to-transparent opacity-20" />
         </div>
       </section>
-
-      {/* MINI FOOTER */}
-      <footer className="container mx-auto px-6 py-12 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-8">
-        <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
-        <div className="flex gap-4">
-          <Link href="https://t.me/itsjamaspage" target="_blank"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button></Link>
-        </div>
-      </footer>
     </div>
   );
 }
