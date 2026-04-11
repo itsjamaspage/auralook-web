@@ -4,23 +4,25 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2, Info } from 'lucide-react';
+import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2, Info, LayoutGrid, Square } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { t, dictionary, lang } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [isDeepLinking, setIsDeepLinking] = useState(false);
+  const [featuredViewMode, setFeaturedViewMode] = useState<'grid' | 'single'>('grid');
   const router = useRouter();
   const db = useFirestore();
 
   const featuredQuery = useMemoFirebase(() => {
-    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(3));
-  }, [db]);
+    return query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(featuredViewMode === 'grid' ? 3 : 5));
+  }, [db, featuredViewMode]);
 
   const { data: featuredLooks, isLoading } = useCollection(featuredQuery);
 
@@ -124,27 +126,74 @@ export default function Home() {
 
       {/* FEATURED LOOKS */}
       <section className="container mx-auto px-6 mb-32">
-        <div className="flex justify-between items-end mb-12">
-          <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-widest neon-text">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end mb-12 gap-6">
+          <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-widest neon-text">
             {t(dictionary.featuredLooks)}
           </h2>
-          <Button asChild variant="ghost" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 hover:text-foreground hover:bg-transparent p-0 group">
-            <Link href="/looks">
-              {t(dictionary.viewAll)}
-              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex bg-foreground/5 p-1 rounded-xl border border-foreground/10">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setFeaturedViewMode('grid')}
+                className={cn(
+                  "rounded-lg h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all",
+                  featuredViewMode === 'grid' ? "neon-bg text-black" : "text-foreground/40 hover:text-foreground"
+                )}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 mr-2" />
+                {t(dictionary.viewModeGrid)}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setFeaturedViewMode('single')}
+                className={cn(
+                  "rounded-lg h-9 px-4 text-[10px] font-black uppercase tracking-widest transition-all",
+                  featuredViewMode === 'single' ? "neon-bg text-black" : "text-foreground/40 hover:text-foreground"
+                )}
+              >
+                <Square className="w-3.5 h-3.5 mr-2" />
+                {t(dictionary.viewModeSingle)}
+              </Button>
+            </div>
+
+            <Button asChild variant="ghost" className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 hover:text-foreground hover:bg-transparent p-0 group">
+              <Link href="/looks">
+                {t(dictionary.viewAll)}
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {isLoading ? (
-            Array(3).fill(0).map((_, i) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {Array(3).fill(0).map((_, i) => (
               <div key={i} className="aspect-[3/4] bg-foreground/5 rounded-[2.5rem] animate-pulse" />
-            ))
-          ) : (
-            featuredLooks?.map((look, index) => (
-              <Link key={look.id} href={`/looks/${look.id}`} className="group block relative">
-                <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-surface border-foreground/5 transition-all group-hover:border-primary/20">
+            ))}
+          </div>
+        ) : (
+          <div className={cn(
+            "transition-all duration-500",
+            featuredViewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-3 gap-8" 
+              : "flex flex-col items-center gap-12"
+          )}>
+            {featuredLooks?.map((look, index) => (
+              <Link 
+                key={look.id} 
+                href={`/looks/${look.id}`} 
+                className={cn(
+                  "group block relative transition-all duration-500",
+                  featuredViewMode === 'single' ? "w-full max-w-xl" : "w-full"
+                )}
+              >
+                <div className={cn(
+                  "relative aspect-[3/4] rounded-[2.5rem] overflow-hidden glass-surface border-foreground/5 transition-all group-hover:border-primary/20 shadow-2xl",
+                  featuredViewMode === 'single' && "ring-1 ring-primary/20"
+                )}>
                   <Image 
                     src={look.imageUrl} 
                     alt={look.name} 
@@ -153,7 +202,7 @@ export default function Home() {
                   />
                   
                   {/* Status Tag */}
-                  <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-black text-[8px] font-black uppercase tracking-widest rounded-sm border-none">
+                  <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-black text-[8px] font-black uppercase tracking-widest rounded-sm border-none z-10">
                     {index === 0 ? t(dictionary.hotTag) : t(dictionary.newTag)}
                   </div>
 
@@ -165,18 +214,26 @@ export default function Home() {
                   </div>
 
                   {/* Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                     <p className="text-[8px] font-black text-foreground/40 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>
-                    <h3 className="text-lg font-black text-foreground uppercase italic mb-1 truncate">{look.name}</h3>
-                    <p className="neon-text font-black tracking-tighter">
+                    <h3 className={cn(
+                      "font-black text-foreground uppercase italic mb-1 truncate",
+                      featuredViewMode === 'single' ? "text-2xl" : "text-lg"
+                    )}>
+                      {look.name}
+                    </h3>
+                    <p className={cn(
+                      "neon-text font-black tracking-tighter",
+                      featuredViewMode === 'single' ? "text-xl" : "text-base"
+                    )}>
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${formatPrice(look.price)}`}
                     </p>
                   </div>
                 </div>
               </Link>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* TELEGRAM HIGH-IMPACT CTA FUNNEL */}

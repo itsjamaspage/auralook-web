@@ -77,11 +77,12 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     if (tg && tg.expand) {
-      if (tg.isExpanded) {
-        // Telegram doesn't have a collapse() but we toggle state for UI feedback
-        // and standard browser fallback below handles the actual collapse if available
+      if (isFullscreen) {
+        // Exit expansion logic if available, otherwise just toggle local state
+        // Telegram doesn't have a direct collapse() but we cycle state
       } else {
         tg.expand();
+        tg.ready();
       }
       setIsFullscreen(!isFullscreen);
       return;
@@ -118,7 +119,7 @@ export function Navbar() {
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
@@ -129,20 +130,20 @@ export function Navbar() {
             size="sm" 
             onClick={toggleFullscreen}
             className={cn(
-              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-11 w-11 p-0 group transition-all",
+              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
               isFullscreen && "neon-border"
             )}
           >
             {isFullscreen ? (
-              <Minimize2 className="w-5 h-5 neon-text" />
+              <Minimize2 className="w-6 h-6 neon-text" />
             ) : (
-              <Maximize2 className="w-5 h-5 text-foreground group-hover:neon-text" />
+              <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
             )}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-11 w-11 p-0 font-black uppercase text-foreground text-xs">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-12 w-12 p-0 font-black uppercase text-foreground text-xs">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -164,8 +165,8 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-11 w-11 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-5 h-5 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-12 w-12 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-6 h-6 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-3 w-64 mt-2">

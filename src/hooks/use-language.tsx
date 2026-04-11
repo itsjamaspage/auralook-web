@@ -112,6 +112,8 @@ const dictionary = {
   hotTag: { uz: 'QAYNOQ', ru: 'ГОРЯЧО', en: 'HOT' },
   newTag: { uz: 'YANGI', ru: 'НОВОЕ', en: 'NEW' },
   lookNumber: { uz: 'LIBOS', ru: 'ОБРАЗ', en: 'LOOK' },
+  viewModeGrid: { uz: 'Setka', ru: 'Сетка', en: 'Grid' },
+  viewModeSingle: { uz: 'Yakka', ru: 'Одиночный', en: 'Single' },
 
   // About Us Page
   aboutUs: { uz: 'BIZ HAQIMIZDA', ru: 'О НАС', en: 'ABOUT US' },
