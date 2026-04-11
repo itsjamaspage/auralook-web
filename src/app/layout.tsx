@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
@@ -11,8 +10,11 @@ import { BottomNav } from '@/components/bottom-nav';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Auralook.uz | Future of Fashion',
+  title: 'AL | Auralook',
   description: 'AI-powered clothing store with futuristic techwear looks.',
+  icons: {
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AL</text></svg>',
+  },
 };
 
 export default function RootLayout({
