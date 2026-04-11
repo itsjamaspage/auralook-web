@@ -54,6 +54,9 @@ export default function Home() {
     );
   }
 
+  // Telegram Funnel URL with referral tracking
+  const TELEGRAM_MINI_APP_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
+
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* BACKGROUND ELEMENTS */}
@@ -78,8 +81,9 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all">
-              <Link href="/about">
-                {t(dictionary.about)}
+              <Link href={TELEGRAM_MINI_APP_URL} target="_blank">
+                <Send className="w-4 h-4 mr-2" />
+                {t(dictionary.openApp)}
               </Link>
             </Button>
           </div>
@@ -168,7 +172,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TELEGRAM HIGH-IMPACT CTA */}
+      {/* TELEGRAM HIGH-IMPACT CTA FUNNEL */}
       <section className="container mx-auto px-6 mb-32">
         <div className="relative overflow-hidden rounded-[3rem] border border-foreground/10 bg-background/40 backdrop-blur-md p-12 sm:p-20 shadow-2xl group">
           {/* Futuristic Background Elements */}
@@ -199,7 +203,8 @@ export default function Home() {
             </div>
 
             <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-black font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_var(--sync-shadow)] group">
-              <Link href="https://t.me/jamastore_aibot" target="_blank">
+              <Link href={TELEGRAM_MINI_APP_URL} target="_blank">
+                <Send className="mr-3 w-6 h-6" />
                 {t(dictionary.openApp)}
                 <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
               </Link>
