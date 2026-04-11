@@ -17,7 +17,6 @@ import {
   Compass, 
   LayoutDashboard, 
   User,
-  Loader2,
   Maximize2,
   Minimize2,
   Sun,
@@ -29,7 +28,7 @@ import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
-  const { user, isLoading } = useTelegramUser();
+  const { user } = useTelegramUser();
   const [mounted, setMounted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -46,12 +45,7 @@ export function Navbar() {
       else document.documentElement.classList.remove('dark');
     }
 
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    
-    // TELEGRAM MINI APP SYNC PROTOCOL
+    // PROTOCOL: Telegram WebApp Expansion Sync
     const syncTG = () => {
       const tg = (window as any).Telegram?.WebApp;
       if (tg && tg.initData) {
@@ -69,10 +63,7 @@ export function Navbar() {
       return null;
     };
 
-    // Initial sync
     let unsubscribeTG = syncTG();
-
-    // Poll for TG script just in case it loads slowly
     const pollInterval = setInterval(() => {
       if (!unsubscribeTG) {
         unsubscribeTG = syncTG();
@@ -83,7 +74,6 @@ export function Navbar() {
     }, 500);
 
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
       clearInterval(pollInterval);
       const tg = (window as any).Telegram?.WebApp;
       if (tg && unsubscribeTG) {
@@ -97,16 +87,12 @@ export function Navbar() {
     setTheme(newTheme);
     localStorage.setItem('auralook_theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    if (newTheme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
   };
 
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
-    
     if (tg && tg.expand) {
       tg.ready();
       tg.expand();
@@ -120,9 +106,7 @@ export function Navbar() {
       document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     } else {
-      doc.requestFullscreen()
-        .then(() => setIsFullscreen(true))
-        .catch(() => setIsFullscreen(false));
+      doc.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => setIsFullscreen(false));
     }
   };
 
@@ -143,45 +127,45 @@ export function Navbar() {
   const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 py-4 shadow-xl">
-      <div className="max-w-5xl mx-auto flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-4 py-2.5 shadow-xl">
+      <div className="max-w-3xl mx-auto flex items-center justify-between h-10">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
             className={cn(
-              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-10 w-10 p-0 group transition-all",
+              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-9 w-9 p-0 group transition-all",
               isFullscreen && "neon-border"
             )}
           >
             {isFullscreen ? (
-              <Minimize2 className="w-5 h-5 neon-text" />
+              <Minimize2 className="w-4 h-4 neon-text" />
             ) : (
-              <Maximize2 className="w-5 h-5 text-foreground group-hover:neon-text" />
+              <Maximize2 className="w-4 h-4 text-foreground group-hover:neon-text" />
             )}
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-10 w-10 p-0 font-black uppercase text-foreground text-[10px]">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-9 w-9 p-0 font-black uppercase text-foreground text-[10px]">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2 min-w-[100px]">
+            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-1.5 min-w-[100px]">
               {languages.map((l) => (
                 <DropdownMenuItem 
                   key={l.code} 
                   onClick={() => setLang(l.code)}
                   className={cn(
-                    "font-bold text-sm py-3 px-5 rounded-lg cursor-pointer transition-colors",
+                    "font-bold text-xs py-2 px-4 rounded-lg cursor-pointer transition-colors",
                     lang === l.code ? "bg-foreground/10 neon-text" : "text-foreground hover:bg-foreground/5"
                   )}
                 >
@@ -193,50 +177,50 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-10 w-10 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-5 h-5 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-9 w-9 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-4 h-4 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-3 w-72 mt-2">
-              <div className="px-4 py-4 mb-2 border-b border-foreground/5">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
+            <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-2.5 w-64 mt-2">
+              <div className="px-3 py-3 mb-1 border-b border-foreground/5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
                 {user && (
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-xs font-bold neon-text truncate">@{user.username || user.firstName}</p>
-                    {isAdmin && <ShieldCheck className="w-4 h-4 text-primary animate-pulse" />}
+                    {isAdmin && <ShieldCheck className="w-3.5 h-3.5 text-primary animate-pulse" />}
                   </div>
                 )}
               </div>
               
               <Link href="/looks">
-                <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                  <Compass className="w-6 h-6 neon-text" />
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                  <Compass className="w-5 h-5 neon-text" />
                   <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
                 </DropdownMenuItem>
               </Link>
 
               {isAdmin && (
                 <Link href="/admin">
-                  <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                    <LayoutDashboard className="w-6 h-6 neon-text" />
+                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                    <LayoutDashboard className="w-5 h-5 neon-text" />
                     <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.adminPanel)}</span>
                   </DropdownMenuItem>
                 </Link>
               )}
 
-              <DropdownMenuSeparator className="bg-foreground/5 my-2" />
+              <DropdownMenuSeparator className="bg-foreground/5 my-1.5" />
               <DropdownMenuItem 
                 onClick={toggleTheme}
-                className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5"
+                className="flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5"
               >
-                {theme === 'dark' ? <Sun className="w-6 h-6 neon-text" /> : <Moon className="w-6 h-6 neon-text" />}
+                {theme === 'dark' ? <Sun className="w-5 h-5 neon-text" /> : <Moon className="w-5 h-5 neon-text" />}
                 <span className="font-bold text-xs uppercase tracking-widest">
                   {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
                 </span>
               </DropdownMenuItem>
               <Link href={isInsideTelegram ? "/profile" : BOT_URL} target={isInsideTelegram ? "_self" : "_blank"}>
-                <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
-                  <User className="w-6 h-6 neon-text" />
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer text-foreground hover:bg-foreground/5">
+                  <User className="w-5 h-5 neon-text" />
                   <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.profile)}</span>
                 </DropdownMenuItem>
               </Link>
