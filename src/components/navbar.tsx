@@ -144,6 +144,8 @@ export function Navbar() {
 
   if (!mounted) return null;
 
+  const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-8 pt-20 shadow-[0_10px_50px_rgba(0,0,0,0.4)]">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
@@ -238,7 +240,7 @@ export function Navbar() {
                   {theme === 'dark' ? t(dictionary.light) : t(dictionary.dark)}
                 </span>
               </DropdownMenuItem>
-              <Link href="/profile">
+              <Link href={isInsideTelegram ? "/profile" : BOT_URL} target={isInsideTelegram ? "_self" : "_blank"}>
                 <DropdownMenuItem className="flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer text-foreground hover:bg-foreground/5">
                   <User className="w-6 h-6 neon-text" />
                   <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.profile)}</span>

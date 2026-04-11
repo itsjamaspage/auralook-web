@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2, Info } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -39,15 +39,6 @@ export default function Home() {
     }
   }, [router]);
 
-  const handleOpenBot = (e: React.MouseEvent) => {
-    // This is now handled by the a href for better reliability, 
-    // but kept as fallback or for manual tracking if needed.
-    const url = "https://t.me/jamastore_aibot/app?startapp=from_web";
-    if (/iPhone|Android/i.test(navigator.userAgent)) {
-      window.location.assign(url);
-    }
-  };
-
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
   };
@@ -79,18 +70,26 @@ export default function Home() {
             {t(dictionary.heroTitle)}
           </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-8">
-            <Button asChild className="flex-1 h-14 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
-              <Link href="/looks">
-                {t(dictionary.shopTheDrop)}
-                <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+          <div className="flex flex-col gap-4 w-full max-w-lg pt-8">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild className="flex-1 h-14 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
+                <Link href="/looks">
+                  {t(dictionary.shopTheDrop)}
+                  <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
+                <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
+                  <Send className="w-4 h-4 mr-2" />
+                  {t(dictionary.openApp)}
+                </a>
+              </Button>
+            </div>
+            <Button asChild variant="ghost" className="h-12 rounded-xl border border-foreground/5 bg-foreground/[0.02] text-foreground/40 hover:text-foreground font-black uppercase text-[10px] tracking-widest transition-all">
+              <Link href="/about">
+                <Info className="w-3 h-3 mr-2" />
+                {t(dictionary.aboutUs)}
               </Link>
-            </Button>
-            <Button asChild variant="outline" className="flex-1 h-14 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
-              <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
-                <Send className="w-4 h-4 mr-2" />
-                {t(dictionary.openApp)}
-              </a>
             </Button>
           </div>
         </div>
@@ -227,7 +226,6 @@ export default function Home() {
       <footer className="container mx-auto px-6 py-12 border-t border-foreground/5 flex flex-col sm:flex-row justify-between items-center gap-8">
         <span className="text-xs font-black uppercase italic tracking-[0.3em] neon-text">AURALOOK</span>
         <div className="flex gap-4">
-          <Link href="/about"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.about)}</Button></Link>
           <Link href="https://t.me/itsjamaspage" target="_blank"><Button variant="outline" className="rounded-xl border-foreground/5 bg-transparent h-12 px-8 text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.contact)}</Button></Link>
         </div>
       </footer>

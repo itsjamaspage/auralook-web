@@ -14,6 +14,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const { t, dictionary } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [isInsideTelegram, setIsInsideTelegram] = useState(false);
   
   const db = useFirestore();
   const { user } = useUser();
@@ -41,6 +42,10 @@ export function BottomNav() {
 
   useEffect(() => {
     setMounted(true);
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.initData) {
+      setIsInsideTelegram(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -59,22 +64,28 @@ export function BottomNav() {
     prevFavCount.current = favCount;
   }, [favCount, mounted]);
 
+  const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
+
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
     { label: t(dictionary.favorites), icon: Heart, href: '/favorites' },
     { label: t(dictionary.cart), icon: ShoppingCart, href: '/cart' },
-    { label: t(dictionary.profile), icon: User, href: '/profile' },
+    { label: t(dictionary.profile), icon: User, href: isInsideTelegram ? '/profile' : BOT_URL, isExternal: !isInsideTelegram },
   ];
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+    const isActive = pathname === item.href || (item.href !== '/' && typeof item.href === 'string' && pathname.startsWith(item.href));
     const isCart = item.href === '/cart';
     const isFav = item.href === '/favorites';
     const count = isCart ? cartCount : isFav ? favCount : 0;
     const showPulse = (isCart && showPlusOneCart) || (isFav && showPlusOneFav);
     
     return (
-      <Link href={item.href} className="flex flex-col items-center gap-1 group relative py-2 flex-1">
+      <Link 
+        href={item.href} 
+        target={item.isExternal ? "_blank" : "_self"}
+        className="flex flex-col items-center gap-1 group relative py-2 flex-1"
+      >
         <div className={cn(
           "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
           isActive ? "neon-bg scale-110" : "glass-surface border border-foreground/10",
@@ -105,7 +116,7 @@ export function BottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       <div className="bg-background/95 backdrop-blur-2xl border-t border-foreground/10 h-20 sm:h-24 w-full flex items-center justify-between px-3 rounded-t-[2.5rem] shadow-2xl">
-        {navItems.map((item) => <NavButton key={item.href} item={item} />)}
+        {navItems.map((item) => <NavButton key={item.label} item={item} />)}
       </div>
     </div>
   );
