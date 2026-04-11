@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -47,20 +46,25 @@ export function Navbar() {
 
     const syncViewport = () => {
       const tg = (window as any).Telegram?.WebApp;
+      
+      const updateState = () => {
+        const isFs = !!document.fullscreenElement || (tg?.isExpanded ?? false);
+        setIsFullscreen(isFs);
+      };
+
       if (tg && tg.initData) {
         setIsInsideTelegram(true);
-        setIsFullscreen(tg.isExpanded);
-        
-        tg.onEvent('viewportChanged', () => {
-          setIsFullscreen(tg.isExpanded);
-        });
-        
+        tg.onEvent('viewportChanged', updateState);
         tg.ready();
-      } else {
-        const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', onFsChange);
-        return () => document.removeEventListener('fullscreenchange', onFsChange);
       }
+      
+      document.addEventListener('fullscreenchange', updateState);
+      updateState();
+
+      return () => {
+        if (tg) tg.offEvent('viewportChanged', updateState);
+        document.removeEventListener('fullscreenchange', updateState);
+      };
     };
 
     const cleanup = syncViewport();
@@ -81,22 +85,32 @@ export function Navbar() {
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
     
-    // Telegram Expansion Protocol
-    if (tg && tg.initData) {
-      tg.ready();
-      tg.expand();
-      return;
-    }
-    
-    // Standard Browser Fullscreen Toggle (PC)
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((e) => {
-        console.warn("Fullscreen request denied:", e);
-      });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+    // Check if we are currently in any kind of fullscreen mode
+    const isNowFullscreen = !!document.fullscreenElement || (tg && tg.isExpanded);
+
+    if (!isNowFullscreen) {
+      // ENTER FULLSCREEN PROTOCOL
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch((e) => {
+          console.warn("Fullscreen expansion denied:", e);
+        });
       }
+      
+      if (tg) {
+        tg.ready();
+        tg.expand();
+      }
+      setIsFullscreen(true);
+    } else {
+      // EXIT FULLSCREEN PROTOCOL (UNEXPAND)
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((e) => {
+          console.warn("Fullscreen exit denied:", e);
+        });
+      }
+      // Note: tg.isExpanded might stay true in some environments, 
+      // but we force the local state to satisfy the "unexpand" toggle behavior.
+      setIsFullscreen(false);
     }
   };
 
@@ -120,14 +134,14 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 py-4 shadow-xl">
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
         
-        {/* BRAND LOGO - Centered Priority */}
+        {/* BRAND LOGO - ALInitials */}
         <Link href="/" className="flex items-center gap-2 group shrink-0">
           <span className="text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            Auralook
+            AL
           </span>
         </Link>
 
-        {/* ACTION BUTTONS - Centric Proximity */}
+        {/* ACTION BUTTONS - Centered Proximity */}
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
