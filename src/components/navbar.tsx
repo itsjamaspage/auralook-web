@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -47,6 +48,13 @@ export function Navbar() {
       setIsFullscreen(!!document.fullscreenElement);
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    // Sync expansion state if in Telegram
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      setIsFullscreen(tg.isExpanded);
+    }
+
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
@@ -66,9 +74,16 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg) {
-      // Force Telegram to expand to maximum height
+      // PRO-LEVEL TELEGRAM EXPAND HANDSHAKE
+      tg.ready();
       tg.expand();
       setIsFullscreen(true);
+      
+      // Secondary check to force expansion if Telegram is sluggish
+      setTimeout(() => {
+        if (!tg.isExpanded) tg.expand();
+      }, 100);
+      
       return;
     }
     

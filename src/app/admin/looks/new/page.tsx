@@ -66,8 +66,10 @@ export default function NewLookPage() {
   const { user: firebaseUser } = useUser();
   const { user: tgUser } = useTelegramUser();
 
-  // ADMIN AUTH PROTECTION: Strict email and role check
-  const isAuthorized = firebaseUser?.email === 'jkhakimjonov8@gmail.com' || tgUser?.role === 'owner';
+  // ADMIN AUTH PROTECTION: Strict email and role check (Including Editors)
+  const isAuthorized = firebaseUser?.email === 'jkhakimjonov8@gmail.com' || 
+                       tgUser?.role === 'owner' || 
+                       tgUser?.role === 'editor';
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -146,7 +148,7 @@ export default function NewLookPage() {
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
         <h1 className="text-xl font-black text-foreground uppercase italic">Access Denied</h1>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Only authorized admins can publish new looks.</p>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">Only authorized admins or editors can publish new looks.</p>
         <Button onClick={() => router.push('/admin')} variant="outline" className="rounded-xl border-foreground/10 text-foreground">Return to Base</Button>
       </div>
     );
