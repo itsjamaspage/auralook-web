@@ -36,6 +36,7 @@ export function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+    
     const savedTheme = localStorage.getItem('auralook_theme') as 'dark' | 'light';
     if (savedTheme) {
       setTheme(savedTheme);
@@ -49,26 +50,44 @@ export function Navbar() {
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     
-    // PRO-LEVEL TELEGRAM EXPAND HANDSHAKE
-    const tg = (window as any).Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      // Sync initial state
-      setIsFullscreen(tg.isExpanded);
-      
-      // Listen for viewport changes to keep UI in sync with Telegram's native state
-      const syncState = () => {
+    // TELEGRAM MINI APP SYNC PROTOCOL
+    const syncTG = () => {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
         setIsFullscreen(tg.isExpanded);
-      };
-      
-      tg.onEvent('viewportChanged', syncState);
-      return () => {
-        document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        tg.offEvent('viewportChanged', syncState);
-      };
-    }
+        
+        const onViewportChanged = () => {
+          setIsFullscreen(tg.isExpanded);
+        };
+        
+        tg.onEvent('viewportChanged', onViewportChanged);
+        return onViewportChanged;
+      }
+      return null;
+    };
 
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    // Initial sync
+    let unsubscribeTG = syncTG();
+
+    // Poll for TG script just in case it loads slowly
+    const pollInterval = setInterval(() => {
+      if (!unsubscribeTG) {
+        unsubscribeTG = syncTG();
+        if (unsubscribeTG) clearInterval(pollInterval);
+      } else {
+        clearInterval(pollInterval);
+      }
+    }, 500);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      clearInterval(pollInterval);
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg && unsubscribeTG) {
+        tg.offEvent('viewportChanged', unsubscribeTG);
+      }
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -87,20 +106,17 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg) {
-      // FORCE EXPAND PROTOCOL
+      // Prioritize Telegram Native Expand
       tg.ready();
-      if (!tg.isExpanded) {
-        tg.expand();
-        setIsFullscreen(true);
-      } else {
-        // Many platforms won't collapse back via API, but we ensure it's at least expanded
-        tg.expand();
-        setIsFullscreen(true);
-      }
+      // Most TG clients only support one-way expansion.
+      // We call expand() regardless of current state to ensure it's forced.
+      tg.expand();
+      // Immediately update state for UI feedback
+      setIsFullscreen(true);
       return;
     }
     
-    // Standard fallback for browser testing
+    // Standard Browser Fallback
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
@@ -140,9 +156,16 @@ export function Navbar() {
             variant="ghost" 
             size="sm" 
             onClick={toggleFullscreen}
-            className="rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all"
+            className={cn(
+              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
+              isFullscreen && "neon-border"
+            )}
           >
-            {isFullscreen ? <Minimize2 className="w-6 h-6 neon-text" /> : <Maximize2 className="w-6 h-6 neon-text" />}
+            {isFullscreen ? (
+              <Minimize2 className="w-6 h-6 neon-text" />
+            ) : (
+              <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
+            )}
           </Button>
 
           <DropdownMenu>

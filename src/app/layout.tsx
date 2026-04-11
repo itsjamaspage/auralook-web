@@ -8,6 +8,7 @@ import { Footer } from '@/components/footer';
 import { LanguageProvider } from '@/hooks/use-language';
 import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Auralook.uz | Future of Fashion',
@@ -25,12 +26,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-        <script 
+      </head>
+      <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col" suppressHydrationWarning>
+        <Script 
           src="https://telegram.org/js/telegram-web-app.js" 
           strategy="beforeInteractive"
         />
-      </head>
-      <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col" suppressHydrationWarning>
         <FirebaseClientProvider>
           <LanguageProvider>
             <TelegramUserProvider>
