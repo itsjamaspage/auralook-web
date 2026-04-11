@@ -108,25 +108,21 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg && tg.expand) {
-      // Prioritize Telegram Native Expand Protocol
       tg.ready();
       tg.expand();
-      // Optimistic update for UI feedback
       setIsFullscreen(true);
       return;
     }
     
-    // Standard Browser Fallback (only if not inside Telegram)
-    if (!isInsideTelegram) {
-      const doc = document.documentElement;
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-        setIsFullscreen(false);
-      } else {
-        doc.requestFullscreen()
-          .then(() => setIsFullscreen(true))
-          .catch(() => setIsFullscreen(false));
-      }
+    // Standard Browser Fallback
+    const doc = document.documentElement;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    } else {
+      doc.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(() => setIsFullscreen(false));
     }
   };
 
@@ -147,37 +143,35 @@ export function Navbar() {
   const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 pb-8 pt-20 shadow-[0_10px_50px_rgba(0,0,0,0.4)]">
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-surface border-b border-foreground/10 px-6 py-4 shadow-xl">
+      <div className="max-w-5xl mx-auto flex items-center justify-between">
         
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-3xl lg:text-4xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             Auralook
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          {isInsideTelegram && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={toggleFullscreen}
-              className={cn(
-                "rounded-full border border-foreground/10 hover:bg-foreground/5 h-12 w-12 p-0 group transition-all",
-                isFullscreen && "neon-border"
-              )}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="w-6 h-6 neon-text" />
-              ) : (
-                <Maximize2 className="w-6 h-6 text-foreground group-hover:neon-text" />
-              )}
-            </Button>
-          )}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleFullscreen}
+            className={cn(
+              "rounded-full border border-foreground/10 hover:bg-foreground/5 h-10 w-10 p-0 group transition-all",
+              isFullscreen && "neon-border"
+            )}
+          >
+            {isFullscreen ? (
+              <Minimize2 className="w-5 h-5 neon-text" />
+            ) : (
+              <Maximize2 className="w-5 h-5 text-foreground group-hover:neon-text" />
+            )}
+          </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-12 w-12 p-0 font-black uppercase text-foreground text-xs">
+              <Button variant="ghost" size="sm" className="rounded-full border border-foreground/20 hover:bg-foreground/5 h-10 w-10 p-0 font-black uppercase text-foreground text-[10px]">
                 {lang}
               </Button>
             </DropdownMenuTrigger>
@@ -199,8 +193,8 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-12 w-12 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
-                <Menu className="w-6 h-6 text-foreground group-active:scale-90 transition-transform" />
+              <Button className="rounded-full h-10 w-10 p-0 border border-foreground/10 bg-foreground/5 hover:neon-border group">
+                <Menu className="w-5 h-5 text-foreground group-active:scale-90 transition-transform" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-surface border-foreground/10 p-3 w-72 mt-2">
