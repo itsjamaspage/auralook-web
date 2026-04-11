@@ -70,20 +70,22 @@ export default function Home() {
             {t(dictionary.heroTitle)}
           </h1>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-8 w-full max-w-2xl mx-auto">
-            <Button asChild className="h-14 px-8 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
-              <Link href="/looks">
-                {t(dictionary.shopTheDrop)}
-                <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </Link>
-            </Button>
-            
-            <Button asChild variant="outline" className="h-14 px-8 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
-              <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
-                <Send className="w-4 h-4 mr-2" />
-                {t(dictionary.openApp)}
-              </a>
-            </Button>
+          <div className="flex flex-col items-center gap-6 pt-8 w-full max-w-2xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Button asChild className="h-14 px-8 rounded-xl neon-bg text-black font-black uppercase text-xs tracking-widest border-none transition-all hover:scale-105 active:scale-95 shadow-2xl group">
+                <Link href="/looks">
+                  {t(dictionary.shopTheDrop)}
+                  <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </Link>
+              </Button>
+              
+              <Button asChild variant="outline" className="h-14 px-8 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
+                <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
+                  <Send className="w-4 h-4 mr-2" />
+                  {t(dictionary.openApp)}
+                </a>
+              </Button>
+            </div>
 
             <Button asChild variant="ghost" className="h-14 px-8 rounded-xl border border-foreground/5 bg-foreground/[0.02] text-foreground/40 hover:text-foreground font-black uppercase text-xs tracking-widest transition-all">
               <Link href="/about">
@@ -167,7 +169,7 @@ export default function Home() {
                     <p className="text-[8px] font-black text-foreground/40 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>
                     <h3 className="text-lg font-black text-foreground uppercase italic mb-1 truncate">{look.name}</h3>
                     <p className="neon-text font-black tracking-tighter">
-                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${formatPrice(look.price)}`}
                     </p>
                   </div>
                 </div>
