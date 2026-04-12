@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     allowedDevOrigins: [
-      '6000-firebase-studio-1774640089406.cluster-beimwvuktjcu6sechxlysokr36.cloudworkstations.dev'
+      '*.cloudworkstations.dev', // wildcard covers any workspace ID
     ]
   },
   productionBrowserSourceMaps: true,
@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
           { key: 'Pragma', value: 'no-cache' },
           { key: 'Expires', value: '0' },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // REMOVED: X-Frame-Options — conflicts with frame-ancestors in CSP
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
@@ -59,11 +59,13 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com",
-              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://api.telegram.org",
-              "img-src 'self' data: https://images.unsplash.com https://picsum.photos https://ui-avatars.com",
+              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org wss://*.cloudworkstations.dev",
+              "img-src 'self' data: https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "frame-src 'self'",
+              "frame-src 'self' https://t.me",
+              // Controls who can embed YOUR app:
+              "frame-ancestors 'self' https://t.me https://web.telegram.org https://*.web.telegram.org https://*.cloudworkstations.dev",
             ].join("; "),
           },
         ],
