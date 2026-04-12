@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     allowedDevOrigins: [
-      '*.cloudworkstations.dev', // wildcard covers any workspace ID
+      '*.cloudworkstations.dev',
     ]
   },
   productionBrowserSourceMaps: true,
@@ -50,7 +50,6 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
           { key: 'Pragma', value: 'no-cache' },
           { key: 'Expires', value: '0' },
-          // REMOVED: X-Frame-Options — conflicts with frame-ancestors in CSP
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
@@ -64,7 +63,6 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://t.me",
-              // Controls who can embed YOUR app:
               "frame-ancestors 'self' https://t.me https://web.telegram.org https://*.web.telegram.org https://*.cloudworkstations.dev",
             ].join("; "),
           },
