@@ -106,14 +106,15 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
 
 /**
  * AUTOMATED BROADCAST: Posts a new look to the Telegram channel.
+ * FIXED: Uses web_app button type for Telegram Web compatibility.
  */
 export async function postNewLookToChannel(look: { id: string, name: string, price: number, currency: string, description: string, imageUrl: string }): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || '@auralook_uz';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
 
   if (!token) return;
 
-  const deepLink = getProductDeepLink(look.id);
   const formattedPrice = new Intl.NumberFormat('uz-UZ').format(look.price).replace(/,/g, ' ');
 
   let caption = `👔 <b>${look.name.toUpperCase()}</b>\n\n`;
@@ -123,7 +124,10 @@ export async function postNewLookToChannel(look: { id: string, name: string, pri
 
   const replyMarkup = {
     inline_keyboard: [[
-      { text: '🛍 KO\'RISH VA BUYURTMA BERISH', url: deepLink }
+      { 
+        text: "🛍 KO'RISH VA BUYURTMA BERISH", 
+        web_app: { url: `${baseUrl}/looks/${look.id}` }
+      }
     ]]
   };
 
