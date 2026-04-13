@@ -32,6 +32,7 @@ interface TelegramUserContextType {
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
 // AUTHORIZED ADMIN LIST (Stable Numeric IDs and Usernames)
+// Verified ID for jama_khaki: 6884517020
 const ADMIN_IDS = ['6884517020', '7213073025'];
 const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
 

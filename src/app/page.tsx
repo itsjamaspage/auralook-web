@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Send, ArrowUpRight, Info, LayoutGrid, Square, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Info, LayoutGrid, Square, Loader2, Send, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -30,9 +30,9 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     
-    // PROTOCOL: Enhanced Deep-Link Redirection
-    // This catches product_ parameters from both shared links and channel buttons
-    const checkDeepLink = () => {
+    // PROTOCOL: High-Precision Deep-Link Redirection
+    // Aggressively checks for the start_param and clears itself immediately on success.
+    const interval = setInterval(() => {
       const tg = (window as any).Telegram?.WebApp;
       if (tg) {
         tg.ready();
@@ -40,23 +40,21 @@ export default function Home() {
         if (startParam && startParam.startsWith('product_')) {
           const productId = startParam.replace('product_', '');
           setIsDeepLinking(true);
+          clearInterval(interval); // Terminate polling immediately
           router.replace(`/looks/${productId}`);
-          return true;
         }
       }
-      return false;
-    };
-
-    // Standard Polling: Telegram WebApp context can be delayed
-    let attempts = 0;
-    const interval = setInterval(() => {
-      if (checkDeepLink() || attempts > 30) {
-        clearInterval(interval);
-      }
-      attempts++;
     }, 200);
 
-    return () => clearInterval(interval);
+    // Failsafe timeout: stop polling after 6 seconds to save resources
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 6000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [router]);
 
   const formatPrice = (val: number) => {
@@ -208,11 +206,6 @@ export default function Home() {
                   />
                   <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-white text-[8px] font-black uppercase tracking-widest rounded-sm z-10">
                     {index === 0 ? t(dictionary.hotTag) : t(dictionary.newTag)}
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-[120px] font-black text-black/5 uppercase italic tracking-tighter">
-                      0{index + 1}
-                    </span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
                     <p className="text-[8px] font-black text-white/60 uppercase tracking-[0.3em] mb-1">{t(dictionary.lookNumber)} / 00{index + 1}</p>

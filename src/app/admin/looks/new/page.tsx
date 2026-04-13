@@ -119,6 +119,7 @@ export default function NewLookPage() {
       console.error(e);
       toast({ variant: "destructive", title: "Publishing Failed" });
     } finally {
+      setIsOrdering(false);
       setPublishing(false);
     }
   };
