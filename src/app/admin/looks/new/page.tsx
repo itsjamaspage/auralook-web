@@ -16,7 +16,9 @@ import {
   Send,
   Zap,
   Image as ImageIcon,
-  DollarSign
+  DollarSign,
+  ArrowLeft,
+  Percent
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -54,9 +56,11 @@ export default function NewLookPage() {
   const { user: firebaseUser } = useUser();
   const { user: tgUser } = useTelegramUser();
 
-  const isAuthorized = firebaseUser?.email === 'jkhakimjonov8@gmail.com' || 
-                       tgUser?.role === 'owner' || 
-                       tgUser?.role === 'editor';
+  const isAdmin = tgUser?.role === 'owner' || 
+                  tgUser?.role === 'editor' || 
+                  firebaseUser?.email === 'jkhakimjonov8@gmail.com' ||
+                  tgUser?.username === 'itsjamaspage' ||
+                  tgUser?.username === 'jama_khaki';
 
   const formatPriceInput = (val: string) => {
     const digits = val.replace(/\D/g, '');
@@ -112,14 +116,18 @@ export default function NewLookPage() {
       const deepLink = getProductDeepLink(docRef.id);
 
       // 3. Auto-broadcast to Telegram
-      await postNewLookToChannel({
-        id: docRef.id,
-        name: lookData.name,
-        price: lookData.price,
-        currency: lookData.currency,
-        description: lookData.description,
-        imageUrl: lookData.imageUrl
-      });
+      try {
+        await postNewLookToChannel({
+          id: docRef.id,
+          name: lookData.name,
+          price: lookData.price,
+          currency: lookData.currency,
+          description: lookData.description,
+          imageUrl: lookData.imageUrl
+        });
+      } catch (tgErr) {
+        console.warn("[Telegram Broadcast] Failed but look was saved:", tgErr);
+      }
 
       setResult({ productId: docRef.id, deepLink });
       toast({ title: t(dictionary.lookSavedSuccess) });
@@ -139,7 +147,7 @@ export default function NewLookPage() {
     toast({ title: "Link Copied" });
   };
 
-  if (!isAuthorized && firebaseUser) {
+  if (!isAdmin && firebaseUser) {
     return (
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
@@ -186,10 +194,12 @@ export default function NewLookPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-5xl space-y-8 sm:space-y-12 pb-32">
       <div className="flex items-center gap-4">
-        <div className="w-1.5 h-10 neon-bg rounded-full" />
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full border border-foreground/10 h-10 w-10">
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
         <div className="space-y-1">
           <h1 className="text-xl sm:text-3xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.newLookDrop)}</h1>
-          <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">{t(dictionary.authorizedDeployment)}</p>
+          <p className="text-foreground/60 text-[10px] font-black uppercase tracking-[0.3em]">{t(dictionary.authorizedDeployment)}</p>
         </div>
       </div>
 
@@ -197,7 +207,7 @@ export default function NewLookPage() {
         <div className="lg:col-span-4 space-y-6">
           <Card 
             onClick={() => fileRef.current?.click()}
-            className="glass-surface rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group cursor-pointer border-foreground/10 hover:border-primary/20 transition-all shadow-2xl bg-muted/20"
+            className="glass-surface rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group cursor-pointer border-foreground/10 hover:border-primary/20 transition-all shadow-2xl bg-foreground/[0.02]"
           >
             {imagePreview ? (
               <img 
@@ -215,7 +225,7 @@ export default function NewLookPage() {
             )}
             {imagePreview && (
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-4 py-2 rounded-full border border-white/20">{t(dictionary.changeMediaLabel)}</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-6 py-3 rounded-full border border-white/20 shadow-2xl">{t(dictionary.changeMediaLabel)}</span>
               </div>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
@@ -229,7 +239,7 @@ export default function NewLookPage() {
               <Input 
                 value={form.name}
                 onChange={(e) => setForm({...form, name: e.target.value})}
-                className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
+                className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold text-lg" 
                 placeholder="e.g. Cyber Runner Jacket v2"
               />
             </div>
@@ -242,11 +252,11 @@ export default function NewLookPage() {
                     type="text" 
                     value={form.price}
                     onChange={(e) => setForm({...form, price: formatPriceInput(e.target.value)})}
-                    className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl flex-1 focus:neon-border text-foreground font-bold" 
+                    className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl flex-1 focus:neon-border text-foreground font-black text-xl tracking-tighter" 
                     placeholder={form.currency === 'UZS' ? '189.000' : '189'}
                   />
                   
-                  <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">
+                  <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14 min-w-[140px]">
                     <Button 
                       type="button"
                       variant="ghost"
@@ -275,33 +285,36 @@ export default function NewLookPage() {
 
               <div className="space-y-4">
                 <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.discountLabel)}</Label>
-                <Input 
-                  type="number" 
-                  value={form.discount}
-                  onChange={(e) => setForm({...form, discount: e.target.value})}
-                  className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
-                  placeholder="0"
-                />
+                <div className="relative">
+                  <Input 
+                    type="number" 
+                    value={form.discount}
+                    onChange={(e) => setForm({...form, discount: e.target.value})}
+                    className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
+                    placeholder="0"
+                  />
+                  <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20" />
+                </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.technicalSpecLabel)}</Label>
               <Textarea 
-                rows={4}
+                rows={6}
                 value={form.description}
                 onChange={(e) => setForm({...form, description: e.target.value})}
-                className="bg-foreground/10 border-foreground/10 rounded-3xl p-6 focus:neon-border text-foreground leading-relaxed italic" 
+                className="bg-foreground/5 border-foreground/10 rounded-[2rem] p-6 focus:neon-border text-foreground leading-relaxed italic font-medium" 
                 placeholder="Describe fit, fabric tech, and aesthetic..."
               />
             </div>
 
             <div className="pt-6 border-t border-foreground/10 flex flex-col sm:flex-row justify-end gap-4">
-              <Button variant="ghost" onClick={() => router.back()} className="rounded-2xl h-14 px-8 font-black uppercase text-xs tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.cancel)}</Button>
+              <Button variant="ghost" onClick={() => router.back()} className="rounded-2xl h-14 px-8 font-black uppercase text-[10px] tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.cancel)}</Button>
               <Button 
                 onClick={handlePublish} 
                 disabled={publishing}
-                className="neon-bg text-black font-black px-12 rounded-2xl h-14 border-none shadow-2xl hover:scale-105 active:scale-95 transition-all min-w-[200px]"
+                className="neon-bg text-black font-black px-12 rounded-2xl h-14 border-none shadow-2xl hover:scale-105 active:scale-95 transition-all min-w-[220px]"
               >
                 {publishing ? <Loader2 className="animate-spin" /> : (
                   <><Zap className="w-4 h-4 mr-2 fill-current" /> {t(dictionary.publishLookLabel)}</>
