@@ -3,24 +3,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v20.0.0 Handshake Guard)
+    // Assumed Data Model (v21.0.0 Global Identity Guard)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function getUsername() {
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(userPath) ? get(userPath).data.username : null;
+    }
+
     function getRole() {
-      let rolePath = /databases/$(database)/documents/roles/$(request.auth.uid);
+      let username = getUsername();
+      if (username == null) { return 'viewer'; }
+      let rolePath = /databases/$(database)/documents/roles/$(username);
       return exists(rolePath) ? get(rolePath).data.role : 'viewer';
     }
 
     function isOwner() {
-      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      let username = getUsername();
       let role = getRole();
       return isAuthenticated() && (
         role == 'owner' ||
-        (exists(userPath) && get(userPath).data.username == 'itsjamaspage') || 
+        username == 'itsjamaspage' || 
+        username == 'jama_khaki' ||
         request.auth.uid == 'demo_admin_session'
       );
     }
@@ -40,8 +48,8 @@ service cloud.firestore {
              data.description is string && data.description.size() <= 2000;
     }
 
-    match /roles/{uid} {
-      allow get: if isAuthenticated() && (request.auth.uid == uid || isOwner());
+    match /roles/{identifier} {
+      allow get: if isAuthenticated() && (getUsername() == identifier || isOwner());
       allow list: if isOwner();
       allow write: if isOwner();
     }

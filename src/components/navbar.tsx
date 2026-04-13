@@ -91,6 +91,7 @@ export function Navbar() {
   ];
 
   const isAdmin = user?.username?.toLowerCase() === 'itsjamaspage' || 
+                  user?.username?.toLowerCase() === 'jama_khaki' ||
                   user?.role === 'admin' || 
                   user?.role === 'editor' ||
                   user?.role === 'owner' ||

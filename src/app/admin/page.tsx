@@ -58,7 +58,8 @@ export default function AdminDashboard() {
   const isAdmin = user?.role === 'owner' || 
                   user?.role === 'editor' || 
                   user?.firebaseUid === 'demo_admin_session' ||
-                  user?.username?.toLowerCase() === 'itsjamaspage';
+                  user?.username?.toLowerCase() === 'itsjamaspage' ||
+                  user?.username?.toLowerCase() === 'jama_khaki';
 
   // SECURE QUERY GATING
   const looksQuery = useMemoFirebase(() => {

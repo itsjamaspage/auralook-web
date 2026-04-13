@@ -74,19 +74,23 @@ export default function ProfilePage() {
     setIsAddingEditor(true);
     try {
       const cleanName = newEditorUsername.replace('@', '').toLowerCase().trim();
-      const q = query(collection(db, 'users'), where('username', '==', cleanName));
-      const snap = await getDocs(q);
       
-      if (snap.empty) {
-        toast({ variant: "destructive", title: t(dictionary.nothingFound), description: t(dictionary.openInBot) });
-        return;
-      }
-
-      await setDoc(doc(db, 'roles', snap.docs[0].id), { role: 'editor', username: cleanName, addedAt: serverTimestamp(), addedBy: user.id });
+      // Save role using the Username as the Document ID for device stability
+      await setDoc(doc(db, 'roles', cleanName), { 
+        role: 'editor', 
+        username: cleanName, 
+        addedAt: serverTimestamp(), 
+        addedBy: user.id 
+      });
+      
       toast({ title: t(dictionary.success), description: `@${cleanName} is now an Editor.` });
       setNewEditorUsername('');
-    } catch (e) { toast({ variant: "destructive", title: t(dictionary.errorTitle) }); }
-    finally { setIsAddingEditor(false); }
+    } catch (e) { 
+      console.error(e);
+      toast({ variant: "destructive", title: t(dictionary.errorTitle) }); 
+    } finally { 
+      setIsAddingEditor(false); 
+    }
   };
 
   if (isLoading && !user) {
