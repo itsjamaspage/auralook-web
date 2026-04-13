@@ -45,7 +45,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [newEditorUsername, setNewEditorUsername] = useState('');
+  const [newEditorInput, setNewEditorInput] = useState('');
   const [isAddingEditor, setIsAddingEditor] = useState(false);
 
   const rolesQuery = useMemoFirebase(() => {
@@ -70,21 +70,38 @@ export default function ProfilePage() {
   };
 
   const handleAddEditor = async () => {
-    if (!newEditorUsername || !user) return;
+    if (!newEditorInput || !user) return;
     setIsAddingEditor(true);
     try {
-      const cleanName = newEditorUsername.replace('@', '').toLowerCase().trim();
+      const input = newEditorInput.replace('@', '').toLowerCase().trim();
       
-      // Save role using the Username as the Document ID for device stability
-      await setDoc(doc(db, 'roles', cleanName), { 
+      // If input is numeric, we can use it directly as stable ID
+      // Otherwise, we lookup the user by username to get their numeric ID
+      let targetId = input;
+      let targetUsername = input;
+
+      if (isNaN(Number(input))) {
+        const userQuery = query(collection(db, 'users'), where('username', '==', input));
+        const snap = await getDocs(userQuery);
+        if (!snap.empty) {
+          targetId = snap.docs[0].id;
+          targetUsername = snap.docs[0].data().username;
+        } else {
+          // Fallback: If user hasn't opened app yet, we store by username temporarily
+          // The Identity Bridge will reconcile this when they first login
+          console.warn("[Team Protocol] Target user not found in database. Storing by username.");
+        }
+      }
+      
+      await setDoc(doc(db, 'roles', targetId), { 
         role: 'editor', 
-        username: cleanName, 
+        username: targetUsername, 
         addedAt: serverTimestamp(), 
         addedBy: user.id 
       });
       
-      toast({ title: t(dictionary.success), description: `@${cleanName} is now an Editor.` });
-      setNewEditorUsername('');
+      toast({ title: t(dictionary.success), description: `@${targetUsername} is now an Editor.` });
+      setNewEditorInput('');
     } catch (e) { 
       console.error(e);
       toast({ variant: "destructive", title: t(dictionary.errorTitle) }); 
@@ -193,8 +210,8 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">{t(dictionary.promoteToEditor)}</Label>
               <div className="flex gap-2">
-                <Input placeholder="@username" value={newEditorUsername} onChange={(e) => setNewEditorUsername(e.target.value)} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground" />
-                <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorUsername} className="neon-bg text-black font-black px-6 rounded-xl h-12">{isAddingEditor ? <Loader2 className="animate-spin" /> : t(dictionary.grant)}</Button>
+                <Input placeholder="@username or ID" value={newEditorInput} onChange={(e) => setNewEditorInput(e.target.value)} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground" />
+                <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorInput} className="neon-bg text-black font-black px-6 rounded-xl h-12">{isAddingEditor ? <Loader2 className="animate-spin" /> : t(dictionary.grant)}</Button>
               </div>
             </div>
             <div className="space-y-4">
@@ -202,7 +219,7 @@ export default function ProfilePage() {
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                 {editors?.map((editor) => (
                   <div key={editor.id} className="flex items-center justify-between p-4 bg-foreground/5 rounded-2xl border border-foreground/5">
-                    <div className="flex flex-col"><span className="text-sm font-black text-foreground italic">@{editor.username}</span><span className="text-[9px] font-bold text-primary uppercase">{editor.role}</span></div>
+                    <div className="flex flex-col"><span className="text-sm font-black text-foreground italic">@{editor.username || editor.id}</span><span className="text-[9px] font-bold text-primary uppercase">{editor.role}</span></div>
                     <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: t(dictionary.revoked) }); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 ))}

@@ -3,22 +3,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v21.0.0 Global Identity Guard)
+    // Assumed Data Model (v22.0.0 Stable ID Guard)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Resolves numeric Telegram ID from the user document associated with the UID
+    function getStableId() {
+      let uidPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(uidPath) ? get(uidPath).data.id : null;
+    }
+
     function getUsername() {
-      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
-      return exists(userPath) ? get(userPath).data.username : null;
+      let uidPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(uidPath) ? get(uidPath).data.username : null;
     }
 
     function getRole() {
-      let username = getUsername();
-      if (username == null) { return 'viewer'; }
-      let rolePath = /databases/$(database)/documents/roles/$(username);
+      let stableId = getStableId();
+      if (stableId == null) { return 'viewer'; }
+      let rolePath = /databases/$(database)/documents/roles/$(stableId);
       return exists(rolePath) ? get(rolePath).data.role : 'viewer';
     }
 
@@ -49,7 +55,7 @@ service cloud.firestore {
     }
 
     match /roles/{identifier} {
-      allow get: if isAuthenticated() && (getUsername() == identifier || isOwner());
+      allow get: if isAuthenticated() && (getStableId() == identifier || getUsername() == identifier || isOwner());
       allow list: if isOwner();
       allow write: if isOwner();
     }
@@ -63,14 +69,15 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
+      // Allow read/write if the UID matches the document's recorded firebaseUid
+      allow read, write: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || request.auth.uid == userId || isOwner());
       
       match /liked_looks/{lookId} {
-        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
+        allow read, write: if isAuthenticated() && (isOwner() || getStableId() == userId);
       }
 
       match /cart/{lookId} {
-        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isOwner());
+        allow read, write: if isAuthenticated() && (isOwner() || getStableId() == userId);
       }
     }
 

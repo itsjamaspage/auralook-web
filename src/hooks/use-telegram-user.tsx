@@ -9,7 +9,7 @@ import { signInAnonymously } from 'firebase/auth';
 export type UserRole = 'owner' | 'editor' | 'viewer';
 
 export interface UserProfile {
-  id: string;
+  id: string; // This is the numeric Telegram ID as a string for stability
   telegramId: number;
   firstName: string;
   username: string | null;
@@ -37,7 +37,7 @@ const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
 /**
  * Enhanced Telegram Identity Bridge.
  * Automatically synchronizes Telegram WebApp user data with Firebase session.
- * Uses Username-based roles for cross-device persistence.
+ * Uses Numeric Telegram ID for absolute cross-device and cross-username persistence.
  */
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -87,14 +87,16 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
 
         const rawUser = await verifyRes.json();
         const cleanUsername = rawUser.username?.toLowerCase() || null;
+        const stableId = rawUser.id.toString(); // Numeric Telegram ID
         
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 1. Establish User Identity Document First
-        const userRef = doc(db, 'users', firebaseUid);
+        // 1. Establish User Identity Document
+        // We use the numeric ID as the primary key for the users collection
+        const userRef = doc(db, 'users', stableId);
         const profileData = {
-          id: firebaseUid,
+          id: stableId,
           telegramId: rawUser.id,
           firstName: rawUser.first_name,
           username: cleanUsername,
@@ -103,15 +105,17 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           lastSeen: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
+        
+        // Upsert profile data
         await setDoc(userRef, profileData, { merge: true });
 
-        // 2. Map Roles via Username (Stable across devices)
-        const roleId = cleanUsername || `id_${rawUser.id}`;
-        const roleRef = doc(db, 'roles', roleId);
+        // 2. Resolve Role via Numeric ID (Immutable)
+        const roleRef = doc(db, 'roles', stableId);
         
         const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
           let assignedRole: UserRole = 'viewer';
           
+          // Hardcoded fallback for bootstrap admins
           if (cleanUsername && ADMIN_USERNAMES.includes(cleanUsername)) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
@@ -122,7 +126,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             ...profileData,
             role: assignedRole,
             createdAt: snap.exists() ? snap.data().createdAt : serverTimestamp(),
-            phone: null // Phone is handled separately in profile
+            phone: snap.exists() ? snap.data().phone : null
           } as any;
 
           setUser(fullProfile);
@@ -146,8 +150,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   function handleDemoMode() {
     const demoUid = 'demo_admin_session';
     const mockUser: UserProfile = {
-      id: demoUid,
-      telegramId: 0,
+      id: '7213073025', // Mocking your actual numeric ID for demo stability
+      telegramId: 7213073025,
       firstName: 'Admin Voyager',
       username: 'jama_khaki',
       phone: '+998 90 000 00 00',
