@@ -108,7 +108,7 @@ export function Navbar() {
         
         <Link href="/" className="flex items-center gap-2 group shrink-0">
           <span className="text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            AL
+            AURALOOK
           </span>
         </Link>
 
