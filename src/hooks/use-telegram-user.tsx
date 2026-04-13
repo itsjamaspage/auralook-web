@@ -47,7 +47,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
       
-      while (!getTG() && attempts < 30) {
+      // Wait for Telegram to be injected
+      while (!getTG() && attempts < 50) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
@@ -59,14 +60,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         window.location.hostname === 'localhost'
       );
 
+      // Handle non-Telegram environments (Desktop or Browsers)
       if (!tg?.initDataUnsafe?.user) {
-        if (isDev) handleDemoMode();
-        else setIsLoading(false);
+        if (isDev) {
+          handleDemoMode();
+        } else {
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
-        // SECURE IDENTITY VERIFICATION: Handshake via backend signature verification
+        // 1. Identity Verification Handshake
         const verifyRes = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -74,16 +79,17 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         });
 
         if (!verifyRes.ok) {
-          throw new Error('Identity verification failed.');
+          throw new Error('Identity verification handshake failed.');
         }
 
         const rawUser = await verifyRes.json();
         const cleanUsername = rawUser.username?.toLowerCase() || null;
         
+        // 2. Firebase Session Establishment
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // Listen to roles for dynamic RBAC updates
+        // 3. Dynamic RBAC Mapping
         const roleRef = doc(db, 'roles', firebaseUid);
         const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
           let assignedRole: UserRole = 'viewer';
@@ -109,8 +115,9 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             phone: null
           };
 
-          // CRITICAL: Await the database write before establishing verification state
+          // Commit identity to distributed ledger
           await setDoc(userRef, profileData, { merge: true });
+          
           setUser(profileData);
           setIsVerified(true);
           setIsLoading(false);
@@ -120,7 +127,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         tg.expand();
         return () => unsubscribeRole();
       } catch (err) {
-        console.error('Identity Bridge Critical Error:', err);
+        console.error('[Identity Bridge] Critical Failure:', err);
         setError(String(err));
         setIsLoading(false);
       }

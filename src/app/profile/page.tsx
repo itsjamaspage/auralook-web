@@ -23,7 +23,9 @@ import {
   ShieldCheck, 
   PlusCircle, 
   Users, 
-  Trash2
+  Trash2,
+  ShieldAlert,
+  LogIn
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -36,7 +38,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProfilePage() {
   const router = useRouter();
   const { t, dictionary } = useLanguage();
-  const { user, isLoading, isVerified } = useTelegramUser();
+  const { user, isLoading, isVerified, error } = useTelegramUser();
   const db = useFirestore();
   const { toast } = useToast();
   
@@ -46,9 +48,7 @@ export default function ProfilePage() {
   const [newEditorUsername, setNewEditorUsername] = useState('');
   const [isAddingEditor, setIsAddingEditor] = useState(false);
 
-  // SECURE TEAM QUERY: Only starts if verified AND definitively an owner to prevent permission errors
   const rolesQuery = useMemoFirebase(() => {
-    // CRITICAL: Prevent unauthorized list attempts by checking state before query initialization
     if (!isVerified || !user || user.role !== 'owner') return null;
     return collection(db, 'roles');
   }, [db, user, isVerified]);
@@ -98,12 +98,30 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user) {
+  if (!isVerified || !user) {
     return (
-      <div className="container mx-auto px-6 py-20 text-center space-y-6">
-        <User className="w-16 h-16 neon-text mx-auto opacity-20" />
-        <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
-        <p className="text-foreground/70 text-sm max-w-xs mx-auto">{t(dictionary.openInBot)}</p>
+      <div className="container mx-auto px-6 py-20 text-center space-y-8 max-w-sm">
+        <div className="relative mx-auto w-20 h-20">
+          <ShieldAlert className="w-20 h-20 neon-text opacity-20" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <LogIn className="w-8 h-8 neon-text animate-pulse" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h1 className="text-2xl font-black text-foreground uppercase italic tracking-tighter">
+            {t(dictionary.identificationRequired)}
+          </h1>
+          <p className="text-foreground/60 text-xs font-medium leading-relaxed uppercase tracking-widest">
+            {t(dictionary.openInBot)}
+          </p>
+        </div>
+        <Button asChild className="h-16 w-full rounded-2xl neon-bg text-black font-black uppercase tracking-widest border-none">
+          <a href="https://t.me/jamastore_aibot">
+            <Send className="w-5 h-5 mr-3" />
+            GO TO TELEGRAM
+          </a>
+        </Button>
+        {error && <p className="text-[9px] font-mono text-destructive uppercase">Error: {error}</p>}
       </div>
     );
   }
@@ -122,7 +140,7 @@ export default function ProfilePage() {
           {isPrivileged && <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full neon-bg flex items-center justify-center border-2 border-background"><ShieldCheck className="w-4 h-4 text-black" /></div>}
         </div>
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black text-foreground uppercase tracking-tight italic">{user.firstName}</h1>
+          <h1 className="text-2xl font-black text-foreground uppercase italic tracking-tighter">{user.firstName}</h1>
           <p className="text-[10px] font-bold neon-text uppercase tracking-widest font-mono">@{user.username || 'user'}</p>
           <div className="mt-2 inline-block px-3 py-1 rounded-full bg-foreground/5 border border-foreground/10">
             <p className="text-[9px] font-black text-primary uppercase tracking-widest">

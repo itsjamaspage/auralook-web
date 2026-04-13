@@ -21,14 +21,15 @@ import {
   Minimize2,
   Sun,
   Moon,
-  ShieldCheck
+  ShieldCheck,
+  LogIn
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
-  const { user } = useTelegramUser();
+  const { user, isVerified, isLoading } = useTelegramUser();
   const [mounted, setMounted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
@@ -37,7 +38,6 @@ export function Navbar() {
   useEffect(() => {
     setMounted(true);
     
-    // Sync UI with actual fullscreen state
     const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFsChange);
 
@@ -45,7 +45,6 @@ export function Navbar() {
     if (tg && tg.initData) {
       setIsInsideTelegram(true);
       tg.ready();
-      // Expanded state polling for Telegram
       const pollInterval = setInterval(() => {
         if (tg.isExpanded !== isFullscreen) setIsFullscreen(tg.isExpanded);
       }, 500);
@@ -81,7 +80,6 @@ export function Navbar() {
       if (document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
-      // Note: Telegram doesn't have an 'unexpand' API, but we toggle the UI state
       setIsFullscreen(false);
     }
   };
@@ -146,18 +144,27 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="rounded-full h-12 w-12 p-0 border border-border bg-secondary hover:neon-border">
-                <Menu className="w-6 h-6 text-foreground" />
+              <Button className={cn(
+                "rounded-full h-12 w-12 p-0 border border-border bg-secondary hover:neon-border transition-all",
+                !isVerified && !isLoading && "border-primary animate-pulse"
+              )}>
+                {isVerified ? (
+                  <User className="w-6 h-6 text-foreground" />
+                ) : (
+                  <LogIn className="w-6 h-6 text-primary" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-background border-border p-3 w-64 mt-2 shadow-2xl">
               <div className="px-3 py-3 mb-1 border-b border-border">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30 italic">{t(dictionary.protocol)}</p>
-                {user && (
+                {user && isVerified ? (
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm font-bold neon-text truncate">@{user.username || user.firstName}</p>
                     {isAdmin && <ShieldCheck className="w-4 h-4 text-primary animate-pulse" />}
                   </div>
+                ) : (
+                  <p className="text-sm font-bold text-primary italic mt-1">{t(dictionary.identificationRequired)}</p>
                 )}
               </div>
               
