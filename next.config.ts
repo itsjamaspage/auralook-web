@@ -2,7 +2,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['*.cloudworkstations.dev'],
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -36,6 +35,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 't.me',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {
@@ -55,7 +60,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com https://*.cloudworkstations.dev",
               "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org wss://*.cloudworkstations.dev",
-              "img-src 'self' data: https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com",
+              "img-src 'self' data: https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com https://t.me",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://t.me",
