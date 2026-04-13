@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfBatchOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { cn } from '@/lib/utils';
 
 type CheckoutStep = 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 

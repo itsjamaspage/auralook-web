@@ -3,35 +3,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v24.0.0 Global Identity Sync)
+    // Assumed Data Model (v24.5.0 Universal Identity Sync)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Resolves if the current user is the owner of the document
-    // Documents in 'users' are indexed by Telegram ID (stableId)
-    function isProfileOwner(userId) {
-      let userDoc = get(/databases/$(database)/documents/users/$(userId));
-      return isAuthenticated() && (
-        // Allow if the document's internal firebaseUid matches the current auth session
-        (userDoc != null && userDoc.data.firebaseUid == request.auth.uid) ||
-        // Allow if the request is trying to CREATE their own initial profile
-        (request.resource != null && request.resource.data.firebaseUid == request.auth.uid) ||
-        // Allow the demo admin session
-        request.auth.uid == 'demo_admin_session'
-      );
-    }
-
+    // Supreme Admin Authorization Logic
     function isOwner() {
       return isAuthenticated() && (
-        // Supreme Admin numeric IDs
         request.auth.uid == 'demo_admin_session' ||
-        (exists(/databases/$(database)/documents/roles/6884517020) && 
-         get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
-        (exists(/databases/$(database)/documents/roles/7213073025) && 
-         get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid)
+        exists(/databases/$(database)/documents/roles/6884517020) && get(/databases/$(database)/documents/roles/6884517020).data.firebaseUid == request.auth.uid ||
+        exists(/databases/$(database)/documents/roles/7213073025) && get(/databases/$(database)/documents/roles/7213073025).data.firebaseUid == request.auth.uid
       );
     }
 
@@ -39,10 +23,18 @@ service cloud.firestore {
       return isOwner();
     }
 
-    // Validation Helpers
-    function isValidLook(data) {
-      return data.price is number && data.price > 0 &&
-             data.name is string && data.name.size() <= 200;
+    // Profile Ownership Verification
+    // Used for paths where Document ID is the Telegram ID (stableId)
+    function isProfileOwner(userId) {
+      let userDoc = get(/databases/$(database)/documents/users/$(userId));
+      return isAuthenticated() && (
+        // Case 1: Existing profile belongs to current session
+        (userDoc != null && userDoc.data.firebaseUid == request.auth.uid) ||
+        // Case 2: Creating a new profile document for self
+        (request.resource != null && request.resource.data.firebaseUid == request.auth.uid) ||
+        // Case 3: Admin override
+        isOwner()
+      );
     }
 
     match /roles/{identifier} {
@@ -52,23 +44,24 @@ service cloud.firestore {
     }
 
     match /looks/{lookId} {
-      allow read: if isAuthenticated();
-      allow list: if isAuthenticated(); 
-      allow create: if isEditor() && isValidLook(request.resource.data);
-      allow update: if isEditor() && isValidLook(request.resource.data);
-      allow delete: if isEditor();
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isEditor();
     }
 
     match /users/{userId} {
-      // Use isProfileOwner which checks the internal mapping
-      allow read, write: if isProfileOwner(userId) || isOwner();
+      // Allow user to manage their own top-level profile
+      allow read, write: if isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid) ||
+        (request.resource != null && request.resource.data.firebaseUid == request.auth.uid) ||
+        isOwner()
+      );
       
-      match /liked_looks/{lookId} {
-        allow read, write: if isProfileOwner(userId) || isOwner();
-      }
-
-      match /cart/{lookId} {
-        allow read, write: if isProfileOwner(userId) || isOwner();
+      // Subcollection Authorization Protocol
+      match /{allSubcollections=**} {
+        allow read, write: if isAuthenticated() && (
+          (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid) ||
+          isOwner()
+        );
       }
     }
 
