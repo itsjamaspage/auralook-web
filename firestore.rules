@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Security Protocol (v25.3.0)
+    // Universal Identity & Security Protocol (v25.4.0)
     // ===============================================================
     
     function isAuthenticated() {
@@ -33,16 +33,15 @@ service cloud.firestore {
     function isProfileOwner(userId) {
       return isAuthenticated() && (
         isOwner() ||
-        // Allow if doc doesn't exist yet (initial creation)
-        (!exists(/databases/$(database)/documents/users/$(userId)) && request.resource.data.firebaseUid == request.auth.uid) ||
-        // Allow if doc exists and UID matches
-        (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid)
+        request.auth.uid == userId ||
+        (request.resource != null && request.resource.data.get('firebaseUid', '') == request.auth.uid) ||
+        (resource != null && resource.data.get('firebaseUid', '') == request.auth.uid)
       );
     }
 
     match /roles/{identifier} {
-      allow get: if isAuthenticated() && (isOwner() || identifier == '6884517020');
-      allow list: if isOwner();
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated();
       allow write: if isOwner();
     }
 
