@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Security Protocol (v25.2.0)
+    // Universal Identity & Security Protocol (v25.3.0)
     // ===============================================================
     
     function isAuthenticated() {
@@ -28,15 +28,15 @@ service cloud.firestore {
       return isOwner();
     }
 
-    // Recursive Profile Ownership
-    // Allows users to manage their own Telegram-ID-indexed folders
+    // Direct Identity Folder Mapping
+    // userId in path is Telegram ID. Map to request.auth.uid via doc content.
     function isProfileOwner(userId) {
       return isAuthenticated() && (
-        // Allow if document doesn't exist (First-time creation)
+        isOwner() ||
+        // Allow if doc doesn't exist yet (initial creation)
         (!exists(/databases/$(database)/documents/users/$(userId)) && request.resource.data.firebaseUid == request.auth.uid) ||
-        // Allow if document exists and matches Firebase UID
-        (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid) ||
-        isOwner()
+        // Allow if doc exists and UID matches
+        (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid)
       );
     }
 
@@ -55,6 +55,7 @@ service cloud.firestore {
       allow read, write: if isProfileOwner(userId);
       
       match /{allSubcollections=**} {
+        // Recursive access: Allow if parent doc mapping matches UID
         allow read, write: if isProfileOwner(userId);
       }
     }
