@@ -80,8 +80,8 @@
 }
 
 :root {
-  /* Slowed down to 90s for ultimate premium smooth transitions */
-  animation: master-rainbow-cycle 90s linear infinite;
+  /* Set to 25s for a smooth but responsive premium cycle */
+  animation: master-rainbow-cycle 25s linear infinite;
   --sync-color: hsl(var(--sync-hue), 100%, 50%);
   --sync-shadow: hsla(var(--sync-hue), 100%, 50%, 0.4);
 }
