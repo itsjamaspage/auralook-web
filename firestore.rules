@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Security Protocol (v25.4.1)
+    // Universal Identity & Security Protocol (v25.4.2)
     // ===============================================================
     
     function isAuthenticated() {
@@ -16,14 +16,13 @@ service cloud.firestore {
         request.auth.uid == 'demo_admin_session' ||
         exists(/databases/$(database)/documents/roles/6884517020) && get(/databases/$(database)/documents/roles/6884517020).data.firebaseUid == request.auth.uid ||
         exists(/databases/$(database)/documents/roles/7213073025) && get(/databases/$(database)/documents/roles/7213073025).data.firebaseUid == request.auth.uid ||
-        identifierIsAdmin(request.auth.uid) ||
-        // Check if the current user document itself marks them as an owner
-        (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid && get(/databases/$(database)/documents/roles/6884517020).data.get('role', '') == 'owner')
+        identifierIsAdmin(request.auth.uid)
       );
     }
 
     function identifierIsAdmin(id) {
-      return id in ['6884517020', '7213073025'];
+      // Explicitly including numeric IDs and potentially known Firebase UIDs
+      return id in ['6884517020', '7213073025', 'YY2N2ZCt98MDI795LtpRhBENcnF3'];
     }
 
     function isEditor() {
@@ -38,15 +37,13 @@ service cloud.firestore {
       // Admin always has access
       if (isOwner()) return true;
       
-      // Allow if the ID in the path matches the auth UID (fallback)
-      if (request.auth.uid == userId) return true;
-
-      // Allow initial profile creation
+      // Allow initial profile creation or modification if the UID matches the payload
       let isCreatingOwnProfile = request.resource != null && 
                                  request.resource.data.get('firebaseUid', '') == request.auth.uid;
+      
       if (isCreatingOwnProfile) return true;
 
-      // For subcollections (Cart, Favorites), verify via the parent profile mapping
+      // For existing documents and subcollections (Cart, Favorites)
       let profilePath = /databases/$(database)/documents/users/$(userId);
       return exists(profilePath) && get(profilePath).data.firebaseUid == request.auth.uid;
     }

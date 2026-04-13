@@ -31,6 +31,7 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
+// MASTER ADMIN PROTOCOL
 const ADMIN_IDS = ['6884517020', '7213073025'];
 const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
 
@@ -62,7 +63,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       
       if (!tg) {
         setIsLoading(false);
-        setError("Telegram context missing.");
+        const isDev = typeof window !== 'undefined' && (
+          window.location.hostname.includes('hosted.app') || 
+          window.location.hostname.includes('cloudworkstations.dev') ||
+          window.location.hostname === 'localhost'
+        );
+        if (isDev) handleDemoMode();
         return;
       }
 
@@ -73,18 +79,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         initDataAttempts++;
       }
 
-      const isDev = typeof window !== 'undefined' && (
-        window.location.hostname.includes('hosted.app') || 
-        window.location.hostname.includes('cloudworkstations.dev') ||
-        window.location.hostname === 'localhost'
-      );
-
       if (!tg.initDataUnsafe?.user) {
-        if (isDev) {
-          handleDemoMode();
-        } else {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
         return;
       }
 
@@ -122,13 +118,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           updatedAt: serverTimestamp(),
         };
         
-        // Critical: The rules now allow this initial write for new users
+        // Initial silent profile sync
         await setDoc(userRef, profileData, { merge: true });
 
         const roleRef = doc(db, 'roles', stableId);
         const unsubscribeRole = onSnapshot(roleRef, (snap) => {
           let assignedRole: UserRole = 'viewer';
           
+          // Triple-Check Admin Status (ID, Username, or Document)
           if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
@@ -147,8 +144,11 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         }, (err) => {
           console.error('[Identity Bridge] Role listener blocked:', err);
-          setUser({ ...profileData, role: (ADMIN_IDS.includes(stableId) ? 'owner' : 'viewer') } as any);
-          setIsVerified(true);
+          // Fallback for supreme owners even if the listener fails
+          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
+            setUser({ ...profileData, role: 'owner' } as any);
+            setIsVerified(true);
+          }
           setIsLoading(false);
         });
 
@@ -168,12 +168,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   function handleDemoMode() {
     const demoUid = 'demo_admin_session';
     const mockUser: UserProfile = {
-      id: '7213073025', 
-      telegramId: 7213073025,
-      firstName: 'Admin Voyager',
-      username: 'jama_khaki',
+      id: '6884517020', 
+      telegramId: 6884517020,
+      firstName: 'J (itsjamaspage)',
+      username: 'itsjamaspage',
       phone: '+998 90 000 00 00',
-      photoUrl: 'https://ui-avatars.com/api/?name=Admin+Voyager&background=00FF88&color=000&bold=true',
+      photoUrl: 'https://ui-avatars.com/api/?name=J&background=00FF88&color=000&bold=true',
       firebaseUid: demoUid,
       role: 'owner',
       lastSeen: new Date().toISOString(),
