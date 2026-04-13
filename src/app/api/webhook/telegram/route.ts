@@ -3,31 +3,40 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @fileOverview Telegram Bot Webhook Handler.
- * Manages /start commands and provides automated shop information.
+ * Enhanced with command parsing and robust error handling.
  */
 
 export async function POST(req: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   
   if (!token) {
+    console.error('[Bot Webhook] Critical: TELEGRAM_BOT_TOKEN is not defined in env.');
     return NextResponse.json({ error: 'Bot token missing' }, { status: 500 });
   }
 
   try {
     const body = await req.json();
-    
-    if (body.message && body.message.text === '/start') {
-      const chatId = body.message.chat.id;
-      const firstName = body.message.from.first_name || 'Voyager';
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+    console.log('[Bot Webhook] Update received:', JSON.stringify(body));
 
+    const message = body.message;
+    if (!message || !message.text) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const chatId = message.chat.id;
+    const text = message.text.toLowerCase();
+    const firstName = message.from?.first_name || 'Voyager';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+
+    // Handle /start command (including deep links)
+    if (text.startsWith('/start')) {
       const welcomeMessage = `<b>Xush kelibsiz Auralook.uz rasmiy botiga!</b> ⚡️\n\n` +
         `Salom, ${firstName}! Biz O'zbekistondagi birinchi Xitoydan kiyim olib keladigan va o'zining telegram mini ilovasi bor platformasimiz.\n\n` +
         `🛸 <b>Biz haqimizda:</b>\n` +
         `• Xitoydan to'g'ridan-to'g'ri yetkazib berish.\n` +
         `• Yaxshi sifat va arzon narxlar.\n` +
         `• 7-12 kunda yetkazib berish.\n\n` +
-        `Pastdagi tugmani bosib Mini App-ni oching va eng so'nggi to'plamlarimizni ko'ring!`;
+        `Pastdagi tugmani bosib do'konni oching va eng so'nggi to'plamlarimizni ko'ring!`;
 
       await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -58,7 +67,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error('[Telegram Webhook] Error:', error);
-    return NextResponse.json({ ok: true }); // Always return 200 to prevent Telegram retry loops
+    console.error('[Telegram Webhook] Critical Failure:', error);
+    // Always return 200 to Telegram to stop retry loops that can exhaust your hosting quota
+    return NextResponse.json({ ok: true, error: String(error) });
   }
 }

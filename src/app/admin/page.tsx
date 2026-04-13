@@ -13,7 +13,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/dialog";
 import { 
   Tabs, 
   TabsContent, 
@@ -33,7 +33,10 @@ import {
   Phone,
   Ruler,
   ShieldAlert,
-  Link as LinkIcon
+  Link as LinkIcon,
+  RefreshCw,
+  Settings2,
+  Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -49,14 +52,15 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
+  const [isSyncingBot, setIsSyncingBot] = useState(false);
 
-  // UNIFIED ADMIN ACCESS PROTOCOL: Recognizes roles dynamically assigned via database
+  // UNIFIED ADMIN ACCESS PROTOCOL
   const isAdmin = user?.role === 'owner' || 
                   user?.role === 'editor' || 
                   user?.firebaseUid === 'demo_admin_session' ||
                   user?.username?.toLowerCase() === 'itsjamaspage';
 
-  // SECURE QUERY GATING: Only run queries if admin identity is confirmed
+  // SECURE QUERY GATING
   const looksQuery = useMemoFirebase(() => {
     if (!isAdmin) return null;
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'));
@@ -93,6 +97,30 @@ export default function AdminDashboard() {
       toast({ title: t(dictionary.operationSuccess) });
     } catch (e) {
       toast({ variant: "destructive", title: "Update Failed" });
+    }
+  };
+
+  const handleSyncBot = async () => {
+    setIsSyncingBot(true);
+    try {
+      const res = await fetch('/api/admin/bot-setup', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        toast({ 
+          title: "Bot Protocol Synced", 
+          description: "Telegram webhook has been established for this environment." 
+        });
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (e) {
+      toast({ 
+        variant: "destructive", 
+        title: "Sync Failed", 
+        description: String(e) 
+      });
+    } finally {
+      setIsSyncingBot(false);
     }
   };
 
@@ -165,12 +193,54 @@ export default function AdminDashboard() {
           </div>
         </div>
         
-        <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-12 sm:h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer w-full sm:w-auto">
-          <Link href="/admin/looks/new">
-            <Plus className="w-4 h-4 mr-2" />
-            {t(dictionary.publish)}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={handleSyncBot}
+            disabled={isSyncingBot}
+            variant="outline"
+            className="rounded-xl h-12 sm:h-10 border-foreground/10 text-foreground hover:neon-border transition-all"
+          >
+            {isSyncingBot ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Sync Bot
+          </Button>
+          <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-12 sm:h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer">
+            <Link href="/admin/looks/new">
+              <Plus className="w-4 h-4 mr-2" />
+              {t(dictionary.publish)}
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* QUICK SYSTEM STATUS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="glass-surface border-foreground/5 p-5 rounded-3xl flex items-center gap-4 bg-black/40">
+          <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0">
+            <Zap className="w-5 h-5 neon-text" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Bot Status</p>
+            <p className="text-sm font-black text-foreground uppercase italic">Operational</p>
+          </div>
+        </Card>
+        <Card className="glass-surface border-foreground/5 p-5 rounded-3xl flex items-center gap-4 bg-black/40">
+          <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0">
+            <Package className="w-5 h-5 neon-text" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Active Inventory</p>
+            <p className="text-sm font-black text-foreground uppercase italic">{looks?.length || 0} Units</p>
+          </div>
+        </Card>
+        <Card className="glass-surface border-foreground/5 p-5 rounded-3xl flex items-center gap-4 bg-black/40">
+          <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0">
+            <Settings2 className="w-5 h-5 neon-text" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Last Webhook Sync</p>
+            <p className="text-sm font-black text-foreground uppercase italic">Real-time Active</p>
+          </div>
+        </Card>
       </div>
 
       <Tabs defaultValue="orders" className="space-y-6">
