@@ -68,16 +68,15 @@
   inherits: true;
 }
 
-/* Premium 7-Color Rainbow Transition (Slower, holds on colors) */
+/* Premium Color Transition (Yellow removed for cleaner aesthetic) */
 @keyframes master-rainbow-cycle {
-  0%, 10%   { --sync-hue: 0; }     /* Red */
-  14%, 24%  { --sync-hue: 30; }    /* Orange */
-  28%, 38%  { --sync-hue: 60; }    /* Yellow */
-  42%, 52%  { --sync-hue: 120; }   /* Green */
-  56%, 66%  { --sync-hue: 200; }   /* Blue */
-  70%, 80%  { --sync-hue: 270; }   /* Indigo/Violet */
-  84%, 94%  { --sync-hue: 320; }   /* Pink */
-  98%, 100% { --sync-hue: 360; }
+  0%, 12%   { --sync-hue: 0; }     /* Red */
+  16%, 28%  { --sync-hue: 30; }    /* Orange */
+  32%, 44%  { --sync-hue: 120; }   /* Green */
+  48%, 60%  { --sync-hue: 200; }   /* Blue */
+  64%, 76%  { --sync-hue: 270; }   /* Indigo/Violet */
+  80%, 92%  { --sync-hue: 320; }   /* Pink */
+  96%, 100% { --sync-hue: 360; }
 }
 
 :root {
