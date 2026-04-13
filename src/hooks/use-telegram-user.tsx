@@ -34,6 +34,7 @@ const TelegramUserContext = createContext<TelegramUserContextType | undefined>(u
 // MASTER ADMIN PROTOCOL
 const ADMIN_IDS = ['6884517020', '7213073025'];
 const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
+const ADMIN_FIREBASE_UIDS = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
 
 /**
  * Enhanced Telegram Identity Bridge.
@@ -125,8 +126,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const unsubscribeRole = onSnapshot(roleRef, (snap) => {
           let assignedRole: UserRole = 'viewer';
           
-          // Triple-Check Admin Status (ID, Username, or Document)
-          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
+          // Triple-Check Admin Status (ID, Username, UID, or Document)
+          if (
+            ADMIN_IDS.includes(stableId) || 
+            (profileData.username && ADMIN_USERNAMES.includes(profileData.username)) ||
+            ADMIN_FIREBASE_UIDS.includes(firebaseUid)
+          ) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
             assignedRole = snap.data().role as UserRole;
@@ -145,7 +150,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         }, (err) => {
           console.error('[Identity Bridge] Role listener blocked:', err);
           // Fallback for supreme owners even if the listener fails
-          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
+          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username)) || ADMIN_FIREBASE_UIDS.includes(firebaseUid)) {
             setUser({ ...profileData, role: 'owner' } as any);
             setIsVerified(true);
           }

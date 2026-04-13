@@ -22,7 +22,7 @@ service cloud.firestore {
 
     function identifierIsAdmin(id) {
       // Explicitly including numeric IDs and potentially known Firebase UIDs
-      return id in ['6884517020', '7213073025', 'YY2N2ZCt98MDI795LtpRhBENcnF3'];
+      return id in ['6884517020', '7213073025', 'YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2'];
     }
 
     function isEditor() {
