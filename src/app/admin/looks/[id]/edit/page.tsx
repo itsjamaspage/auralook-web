@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
 export default function EditLookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -65,11 +65,11 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
   };
 
   const handleUpdate = async () => {
-    if (!description || !price) {
+    if (!price) {
       toast({
         variant: "destructive",
-        title: "Missing Fields",
-        description: "Please fill in all required fields.",
+        title: "Missing Information",
+        description: "Price is required to update the catalog.",
       });
       return;
     }
@@ -78,14 +78,15 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
     try {
       const numericPrice = parseNumericValue(price, currency);
       const numericDiscount = parseFloat(discount) || 0;
+      const finalName = name.trim() || look?.name || `Look ${new Date().toLocaleDateString('uz-UZ')}`;
 
       const lookData = {
-        name: name || `Look ${new Date().toLocaleDateString()}`,
-        description,
+        name: finalName,
+        description: description.trim() || 'Auralook Exclusive Piece',
         price: numericPrice,
         discount: numericDiscount,
         currency,
-        imageUrl: imageUrl || 'https://picsum.photos/seed/default-look/600/800',
+        imageUrl: imageUrl || look?.imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         updatedAt: serverTimestamp(),
       };
 
@@ -163,7 +164,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-dark rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 space-y-8 border-white/10 shadow-2xl">
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[9px] sm:text-[10px] text-white/40">{t(dictionary.itemName)}</Label>
+              <Label className="font-bold uppercase tracking-widest text-[9px] sm:text-[10px] text-white/40">{t(dictionary.itemName)} (Optional)</Label>
               <Input 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -187,7 +188,6 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
                     className="bg-white/10 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
                   />
                   
-                  {/* UPGRADED CURRENCY SELECTOR */}
                   <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/10 h-12 sm:h-14 min-w-[120px]">
                     <Button 
                       type="button"
@@ -231,7 +231,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
             </div>
 
             <div className="space-y-4">
-              <Label className="font-bold uppercase tracking-widest text-[9px] sm:text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
+              <Label className="font-bold uppercase tracking-widest text-[9px] sm:text-[10px] text-white/40">{t(dictionary.lookDescription)} (Optional)</Label>
               <Textarea 
                 className="min-h-[150px] sm:min-h-[200px] bg-white/10 border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 leading-relaxed font-light text-white text-base sm:text-lg focus:neon-border placeholder:text-white/20" 
                 value={description} 

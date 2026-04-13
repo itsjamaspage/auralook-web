@@ -8,22 +8,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
   Loader2, 
   Plus, 
-  DollarSign, 
   CheckCircle2, 
   Copy, 
   ShieldAlert, 
   Send,
   Zap,
-  Image as ImageIcon
+  Image as ImageIcon,
+  DollarSign
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -36,8 +29,6 @@ import { getProductDeepLink } from '@/lib/telegram-link';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { cn } from '@/lib/utils';
 
-const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Accessories', 'Sets'];
-
 export default function NewLookPage() {
   const [publishing, setPublishing] = useState(false);
   const [result, setResult] = useState<{ productId: string, deepLink: string } | null>(null);
@@ -48,8 +39,7 @@ export default function NewLookPage() {
     description: '',
     price: '',
     discount: '0',
-    currency: 'USD' as 'USD' | 'UZS',
-    category: ''
+    currency: 'USD' as 'USD' | 'UZS'
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -64,7 +54,6 @@ export default function NewLookPage() {
   const { user: firebaseUser } = useUser();
   const { user: tgUser } = useTelegramUser();
 
-  // ADMIN AUTH PROTECTION: Strict email and role check (Including Editors)
   const isAuthorized = firebaseUser?.email === 'jkhakimjonov8@gmail.com' || 
                        tgUser?.role === 'owner' || 
                        tgUser?.role === 'editor';
@@ -74,8 +63,6 @@ export default function NewLookPage() {
     if (!file) return;
     
     setImageFile(file);
-    
-    // Use FileReader for more reliable preview rendering
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
@@ -84,11 +71,12 @@ export default function NewLookPage() {
   };
 
   const handlePublish = async () => {
-    if (!form.name || !form.price || !imageFile || !form.category) {
+    // ONLY price and image are mandatory now
+    if (!form.price || !imageFile) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Please provide a name, price, category, and image.",
+        description: "Please provide at least a price and an image.",
       });
       return;
     }
@@ -106,13 +94,14 @@ export default function NewLookPage() {
         ? parseInt(form.price.replace(/\D/g, ''), 10) 
         : parseFloat(form.price);
 
+      const finalName = form.name.trim() || `Look ${new Date().toLocaleDateString('uz-UZ')}`;
+
       const lookData = {
-        name: form.name.trim(),
-        description: form.description.trim(),
+        name: finalName,
+        description: form.description.trim() || 'Auralook Exclusive Piece',
         price: numericPrice || 0,
         discount: parseFloat(form.discount) || 0,
         currency: form.currency,
-        category: form.category,
         imageUrl,
         createdAt: serverTimestamp(),
       };
@@ -183,23 +172,6 @@ export default function NewLookPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 text-left">
-            <div className="flex items-start gap-4 p-5 bg-foreground/5 rounded-2xl border border-foreground/5 group hover:border-primary/20 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0"><Send className="w-5 h-5 neon-text" /></div>
-              <div className="space-y-1">
-                <p className="text-xs font-black text-foreground uppercase tracking-widest">Telegram Channel</p>
-                <p className="text-[10px] text-foreground/60 leading-relaxed font-medium">The look has been auto-posted to @auralook_uz with an order button.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-5 bg-foreground/5 rounded-2xl border border-foreground/5 group hover:border-primary/20 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0"><ImageIcon className="w-5 h-5 neon-text" /></div>
-              <div className="space-y-1">
-                <p className="text-xs font-black text-foreground uppercase tracking-widest">Instagram Strategy</p>
-                <p className="text-[10px] text-foreground/60 leading-relaxed font-medium">Paste this link in your Bio tool and point your next story/post to it for direct orders.</p>
-              </div>
-            </div>
-          </div>
-
           <div className="flex flex-col gap-3 pt-4">
             <Button onClick={() => setResult(null)} className="h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest border-none">Publish Another</Button>
             <Button variant="ghost" onClick={() => router.push('/admin')} className="text-foreground/40 hover:text-foreground">Back to Inventory</Button>
@@ -251,7 +223,7 @@ export default function NewLookPage() {
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-surface rounded-[2.5rem] p-8 sm:p-10 space-y-8 border-foreground/10 shadow-2xl">
             <div className="space-y-4">
-              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Product Designation</Label>
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Product Designation (Optional)</Label>
               <Input 
                 value={form.name}
                 onChange={(e) => setForm({...form, name: e.target.value})}
@@ -272,7 +244,6 @@ export default function NewLookPage() {
                     placeholder={form.currency === 'UZS' ? '189 000' : '189'}
                   />
                   
-                  {/* UPGRADED CURRENCY SELECTOR: High visibility segmented control */}
                   <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">
                     <Button 
                       type="button"
@@ -301,22 +272,19 @@ export default function NewLookPage() {
               </div>
 
               <div className="space-y-4">
-                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Category Segment</Label>
-                <Select value={form.category} onValueChange={(v) => setForm({...form, category: v})}>
-                  <SelectTrigger className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold">
-                    <SelectValue placeholder="Select Segment" />
-                  </SelectTrigger>
-                  <SelectContent className="glass-surface border-foreground/10">
-                    {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat} className="text-foreground uppercase font-bold text-[10px]">{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Discount % (Optional)</Label>
+                <Input 
+                  type="number" 
+                  value={form.discount}
+                  onChange={(e) => setForm({...form, discount: e.target.value})}
+                  className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
+                  placeholder="0"
+                />
               </div>
             </div>
 
             <div className="space-y-4">
-              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Technical Specification</Label>
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Technical Specification (Optional)</Label>
               <Textarea 
                 rows={4}
                 value={form.description}
