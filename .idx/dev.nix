@@ -1,14 +1,22 @@
 { pkgs, ... }: {
-  channel = "stable-23.11";
   packages = [
     pkgs.nodejs_20
   ];
-  idx.previews = {
-    enable = true;
+  idx = {
+    extensions = [
+      "esbenp.prettier-vscode"
+    ];
+    workspace = {
+      onCreate = {};
+      onStart = {};
+    };
     previews = {
-      web = {
-        command = ["npm" "run" "dev"];
-        manager = "web";
+      enable = true;
+      previews = {
+        web = {
+          command = ["npm" "run" "dev"];
+          manager = "web";
+        };
       };
     };
   };

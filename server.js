@@ -4,22 +4,14 @@ const next = require('next')
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
-
-// Bypassing environment flags to force listening on the assigned port
-const hostname = '0.0.0.0';
-
-const app = next({ dev, hostname, port })
+const app = next({ dev, hostname: '0.0.0.0', port })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
   createServer((req, res) => {
     const parsedUrl = parse(req.url, true)
     handle(req, res, parsedUrl)
-  }).listen(port, hostname, () => {
-    console.log(`> Ready on http://${hostname}:${port}`)
-    console.log(`> Firebase IDE Prototyper link active on port ${port}`)
+  }).listen(port, '0.0.0.0', () => {
+    console.log(`> Ready on http://0.0.0.0:${port}`)
   })
-}).catch((err) => {
-  console.error('Error starting custom server:', err)
-  process.exit(1)
 })
