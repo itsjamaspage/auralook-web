@@ -52,7 +52,8 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
       
-      while (!getTG() && attempts < 50) {
+      // Patient polling for slow mobile connections
+      while (!getTG() && attempts < 100) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
@@ -61,8 +62,15 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       
       if (!tg) {
         setIsLoading(false);
-        setError("Telegram environment not detected.");
+        setError("Telegram context missing.");
         return;
+      }
+
+      // Recursive wait for initData populating
+      let initDataAttempts = 0;
+      while (!tg.initDataUnsafe?.user && initDataAttempts < 50) {
+        await new Promise(r => setTimeout(r, 100));
+        initDataAttempts++;
       }
 
       const isDev = typeof window !== 'undefined' && (
@@ -75,13 +83,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         if (isDev) {
           handleDemoMode();
         } else {
-          setTimeout(() => {
-            if (!tg.initDataUnsafe?.user) {
-              setIsLoading(false);
-            } else {
-              processUser(tg.initDataUnsafe.user, tg.initData);
-            }
-          }, 500);
+          setIsLoading(false);
         }
         return;
       }
@@ -99,7 +101,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         });
 
         if (!verifyRes.ok) {
-          throw new Error('Identity verification failed.');
+          throw new Error('Verification failed.');
         }
 
         const validatedUser = await verifyRes.json();
@@ -120,6 +122,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           updatedAt: serverTimestamp(),
         };
         
+        // Critical: The rules now allow this initial write for new users
         await setDoc(userRef, profileData, { merge: true });
 
         const roleRef = doc(db, 'roles', stableId);
@@ -144,7 +147,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         }, (err) => {
           console.error('[Identity Bridge] Role listener blocked:', err);
-          // Still allow the user to see their profile as a viewer
           setUser({ ...profileData, role: (ADMIN_IDS.includes(stableId) ? 'owner' : 'viewer') } as any);
           setIsVerified(true);
           setIsLoading(false);

@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Security Protocol (v25.1.0)
+    // Universal Identity & Security Protocol (v25.2.0)
     // ===============================================================
     
     function isAuthenticated() {
@@ -29,10 +29,12 @@ service cloud.firestore {
     }
 
     // Recursive Profile Ownership
-    // Validates that the current user owns the Telegram-ID or Firebase-UID indexed path
+    // Allows users to manage their own Telegram-ID-indexed folders
     function isProfileOwner(userId) {
       return isAuthenticated() && (
-        userId == request.auth.uid ||
+        // Allow if document doesn't exist (First-time creation)
+        (!exists(/databases/$(database)/documents/users/$(userId)) && request.resource.data.firebaseUid == request.auth.uid) ||
+        // Allow if document exists and matches Firebase UID
         (exists(/databases/$(database)/documents/users/$(userId)) && get(/databases/$(database)/documents/users/$(userId)).data.firebaseUid == request.auth.uid) ||
         isOwner()
       );
@@ -45,7 +47,7 @@ service cloud.firestore {
     }
 
     match /looks/{lookId} {
-      allow read, list: if isAuthenticated();
+      allow read: if isAuthenticated();
       allow create, update, delete: if isEditor();
     }
 
