@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
     const chatId = message.chat.id;
     const text = message.text.toLowerCase();
     const firstName = message.from?.first_name || 'Voyager';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+    // Strictly align with the latest hosted app origin
+    const baseUrl = 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     
     // MATCHING PROTOCOL: Use the exact same cache-buster as the menu button
     const cacheBusterUrl = `${baseUrl}?v=${Date.now()}`;

@@ -13,7 +13,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/alert-dialog";
 import { 
   Tabs, 
   TabsContent, 
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
       if (data.success) {
         toast({ 
           title: t(dictionary.protocolLive), 
-          description: "Telegram webhook has been established for this environment." 
+          description: "Telegram webhook and menu buttons have been synchronized." 
         });
       } else {
         throw new Error(data.message);
