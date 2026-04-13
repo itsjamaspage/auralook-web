@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    // REMOVED allowedDevOrigins as it was flagged as an unrecognized key causing startup errors
+    // allowedDevOrigins removed as it is not recognized in this Next.js version
   },
   productionBrowserSourceMaps: true,
   images: {
@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com https://*.cloudworkstations.dev",
-              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org wss://*.cloudworkstations.dev",
+              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org wss://*.cloudworkstations.dev wss://*.cluster-*.cloudworkstations.dev",
               "img-src 'self' data: https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
