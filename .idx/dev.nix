@@ -1,31 +1,14 @@
-{pkgs}: {
-  channel = "stable-24.11";
+{ pkgs, ... }: {
+  channel = "stable-23.11";
   packages = [
-    pkgs.nodejs_22
-    pkgs.zulu
+    pkgs.nodejs_20
   ];
-  env = {};
-  services.firebase.emulators = {
-    detect = false;
-    projectId = "demo-app";
-    services = ["auth" "firestore"];
-  };
-  idx = {
-    extensions = [];
-    workspace = {
-      onCreate = {
-        default.openFiles = [
-          "src/app/page.tsx"
-        ];
-      };
-    };
+  idx.previews = {
+    enable = true;
     previews = {
-      enable = true;
-      previews = {
-        web = {
-  command = ["npm" "run" "dev"];
-  manager = "web";
-};
+      web = {
+        command = ["npm" "run" "dev"];
+        manager = "web";
       };
     };
   };

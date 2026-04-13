@@ -2,10 +2,10 @@ const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
 
+const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
 
-// Bypassing environment flags to force port 6000 for the Firebase Studio Prototyper
-const port = 6000;
+// Bypassing environment flags to force listening on the assigned port
 const hostname = '0.0.0.0';
 
 const app = next({ dev, hostname, port })
