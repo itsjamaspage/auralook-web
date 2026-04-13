@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Select,
   SelectContent,
@@ -19,10 +18,8 @@ import {
   Loader2, 
   Plus, 
   DollarSign, 
-  Percent, 
   CheckCircle2, 
   Copy, 
-  ExternalLink, 
   ShieldAlert, 
   Send,
   Zap,
@@ -37,6 +34,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { postNewLookToChannel } from '@/ai/flows/ai-telegram-order-status-notification';
 import { getProductDeepLink } from '@/lib/telegram-link';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { cn } from '@/lib/utils';
 
 const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Accessories', 'Sets'];
 
@@ -74,8 +72,15 @@ export default function NewLookPage() {
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    
+    // Use FileReader for more reliable preview rendering
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handlePublish = async () => {
@@ -221,7 +226,11 @@ export default function NewLookPage() {
             className="glass-surface rounded-[2.5rem] overflow-hidden aspect-[3/4] relative group cursor-pointer border-foreground/10 hover:border-primary/20 transition-all shadow-2xl bg-muted/20"
           >
             {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-8 gap-4">
                 <div className="w-16 h-16 rounded-full bg-foreground/5 flex items-center justify-center border border-foreground/10 group-hover:neon-border transition-all">
@@ -246,7 +255,7 @@ export default function NewLookPage() {
               <Input 
                 value={form.name}
                 onChange={(e) => setForm({...form, name: e.target.value})}
-                className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
+                className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold" 
                 placeholder="e.g. Cyber Runner Jacket v2"
               />
             </div>
@@ -254,35 +263,47 @@ export default function NewLookPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Price & Currency</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Input 
                     type="text" 
                     value={form.price}
                     onChange={(e) => setForm({...form, price: e.target.value})}
-                    className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl flex-1 focus:neon-border text-foreground font-bold" 
-                    placeholder="189000"
+                    className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl flex-1 focus:neon-border text-foreground font-bold" 
+                    placeholder={form.currency === 'UZS' ? '189 000' : '189'}
                   />
-                  <RadioGroup 
-                    value={form.currency} 
-                    onValueChange={(v: any) => setForm({...form, currency: v})}
-                    className="flex items-center gap-3 bg-foreground/5 px-4 h-14 rounded-2xl border border-foreground/10"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="USD" id="usd" />
-                      <Label htmlFor="usd" className="text-[10px] font-black text-foreground">USD</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="UZS" id="uzs" />
-                      <Label htmlFor="uzs" className="text-[10px] font-black text-foreground">UZS</Label>
-                    </div>
-                  </RadioGroup>
+                  
+                  {/* UPGRADED CURRENCY SELECTOR: High visibility segmented control */}
+                  <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setForm({...form, currency: 'USD'})}
+                      className={cn(
+                        "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                        form.currency === 'USD' ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                      )}
+                    >
+                      USD
+                    </Button>
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setForm({...form, currency: 'UZS'})}
+                      className={cn(
+                        "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                        form.currency === 'UZS' ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                      )}
+                    >
+                      UZS
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Category Segment</Label>
                 <Select value={form.category} onValueChange={(v) => setForm({...form, category: v})}>
-                  <SelectTrigger className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold">
+                  <SelectTrigger className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground font-bold">
                     <SelectValue placeholder="Select Segment" />
                   </SelectTrigger>
                   <SelectContent className="glass-surface border-foreground/10">
@@ -300,7 +321,7 @@ export default function NewLookPage() {
                 rows={4}
                 value={form.description}
                 onChange={(e) => setForm({...form, description: e.target.value})}
-                className="bg-foreground/5 border-foreground/10 rounded-3xl p-6 focus:neon-border text-foreground leading-relaxed italic" 
+                className="bg-foreground/10 border-foreground/10 rounded-3xl p-6 focus:neon-border text-foreground leading-relaxed italic" 
                 placeholder="Describe fit, fabric tech, and aesthetic..."
               />
             </div>

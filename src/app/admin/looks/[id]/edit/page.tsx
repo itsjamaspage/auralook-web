@@ -7,13 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Plus, DollarSign, Percent, Save, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 export default function EditLookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -57,11 +57,9 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
 
   const parseNumericValue = (val: string, curr: string) => {
     if (curr === 'UZS') {
-      // Definitive fix for UZS price truncation: strip ALL non-digit characters
       const onlyDigits = val.replace(/\D/g, '');
       return parseInt(onlyDigits, 10) || 0;
     }
-    // For USD, handle decimal points correctly
     const cleaned = val.replace(/[^\d.]/g, '');
     return parseFloat(cleaned) || 0;
   };
@@ -152,7 +150,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
               />
               <div className="mt-4 w-full px-2 sm:px-4" onClick={(e) => e.stopPropagation()}>
                 <Input 
-                  className="bg-white/5 border-white/10 h-10 text-[10px] text-white placeholder:text-white/20 pointer-events-auto rounded-xl" 
+                  className="bg-white/10 border-white/10 h-10 text-[10px] text-white placeholder:text-white/20 pointer-events-auto rounded-xl" 
                   placeholder={t(dictionary.imageUrlPlaceholder)}
                   value={imageUrl.startsWith('data:') ? '' : imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
@@ -169,7 +167,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
               <Input 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-white/5 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
+                className="bg-white/10 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
                 placeholder="Cyber Runner Outfit"
               />
             </div>
@@ -186,22 +184,34 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
                     placeholder={currency === 'UZS' ? '200 000' : '299'} 
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="bg-white/5 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
+                    className="bg-white/10 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
                   />
-                  <RadioGroup 
-                    value={currency} 
-                    onValueChange={(v: any) => setCurrency(v)}
-                    className="flex items-center gap-4 bg-white/5 px-4 h-12 sm:h-14 rounded-xl sm:rounded-2xl border border-white/10"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="USD" id="usd" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                      <Label htmlFor="usd" className="text-[10px] font-bold text-white/80">USD</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="UZS" id="uzs" className="border-white/20 data-[state=checked]:neon-bg data-[state=checked]:border-none" />
-                      <Label htmlFor="uzs" className="text-[10px] font-bold text-white/80">UZS</Label>
-                    </div>
-                  </RadioGroup>
+                  
+                  {/* UPGRADED CURRENCY SELECTOR */}
+                  <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/10 h-12 sm:h-14 min-w-[120px]">
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setCurrency('USD')}
+                      className={cn(
+                        "flex-1 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                        currency === 'USD' ? "neon-bg text-white" : "text-white/40 hover:text-white"
+                      )}
+                    >
+                      USD
+                    </Button>
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setCurrency('UZS')}
+                      className={cn(
+                        "flex-1 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                        currency === 'UZS' ? "neon-bg text-white" : "text-white/40 hover:text-white"
+                      )}
+                    >
+                      UZS
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -215,7 +225,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
                   placeholder="20" 
                   value={discount}
                   onChange={(e) => setDiscount(e.target.value)}
-                  className="bg-white/5 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
+                  className="bg-white/10 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl focus:neon-border text-white placeholder:text-white/20" 
                 />
               </div>
             </div>
@@ -223,7 +233,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
             <div className="space-y-4">
               <Label className="font-bold uppercase tracking-widest text-[9px] sm:text-[10px] text-white/40">{t(dictionary.lookDescription)}</Label>
               <Textarea 
-                className="min-h-[150px] sm:min-h-[200px] bg-white/5 border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 leading-relaxed font-light text-white text-base sm:text-lg focus:neon-border placeholder:text-white/20" 
+                className="min-h-[150px] sm:min-h-[200px] bg-white/10 border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 leading-relaxed font-light text-white text-base sm:text-lg focus:neon-border placeholder:text-white/20" 
                 value={description} 
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t(dictionary.lookDescriptionPlaceholder)}
