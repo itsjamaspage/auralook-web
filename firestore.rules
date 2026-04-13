@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Supreme Security Protocol (v25.4.5)
+    // Universal Identity & Supreme Security Protocol (v25.4.7)
     // ===============================================================
     
     function isAuthenticated() {
@@ -10,6 +10,7 @@ service cloud.firestore {
     }
 
     // SUPREME OWNER LOGIC: Hardcoded IDs + Dynamic Registry Check
+    // Ensures absolute access for the project owner across all devices
     function isOwner() {
       let masterUids = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
       let masterTgIds = ['6884517020', '7213073025'];
@@ -17,7 +18,8 @@ service cloud.firestore {
       return isAuthenticated() && (
         request.auth.uid in masterUids ||
         exists(/databases/$(database)/documents/roles/$(request.auth.uid)) ||
-        (exists(/databases/$(database)/documents/roles/6884517020) && get(/databases/$(database)/documents/roles/6884517020).data.firebaseUid == request.auth.uid)
+        (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
+        (exists(/databases/$(database)/documents/users/7213073025) && get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid)
       );
     }
 
@@ -25,15 +27,15 @@ service cloud.firestore {
       return isOwner();
     }
 
-    // Recursive ownership check for Telegram-indexed profiles
+    // Recursive ownership check for Telegram-indexed profiles and subcollections
     function isProfileOwner(userId) {
       if (!isAuthenticated()) return false;
       if (isOwner()) return true;
       
       // Check if document exists and matches current UID
-      let profilePath = /databases/$(database)/documents/users/$(userId);
+      let userDocPath = /databases/$(database)/documents/users/$(userId);
       let isPathOwner = userId == request.auth.uid;
-      let isDataOwner = exists(profilePath) && get(profilePath).data.firebaseUid == request.auth.uid;
+      let isDataOwner = exists(userDocPath) && get(userDocPath).data.firebaseUid == request.auth.uid;
       let isCreating = request.resource != null && request.resource.data.get('firebaseUid', '') == request.auth.uid;
 
       return isPathOwner || isDataOwner || isCreating;
@@ -53,7 +55,7 @@ service cloud.firestore {
       allow read, write: if isProfileOwner(userId);
       
       match /{allSubcollections=**} {
-        // Inherit permission from parent profile logic
+        // Correctly inherit permission for Cart, Favorites, and Orders
         allow read, write: if isProfileOwner(userId);
       }
     }
@@ -64,8 +66,7 @@ service cloud.firestore {
       allow create: if isAuthenticated(); 
       allow update: if isEditor() || (
         isAuthenticated() && 
-        resource.data.firebaseUid == request.auth.uid && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        resource.data.firebaseUid == request.auth.uid
       );
       allow delete: if isOwner();
     }
