@@ -71,7 +71,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     for (const chatId of adminChatIds) {
@@ -111,7 +111,7 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
 export async function postNewLookToChannel(look: { id: string, name: string, price: number, currency: string, description: string, imageUrl: string }): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || '@auralook_uz';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
 
   if (!token) return;
 

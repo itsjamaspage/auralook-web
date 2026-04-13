@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
   const webhookUrl = `${baseUrl}/api/webhook/telegram`;
   
   // Use a fresh timestamp to force-refresh the Mini App cache

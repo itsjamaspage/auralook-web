@@ -7,6 +7,11 @@ runConfig:
   memoryMiB: 512
 
 env:
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://studio--studio-2916828899-aeb98.us-central1.hosted.app
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: NEXT_PUBLIC_BASE_URL
     value: https://studio--studio-2916828899-aeb98.us-central1.hosted.app
     availability:
