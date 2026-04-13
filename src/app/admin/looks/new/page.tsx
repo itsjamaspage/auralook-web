@@ -9,14 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { 
   Loader2, 
-  Plus, 
   CheckCircle2, 
   Copy, 
   ShieldAlert, 
-  Send,
   Zap,
-  Image as ImageIcon,
-  DollarSign,
   ArrowLeft,
   Percent
 } from 'lucide-react';
@@ -26,7 +22,6 @@ import { useLanguage } from '@/hooks/use-language';
 import { useFirestore, useUser, useStorage } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { postNewLookToChannel } from '@/ai/flows/ai-telegram-order-status-notification';
 import { getProductDeepLink } from '@/lib/telegram-link';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { cn } from '@/lib/utils';
@@ -58,9 +53,9 @@ export default function NewLookPage() {
 
   const isAdmin = tgUser?.role === 'owner' || 
                   tgUser?.role === 'editor' || 
-                  firebaseUser?.email === 'jkhakimjonov8@gmail.com' ||
                   tgUser?.username === 'itsjamaspage' ||
-                  tgUser?.username === 'jama_khaki';
+                  tgUser?.username === 'jama_khaki' ||
+                  tgUser?.id === '6884517020';
 
   const formatPriceInput = (val: string) => {
     const digits = val.replace(/\D/g, '');
@@ -115,19 +110,8 @@ export default function NewLookPage() {
       const docRef = await addDoc(collection(db, 'looks'), lookData);
       const deepLink = getProductDeepLink(docRef.id);
 
-      // 3. Auto-broadcast to Telegram
-      try {
-        await postNewLookToChannel({
-          id: docRef.id,
-          name: lookData.name,
-          price: lookData.price,
-          currency: lookData.currency,
-          description: lookData.description,
-          imageUrl: lookData.imageUrl
-        });
-      } catch (tgErr) {
-        console.warn("[Telegram Broadcast] Failed but look was saved:", tgErr);
-      }
+      // BROADCAST DEACTIVATED AS REQUESTED:
+      // The user now uses the manual deep link generated below.
 
       setResult({ productId: docRef.id, deepLink });
       toast({ title: t(dictionary.lookSavedSuccess) });
@@ -169,7 +153,7 @@ export default function NewLookPage() {
               <CheckCircle2 className="w-10 h-10 neon-text" />
             </div>
             <h1 className="text-3xl font-black text-foreground uppercase italic tracking-tighter">Look Published</h1>
-            <p className="text-xs font-bold text-foreground/40 uppercase tracking-[0.3em]">Protocol Executed Successfully</p>
+            <p className="text-xs font-bold text-foreground/40 uppercase tracking-[0.3em]">Deep-Link Protocol Ready</p>
           </div>
 
           <div className="space-y-4">

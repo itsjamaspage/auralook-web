@@ -1,9 +1,10 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Send, ArrowUpRight, Sparkles, Loader2, Info, LayoutGrid, Square } from 'lucide-react';
+import { ArrowRight, Send, ArrowUpRight, Info, LayoutGrid, Square, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -29,12 +30,12 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     
-    // PROTOCOL: Robust Start-app Parameter Handling
+    // PROTOCOL: Enhanced Deep-Link Redirection
+    // This catches product_ parameters from both shared links and channel buttons
     const checkDeepLink = () => {
       const tg = (window as any).Telegram?.WebApp;
       if (tg) {
         tg.ready();
-        // Check both initDataUnsafe and raw initData if necessary
         const startParam = tg.initDataUnsafe?.start_param;
         if (startParam && startParam.startsWith('product_')) {
           const productId = startParam.replace('product_', '');
@@ -46,18 +47,16 @@ export default function Home() {
       return false;
     };
 
-    // Immediate check
-    if (!checkDeepLink()) {
-      // Extended polling for reliable identity capture
-      let attempts = 0;
-      const interval = setInterval(() => {
-        if (checkDeepLink() || attempts > 20) {
-          clearInterval(interval);
-        }
-        attempts++;
-      }, 300);
-      return () => clearInterval(interval);
-    }
+    // Standard Polling: Telegram WebApp context can be delayed
+    let attempts = 0;
+    const interval = setInterval(() => {
+      if (checkDeepLink() || attempts > 30) {
+        clearInterval(interval);
+      }
+      attempts++;
+    }, 200);
+
+    return () => clearInterval(interval);
   }, [router]);
 
   const formatPrice = (val: number) => {
@@ -70,7 +69,7 @@ export default function Home() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Establishing Product Context...</p>
+        <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Routing to Asset...</p>
       </div>
     );
   }
