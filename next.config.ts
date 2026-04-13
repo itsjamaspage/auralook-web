@@ -8,9 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    allowedDevOrigins: [
-      '*.cloudworkstations.dev',
-    ]
+    // REMOVED allowedDevOrigins as it was flagged as an unrecognized key causing startup errors
   },
   productionBrowserSourceMaps: true,
   images: {
