@@ -1,7 +1,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['*.cloudworkstations.dev'],
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -11,6 +10,12 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'placehold.co',
@@ -70,13 +75,13 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com https://*.cloudworkstations.dev",
-              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org wss://*.cloudworkstations.dev https://firebasestorage.googleapis.com",
-              "img-src 'self' data: https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com https://t.me https://*.telesco.pe https://*.telegram.org",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org https://apis.google.com https://*.googleapis.com",
+              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.telegram.org https://firebasestorage.googleapis.com",
+              "img-src 'self' data: https://firebasestorage.googleapis.com https://placehold.co https://images.unsplash.com https://picsum.photos https://ui-avatars.com https://t.me https://*.telesco.pe https://*.telegram.org",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://t.me",
-              "frame-ancestors 'self' https://t.me https://web.telegram.org https://*.web.telegram.org https://*.cloudworkstations.dev",
+              "frame-ancestors 'self' https://t.me https://web.telegram.org https://*.web.telegram.org",
             ].join("; "),
           },
         ],
