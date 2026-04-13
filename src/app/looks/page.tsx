@@ -31,7 +31,6 @@ export default function LooksPage() {
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
   
-  const [viewMode] = useState<'grid'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [minPrice, setMinPrice] = useState<string>('');
@@ -52,16 +51,16 @@ export default function LooksPage() {
   const { data: looks, isLoading: looksLoading } = useCollection(looksQuery);
 
   const likedLooksQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
-    return collection(db, 'users', firebaseUser.uid, 'liked_looks');
+    if (isUserLoading || !tgUser || !firebaseUser || !isVerified) return null;
+    return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
   
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
   const cartItemsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
-    return collection(db, 'users', firebaseUser.uid, 'cart');
+    if (isUserLoading || !tgUser || !firebaseUser || !isVerified) return null;
+    return collection(db, 'users', tgUser.id, 'cart');
   }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
   const { data: cartItemsData } = useCollection(cartItemsQuery ?? undefined);
   const cartLookIds = useMemo(() => new Set(cartItemsData?.map(item => item.lookId) || []), [cartItemsData]);
@@ -99,29 +98,35 @@ export default function LooksPage() {
 
   const handleToggleLike = async (e: React.MouseEvent, lookId: string) => {
     e.preventDefault(); e.stopPropagation();
-    if (!isVerified || !firebaseUser) return;
+    if (!isVerified || !tgUser) return;
 
     setAnimatingLikeId(lookId);
     setTimeout(() => setAnimatingLikeId(null), 800);
 
-    const likedLookRef = doc(db, 'users', firebaseUser.uid, 'liked_looks', lookId);
-    if (likedLookIds.has(lookId)) await deleteDoc(likedLookRef);
-    else await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
+    const likedLookRef = doc(db, 'users', tgUser.id, 'liked_looks', lookId);
+    if (likedLookIds.has(lookId)) {
+      await deleteDoc(likedLookRef);
+    } else {
+      await setDoc(likedLookRef, { lookId, createdAt: new Date().toISOString() });
+    }
   };
 
   const handleToggleCart = async (e: React.MouseEvent, look: any) => {
     e.preventDefault(); e.stopPropagation();
-    if (!isVerified || !firebaseUser) return;
+    if (!isVerified || !tgUser) return;
 
     const isInCart = cartLookIds.has(look.id);
     setAnimatingCartId(look.id);
-    setTimeout(() => setAnimatingCartId(null), 800);
+    setTimeout(() => animatingCartId && setAnimatingCartId(null), 800);
 
-    const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
-    if (isInCart) await deleteDoc(cartItemRef);
-    else await setDoc(cartItemRef, {
-      lookId: look.id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
-    });
+    const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
+    if (isInCart) {
+      await deleteDoc(cartItemRef);
+    } else {
+      await setDoc(cartItemRef, {
+        lookId: look.id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
+      });
+    }
   };
 
   return (
@@ -227,7 +232,7 @@ export default function LooksPage() {
         </div>
       )}
 
-      {selectedLookIds.size > 0 && (
+      {selectedLookIds.size > 0 && tgUser && (
         <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10">
           <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-2xl">
             <div className="flex items-center gap-3">
@@ -240,7 +245,7 @@ export default function LooksPage() {
                 for (const id of Array.from(selectedLookIds)) {
                   const look = looks?.find(l => l.id === id);
                   if (look && !cartLookIds.has(id)) {
-                    await setDoc(doc(db, 'users', firebaseUser!.uid, 'cart', id), {
+                    await setDoc(doc(db, 'users', tgUser.id, 'cart', id), {
                       lookId: id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
                     });
                   }

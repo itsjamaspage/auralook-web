@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v23.0.0 Silent Auth Patch)
+    // Assumed Data Model (v24.0.0 Global Identity Sync)
     // ===============================================================
     
     function isAuthenticated() {
@@ -11,32 +11,32 @@ service cloud.firestore {
     }
 
     // Resolves if the current user is the owner of the document
-    // Documents in 'users' are indexed by Telegram ID but contain 'firebaseUid'
+    // Documents in 'users' are indexed by Telegram ID (stableId)
     function isProfileOwner(userId) {
+      let userDoc = get(/databases/$(database)/documents/users/$(userId));
       return isAuthenticated() && (
-        (resource != null && resource.data.firebaseUid == request.auth.uid) ||
+        // Allow if the document's internal firebaseUid matches the current auth session
+        (userDoc != null && userDoc.data.firebaseUid == request.auth.uid) ||
+        // Allow if the request is trying to CREATE their own initial profile
         (request.resource != null && request.resource.data.firebaseUid == request.auth.uid) ||
-        request.auth.uid == userId
+        // Allow the demo admin session
+        request.auth.uid == 'demo_admin_session'
       );
     }
 
     function isOwner() {
       return isAuthenticated() && (
-        // Check the roles collection using the known supreme admin ID
+        // Supreme Admin numeric IDs
+        request.auth.uid == 'demo_admin_session' ||
         (exists(/databases/$(database)/documents/roles/6884517020) && 
          get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
         (exists(/databases/$(database)/documents/roles/7213073025) && 
-         get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid) ||
-        request.auth.uid == 'demo_admin_session'
+         get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid)
       );
     }
 
     function isEditor() {
-      return isOwner() || (
-        isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/roles/$(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.id)).data.role in ['editor', 'admin', 'owner']
-      );
+      return isOwner();
     }
 
     // Validation Helpers
@@ -60,7 +60,7 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Allow users to manage their own profile document (indexed by Telegram ID)
+      // Use isProfileOwner which checks the internal mapping
       allow read, write: if isProfileOwner(userId) || isOwner();
       
       match /liked_looks/{lookId} {

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { useTelegramUser } from '@/hooks/use-telegram-user';
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -17,20 +18,20 @@ export function BottomNav() {
   const [isInsideTelegram, setIsInsideTelegram] = useState(false);
   
   const db = useFirestore();
-  const { user } = useUser();
+  const { user: tgUser, isVerified } = useTelegramUser();
 
   const cartQuery = useMemoFirebase(() => {
-    if (!user) return null;
-    return collection(db, 'users', user.uid, 'cart');
-  }, [db, user]);
+    if (!tgUser || !isVerified) return null;
+    return collection(db, 'users', tgUser.id, 'cart');
+  }, [db, tgUser, isVerified]);
 
   const { data: cartItems } = useCollection(cartQuery);
   const cartCount = cartItems?.length || 0;
 
   const favQuery = useMemoFirebase(() => {
-    if (!user) return null;
-    return collection(db, 'users', user.uid, 'liked_looks');
-  }, [db, user]);
+    if (!tgUser || !isVerified) return null;
+    return collection(db, 'users', tgUser.id, 'liked_looks');
+  }, [db, tgUser, isVerified]);
 
   const { data: favItems } = useCollection(favQuery);
   const favCount = favItems?.length || 0;

@@ -31,14 +31,12 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-// AUTHORIZED ADMIN LIST (Stable Numeric IDs and Usernames)
-// Verified ID for jama_khaki: 6884517020
 const ADMIN_IDS = ['6884517020', '7213073025'];
 const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
 
 /**
  * Enhanced Telegram Identity Bridge.
- * Synchronizes Telegram user data with Firebase and resolves roles via numeric ID.
+ * Standardizes all user data to use the numeric Telegram ID as the primary key.
  */
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -54,41 +52,61 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
       
+      // Aggressive polling for the Telegram object (critical for mobile)
       while (!getTG() && attempts < 50) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
 
       const tg = getTG();
+      
+      if (!tg) {
+        setIsLoading(false);
+        setError("Telegram environment not detected.");
+        return;
+      }
+
       const isDev = typeof window !== 'undefined' && (
         window.location.hostname.includes('hosted.app') || 
         window.location.hostname.includes('cloudworkstations.dev') ||
         window.location.hostname === 'localhost'
       );
 
-      if (!tg?.initDataUnsafe?.user) {
+      // Mobile apps sometimes delay initDataUnsafe.user
+      if (!tg.initDataUnsafe?.user) {
         if (isDev) {
           handleDemoMode();
         } else {
-          setIsLoading(false);
+          // Re-check after a short delay for mobile robustness
+          setTimeout(() => {
+            if (!tg.initDataUnsafe?.user) {
+              setIsLoading(false);
+            } else {
+              processUser(tg.initDataUnsafe.user, tg.initData);
+            }
+          }, 500);
         }
         return;
       }
 
+      processUser(tg.initDataUnsafe.user, tg.initData);
+    };
+
+    const processUser = async (rawUser: any, initData: string) => {
+      const tg = (window as any).Telegram?.WebApp;
       try {
         const verifyRes = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData })
+          body: JSON.stringify({ initData })
         });
 
         if (!verifyRes.ok) {
           throw new Error('Identity verification failed.');
         }
 
-        const rawUser = await verifyRes.json();
-        const cleanUsername = rawUser.username?.toLowerCase() || null;
-        const stableId = rawUser.id.toString(); 
+        const validatedUser = await verifyRes.json();
+        const stableId = validatedUser.id.toString(); 
         
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
@@ -96,10 +114,10 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const userRef = doc(db, 'users', stableId);
         const profileData = {
           id: stableId,
-          telegramId: rawUser.id,
-          firstName: rawUser.first_name,
-          username: cleanUsername,
-          photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
+          telegramId: validatedUser.id,
+          firstName: validatedUser.first_name,
+          username: validatedUser.username?.toLowerCase() || null,
+          photoUrl: validatedUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(validatedUser.first_name)}&background=00FF88&color=000&bold=true`,
           firebaseUid,
           lastSeen: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -108,10 +126,10 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         await setDoc(userRef, profileData, { merge: true });
 
         const roleRef = doc(db, 'roles', stableId);
-        const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
+        const unsubscribeRole = onSnapshot(roleRef, (snap) => {
           let assignedRole: UserRole = 'viewer';
           
-          if (ADMIN_IDS.includes(stableId) || (cleanUsername && ADMIN_USERNAMES.includes(cleanUsername))) {
+          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
             assignedRole = snap.data().role as UserRole;

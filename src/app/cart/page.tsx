@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -38,7 +39,6 @@ export default function CartPage() {
     telegram: ''
   });
 
-  // IDENTITY RECOGNITION PROTOCOL
   useEffect(() => {
     if (tgUser && isVerified) {
       setOrderDetails(prev => ({
@@ -50,9 +50,9 @@ export default function CartPage() {
   }, [tgUser, isVerified]);
 
   const cartQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firebaseUser || !tgUser || !isVerified) return null;
-    return collection(db, 'users', firebaseUser.uid, 'cart');
-  }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
+    if (isUserLoading || !tgUser || !isVerified) return null;
+    return collection(db, 'users', tgUser.id, 'cart');
+  }, [db, tgUser, isUserLoading, isVerified]);
 
   const { data: cartItems, isLoading } = useCollection(cartQuery ?? undefined);
 
@@ -67,9 +67,9 @@ export default function CartPage() {
   }, [cartItems]);
 
   const handleRemove = async (itemId: string) => {
-    if (!firebaseUser) return;
+    if (!tgUser) return;
     try {
-      await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', itemId));
+      await deleteDoc(doc(db, 'users', tgUser.id, 'cart', itemId));
     } catch (e) { console.error(e); }
   };
 
@@ -93,7 +93,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
-    if (orderDetails.phone.length < 17 || !orderDetails.telegram || !firebaseUser || !cartItems) return;
+    if (orderDetails.phone.length < 17 || !orderDetails.telegram || !tgUser || !firebaseUser || !cartItems) return;
 
     setIsOrdering(true);
     try {
@@ -106,7 +106,8 @@ export default function CartPage() {
         const orderData = {
           userId: firebaseUser.uid,
           firebaseUid: firebaseUser.uid,
-          customerName: tgUser?.firstName || orderDetails.telegram,
+          telegramId: tgUser.id,
+          customerName: tgUser.firstName || orderDetails.telegram,
           orderDate: new Date().toISOString(),
           status: 'New',
           totalAmount: item.price,
@@ -140,7 +141,7 @@ export default function CartPage() {
           productName: item.name,
           phoneNumber: orderData.phoneNumber,
           telegramUsername: orderData.telegramUsername,
-          customerTelegramId: tgUser?.telegramId,
+          customerTelegramId: tgUser.telegramId,
           imageUrl: item.imageUrl,
           language: 'uz' as const,
           timestamp: timestamp,
@@ -151,15 +152,12 @@ export default function CartPage() {
           }
         };
 
-        // Notify customer individually for their records
         await notifyCustomerOfOrder(notificationInput);
-
-        await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', item.id));
+        await deleteDoc(doc(db, 'users', tgUser.id, 'cart', item.id));
       }
 
-      // Notify Admin once for all items combined
       await notifyAdminOfBatchOrder({
-        customerName: tgUser?.firstName || orderDetails.telegram,
+        customerName: tgUser.firstName || orderDetails.telegram,
         telegramUsername: orderDetails.telegram,
         phoneNumber: orderDetails.phone,
         physique: { height: orderDetails.height, weight: orderDetails.weight },
@@ -284,7 +282,10 @@ export default function CartPage() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center \${selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'}`}
+                    className={cn(
+                      "h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                      selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'
+                    )}
                   >
                     {size}
                   </button>
