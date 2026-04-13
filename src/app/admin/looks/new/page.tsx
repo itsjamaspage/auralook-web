@@ -14,7 +14,8 @@ import {
   ShieldAlert, 
   Zap,
   ArrowLeft,
-  Percent
+  Percent,
+  Plus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -55,7 +56,8 @@ export default function NewLookPage() {
                   tgUser?.role === 'editor' || 
                   tgUser?.username === 'itsjamaspage' ||
                   tgUser?.username === 'jama_khaki' ||
-                  tgUser?.id === '6884517020';
+                  tgUser?.id === '6884517020' ||
+                  tgUser?.id === '7213073025';
 
   const formatPriceInput = (val: string) => {
     const digits = val.replace(/\D/g, '');
@@ -110,16 +112,12 @@ export default function NewLookPage() {
       const docRef = await addDoc(collection(db, 'looks'), lookData);
       const deepLink = getProductDeepLink(docRef.id);
 
-      // BROADCAST DEACTIVATED AS REQUESTED:
-      // The user now uses the manual deep link generated below.
-
       setResult({ productId: docRef.id, deepLink });
       toast({ title: t(dictionary.lookSavedSuccess) });
     } catch (e) {
       console.error(e);
       toast({ variant: "destructive", title: "Publishing Failed" });
     } finally {
-      setIsOrdering(false);
       setPublishing(false);
     }
   };
