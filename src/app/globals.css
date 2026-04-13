@@ -62,14 +62,54 @@
 }
 
 @keyframes master-sync-pulse {
-  0% { --sync-color: hsl(0 100% 50%); --sync-shadow: hsla(0, 100%, 50%, 0.4); }
-  14% { --sync-color: hsl(30 100% 50%); --sync-shadow: hsla(30, 100%, 50%, 0.4); }
-  28% { --sync-color: hsl(60 100% 50%); --sync-shadow: hsla(60, 100%, 50%, 0.4); }
-  42% { --sync-color: hsl(120 100% 50%); --sync-shadow: hsla(120, 100%, 50%, 0.4); }
-  56% { --sync-color: hsl(200 100% 50%); --sync-shadow: hsla(200, 100%, 50%, 0.4); }
-  70% { --sync-color: hsl(260 100% 50%); --sync-shadow: hsla(260, 100%, 50%, 0.4); }
-  84% { --sync-color: hsl(300 100% 50%); --sync-shadow: hsla(300, 100%, 50%, 0.4); }
-  100% { --sync-color: hsl(360 100% 50%); --sync-shadow: hsla(360, 100%, 50%, 0.4); }
+  0% { 
+    --sync-color: hsl(0 100% 50%); 
+    --sync-shadow: hsla(0, 100%, 50%, 0.4);
+    --primary: 0 100% 50%;
+    --ring: 0 100% 50%;
+  }
+  14% { 
+    --sync-color: hsl(30 100% 50%); 
+    --sync-shadow: hsla(30, 100%, 50%, 0.4);
+    --primary: 30 100% 50%;
+    --ring: 30 100% 50%;
+  }
+  28% { 
+    --sync-color: hsl(60 100% 50%); 
+    --sync-shadow: hsla(60, 100%, 50%, 0.4);
+    --primary: 60 100% 50%;
+    --ring: 60 100% 50%;
+  }
+  42% { 
+    --sync-color: hsl(120 100% 50%); 
+    --sync-shadow: hsla(120, 100%, 50%, 0.4);
+    --primary: 120 100% 50%;
+    --ring: 120 100% 50%;
+  }
+  56% { 
+    --sync-color: hsl(200 100% 50%); 
+    --sync-shadow: hsla(200, 100%, 50%, 0.4);
+    --primary: 200 100% 50%;
+    --ring: 200 100% 50%;
+  }
+  70% { 
+    --sync-color: hsl(260 100% 50%); 
+    --sync-shadow: hsla(260, 100%, 50%, 0.4);
+    --primary: 260 100% 50%;
+    --ring: 260 100% 50%;
+  }
+  84% { 
+    --sync-color: hsl(300 100% 50%); 
+    --sync-shadow: hsla(300, 100%, 50%, 0.4);
+    --primary: 300 100% 50%;
+    --ring: 300 100% 50%;
+  }
+  100% { 
+    --sync-color: hsl(360 100% 50%); 
+    --sync-shadow: hsla(360, 100%, 50%, 0.4);
+    --primary: 360 100% 50%;
+    --ring: 360 100% 50%;
+  }
 }
 
 @keyframes marquee-right {

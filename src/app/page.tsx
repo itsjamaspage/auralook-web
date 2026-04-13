@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -21,7 +20,6 @@ export default function Home() {
   const db = useFirestore();
 
   const featuredQuery = useMemoFirebase(() => {
-    // Increase limit if single mode to allow browsing more
     const count = featuredViewMode === 'grid' ? 3 : 10;
     return query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(count));
   }, [db, featuredViewMode]);
@@ -32,14 +30,32 @@ export default function Home() {
     setMounted(true);
     
     // PROTOCOL: Start-app Parameter Handling (Deep Linking)
-    const tg = (window as any).Telegram?.WebApp;
-    if (tg) {
-      const startParam = tg.initDataUnsafe?.start_param;
-      if (startParam && startParam.startsWith('product_')) {
-        const productId = startParam.replace('product_', '');
-        setIsDeepLinking(true);
-        router.replace(`/looks/${productId}`);
+    const handleDeepLink = () => {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        const startParam = tg.initDataUnsafe?.start_param;
+        if (startParam && startParam.startsWith('product_')) {
+          const productId = startParam.replace('product_', '');
+          setIsDeepLinking(true);
+          router.replace(`/looks/${productId}`);
+          return true;
+        }
       }
+      return false;
+    };
+
+    // Immediate check
+    if (!handleDeepLink()) {
+      // Polling check for slow Telegram initialization
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (handleDeepLink() || attempts > 10) {
+          clearInterval(interval);
+        }
+        attempts++;
+      }, 500);
+      return () => clearInterval(interval);
     }
   }, [router]);
 
@@ -78,7 +94,7 @@ export default function Home() {
               </Button>
               
               <Button asChild variant="outline" className="h-14 px-8 rounded-xl border-foreground/10 bg-transparent text-foreground font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all cursor-pointer">
-                <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
+                <a href="https://t.me/jamastore_aibot/auralook?startapp=from_web" target="_blank" rel="noopener noreferrer">
                   <Send className="w-4 h-4 mr-2" />
                   {t(dictionary.openApp)}
                 </a>
@@ -228,7 +244,7 @@ export default function Home() {
               </p>
             </div>
             <Button asChild className="h-20 px-12 rounded-2xl neon-bg text-white font-black uppercase text-sm tracking-[0.2em] border-none transition-all hover:scale-105 active:scale-95 shadow-2xl cursor-pointer">
-              <a href="https://t.me/jamastore_aibot/app?startapp=from_web" target="_blank" rel="noopener noreferrer">
+              <a href="https://t.me/jamastore_aibot/auralook?startapp=from_web" target="_blank" rel="noopener noreferrer">
                 <Send className="mr-3 w-6 h-6" />
                 {t(dictionary.openApp)}
                 <Sparkles className="ml-3 w-5 h-5" />
