@@ -29,32 +29,23 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    
-    // PROTOCOL: High-Precision Deep-Link Redirection
-    // Aggressively checks for the start_param and clears itself immediately on success.
-    const interval = setInterval(() => {
-      const tg = (window as any).Telegram?.WebApp;
-      if (tg) {
-        tg.ready();
-        const startParam = tg.initDataUnsafe?.start_param;
-        if (startParam && startParam.startsWith('product_')) {
-          const productId = startParam.replace('product_', '');
-          setIsDeepLinking(true);
-          clearInterval(interval); // Terminate polling immediately
-          router.replace(`/looks/${productId}`);
-        }
-      }
-    }, 200);
+  }, []);
 
-    // Failsafe timeout: stop polling after 6 seconds to save resources
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 6000);
+  useEffect(() => {
+    // Read start_param from URL query (works on Telegram Web)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlStartParam = urlParams.get('tgWebAppStartParam');
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
+    // Read start_param from Telegram SDK (works on mobile/desktop)
+    const sdkStartParam = (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
+
+    const startParam = urlStartParam || sdkStartParam;
+
+    if (startParam?.startsWith('product_')) {
+      const id = startParam.replace('product_', '');
+      setIsDeepLinking(true);
+      router.replace(`/looks/${id}`);
+    }
   }, [router]);
 
   const formatPrice = (val: number) => {
