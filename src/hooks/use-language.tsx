@@ -232,6 +232,18 @@ const dictionary = {
   },
 
   // Profile & Status
+  adminActions: { uz: 'ADMIN AMALLARI', ru: 'АДМИН ДЕЙСТВИЯ', en: 'ADMIN ACTIONS' },
+  addNewLook: { uz: 'YANGI LIBOS QO\'SHISH', ru: 'ДОБАВИТЬ НОВЫЙ ОБРАЗ', en: 'ADD NEW LOOK' },
+  manageTeam: { uz: 'JAMOANI BOSHQARISH', ru: 'УПРАВЛЕНИЕ КОМАНДОЙ', en: 'MANAGE TEAM' },
+  accountSettings: { uz: 'HISOB SOZLAMALARI', ru: 'НАСТРОЙКИ АККАУНТА', en: 'ACCOUNT SETTINGS' },
+  supremeAdmin: { uz: 'BOSH ADMIN', ru: 'ГЛАВНЫЙ АДМИН', en: 'SUPREME ADMIN' },
+  shopEditor: { uz: 'DO\'KON TAHRIRCHISI', ru: 'РЕДАКТОР МАГАЗИНА', en: 'SHOP EDITOR' },
+  activeNode: { uz: 'FAOL FOYDALANUVCHI', ru: 'АКТИВНЫЙ УЗЕЛ', en: 'ACTIVE NODE' },
+  teamProtocol: { uz: 'JAMOA BAYONNOMASI', ru: 'КОМАНДНЫЙ ПРОТОКОЛ', en: 'TEAM PROTOCOL' },
+  promoteToEditor: { uz: 'Tahrirchiga ko\'tarish', ru: 'Назначить редактором', en: 'Promote to Editor' },
+  activeEditors: { uz: 'Faol tahrirchilar', ru: 'Активные редакторы', en: 'Active Editors' },
+  grant: { uz: 'Berish', ru: 'Дать', en: 'Grant' },
+  revoked: { uz: 'Olib tashlandi', ru: 'Отозвано', en: 'Revoked' },
   orderHistory: {
     uz: 'Buyurtmalar tarixi',
     ru: 'История заказов',
@@ -261,11 +273,6 @@ const dictionary = {
     uz: 'Aloqa ma\'lumotlari',
     ru: 'Контактная информация',
     en: 'Contact Information'
-  },
-  activeNode: {
-    uz: 'Holat: Faol',
-    ru: 'Статус: Активен',
-    en: 'Status: Active Node'
   },
   identifyingSession: {
     uz: 'Seans aniqlanmoqda...',
@@ -435,6 +442,21 @@ const dictionary = {
   orderYetkazildi: { uz: 'Yetkazildi', ru: 'Доставлено', en: 'Delivered' },
   configPending: { uz: 'Sozlash kutilmoqda', ru: 'Ожидание настройки', en: 'Configuration Pending' },
   protocolLive: { uz: 'Bayonnoma faol', ru: 'Протокол активен', en: 'Protocol Live' },
+  botStatus: { uz: 'Bot Holati', ru: 'Статус бота', en: 'Bot Status' },
+  operational: { uz: 'Ishlamoqda', ru: 'Работает', en: 'Operational' },
+  activeInventory: { uz: 'Faol Inventar', ru: 'Активный инвентарь', en: 'Active Inventory' },
+  units: { uz: 'Dona', ru: 'Шт.', en: 'Units' },
+  lastWebhookSync: { uz: 'Oxirgi Sinxronizatsiya', ru: 'Последняя синхронизация', en: 'Last Webhook Sync' },
+  realTimeActive: { uz: 'Real vaqtda faol', ru: 'Активен в реальном времени', en: 'Real-time Active' },
+  syncBotLabel: { uz: 'Botni Sinxronlash', ru: 'Синхронизировать бота', en: 'Sync Bot' },
+  newLookDrop: { uz: 'Yangi Libos', ru: 'Новый образ', en: 'New Look Drop' },
+  authorizedDeployment: { uz: 'Tasdiqlangan Seans', ru: 'Авторизованная сессия', en: 'Authorized Deployment Session' },
+  dropImageLabel: { uz: 'Rasm yuklang yoki bosing', ru: 'Загрузите фото или нажмите', en: 'Drop image or tap to upload' },
+  changeMediaLabel: { uz: 'Rasmni o\'zgartirish', ru: 'Изменить медиа', en: 'Change Media' },
+  productDesignationLabel: { uz: 'Mahsulot nomi (Ixtiyoriy)', ru: 'Название товара (Опционально)', en: 'Product Designation (Optional)' },
+  priceAndCurrencyLabel: { uz: 'Narx va Valyuta', ru: 'Цена и валюта', en: 'Price & Currency' },
+  technicalSpecLabel: { uz: 'Texnik tavsif (Ixtiyoriy)', ru: 'Техническое описание (Опционально)', en: 'Technical Specification (Optional)' },
+  publishLookLabel: { uz: 'Libosni Nashr Qilish', ru: 'Опубликовать образ', en: 'Publish Look' },
 
   // Advisor Page
   sizeInfo: { uz: 'O\'lcham Ma\'lumotlari', ru: 'Информация о размерах', en: 'Size Information' },
@@ -497,7 +519,8 @@ const dictionary = {
   emptyCart: { uz: 'Savatchangiz bo\'sh', ru: 'Ваша корзина пуста', en: 'Your cart is empty' },
   checkout: { uz: 'Sotib olish', ru: 'Оформить заказ', en: 'Checkout' },
   clearCart: { uz: 'Tozalash', ru: 'Очистить', en: 'Clear Cart' },
-  liveOnTelegram: { uz: 'Telegramda faol', ru: 'В Telegram', en: 'Live on Telegram' },
+  heightShortLabel: { uz: 'Bo\'y (cm)', ru: 'Рост (см)', en: 'Height (cm)' },
+  weightShortLabel: { uz: 'Vazn (kg)', ru: 'Вес (кг)', en: 'Weight (kg)' },
 
   // Footer
   allRightsReserved: { 

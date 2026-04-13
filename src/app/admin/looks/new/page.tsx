@@ -80,7 +80,7 @@ export default function NewLookPage() {
     if (!form.price || !imageFile) {
       toast({
         variant: "destructive",
-        title: "Missing Information",
+        title: t(dictionary.missingInformation),
         description: "Please provide at least a price and an image.",
       });
       return;
@@ -143,7 +143,7 @@ export default function NewLookPage() {
     return (
       <div className="container mx-auto px-6 py-32 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-destructive mx-auto opacity-20" />
-        <h1 className="text-xl font-black text-foreground uppercase italic">Access Denied</h1>
+        <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.identificationRequired)}</h1>
         <p className="text-muted-foreground text-sm max-w-xs mx-auto">Only authorized admins or editors can publish new looks.</p>
         <Button onClick={() => router.push('/admin')} variant="outline" className="rounded-xl border-foreground/10 text-foreground">Return to Base</Button>
       </div>
@@ -188,8 +188,8 @@ export default function NewLookPage() {
       <div className="flex items-center gap-4">
         <div className="w-1.5 h-10 neon-bg rounded-full" />
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-3xl font-black tracking-tighter neon-text uppercase italic">New Look Drop</h1>
-          <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Authorized Deployment Session</p>
+          <h1 className="text-xl sm:text-3xl font-black tracking-tighter neon-text uppercase italic">{t(dictionary.newLookDrop)}</h1>
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">{t(dictionary.authorizedDeployment)}</p>
         </div>
       </div>
 
@@ -210,12 +210,12 @@ export default function NewLookPage() {
                 <div className="w-16 h-16 rounded-full bg-foreground/5 flex items-center justify-center border border-foreground/10 group-hover:neon-border transition-all">
                   <Plus className="w-8 h-8 neon-text" />
                 </div>
-                <p className="text-[10px] font-black text-center text-foreground/40 uppercase tracking-[0.3em]">Drop image or tap to upload</p>
+                <p className="text-[10px] font-black text-center text-foreground/40 uppercase tracking-[0.3em]">{t(dictionary.dropImageLabel)}</p>
               </div>
             )}
             {imagePreview && (
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-4 py-2 rounded-full border border-white/20">Change Media</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-4 py-2 rounded-full border border-white/20">{t(dictionary.changeMediaLabel)}</span>
               </div>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
@@ -225,7 +225,7 @@ export default function NewLookPage() {
         <div className="lg:col-span-8 space-y-8">
           <Card className="glass-surface rounded-[2.5rem] p-8 sm:p-10 space-y-8 border-foreground/10 shadow-2xl">
             <div className="space-y-4">
-              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Product Designation (Optional)</Label>
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.productDesignationLabel)}</Label>
               <Input 
                 value={form.name}
                 onChange={(e) => setForm({...form, name: e.target.value})}
@@ -236,7 +236,7 @@ export default function NewLookPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Price & Currency</Label>
+                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.priceAndCurrencyLabel)}</Label>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Input 
                     type="text" 
@@ -274,7 +274,7 @@ export default function NewLookPage() {
               </div>
 
               <div className="space-y-4">
-                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Discount % (Optional)</Label>
+                <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.discountLabel)}</Label>
                 <Input 
                   type="number" 
                   value={form.discount}
@@ -286,7 +286,7 @@ export default function NewLookPage() {
             </div>
 
             <div className="space-y-4">
-              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">Technical Specification (Optional)</Label>
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.technicalSpecLabel)}</Label>
               <Textarea 
                 rows={4}
                 value={form.description}
@@ -297,14 +297,14 @@ export default function NewLookPage() {
             </div>
 
             <div className="pt-6 border-t border-foreground/10 flex flex-col sm:flex-row justify-end gap-4">
-              <Button variant="ghost" onClick={() => router.back()} className="rounded-2xl h-14 px-8 font-black uppercase text-xs tracking-widest text-foreground/40 hover:text-foreground">Cancel</Button>
+              <Button variant="ghost" onClick={() => router.back()} className="rounded-2xl h-14 px-8 font-black uppercase text-xs tracking-widest text-foreground/40 hover:text-foreground">{t(dictionary.cancel)}</Button>
               <Button 
                 onClick={handlePublish} 
                 disabled={publishing}
                 className="neon-bg text-black font-black px-12 rounded-2xl h-14 border-none shadow-2xl hover:scale-105 active:scale-95 transition-all min-w-[200px]"
               >
                 {publishing ? <Loader2 className="animate-spin" /> : (
-                  <><Zap className="w-4 h-4 mr-2 fill-current" /> Publish Look</>
+                  <><Zap className="w-4 h-4 mr-2 fill-current" /> {t(dictionary.publishLookLabel)}</>
                 )}
               </Button>
             </div>

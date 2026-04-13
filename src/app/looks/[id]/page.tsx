@@ -116,6 +116,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         currency: look.currency || 'USD',
         addedAt: new Date().toISOString()
       }, { merge: true });
+      toast({ title: t(dictionary.addedToCart) });
     } catch (e) {
       console.error(e);
     } finally {
@@ -389,7 +390,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-foreground">Bo'y (cm)</Label>
+                  <Label className="text-[10px] uppercase font-black text-foreground">{t(dictionary.heightShortLabel)}</Label>
                   <Input 
                     type="number" 
                     placeholder="175"
@@ -399,7 +400,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-foreground">Vazn (kg)</Label>
+                  <Label className="text-[10px] uppercase font-black text-foreground">{t(dictionary.weightShortLabel)}</Label>
                   <Input 
                     type="number" 
                     placeholder="70"

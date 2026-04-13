@@ -78,14 +78,14 @@ export default function ProfilePage() {
       const snap = await getDocs(q);
       
       if (snap.empty) {
-        toast({ variant: "destructive", title: "Not Found", description: "User must start the bot first." });
+        toast({ variant: "destructive", title: t(dictionary.nothingFound), description: t(dictionary.openInBot) });
         return;
       }
 
       await setDoc(doc(db, 'roles', snap.docs[0].id), { role: 'editor', username: cleanName, addedAt: serverTimestamp(), addedBy: user.id });
-      toast({ title: "Success", description: `@${cleanName} is now an Editor.` });
+      toast({ title: t(dictionary.success), description: `@${cleanName} is now an Editor.` });
       setNewEditorUsername('');
-    } catch (e) { toast({ variant: "destructive", title: "Error" }); }
+    } catch (e) { toast({ variant: "destructive", title: t(dictionary.errorTitle) }); }
     finally { setIsAddingEditor(false); }
   };
 
@@ -137,14 +137,14 @@ export default function ProfilePage() {
             <AvatarImage src={user.photoUrl || undefined} alt={user.firstName} />
             <AvatarFallback><User className="w-10 h-10 neon-text" /></AvatarFallback>
           </Avatar>
-          {isPrivileged && <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full neon-bg flex items-center justify-center border-2 border-background"><ShieldCheck className="w-4 h-4 text-black" /></div>}
+          {isPrivileged && <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full neon-bg flex items-center justify-center border-2 border-background shadow-xl"><ShieldCheck className="w-4 h-4 text-black" /></div>}
         </div>
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-foreground uppercase italic tracking-tighter">{user.firstName}</h1>
           <p className="text-[10px] font-bold neon-text uppercase tracking-widest font-mono">@{user.username || 'user'}</p>
           <div className="mt-2 inline-block px-3 py-1 rounded-full bg-foreground/5 border border-foreground/10">
             <p className="text-[9px] font-black text-primary uppercase tracking-widest">
-              {user.role === 'owner' ? 'Supreme Admin' : user.role === 'editor' ? 'Shop Editor' : 'Active Node'}
+              {user.role === 'owner' ? t(dictionary.supremeAdmin) : user.role === 'editor' ? t(dictionary.shopEditor) : t(dictionary.activeNode)}
             </p>
           </div>
         </div>
@@ -152,14 +152,14 @@ export default function ProfilePage() {
 
       {isPrivileged && (
         <div className="space-y-4">
-          <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— Admin Actions</p>
+          <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— {t(dictionary.adminActions)}</p>
           <div className="grid grid-cols-1 gap-3">
             <Button asChild className="h-16 rounded-[2rem] glass-surface border-foreground/10 hover:neon-border text-foreground font-black uppercase text-xs tracking-widest justify-between px-8">
-              <Link href="/admin/looks/new"><div className="flex items-center gap-4"><PlusCircle className="w-5 h-5 neon-text" /> Add New Look</div><ChevronRight className="w-4 h-4 opacity-20" /></Link>
+              <Link href="/admin/looks/new"><div className="flex items-center gap-4"><PlusCircle className="w-5 h-5 neon-text" /> {t(dictionary.addNewLook)}</div><ChevronRight className="w-4 h-4 opacity-20" /></Link>
             </Button>
             {user.role === 'owner' && (
               <Button onClick={() => setShowAdminPanel(true)} className="h-16 rounded-[2rem] glass-surface border-foreground/10 hover:neon-border text-foreground font-black uppercase text-xs tracking-widest justify-between px-8">
-                <div className="flex items-center gap-4"><Users className="w-5 h-5 neon-text" /> Manage Team</div><ChevronRight className="w-4 h-4 opacity-20" />
+                <div className="flex items-center gap-4"><Users className="w-5 h-5 neon-text" /> {t(dictionary.manageTeam)}</div><ChevronRight className="w-4 h-4 opacity-20" />
               </Button>
             )}
           </div>
@@ -167,35 +167,39 @@ export default function ProfilePage() {
       )}
 
       <div className="space-y-4">
-        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— Account Settings</p>
+        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] px-4">—— {t(dictionary.accountSettings)}</p>
         <Card className="glass-surface border-foreground/10 p-6 rounded-[2.5rem] flex gap-3 shadow-2xl">
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="bg-foreground/5 border-foreground/10 h-14 rounded-2xl focus:neon-border text-foreground" />
           <Button onClick={handleUpdatePhone} disabled={isSaving} className="h-14 w-14 rounded-2xl neon-bg shadow-xl">{isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-6 h-6" />}</Button>
         </Card>
-        <Card onClick={() => router.push('/orders')} className="glass-surface border-foreground/10 p-5 flex items-center justify-between group hover:border-primary/20 rounded-[2rem] cursor-pointer">
+        <Card onClick={() => router.push('/orders')} className="glass-surface border-foreground/10 p-5 flex items-center justify-between group hover:border-primary/20 rounded-[2rem] cursor-pointer shadow-lg bg-black/20">
           <div className="flex items-center gap-4"><div className="p-3 bg-foreground/5 rounded-xl"><Package className="w-5 h-5 neon-text" /></div><span className="font-bold text-sm text-foreground uppercase tracking-widest">{t(dictionary.orderHistory)}</span></div>
-          <ChevronRight className="w-5 h-5 text-foreground/20" />
+          <ChevronRight className="w-5 h-5 text-foreground/20 group-hover:text-primary transition-colors" />
         </Card>
       </div>
 
       <Dialog open={showAdminPanel} onOpenChange={setShowAdminPanel}>
         <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-md shadow-2xl">
-          <DialogHeader className="mb-6"><DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-3"><Users className="w-6 h-6" /> Team Protocol</DialogTitle></DialogHeader>
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-3">
+              <Users className="w-6 h-6" /> {t(dictionary.teamProtocol)}
+            </DialogTitle>
+          </DialogHeader>
           <div className="space-y-8">
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Promote to Editor</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">{t(dictionary.promoteToEditor)}</Label>
               <div className="flex gap-2">
                 <Input placeholder="@username" value={newEditorUsername} onChange={(e) => setNewEditorUsername(e.target.value)} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl focus:neon-border text-foreground" />
-                <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorUsername} className="neon-bg text-black font-black px-6 rounded-xl h-12">{isAddingEditor ? <Loader2 className="animate-spin" /> : 'Grant'}</Button>
+                <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorUsername} className="neon-bg text-black font-black px-6 rounded-xl h-12">{isAddingEditor ? <Loader2 className="animate-spin" /> : t(dictionary.grant)}</Button>
               </div>
             </div>
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Active Editors</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/60">{t(dictionary.activeEditors)}</Label>
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                 {editors?.map((editor) => (
                   <div key={editor.id} className="flex items-center justify-between p-4 bg-foreground/5 rounded-2xl border border-foreground/5">
                     <div className="flex flex-col"><span className="text-sm font-black text-foreground italic">@{editor.username}</span><span className="text-[9px] font-bold text-primary uppercase">{editor.role}</span></div>
-                    <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: "Revoked" }); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: t(dictionary.revoked) }); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 ))}
               </div>

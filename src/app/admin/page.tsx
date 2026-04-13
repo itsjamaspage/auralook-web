@@ -107,7 +107,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (data.success) {
         toast({ 
-          title: "Bot Protocol Synced", 
+          title: t(dictionary.protocolLive), 
           description: "Telegram webhook has been established for this environment." 
         });
       } else {
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
             className="rounded-xl h-12 sm:h-10 border-foreground/10 text-foreground hover:neon-border transition-all"
           >
             {isSyncingBot ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Sync Bot
+            {t(dictionary.syncBotLabel)}
           </Button>
           <Button asChild className="neon-bg text-black font-black px-6 rounded-xl h-12 sm:h-10 transition-transform hover:scale-105 active:scale-95 border-none text-xs cursor-pointer">
             <Link href="/admin/looks/new">
@@ -219,8 +219,8 @@ export default function AdminDashboard() {
             <Zap className="w-5 h-5 neon-text" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Bot Status</p>
-            <p className="text-sm font-black text-foreground uppercase italic">Operational</p>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.botStatus)}</p>
+            <p className="text-sm font-black text-foreground uppercase italic">{t(dictionary.operational)}</p>
           </div>
         </Card>
         <Card className="glass-surface border-foreground/5 p-5 rounded-3xl flex items-center gap-4 bg-black/40">
@@ -228,8 +228,8 @@ export default function AdminDashboard() {
             <Package className="w-5 h-5 neon-text" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Active Inventory</p>
-            <p className="text-sm font-black text-foreground uppercase italic">{looks?.length || 0} Units</p>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.activeInventory)}</p>
+            <p className="text-sm font-black text-foreground uppercase italic">{looks?.length || 0} {t(dictionary.units)}</p>
           </div>
         </Card>
         <Card className="glass-surface border-foreground/5 p-5 rounded-3xl flex items-center gap-4 bg-black/40">
@@ -237,8 +237,8 @@ export default function AdminDashboard() {
             <Settings2 className="w-5 h-5 neon-text" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Last Webhook Sync</p>
-            <p className="text-sm font-black text-foreground uppercase italic">Real-time Active</p>
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.lastWebhookSync)}</p>
+            <p className="text-sm font-black text-foreground uppercase italic">{t(dictionary.realTimeActive)}</p>
           </div>
         </Card>
       </div>
