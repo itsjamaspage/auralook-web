@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @fileOverview Telegram Bot Webhook Handler.
- * Implements cache-busting for Mini App URLs to ensure latest version delivery.
+ * Synchronized with Bot Setup to ensure consistent version delivery.
  */
 
 export async function POST(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const firstName = message.from?.first_name || 'Voyager';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     
-    // CACHE BUSTER: Appending a timestamp forces Telegram to reload the latest Mini App code
+    // MATCHING PROTOCOL: Use the exact same cache-buster as the menu button
     const cacheBusterUrl = `${baseUrl}?v=${Date.now()}`;
 
     // Handle /start command
