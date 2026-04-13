@@ -58,6 +58,12 @@ export default function NewLookPage() {
                        tgUser?.role === 'owner' || 
                        tgUser?.role === 'editor';
 
+  const formatPriceInput = (val: string) => {
+    const digits = val.replace(/\D/g, '');
+    if (!digits) return '';
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -71,7 +77,6 @@ export default function NewLookPage() {
   };
 
   const handlePublish = async () => {
-    // ONLY price and image are mandatory now
     if (!form.price || !imageFile) {
       toast({
         variant: "destructive",
@@ -90,10 +95,7 @@ export default function NewLookPage() {
       const imageUrl = await getDownloadURL(storageRef);
 
       // 2. Save to Firestore
-      const numericPrice = form.currency === 'UZS' 
-        ? parseInt(form.price.replace(/\D/g, ''), 10) 
-        : parseFloat(form.price);
-
+      const numericPrice = parseInt(form.price.replace(/\D/g, ''), 10);
       const finalName = form.name.trim() || `Look ${new Date().toLocaleDateString('uz-UZ')}`;
 
       const lookData = {
@@ -239,9 +241,9 @@ export default function NewLookPage() {
                   <Input 
                     type="text" 
                     value={form.price}
-                    onChange={(e) => setForm({...form, price: e.target.value})}
+                    onChange={(e) => setForm({...form, price: formatPriceInput(e.target.value)})}
                     className="bg-foreground/10 border-foreground/10 h-14 rounded-2xl flex-1 focus:neon-border text-foreground font-bold" 
-                    placeholder={form.currency === 'UZS' ? '189 000' : '189'}
+                    placeholder={form.currency === 'UZS' ? '189.000' : '189'}
                   />
                   
                   <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">

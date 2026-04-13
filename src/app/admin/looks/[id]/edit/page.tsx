@@ -33,11 +33,17 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
 
+  const formatPriceInput = (val: string) => {
+    const digits = val.replace(/\D/g, '');
+    if (!digits) return '';
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   useEffect(() => {
     if (look) {
       setName(look.name || '');
       setDescription(look.description || '');
-      setPrice(look.price?.toString() || '');
+      setPrice(formatPriceInput(look.price?.toString() || ''));
       setDiscount(look.discount?.toString() || '0');
       setCurrency(look.currency || 'USD');
       setImageUrl(look.imageUrl || '');
@@ -55,15 +61,6 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
     }
   };
 
-  const parseNumericValue = (val: string, curr: string) => {
-    if (curr === 'UZS') {
-      const onlyDigits = val.replace(/\D/g, '');
-      return parseInt(onlyDigits, 10) || 0;
-    }
-    const cleaned = val.replace(/[^\d.]/g, '');
-    return parseFloat(cleaned) || 0;
-  };
-
   const handleUpdate = async () => {
     if (!price) {
       toast({
@@ -76,7 +73,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
 
     setSaving(true);
     try {
-      const numericPrice = parseNumericValue(price, currency);
+      const numericPrice = parseInt(price.replace(/\D/g, ''), 10) || 0;
       const numericDiscount = parseFloat(discount) || 0;
       const finalName = name.trim() || look?.name || `Look ${new Date().toLocaleDateString('uz-UZ')}`;
 
@@ -182,9 +179,9 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Input 
                     type="text" 
-                    placeholder={currency === 'UZS' ? '200 000' : '299'} 
+                    placeholder={currency === 'UZS' ? '200.000' : '299'} 
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => setPrice(formatPriceInput(e.target.value))}
                     className="bg-white/10 border-white/10 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex-1 focus:neon-border text-white placeholder:text-white/20" 
                   />
                   
