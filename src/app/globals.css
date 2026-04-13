@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,7 +68,7 @@
   inherits: true;
 }
 
-/* Smooth 7-Color Rainbow Transition (Turn-by-Turn) */
+/* Premium 7-Color Rainbow Transition (Slower, holds on colors) */
 @keyframes master-rainbow-cycle {
   0%, 10%   { --sync-hue: 0; }     /* Red */
   14%, 24%  { --sync-hue: 30; }    /* Orange */
@@ -82,7 +81,8 @@
 }
 
 :root {
-  animation: master-rainbow-cycle 12s linear infinite;
+  /* Slowed down to 30s for premium smooth transitions */
+  animation: master-rainbow-cycle 30s linear infinite;
   --sync-color: hsl(var(--sync-hue), 100%, 50%);
   --sync-shadow: hsla(var(--sync-hue), 100%, 50%, 0.4);
 }

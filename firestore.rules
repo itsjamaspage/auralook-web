@@ -1,69 +1,59 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Security Protocol (v25.4.2)
+    // Universal Identity & Supreme Security Protocol (v25.4.5)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Supreme Admin Authorization Logic
+    // SUPREME OWNER LOGIC: Hardcoded IDs + Dynamic Registry Check
     function isOwner() {
+      let masterUids = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
+      let masterTgIds = ['6884517020', '7213073025'];
+      
       return isAuthenticated() && (
-        request.auth.uid == 'demo_admin_session' ||
-        exists(/databases/$(database)/documents/roles/6884517020) && get(/databases/$(database)/documents/roles/6884517020).data.firebaseUid == request.auth.uid ||
-        exists(/databases/$(database)/documents/roles/7213073025) && get(/databases/$(database)/documents/roles/7213073025).data.firebaseUid == request.auth.uid ||
-        identifierIsAdmin(request.auth.uid)
+        request.auth.uid in masterUids ||
+        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/roles/6884517020) && get(/databases/$(database)/documents/roles/6884517020).data.firebaseUid == request.auth.uid)
       );
-    }
-
-    function identifierIsAdmin(id) {
-      // Explicitly including numeric IDs and potentially known Firebase UIDs
-      return id in ['6884517020', '7213073025', 'YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2'];
     }
 
     function isEditor() {
       return isOwner();
     }
 
-    // Validates that the person accessing a Telegram-ID-indexed folder
-    // is the one whose Firebase UID is stored in that folder's profile.
+    // Recursive ownership check for Telegram-indexed profiles
     function isProfileOwner(userId) {
       if (!isAuthenticated()) return false;
-      
-      // Admin always has access
       if (isOwner()) return true;
       
-      // Allow initial profile creation or modification if the UID matches the payload
-      let isCreatingOwnProfile = request.resource != null && 
-                                 request.resource.data.get('firebaseUid', '') == request.auth.uid;
-      
-      if (isCreatingOwnProfile) return true;
-
-      // For existing documents and subcollections (Cart, Favorites)
+      // Check if document exists and matches current UID
       let profilePath = /databases/$(database)/documents/users/$(userId);
-      return exists(profilePath) && get(profilePath).data.firebaseUid == request.auth.uid;
+      let isPathOwner = userId == request.auth.uid;
+      let isDataOwner = exists(profilePath) && get(profilePath).data.firebaseUid == request.auth.uid;
+      let isCreating = request.resource != null && request.resource.data.get('firebaseUid', '') == request.auth.uid;
+
+      return isPathOwner || isDataOwner || isCreating;
     }
 
     match /roles/{identifier} {
-      allow get: if isAuthenticated();
-      allow list: if isAuthenticated();
+      allow read: if isAuthenticated();
       allow write: if isOwner();
     }
 
     match /looks/{lookId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isEditor();
+      allow read: if true; // Public inventory access
+      allow write: if isEditor();
     }
 
     match /users/{userId} {
       allow read, write: if isProfileOwner(userId);
       
       match /{allSubcollections=**} {
-        // Recursive access: Allow if parent doc mapping matches current session
+        // Inherit permission from parent profile logic
         allow read, write: if isProfileOwner(userId);
       }
     }
