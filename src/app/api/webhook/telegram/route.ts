@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @fileOverview Telegram Bot Webhook Handler.
- * Enhanced with command parsing and robust error handling.
+ * Implements cache-busting for Mini App URLs to ensure latest version delivery.
  */
 
 export async function POST(req: NextRequest) {
@@ -16,8 +16,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    console.log('[Bot Webhook] Update received:', JSON.stringify(body));
-
     const message = body.message;
     if (!message || !message.text) {
       return NextResponse.json({ ok: true });
@@ -27,8 +25,11 @@ export async function POST(req: NextRequest) {
     const text = message.text.toLowerCase();
     const firstName = message.from?.first_name || 'Voyager';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+    
+    // CACHE BUSTER: Appending a timestamp forces Telegram to reload the latest Mini App code
+    const cacheBusterUrl = `${baseUrl}?v=${Date.now()}`;
 
-    // Handle /start command (including deep links)
+    // Handle /start command
     if (text.startsWith('/start')) {
       const welcomeMessage = `<b>Xush kelibsiz Auralook.uz rasmiy botiga!</b> ⚡️\n\n` +
         `Salom, ${firstName}! Biz O'zbekistondagi birinchi Xitoydan kiyim olib keladigan va o'zining telegram mini ilovasi bor platformasimiz.\n\n` +
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
               [
                 {
                   text: '🚀 Do\'konni ochish',
-                  web_app: { url: baseUrl }
+                  web_app: { url: cacheBusterUrl }
                 }
               ],
               [
@@ -68,7 +69,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[Telegram Webhook] Critical Failure:', error);
-    // Always return 200 to Telegram to stop retry loops that can exhaust your hosting quota
     return NextResponse.json({ ok: true, error: String(error) });
   }
 }

@@ -33,6 +33,10 @@ const TelegramUserContext = createContext<TelegramUserContextType | undefined>(u
 
 const OWNER_USERNAME = 'itsjamaspage';
 
+/**
+ * Enhanced Telegram Identity Bridge.
+ * Automatically synchronizes Telegram WebApp user data with Firebase session.
+ */
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +64,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         window.location.hostname === 'localhost'
       );
 
-      // Handle non-Telegram environments (Desktop or Browsers)
+      // 1. Check if we're actually inside Telegram
       if (!tg?.initDataUnsafe?.user) {
         if (isDev) {
           handleDemoMode();
@@ -71,7 +75,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        // 1. Identity Verification Handshake
+        // 2. Identity Verification Handshake via Backend
         const verifyRes = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -85,15 +89,16 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         const rawUser = await verifyRes.json();
         const cleanUsername = rawUser.username?.toLowerCase() || null;
         
-        // 2. Firebase Session Establishment
+        // 3. Establish Firebase Session (Anonymous Bridge)
         const userCred = await signInAnonymously(auth);
         const firebaseUid = userCred.user.uid;
 
-        // 3. Dynamic RBAC Mapping
+        // 4. Map Telegram Profile to Firestore & Listen for Roles
         const roleRef = doc(db, 'roles', firebaseUid);
         const unsubscribeRole = onSnapshot(roleRef, async (snap) => {
           let assignedRole: UserRole = 'viewer';
           
+          // Owner Override via Hardcoded Username
           if (cleanUsername === OWNER_USERNAME.toLowerCase()) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
@@ -115,7 +120,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             phone: null
           };
 
-          // Commit identity to distributed ledger
+          // Commit identity to database
           await setDoc(userRef, profileData, { merge: true });
           
           setUser(profileData);
