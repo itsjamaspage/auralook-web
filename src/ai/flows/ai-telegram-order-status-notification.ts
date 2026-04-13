@@ -1,11 +1,10 @@
 'use server';
 /**
  * @fileOverview Template-based order and broadcast notifications for Telegram.
- * Enhanced with Multi-Admin Protocol and Channel Broadcast Engine.
+ * Enhanced with Batch Order Logic and Personalized Greetings.
  */
 
 import { z } from 'genkit';
-import { getProductDeepLink } from '@/lib/telegram-link';
 
 const PhysiqueSchema = z.object({
   height: z.string().optional(),
@@ -29,8 +28,69 @@ const AiTelegramOrderStatusNotificationInputSchema = z.object({
 });
 export type AiTelegramOrderStatusNotificationInput = z.infer<typeof AiTelegramOrderStatusNotificationInputSchema>;
 
+export type BatchOrderInput = {
+  customerName: string;
+  telegramUsername?: string;
+  phoneNumber?: string;
+  physique?: { height?: string, weight?: string };
+  items: { productName: string, size: string, imageUrl?: string }[];
+  timestamp: string;
+  orderIds: string[];
+};
+
 /**
- * Dispatches a notification to the Telegram Admin bot.
+ * Dispatches a combined notification for multiple orders to the Telegram Admin.
+ * Attaches multiple photos using Telegram Media Group protocol.
+ */
+export async function notifyAdminOfBatchOrder(input: BatchOrderInput): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const adminChatIds = (process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  if (!token || adminChatIds.length === 0) return;
+
+  try {
+    const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'user';
+    
+    let message = `<b>📦 YANGI BUYURTMA (${input.items.length} ta mahsulot)</b>\n\n`;
+    message += `Telegram: @${cleanUsername} (<a href="https://t.me/${cleanUsername}">havola</a>)\n`;
+    message += `Buyurtma ID: <code>${input.orderIds[0].substring(0, 8)}</code>\n`;
+    message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n\n`;
+
+    input.items.forEach((item, index) => {
+      message += `${index + 1}. <b>${item.productName}</b> — O'lcham: <b>${item.size}</b>\n`;
+    });
+
+    message += `\nBo'yi: ${input.physique?.height || '?'} sm | Vazni: ${input.physique?.weight || '?'} kg\n`;
+    message += `Vaqt: ${input.timestamp}\n`;
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
+    const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
+
+    const media = input.items.slice(0, 10).map((item, index) => ({
+      type: 'photo',
+      media: item.imageUrl || 'https://placehold.co/600x800',
+      caption: index === 0 ? finalCaption : undefined,
+      parse_mode: index === 0 ? 'HTML' : undefined
+    }));
+
+    for (const chatId of adminChatIds) {
+      if (media.length > 1) {
+        await fetch(`https://api.telegram.org/bot${token}/sendMediaGroup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, media: media })
+        });
+      } else {
+        await sendTelegramMessage(token, chatId, finalCaption, input.items[0].imageUrl);
+      }
+    }
+  } catch (error) {
+    console.error("[Telegram Protocol] BATCH ADMIN NOTIFY FAILURE:", error);
+  }
+}
+
+/**
+ * Dispatches a notification to the Telegram Admin bot (Single Order).
  */
 export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificationInput): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -57,7 +117,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     }
 
     let message = `<b>${statusIcon} ${statusTitle}</b>\n\n`;
-    message += `Telegram: <a href="https://t.me/${cleanUsername}">@${cleanUsername}</a>\n`;
+    message += `Telegram: @${cleanUsername} (<a href="https://t.me/${cleanUsername}">havola</a>)\n`;
     message += `Buyurtma ID: <code>${input.orderId}</code>\n`;
     message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
     message += `Mahsulot: <b>${input.productName}</b>\n`;
@@ -71,7 +131,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     for (const chatId of adminChatIds) {
@@ -90,8 +150,11 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
   if (!token || !input.customerTelegramId) return;
 
   try {
+    const cleanUsername = input.telegramUsername?.replace(/^@/, '') || '';
+    const greetingName = cleanUsername ? `@${cleanUsername} (${input.customerName})` : input.customerName;
+
     let message = `<b>✅ Buyurtmangiz qabul qilindi!</b>\n\n`;
-    message += `Hurmatli ${input.customerName},\n`;
+    message += `Hurmatli ${greetingName},\n`;
     message += `Sizning <code>${input.orderId.substring(0, 8)}</code> raqamli buyurtmangiz tahlil qilinmoqda.\n\n`;
     message += `<b>Mahsulot:</b> ${input.productName}\n`;
     message += `<b>Holat:</b> Kutilmoqda\n\n`;
@@ -106,12 +169,11 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
 
 /**
  * AUTOMATED BROADCAST: Posts a new look to the Telegram channel.
- * FIXED: Uses web_app button type for Telegram Web compatibility.
  */
 export async function postNewLookToChannel(look: { id: string, name: string, price: number, currency: string, description: string, imageUrl: string }): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || '@auralook_uz';
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
 
   if (!token) return;
 

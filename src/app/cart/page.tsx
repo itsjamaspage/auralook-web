@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -16,7 +15,7 @@ import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, R
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
-import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
+import { notifyAdminOfBatchOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 
 type CheckoutStep = 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -100,6 +99,9 @@ export default function CartPage() {
     try {
       const timestamp = new Date().toLocaleString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US');
       
+      const orderIds: string[] = [];
+      const itemsForAdmin: any[] = [];
+
       for (const item of cartItems) {
         const orderData = {
           userId: firebaseUser.uid,
@@ -124,6 +126,12 @@ export default function CartPage() {
         };
 
         const docRef = await addDoc(collection(db, 'orders'), orderData);
+        orderIds.push(docRef.id);
+        itemsForAdmin.push({
+          productName: item.name,
+          size: orderData.size,
+          imageUrl: item.imageUrl
+        });
         
         const notificationInput = {
           customerName: orderData.customerName,
@@ -143,11 +151,22 @@ export default function CartPage() {
           }
         };
 
-        await notifyAdminOfOrder(notificationInput);
+        // Notify customer individually for their records
         await notifyCustomerOfOrder(notificationInput);
 
         await deleteDoc(doc(db, 'users', firebaseUser.uid, 'cart', item.id));
       }
+
+      // Notify Admin once for all items combined
+      await notifyAdminOfBatchOrder({
+        customerName: tgUser?.firstName || orderDetails.telegram,
+        telegramUsername: orderDetails.telegram,
+        phoneNumber: orderDetails.phone,
+        physique: { height: orderDetails.height, weight: orderDetails.weight },
+        items: itemsForAdmin,
+        timestamp: timestamp,
+        orderIds: orderIds
+      });
 
       toast({ title: t(dictionary.orderSuccessTitle), description: t(dictionary.orderSuccessDescription) });
       setShowCheckout(false);
@@ -265,7 +284,7 @@ export default function CartPage() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center ${selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'}`}
+                    className={`h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center \${selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'}`}
                   >
                     {size}
                   </button>
