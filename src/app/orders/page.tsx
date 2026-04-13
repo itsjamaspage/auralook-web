@@ -115,7 +115,7 @@ export default function UserOrdersPage() {
       case 'New': return t(dictionary.orderPending);
       case 'Confirmed': return t(dictionary.orderAccepted);
       case 'Shipped': return t(dictionary.orderShipped);
-      case 'Delivered': return t(dictionary.orderDelivered);
+      case 'Delivered': return t(dictionary.orderYetkazildi);
       case 'Cancelled': return t(dictionary.orderCancelled);
       default: return status;
     }

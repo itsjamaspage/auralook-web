@@ -64,7 +64,7 @@ export function BottomNav() {
     prevFavCount.current = favCount;
   }, [favCount, mounted]);
 
-  const BOT_URL = "https://t.me/jamastore_aibot/app?startapp=from_web";
+  const BOT_URL = "https://t.me/jamastore_aibot/auralook?startapp=from_web";
 
   const navItems = [
     { label: t(dictionary.browseLooks), icon: Compass, href: '/looks' },
