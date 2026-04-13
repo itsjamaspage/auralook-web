@@ -58,6 +58,8 @@ export default function AdminDashboard() {
   const isAdmin = user?.role === 'owner' || 
                   user?.role === 'editor' || 
                   user?.firebaseUid === 'demo_admin_session' ||
+                  user?.id === '6884517020' ||
+                  user?.id === '7213073025' ||
                   user?.username?.toLowerCase() === 'itsjamaspage' ||
                   user?.username?.toLowerCase() === 'jama_khaki';
 
@@ -314,7 +316,7 @@ export default function AdminDashboard() {
                   <div className="flex justify-between items-start relative z-10">
                     <div className="space-y-1 flex-grow pr-4">
                       <p className="text-[9px] font-black text-foreground uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
-                      <h3 className="text-lg sm:text-xl font-black text-foreground italic tracking-tight leading-tight uppercase line-clamp-2">
+                      <h3 className="text-lg sm:text-xl font-black text-foreground italic tracking-tight uppercase leading-tight uppercase line-clamp-2">
                         {order.lookName || t(dictionary.outfit)}
                       </h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{t(dictionary.size)}: {order.size}</p>

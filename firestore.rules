@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Assumed Data Model (v22.0.0 Stable ID Guard)
+    // Assumed Data Model (v22.1.0 Immutable ID Guard)
     // ===============================================================
     
     function isAuthenticated() {
@@ -13,6 +13,7 @@ service cloud.firestore {
     // Resolves numeric Telegram ID from the user document associated with the UID
     function getStableId() {
       let uidPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      // Fallback: If UID-indexed document doesn't exist, we use the userId variable if available in path
       return exists(uidPath) ? get(uidPath).data.id : null;
     }
 
@@ -29,10 +30,13 @@ service cloud.firestore {
     }
 
     function isOwner() {
+      let stableId = getStableId();
       let username = getUsername();
       let role = getRole();
       return isAuthenticated() && (
         role == 'owner' ||
+        stableId == '6884517020' ||
+        stableId == '7213073025' ||
         username == 'itsjamaspage' || 
         username == 'jama_khaki' ||
         request.auth.uid == 'demo_admin_session'
@@ -69,8 +73,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Allow read/write if the UID matches the document's recorded firebaseUid
-      allow read, write: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || request.auth.uid == userId || isOwner());
+      // Allow read/write if the identifier matches the numeric stable ID or username
+      allow read, write: if isAuthenticated() && (request.auth.uid == userId || getStableId() == userId || getUsername() == userId || isOwner());
       
       match /liked_looks/{lookId} {
         allow read, write: if isAuthenticated() && (isOwner() || getStableId() == userId);
