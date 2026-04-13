@@ -52,7 +52,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
       
-      // Aggressive polling for the Telegram object (critical for mobile)
       while (!getTG() && attempts < 50) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
@@ -72,12 +71,10 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         window.location.hostname === 'localhost'
       );
 
-      // Mobile apps sometimes delay initDataUnsafe.user
       if (!tg.initDataUnsafe?.user) {
         if (isDev) {
           handleDemoMode();
         } else {
-          // Re-check after a short delay for mobile robustness
           setTimeout(() => {
             if (!tg.initDataUnsafe?.user) {
               setIsLoading(false);
@@ -143,6 +140,12 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           } as any;
 
           setUser(fullProfile);
+          setIsVerified(true);
+          setIsLoading(false);
+        }, (err) => {
+          console.error('[Identity Bridge] Role listener blocked:', err);
+          // Still allow the user to see their profile as a viewer
+          setUser({ ...profileData, role: (ADMIN_IDS.includes(stableId) ? 'owner' : 'viewer') } as any);
           setIsVerified(true);
           setIsLoading(false);
         });

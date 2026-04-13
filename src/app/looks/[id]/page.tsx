@@ -104,10 +104,10 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   };
 
   const handleAddToCart = async () => {
-    if (!firebaseUser || !look) return;
+    if (!tgUser || !look) return;
     setIsAddingToCart(true);
     try {
-      const cartItemRef = doc(db, 'users', firebaseUser.uid, 'cart', look.id);
+      const cartItemRef = doc(db, 'users', tgUser.id, 'cart', look.id);
       await setDoc(cartItemRef, {
         lookId: look.id,
         name: look.name,
@@ -195,6 +195,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
       const notificationInput = {
         customerName: orderData.customerName,
         orderId: docRef.id,
+        lookId: look.id,
         currentStatus: 'New' as const,
         productName: look.name,
         phoneNumber: orderData.phoneNumber,

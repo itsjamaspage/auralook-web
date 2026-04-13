@@ -1,7 +1,8 @@
+
 'use server';
 /**
  * @fileOverview Template-based order and broadcast notifications for Telegram.
- * Enhanced with Batch Order Logic and Personalized Greetings.
+ * Enhanced with Batch Order Logic, Personalized Greetings, and Direct Links.
  */
 
 import { z } from 'genkit';
@@ -15,6 +16,7 @@ const PhysiqueSchema = z.object({
 const AiTelegramOrderStatusNotificationInputSchema = z.object({
   customerName: z.string(),
   orderId: z.string(),
+  lookId: z.string().optional(),
   currentStatus: z.enum(['New', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']),
   productName: z.string(),
   phoneNumber: z.string().optional(),
@@ -33,7 +35,7 @@ export type BatchOrderInput = {
   telegramUsername?: string;
   phoneNumber?: string;
   physique?: { height?: string, weight?: string };
-  items: { productName: string, size: string, imageUrl?: string }[];
+  items: { productName: string, size: string, imageUrl?: string, lookId?: string }[];
   timestamp: string;
   orderIds: string[];
 };
@@ -50,6 +52,7 @@ export async function notifyAdminOfBatchOrder(input: BatchOrderInput): Promise<v
 
   try {
     const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'user';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
     
     let message = `<b>📦 YANGI BUYURTMA (${input.items.length} ta mahsulot)</b>\n\n`;
     message += `Telegram: @${cleanUsername} (<a href="https://t.me/${cleanUsername}">havola</a>)\n`;
@@ -57,13 +60,16 @@ export async function notifyAdminOfBatchOrder(input: BatchOrderInput): Promise<v
     message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n\n`;
 
     input.items.forEach((item, index) => {
-      message += `${index + 1}. <b>${item.productName}</b> — O'lcham: <b>${item.size}</b>\n`;
+      message += `${index + 1}. <b>${item.productName}</b> — <b>${item.size}</b>`;
+      if (item.lookId) {
+        message += ` (<a href="${baseUrl}/looks/${item.lookId}">ko'rish</a>)`;
+      }
+      message += `\n`;
     });
 
     message += `\nBo'yi: ${input.physique?.height || '?'} sm | Vazni: ${input.physique?.weight || '?'} kg\n`;
     message += `Vaqt: ${input.timestamp}\n`;
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     const media = input.items.slice(0, 10).map((item, index) => ({
@@ -97,13 +103,13 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
   const adminChatIds = (process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
 
   if (!token || adminChatIds.length === 0) {
-    console.warn("[Telegram Protocol] ABORTED: Admin credentials missing.");
     return;
   }
 
   try {
     const cleanUsername = input.telegramUsername?.replace(/^@/, '') || 'user';
     const timestamp = input.timestamp || new Date().toLocaleString('uz-UZ');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
     
     let statusIcon = '📦';
     let statusTitle = 'YANGI BUYURTMA';
@@ -121,6 +127,11 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
     message += `Buyurtma ID: <code>${input.orderId}</code>\n`;
     message += `Telefon: ${input.phoneNumber || 'Noma\'lum'}\n`;
     message += `Mahsulot: <b>${input.productName}</b>\n`;
+    
+    if (input.lookId) {
+      message += `🔎 <a href="${baseUrl}/looks/${input.lookId}">Mahsulotni ko'rish</a>\n`;
+    }
+
     message += `O'lcham: <b>${input.physique?.size || 'Noma\'lum'}</b>\n`;
     message += `Holat: <b>${input.currentStatus}</b>\n`;
     message += `Vaqt: ${timestamp}\n`;
@@ -131,7 +142,6 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     for (const chatId of adminChatIds) {
@@ -164,39 +174,6 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
     await sendTelegramMessage(token, input.customerTelegramId.toString(), message);
   } catch (error) {
     console.error("[Telegram Protocol] CUSTOMER NOTIFY FAILURE:", error);
-  }
-}
-
-/**
- * AUTOMATED BROADCAST: Posts a new look to the Telegram channel.
- */
-export async function postNewLookToChannel(look: { id: string, name: string, price: number, currency: string, description: string, imageUrl: string }): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const channelId = process.env.TELEGRAM_CHANNEL_ID || '@auralook_uz';
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
-
-  if (!token) return;
-
-  const formattedPrice = new Intl.NumberFormat('uz-UZ').format(look.price).replace(/,/g, ' ');
-
-  let caption = `👔 <b>${look.name.toUpperCase()}</b>\n\n`;
-  caption += `💰 <b>NARXI:</b> ${formattedPrice} ${look.currency}\n\n`;
-  caption += `${look.description}\n\n`;
-  caption += `🛸 <i>Kelajak uslubi hoziroq buyurtma berish uchun tayyor!</i>`;
-
-  const replyMarkup = {
-    inline_keyboard: [[
-      { 
-        text: "🛍 KO'RISH VA BUYURTMA BERISH", 
-        web_app: { url: `${baseUrl}/looks/${look.id}` }
-      }
-    ]]
-  };
-
-  try {
-    await sendTelegramMessage(token, channelId, caption, look.imageUrl, replyMarkup);
-  } catch (error) {
-    console.error("[Telegram Protocol] CHANNEL BROADCAST FAILURE:", error);
   }
 }
 

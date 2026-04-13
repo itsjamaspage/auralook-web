@@ -132,12 +132,14 @@ export default function CartPage() {
         itemsForAdmin.push({
           productName: item.name,
           size: orderData.size,
-          imageUrl: item.imageUrl
+          imageUrl: item.imageUrl,
+          lookId: item.lookId
         });
         
         const notificationInput = {
           customerName: orderData.customerName,
           orderId: docRef.id,
+          lookId: item.lookId,
           currentStatus: 'New' as const,
           productName: item.name,
           phoneNumber: orderData.phoneNumber,
