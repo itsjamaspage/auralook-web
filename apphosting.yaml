@@ -8,7 +8,7 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_BASE_URL
-    value: https://studio-2916828899-aeb98.web.app
+    value: https://studio--studio-2916828899-aeb98.us-central1.hosted.app
     availability:
       - BUILD
       - RUNTIME

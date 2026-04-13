@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const chatId = message.chat.id;
     const text = message.text.toLowerCase();
     const firstName = message.from?.first_name || 'Voyager';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     
     // CACHE BUSTER: Appending a timestamp forces Telegram to reload the latest Mini App code
     const cacheBusterUrl = `${baseUrl}?v=${Date.now()}`;

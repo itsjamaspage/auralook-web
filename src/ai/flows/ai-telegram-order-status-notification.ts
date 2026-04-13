@@ -72,7 +72,7 @@ export async function notifyAdminOfOrder(input: AiTelegramOrderStatusNotificatio
       message += `- Vazni: ${input.physique.weight} kg\n`;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio-2916828899-aeb98.web.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
     const finalCaption = `${message}\n\n<a href="${baseUrl}/admin">🔗 Boshqaruv panelida ko'rish</a>`;
 
     for (const chatId of adminChatIds) {
