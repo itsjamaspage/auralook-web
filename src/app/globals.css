@@ -10,7 +10,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 0 100% 50%;
+    --primary: var(--sync-hue) 100% 50%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -22,7 +22,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 0 100% 50%;
+    --ring: var(--sync-hue) 100% 50%;
     --radius: 1.5rem;
   }
 
@@ -33,7 +33,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 100% 50%;
+    --primary: var(--sync-hue) 100% 50%;
     --primary-foreground: 0 0% 9%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -45,13 +45,20 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 0 100% 50%;
+    --ring: var(--sync-hue) 100% 50%;
   }
+}
+
+/* Master Rainbow Sync Property */
+@property --sync-hue {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: true;
 }
 
 @property --sync-color {
   syntax: '<color>';
-  initial-value: hsl(0 100% 50%);
+  initial-value: hsl(0, 100%, 50%);
   inherits: true;
 }
 
@@ -61,55 +68,16 @@
   inherits: true;
 }
 
-@keyframes master-sync-pulse {
-  0% { 
-    --sync-color: hsl(0 100% 50%); 
-    --sync-shadow: hsla(0, 100%, 50%, 0.4);
-    --primary: 0 100% 50%;
-    --ring: 0 100% 50%;
-  }
-  14% { 
-    --sync-color: hsl(30 100% 50%); 
-    --sync-shadow: hsla(30, 100%, 50%, 0.4);
-    --primary: 30 100% 50%;
-    --ring: 30 100% 50%;
-  }
-  28% { 
-    --sync-color: hsl(60 100% 50%); 
-    --sync-shadow: hsla(60, 100%, 50%, 0.4);
-    --primary: 60 100% 50%;
-    --ring: 60 100% 50%;
-  }
-  42% { 
-    --sync-color: hsl(120 100% 50%); 
-    --sync-shadow: hsla(120, 100%, 50%, 0.4);
-    --primary: 120 100% 50%;
-    --ring: 120 100% 50%;
-  }
-  56% { 
-    --sync-color: hsl(200 100% 50%); 
-    --sync-shadow: hsla(200, 100%, 50%, 0.4);
-    --primary: 200 100% 50%;
-    --ring: 200 100% 50%;
-  }
-  70% { 
-    --sync-color: hsl(260 100% 50%); 
-    --sync-shadow: hsla(260, 100%, 50%, 0.4);
-    --primary: 260 100% 50%;
-    --ring: 260 100% 50%;
-  }
-  84% { 
-    --sync-color: hsl(300 100% 50%); 
-    --sync-shadow: hsla(300, 100%, 50%, 0.4);
-    --primary: 300 100% 50%;
-    --ring: 300 100% 50%;
-  }
-  100% { 
-    --sync-color: hsl(360 100% 50%); 
-    --sync-shadow: hsla(360, 100%, 50%, 0.4);
-    --primary: 360 100% 50%;
-    --ring: 360 100% 50%;
-  }
+/* 12-second smooth rainbow cycle */
+@keyframes master-rainbow-cycle {
+  from { --sync-hue: 0; }
+  to { --sync-hue: 360; }
+}
+
+:root {
+  animation: master-rainbow-cycle 12s linear infinite;
+  --sync-color: hsl(var(--sync-hue), 100%, 50%);
+  --sync-shadow: hsla(var(--sync-hue), 100%, 50%, 0.4);
 }
 
 @keyframes marquee-right {
@@ -140,15 +108,11 @@
   animation: float-up-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-:root {
-  animation: master-sync-pulse 10s infinite linear;
-}
-
 body {
-  @apply transition-colors duration-300;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: 'Inter', sans-serif;
+  @apply transition-colors duration-300;
 }
 
 .neon-text {

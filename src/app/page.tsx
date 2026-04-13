@@ -29,11 +29,12 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     
-    // PROTOCOL: Start-app Parameter Handling (Deep Linking)
-    const handleDeepLink = () => {
+    // PROTOCOL: Robust Start-app Parameter Handling
+    const checkDeepLink = () => {
       const tg = (window as any).Telegram?.WebApp;
       if (tg) {
         tg.ready();
+        // Check both initDataUnsafe and raw initData if necessary
         const startParam = tg.initDataUnsafe?.start_param;
         if (startParam && startParam.startsWith('product_')) {
           const productId = startParam.replace('product_', '');
@@ -46,15 +47,15 @@ export default function Home() {
     };
 
     // Immediate check
-    if (!handleDeepLink()) {
-      // Polling check for slow Telegram initialization
+    if (!checkDeepLink()) {
+      // Extended polling for reliable identity capture
       let attempts = 0;
       const interval = setInterval(() => {
-        if (handleDeepLink() || attempts > 10) {
+        if (checkDeepLink() || attempts > 20) {
           clearInterval(interval);
         }
         attempts++;
-      }, 500);
+      }, 300);
       return () => clearInterval(interval);
     }
   }, [router]);
@@ -69,7 +70,7 @@ export default function Home() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Routing to Product Interface...</p>
+        <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">Establishing Product Context...</p>
       </div>
     );
   }
