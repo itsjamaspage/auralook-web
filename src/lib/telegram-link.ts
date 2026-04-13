@@ -5,6 +5,6 @@
 
 export function getProductDeepLink(productId: string): string {
   const botUsername = 'jamastore_aibot'; // Verified from Home page
-  const appShortName = 'app'; // Standard Mini App short name
+  const appShortName = 'auralook'; // Matches your BotFather "Link" field
   return `https://t.me/${botUsername}/${appShortName}?startapp=product_${productId}`;
 }

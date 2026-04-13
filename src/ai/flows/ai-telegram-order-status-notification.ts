@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Template-based order and broadcast notifications for Telegram.
@@ -117,14 +116,14 @@ export async function postNewLookToChannel(look: { id: string, name: string, pri
   const deepLink = getProductDeepLink(look.id);
   const formattedPrice = new Intl.NumberFormat('uz-UZ').format(look.price).replace(/,/g, ' ');
 
-  let caption = `👗 <b>${look.name.toUpperCase()}</b>\n\n`;
+  let caption = `👔 <b>${look.name.toUpperCase()}</b>\n\n`;
   caption += `💰 <b>NARXI:</b> ${formattedPrice} ${look.currency}\n\n`;
   caption += `${look.description}\n\n`;
   caption += `🛸 <i>Kelajak uslubi hoziroq buyurtma berish uchun tayyor!</i>`;
 
   const replyMarkup = {
     inline_keyboard: [[
-      { text: '🛍 KO\'RISH VA BUYURTMA', url: deepLink }
+      { text: '🛍 KO\'RISH VA BUYURTMA BERISH', url: deepLink }
     ]]
   };
 
