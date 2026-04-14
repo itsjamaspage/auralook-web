@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ...telegramUser, firebaseToken }, { headers: CORS_HEADERS });
   } catch (error) {
-    console.error('Telegram Verification Critical Failure:', error);
-    return NextResponse.json({ error: 'Internal validation error' }, { status: 500, headers: CORS_HEADERS });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Telegram Verification Critical Failure:', message);
+    return NextResponse.json({ error: 'Internal validation error', detail: message }, { status: 500, headers: CORS_HEADERS });
   }
 }
