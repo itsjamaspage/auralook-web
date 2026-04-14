@@ -87,7 +87,7 @@
 }
 
 :root {
-  animation: color-sync 42s linear infinite;
+  animation: color-sync 24.5s linear infinite;
 }
 
 @keyframes marquee-right {
