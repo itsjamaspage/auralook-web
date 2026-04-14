@@ -38,25 +38,36 @@ export function Navbar() {
   useEffect(() => {
     setMounted(true);
 
-    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFsChange);
-
     const tg = (window as any).Telegram?.WebApp;
     if (tg && tg.initData) {
       setIsInsideTelegram(true);
       tg.ready();
-      setIsFullscreen(tg.isExpanded ?? false);
+      setIsFullscreen(tg.isFullscreen ?? tg.isExpanded ?? false);
 
-      const pollInterval = setInterval(() => {
-        setIsFullscreen(() => tg.isExpanded ?? false);
+      const onFullscreenChanged = () => {
+        setIsFullscreen(tg.isFullscreen ?? tg.isExpanded ?? false);
+      };
+
+      if (typeof tg.onEvent === 'function') {
+        tg.onEvent('fullscreenChanged', onFullscreenChanged);
+        tg.onEvent('viewportChanged', onFullscreenChanged);
+      }
+
+      const poll = setInterval(() => {
+        setIsFullscreen(tg.isFullscreen ?? tg.isExpanded ?? false);
       }, 500);
 
       return () => {
-        clearInterval(pollInterval);
-        document.removeEventListener('fullscreenchange', handleFsChange);
+        clearInterval(poll);
+        if (typeof tg.offEvent === 'function') {
+          tg.offEvent('fullscreenChanged', onFullscreenChanged);
+          tg.offEvent('viewportChanged', onFullscreenChanged);
+        }
       };
     }
 
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
@@ -70,19 +81,29 @@ export function Navbar() {
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
-      if (tg.isExpanded) {
-        if (typeof tg.collapse === 'function') {
+      const currentlyFullscreen = tg.isFullscreen ?? tg.isExpanded ?? false;
+
+      if (currentlyFullscreen) {
+        // Try to exit / collapse
+        if (typeof tg.exitFullscreen === 'function') {
+          tg.exitFullscreen();
+        } else if (typeof tg.collapse === 'function') {
           tg.collapse();
         }
         setIsFullscreen(false);
       } else {
-        tg.expand();
+        // Try to go fullscreen — requestFullscreen (Bot API 8.0+) first, then expand
+        if (typeof tg.requestFullscreen === 'function') {
+          tg.requestFullscreen();
+        } else {
+          tg.expand();
+        }
         setIsFullscreen(true);
       }
       return;
     }
 
-    // Browser fullscreen fallback (non-Telegram)
+    // Browser fallback (non-Telegram)
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
       setIsFullscreen(true);
