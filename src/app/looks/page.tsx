@@ -201,7 +201,7 @@ export default function LooksPage() {
                   </button>
                 )}
                 <Link href={isSelectMode ? '#' : `/looks/${look.id}`} className="block relative aspect-[4/5] overflow-hidden p-1">
-                  <Image src={look.imageUrl || 'https://picsum.photos/seed/look/600/800'} alt={look.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]" />
+                  <Image src={look.imageUrl || 'https://picsum.photos/seed/look/600/800'} alt={look.name} fill quality={100} sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]" />
                   {!isSelectMode && (
                     <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
                       <div className="relative">

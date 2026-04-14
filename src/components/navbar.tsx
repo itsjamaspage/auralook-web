@@ -37,7 +37,7 @@ export function Navbar() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFsChange);
 
@@ -45,17 +45,20 @@ export function Navbar() {
     if (tg && tg.initData) {
       setIsInsideTelegram(true);
       tg.ready();
+      setIsFullscreen(tg.isExpanded ?? false);
+
       const pollInterval = setInterval(() => {
-        if (tg.isExpanded !== isFullscreen) setIsFullscreen(tg.isExpanded);
+        setIsFullscreen(() => tg.isExpanded ?? false);
       }, 500);
+
       return () => {
         clearInterval(pollInterval);
         document.removeEventListener('fullscreenchange', handleFsChange);
       };
     }
-    
+
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, [isFullscreen]);
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -65,21 +68,26 @@ export function Navbar() {
 
   const toggleFullscreen = () => {
     const tg = (window as any).Telegram?.WebApp;
-    const isNowFs = !!document.fullscreenElement || (tg?.isExpanded ?? false);
 
-    if (!isNowFs) {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-      if (tg) {
-        tg.ready();
+    if (tg) {
+      if (tg.isExpanded) {
+        if (typeof tg.collapse === 'function') {
+          tg.collapse();
+        }
+        setIsFullscreen(false);
+      } else {
         tg.expand();
+        setIsFullscreen(true);
       }
+      return;
+    }
+
+    // Browser fullscreen fallback (non-Telegram)
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
       setIsFullscreen(true);
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
+      document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     }
   };

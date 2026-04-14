@@ -20,8 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Loader2, 
+import {
+  Loader2,
   ChevronLeft,
   Ruler,
   Phone,
@@ -31,7 +31,9 @@ import {
   Send,
   Globe,
   ShoppingCart,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Maximize2,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
@@ -58,6 +60,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const { user: firebaseUser } = useUser();
   
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
   const [step, setStep] = useState<CheckoutStep>('ASK_KNOWLEDGE');
   const [isOrdering, setIsOrdering] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -257,14 +260,22 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
               </Button>
             </div>
 
-            <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-surface border-foreground/10 shadow-2xl group bg-muted/20">
-              <Image 
-                src={look.imageUrl} 
-                alt={look.name} 
-                fill 
+            <div
+              className="relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-surface border-foreground/10 shadow-2xl group bg-muted/20 cursor-zoom-in"
+              onClick={() => setShowFullscreen(true)}
+            >
+              <Image
+                src={look.imageUrl}
+                alt={look.name}
+                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 priority
+                quality={100}
+                sizes="(max-width: 1024px) calc(100vw - 32px), 480px"
               />
+              <div className="absolute bottom-4 right-4 w-9 h-9 rounded-full glass-surface border border-foreground/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Maximize2 className="w-4 h-4 text-white" />
+              </div>
             </div>
           </div>
 
@@ -313,6 +324,31 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           </div>
         </div>
       </div>
+
+      {showFullscreen && (
+        <div
+          className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
+          onClick={() => setShowFullscreen(false)}
+        >
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center z-10 hover:bg-white/20 transition-colors"
+            onClick={() => setShowFullscreen(false)}
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={look.imageUrl}
+              alt={look.name}
+              fill
+              quality={100}
+              className="object-contain"
+              sizes="100vw"
+              priority
+            />
+          </div>
+        </div>
+      )}
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
         <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-2xl">
