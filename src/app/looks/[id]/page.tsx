@@ -258,12 +258,14 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden glass-surface border-foreground/10 shadow-2xl group bg-muted/20">
-              <Image 
-                src={look.imageUrl} 
-                alt={look.name} 
-                fill 
+              <Image
+                src={look.imageUrl}
+                alt={look.name}
+                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 priority
+                quality={100}
+                sizes="(max-width: 1024px) calc(100vw - 32px), 480px"
               />
             </div>
           </div>

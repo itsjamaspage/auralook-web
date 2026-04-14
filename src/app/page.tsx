@@ -191,8 +191,10 @@ export default function Home() {
                 )}>
                   <Image 
                     src={look.imageUrl} 
-                    alt={look.name} 
-                    fill 
+                    alt={look.name}
+                    fill
+                    quality={100}
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
                   />
                   <div className="absolute top-6 left-6 px-3 py-1 neon-bg text-white text-[8px] font-black uppercase tracking-widest rounded-sm z-10">
