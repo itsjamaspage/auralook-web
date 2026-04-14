@@ -4,7 +4,7 @@ import { getFirebaseAdmin } from '@/lib/firebase-admin';
 
 /**
  * @fileOverview Secure Telegram Authentication Route.
- * Updated with force-dynamic to prevent build-time failures when secrets are missing.
+ * Fixed: Initialization moved inside handler to prevent build-time crashes.
  */
 
 export const dynamic = 'force-dynamic';
@@ -27,11 +27,11 @@ export async function POST(req: NextRequest) {
 
     const telegramUser = JSON.parse(userRaw);
     
-    // Get the admin instance safely inside the request handler
+    // Admin SDK initialization happens here at runtime, not build-time
     const admin = getFirebaseAdmin();
     const auth = admin.auth();
 
-    // Telegram ID becomes the permanent Firebase UID — stable forever, never rotates
+    // Generate custom token for the permanent Telegram ID
     const firebaseToken = await auth.createCustomToken(String(telegramUser.id), {
       username: telegramUser.username ?? '',
     });

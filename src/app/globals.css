@@ -68,19 +68,17 @@
   inherits: true;
 }
 
-/* Premium Color Transition (Yellow removed for cleaner aesthetic) */
+/* Premium Turn-by-Turn Rainbow (Yellow Hue 60 Removed) */
 @keyframes master-rainbow-cycle {
-  0%, 12%   { --sync-hue: 0; }     /* Red */
-  16%, 28%  { --sync-hue: 30; }    /* Orange */
-  32%, 44%  { --sync-hue: 120; }   /* Green */
-  48%, 60%  { --sync-hue: 200; }   /* Blue */
-  64%, 76%  { --sync-hue: 270; }   /* Indigo/Violet */
-  80%, 92%  { --sync-hue: 320; }   /* Pink */
-  96%, 100% { --sync-hue: 360; }
+  0%, 15%   { --sync-hue: 0; }     /* Red */
+  20%, 35%  { --sync-hue: 30; }    /* Orange */
+  40%, 55%  { --sync-hue: 120; }   /* Green */
+  60%, 75%  { --sync-hue: 200; }   /* Blue */
+  80%, 95%  { --sync-hue: 270; }   /* Violet */
+  100%      { --sync-hue: 360; }
 }
 
 :root {
-  /* Set to 25s for a smooth but responsive premium cycle */
   animation: master-rainbow-cycle 25s linear infinite;
   --sync-color: hsl(var(--sync-hue), 100%, 50%);
   --sync-shadow: hsla(var(--sync-hue), 100%, 50%, 0.4);

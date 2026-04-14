@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Supreme Security Protocol (v25.4.8)
+    // Universal Identity & Supreme Security Protocol (v25.4.12)
     // ===============================================================
     
     function isAuthenticated() {
@@ -10,7 +10,7 @@ service cloud.firestore {
     }
 
     // SUPREME OWNER LOGIC: Hardcoded IDs + Database Role Verification
-    // Only the 'owner' role can manage the team (add/remove users)
+    // Only the 'owner' can manage the team registry (add/remove users)
     function isOwner() {
       let masterUids = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
       let masterTgIds = ['6884517020', '7213073025'];
@@ -19,27 +19,25 @@ service cloud.firestore {
                      (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
                      (exists(/databases/$(database)/documents/users/7213073025) && get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid);
       
-      // Explicitly verify the 'owner' role for database-assigned users
       let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
       let isRegisteredOwner = exists(roleDoc) && get(roleDoc).data.role == 'owner';
 
       return isAuthenticated() && (isMaster || isRegisteredOwner);
     }
 
-    // EDITOR LOGIC: Can manage inventory (looks) but not the team
+    // EDITOR LOGIC: Can manage catalog but NOT the team
     function isEditor() {
       let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
-      let isRegisteredPrivileged = exists(roleDoc) && (get(roleDoc).data.role == 'editor' || get(roleDoc).data.role == 'owner');
+      let isPrivileged = exists(roleDoc) && (get(roleDoc).data.role == 'editor' || get(roleDoc).data.role == 'owner');
       
-      return isOwner() || isRegisteredPrivileged;
+      return isOwner() || isPrivileged;
     }
 
-    // Recursive ownership check for Telegram-indexed profiles and subcollections
+    // Identity Bridge: Recursive ownership check
     function isProfileOwner(userId) {
       if (!isAuthenticated()) return false;
       if (isOwner()) return true;
       
-      // Check if document exists and matches current UID
       let userDocPath = /databases/$(database)/documents/users/$(userId);
       let isPathOwner = userId == request.auth.uid;
       let isDataOwner = exists(userDocPath) && get(userDocPath).data.firebaseUid == request.auth.uid;
@@ -50,13 +48,13 @@ service cloud.firestore {
 
     match /roles/{identifier} {
       allow read: if isAuthenticated();
-      // LOCKDOWN: Only the Owner can manage the team registry
+      // SECURITY LOCKDOWN: Only the SUPREME OWNER can manage the team
       allow write: if isOwner();
     }
 
     match /looks/{lookId} {
-      allow read: if true; // Public inventory access
-      // BOTH Owners and Editors can manage looks
+      allow read: if true;
+      // BOTH Owners and Editors can manage inventory
       allow write: if isEditor();
     }
 
@@ -64,7 +62,6 @@ service cloud.firestore {
       allow read, write: if isProfileOwner(userId);
       
       match /{allSubcollections=**} {
-        // Correctly inherit permission for Cart, Favorites, and Orders
         allow read, write: if isProfileOwner(userId);
       }
     }
