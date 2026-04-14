@@ -1,15 +1,13 @@
-
 "use client"
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useFirestore, useAuth } from '@/firebase';
 import { doc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
+import { signInAnonymously, signInWithCustomToken } from 'firebase/auth';
 
 export type UserRole = 'owner' | 'editor' | 'viewer';
 
 export interface UserProfile {
-  id: string; // Numeric Telegram ID as string
+  id: string;
   telegramId: number;
   firstName: string;
   username: string | null;
@@ -31,21 +29,14 @@ interface TelegramUserContextType {
 
 const TelegramUserContext = createContext<TelegramUserContextType | undefined>(undefined);
 
-// MASTER ADMIN PROTOCOL
 const ADMIN_IDS = ['6884517020', '7213073025'];
 const ADMIN_USERNAMES = ['itsjamaspage', 'jama_khaki'];
-const ADMIN_FIREBASE_UIDS = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
 
-/**
- * Enhanced Telegram Identity Bridge.
- * Standardizes all user data to use the numeric Telegram ID as the primary key.
- */
 export function TelegramUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const db = useFirestore();
   const auth = useAuth();
 
@@ -53,19 +44,18 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     const initBridge = async () => {
       const getTG = () => (window as any).Telegram?.WebApp;
       let attempts = 0;
-      
-      // Patient polling for slow mobile connections
+
       while (!getTG() && attempts < 100) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
       }
 
       const tg = getTG();
-      
+
       if (!tg) {
         setIsLoading(false);
         const isDev = typeof window !== 'undefined' && (
-          window.location.hostname.includes('hosted.app') || 
+          window.location.hostname.includes('hosted.app') ||
           window.location.hostname.includes('cloudworkstations.dev') ||
           window.location.hostname === 'localhost'
         );
@@ -73,7 +63,6 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Recursive wait for initData populating
       let initDataAttempts = 0;
       while (!tg.initDataUnsafe?.user && initDataAttempts < 50) {
         await new Promise(r => setTimeout(r, 100));
@@ -97,15 +86,14 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ initData })
         });
 
-        if (!verifyRes.ok) {
-          throw new Error('Verification failed.');
-        }
+        if (!verifyRes.ok) throw new Error('Verification failed.');
 
         const validatedUser = await verifyRes.json();
-        const stableId = validatedUser.id.toString(); 
-        
-        const userCred = await signInAnonymously(auth);
-        const firebaseUid = userCred.user.uid;
+        const stableId = validatedUser.id.toString();
+
+        // Sign in with custom token — Firebase UID will always equal the Telegram ID
+        const userCred = await signInWithCustomToken(auth, validatedUser.firebaseToken);
+        const firebaseUid = userCred.user.uid; // This is now always the Telegram ID string
 
         const userRef = doc(db, 'users', stableId);
         const profileData = {
@@ -118,19 +106,16 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           lastSeen: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
-        
-        // Initial silent profile sync
+
         await setDoc(userRef, profileData, { merge: true });
 
         const roleRef = doc(db, 'roles', stableId);
         const unsubscribeRole = onSnapshot(roleRef, (snap) => {
           let assignedRole: UserRole = 'viewer';
-          
-          // Triple-Check Admin Status (ID, Username, UID, or Document)
+
           if (
-            ADMIN_IDS.includes(stableId) || 
-            (profileData.username && ADMIN_USERNAMES.includes(profileData.username)) ||
-            ADMIN_FIREBASE_UIDS.includes(firebaseUid)
+            ADMIN_IDS.includes(stableId) ||
+            (profileData.username && ADMIN_USERNAMES.includes(profileData.username))
           ) {
             assignedRole = 'owner';
           } else if (snap.exists()) {
@@ -141,7 +126,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
             ...profileData,
             role: assignedRole,
             createdAt: snap.exists() ? snap.data().createdAt : serverTimestamp(),
-            phone: snap.exists() ? snap.data().phone : null
+            phone: snap.exists() ? snap.data().phone : null,
           } as any;
 
           setUser(fullProfile);
@@ -149,8 +134,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         }, (err) => {
           console.error('[Identity Bridge] Role listener blocked:', err);
-          // Fallback for supreme owners even if the listener fails
-          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username)) || ADMIN_FIREBASE_UIDS.includes(firebaseUid)) {
+          if (ADMIN_IDS.includes(stableId) || (profileData.username && ADMIN_USERNAMES.includes(profileData.username))) {
             setUser({ ...profileData, role: 'owner' } as any);
             setIsVerified(true);
           }
@@ -173,7 +157,7 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
   function handleDemoMode() {
     const demoUid = 'demo_admin_session';
     const mockUser: UserProfile = {
-      id: '6884517020', 
+      id: '6884517020',
       telegramId: 6884517020,
       firstName: 'J (itsjamaspage)',
       username: 'itsjamaspage',

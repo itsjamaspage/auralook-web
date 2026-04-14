@@ -2,29 +2,36 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ===============================================================
-    // Universal Identity & Supreme Security Protocol (v25.4.7)
+    // Universal Identity & Supreme Security Protocol (v25.4.8)
     // ===============================================================
     
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // SUPREME OWNER LOGIC: Hardcoded IDs + Dynamic Registry Check
-    // Ensures absolute access for the project owner across all devices
+    // SUPREME OWNER LOGIC: Hardcoded IDs + Database Role Verification
+    // Only the 'owner' role can manage the team (add/remove users)
     function isOwner() {
       let masterUids = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
       let masterTgIds = ['6884517020', '7213073025'];
       
-      return isAuthenticated() && (
-        request.auth.uid in masterUids ||
-        exists(/databases/$(database)/documents/roles/$(request.auth.uid)) ||
-        (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
-        (exists(/databases/$(database)/documents/users/7213073025) && get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid)
-      );
+      let isMaster = request.auth.uid in masterUids ||
+                     (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
+                     (exists(/databases/$(database)/documents/users/7213073025) && get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid);
+      
+      // Explicitly verify the 'owner' role for database-assigned users
+      let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
+      let isRegisteredOwner = exists(roleDoc) && get(roleDoc).data.role == 'owner';
+
+      return isAuthenticated() && (isMaster || isRegisteredOwner);
     }
 
+    // EDITOR LOGIC: Can manage inventory (looks) but not the team
     function isEditor() {
-      return isOwner();
+      let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
+      let isRegisteredPrivileged = exists(roleDoc) && (get(roleDoc).data.role == 'editor' || get(roleDoc).data.role == 'owner');
+      
+      return isOwner() || isRegisteredPrivileged;
     }
 
     // Recursive ownership check for Telegram-indexed profiles and subcollections
@@ -43,11 +50,13 @@ service cloud.firestore {
 
     match /roles/{identifier} {
       allow read: if isAuthenticated();
+      // LOCKDOWN: Only the Owner can manage the team registry
       allow write: if isOwner();
     }
 
     match /looks/{lookId} {
       allow read: if true; // Public inventory access
+      // BOTH Owners and Editors can manage looks
       allow write: if isEditor();
     }
 
