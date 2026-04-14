@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyTelegramInitData } from '@/lib/verify-telegram';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
+/**
+ * @fileOverview Secure Telegram Authentication Route.
+ * Updated with force-dynamic to prevent build-time failures when secrets are missing.
+ */
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,9 +26,13 @@ export async function POST(req: NextRequest) {
     }
 
     const telegramUser = JSON.parse(userRaw);
+    
+    // Get the admin instance safely inside the request handler
+    const admin = getFirebaseAdmin();
+    const auth = admin.auth();
 
     // Telegram ID becomes the permanent Firebase UID — stable forever, never rotates
-    const firebaseToken = await getAuth().createCustomToken(String(telegramUser.id), {
+    const firebaseToken = await auth.createCustomToken(String(telegramUser.id), {
       username: telegramUser.username ?? '',
     });
 

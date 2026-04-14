@@ -22,9 +22,9 @@ env:
     value: "7213073025"
   - variable: TELEGRAM_CHANNEL_ID
     value: "@auralook_uz"
-  - variable: AURALOOK
+  - variable: FIREBASE_PROJECT_ID
     secret: FIREBASE_PROJECT_ID
-  - variable: AURALOOK_CLIENT_EMAIL
+  - variable: FIREBASE_CLIENT_EMAIL
     secret: FIREBASE_CLIENT_EMAIL
-  - variable: AURALOOK_PRIVATE_KEY
+  - variable: FIREBASE_PRIVATE_KEY
     secret: FIREBASE_PRIVATE_KEY
