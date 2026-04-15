@@ -120,9 +120,8 @@ export async function POST(req: NextRequest) {
     const text: string = message.text.toLowerCase();
     const firstName: string = message.from?.first_name || 'Voyager';
 
-    if (text.startsWith('/start')) {
-      await sendLangMenu(tgApi, chatId, cacheBusterUrl, firstName);
-    }
+    // Respond to /start OR any other message with the language menu
+    await sendLangMenu(tgApi, chatId, cacheBusterUrl, firstName);
 
     return NextResponse.json({ ok: true });
   } catch (error) {
