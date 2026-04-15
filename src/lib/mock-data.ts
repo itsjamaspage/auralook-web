@@ -7,6 +7,7 @@ export interface Look {
   imageUrl: string;
   price: number;
   tags: string[];
+  hasShoe?: boolean;
 }
 
 export interface Order {

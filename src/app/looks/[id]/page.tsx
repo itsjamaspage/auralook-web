@@ -44,7 +44,7 @@ import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegra
 import { cn } from '@/lib/utils';
 import { getProductDeepLink } from '@/lib/telegram-link';
 
-type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
+type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'CHOOSE_SHOE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 const COUNTRIES = [
   { name: "O'zbekiston", code: 'UZB', dial: '+998' },
@@ -65,6 +65,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
   const [isOrdering, setIsOrdering] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedShoeSize, setSelectedShoeSize] = useState('');
   const [country, setCountry] = useState('UZB');
   
   const [orderDetails, setOrderDetails] = useState({
@@ -117,6 +118,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         imageUrl: look.imageUrl,
         price: look.price,
         currency: look.currency || 'USD',
+        hasShoe: look.hasShoe || false,
         addedAt: new Date().toISOString()
       }, { merge: true });
       toast({ title: t(dictionary.addedToCart) });
@@ -181,6 +183,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         lookName: look.name,
         lookImageUrl: look.imageUrl,
         size: selectedSize || `M (${t(dictionary.managerAdviceLabel)})`,
+        ...(look.hasShoe && { shoeSize: selectedShoeSize || t(dictionary.managerAdviceLabel) }),
         phoneNumber: orderDetails.phone,
         telegramUsername: orderDetails.telegram,
         country: 'UZB',
@@ -401,9 +404,39 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   </button>
                 ))}
               </div>
-              <Button 
-                onClick={() => setStep('CONTACT')}
+              <Button
+                onClick={() => setStep(look.hasShoe ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')}
                 disabled={!selectedSize}
+                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest mt-4"
+              >
+                {t(dictionary.nextStep)}
+              </Button>
+            </div>
+          )}
+
+          {step === 'CHOOSE_SHOE_SIZE' && (
+            <div className="space-y-8 py-2">
+              <div className="flex items-center gap-2 text-foreground mb-2">
+                <CheckCircle2 className="w-4 h-4 neon-text" />
+                <p className="text-[10px] font-black uppercase tracking-widest">👟 SHOE SIZE (EUR)</p>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {['36','37','38','39','40','41','42','43','44','45'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedShoeSize(size)}
+                    className={cn(
+                      "h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                      selectedShoeSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'
+                    )}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              <Button
+                onClick={() => setStep('CONTACT')}
+                disabled={!selectedShoeSize}
                 className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest mt-4"
               >
                 {t(dictionary.nextStep)}
@@ -447,8 +480,8 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
                   />
                 </div>
               </div>
-              <Button 
-                onClick={() => setStep('CONTACT')}
+              <Button
+                onClick={() => setStep(look.hasShoe ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')}
                 className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest"
               >
                 {t(dictionary.nextStep)}

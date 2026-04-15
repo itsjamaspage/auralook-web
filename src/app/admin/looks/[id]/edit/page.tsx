@@ -24,6 +24,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
   const [currency, setCurrency] = useState<'USD' | 'UZS'>('USD');
   const [imageUrl, setImageUrl] = useState('');
   const [name, setName] = useState('');
+  const [hasShoe, setHasShoe] = useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
       setDiscount(look.discount?.toString() || '0');
       setCurrency(look.currency || 'USD');
       setImageUrl(look.imageUrl || '');
+      setHasShoe(look.hasShoe || false);
     }
   }, [look]);
 
@@ -83,6 +85,7 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
         price: numericPrice,
         discount: numericDiscount,
         currency,
+        hasShoe,
         imageUrl: imageUrl || look?.imageUrl || 'https://picsum.photos/seed/default-look/600/800',
         updatedAt: serverTimestamp(),
       };
@@ -236,12 +239,40 @@ export default function EditLookPage({ params }: { params: Promise<{ id: string 
             </div>
 
             <div className="space-y-4">
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">INCLUDES SHOE / POYABZAL BOR?</Label>
+              <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setHasShoe(false)}
+                  className={cn(
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                    !hasShoe ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  ❌ No
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setHasShoe(true)}
+                  className={cn(
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                    hasShoe ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  👟 Yes
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.technicalSpecLabel)}</Label>
-              <Textarea 
+              <Textarea
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="bg-foreground/5 border-foreground/10 rounded-[2rem] p-6 focus:neon-border text-foreground leading-relaxed italic font-medium" 
+                className="bg-foreground/5 border-foreground/10 rounded-[2rem] p-6 focus:neon-border text-foreground leading-relaxed italic font-medium"
                 placeholder="Describe fit, fabric tech, and aesthetic..."
               />
             </div>
