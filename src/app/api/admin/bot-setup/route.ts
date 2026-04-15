@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @fileOverview Administrative tool to sync the Telegram Webhook and Menu Button.
- * Updated to ensure both entry points point to the same latest version.
+ * Accepts GET (browser-friendly) or POST. Visit /api/admin/bot-setup in the browser to sync.
  */
 
-export async function POST(req: NextRequest) {
+async function runSetup() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
   const webhookUrl = `${baseUrl}/api/webhook/telegram`;
@@ -21,7 +21,11 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Reset Webhook
     await fetch(`https://api.telegram.org/bot${token}/deleteWebhook?drop_pending_updates=true`);
-    const webhookRes = await fetch(`https://api.telegram.org/bot${token}/setWebhook?url=${webhookUrl}&allowed_updates=["message"]`);
+    const webhookRes = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: webhookUrl, allowed_updates: ['message', 'callback_query'] }),
+    });
     const webhookResult = await webhookRes.json();
 
     // 2. Synchronize Menu Button (The button in the bottom left)
@@ -56,4 +60,12 @@ export async function POST(req: NextRequest) {
     console.error('[Bot Setup] Protocol Failure:', error);
     return NextResponse.json({ success: false, message: String(error) }, { status: 500 });
   }
+}
+
+export async function GET(_req: NextRequest) {
+  return runSetup();
+}
+
+export async function POST(_req: NextRequest) {
+  return runSetup();
 }
