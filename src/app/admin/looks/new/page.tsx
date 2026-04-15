@@ -37,7 +37,8 @@ export default function NewLookPage() {
     description: '',
     price: '',
     discount: '0',
-    currency: 'USD' as 'USD' | 'UZS'
+    currency: 'USD' as 'USD' | 'UZS',
+    hasShoe: false,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -105,6 +106,7 @@ export default function NewLookPage() {
         price: numericPrice || 0,
         discount: parseFloat(form.discount) || 0,
         currency: form.currency,
+        hasShoe: form.hasShoe,
         imageUrl,
         createdAt: serverTimestamp(),
       };
@@ -282,12 +284,40 @@ export default function NewLookPage() {
             </div>
 
             <div className="space-y-4">
+              <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">INCLUDES SHOE / POYABZAL BOR?</Label>
+              <div className="flex gap-1 p-1 bg-foreground/10 rounded-2xl border border-foreground/10 h-14">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setForm({...form, hasShoe: false})}
+                  className={cn(
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                    !form.hasShoe ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  ❌ No
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setForm({...form, hasShoe: true})}
+                  className={cn(
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all h-full",
+                    form.hasShoe ? "neon-bg text-white" : "text-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  👟 Yes
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <Label className="font-black uppercase tracking-[0.2em] text-[10px] text-foreground/40">{t(dictionary.technicalSpecLabel)}</Label>
-              <Textarea 
+              <Textarea
                 rows={6}
                 value={form.description}
                 onChange={(e) => setForm({...form, description: e.target.value})}
-                className="bg-foreground/5 border-foreground/10 rounded-[2rem] p-6 focus:neon-border text-foreground leading-relaxed italic font-medium" 
+                className="bg-foreground/5 border-foreground/10 rounded-[2rem] p-6 focus:neon-border text-foreground leading-relaxed italic font-medium"
                 placeholder="Describe fit, fabric tech, and aesthetic..."
               />
             </div>
