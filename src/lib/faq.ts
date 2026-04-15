@@ -41,7 +41,7 @@ export const FAQ: Record<FaqLang, FaqLanguage> = {
       deposit:  `💳 30% avans nima?\n\nBu buyurtmangizni tasdiqlash uchun oldindan to'lanadigan qism. Masalan, 300,000 so'mlik lookda siz 90,000 so'm avans to'laysiz. Qolgan qism mahsulot yetib kelganda to'lanadi.\n\nBu bizning ehtiyot choramizdir — ba'zi mijozlar buyurtma Toshkentga yetib kelganidan keyin to'lashdan bosh tortishi yoki aloqani uzishi mumkin. 30% avans bu holatdan himoya qiladi.\n\n⚠️ Avans qaytarilmaydi.`,
       cancel:   `❌ Buyurtmani bekor qilish mumkin emas\n\nSiz 30% avans to'laganingizdan so'ng, biz darhol Xitoydan buyurtmani berib, to'lovni amalga oshiramiz. Buyurtma Xitoyda to'langanidan keyin bekor qilinmaydi va pullar qaytarilmaydi.`,
       sizes:    `📏 O'lchamlar\n\nTo'g'ri o'lchamni tanlash uchun bo'yingiz, vazningiz va odatda kiygan kiyim o'lchamingizni (S, M, L, XL va h.k.) bilishingiz kerak.\n\nAgar o'z o'lchamingizni bilsangiz — mini app'da buyurtma berayotganingizda yozing.\n\n${MINI_APP_LINK}`,
-      quality:  `✅ Sifat haqida\n\nKiyimlar Xitoyning tekshirilgan sotuvchilari va fabrikalaridan buyurtma qilinadi.\n\nSifat yaxshi — kundalik foydalanish uchun mos. Lekin bu arzon narxdagi mahsulot ekanligini hisobga oling: premium yoki original brend sifatini kutmang. Narxiga mos sifat kafolatlanadi.`,
+      quality:  `✅ Sifat haqida\n\nKiyimlar Xitoyning tekshirilgan sotuvchilari va fabrikalaridan buyurtma qilinadi.\n\nSifat yaxshi — kundalik foydalanish uchun mos. Lekin bu arzon narxdagi mahsulot ekanligini hisobga oling: premium yoki original brend sifatini kutmang.`,
       payment:  `💳 To'lov usullari\n\n✅ Payme\n✅ Click`,
       looks:    `🧥 Barcha looklarni ko'rish uchun havolaga bosing:\n\n👉 ${MINI_APP_LINK}`,
     },
