@@ -22,6 +22,8 @@ import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, Che
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FadeUp, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
 
 export default function LooksPage() {
   const db = useFirestore();
@@ -184,8 +186,16 @@ export default function LooksPage() {
         </div>
 
         {/* Filter panel */}
+        <AnimatePresence>
         {showFilters && (
-          <div className="mb-4 bg-secondary/30 rounded-[1.5rem] p-5 space-y-5 border border-foreground/5">
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+          <div className="bg-secondary/30 rounded-[1.5rem] p-5 space-y-5 border border-foreground/5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-widest text-foreground/60">{t(dictionary.filter)}</span>
               <button onClick={() => setShowFilters(false)} className="w-7 h-7 rounded-full bg-foreground/5 flex items-center justify-center">
@@ -219,7 +229,9 @@ export default function LooksPage() {
               </div>
             </div>
           </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Items count + select mode */}
         <div className="flex items-center justify-between mb-4">
@@ -243,10 +255,10 @@ export default function LooksPage() {
             <Loader2 className="w-8 h-8 animate-spin neon-text" />
           </div>
         ) : viewMode === 'list' ? (
-          /* ── HORIZONTAL LIST VIEW (like right screen in photo) ── */
-          <div className="space-y-3">
+          /* ── HORIZONTAL LIST VIEW ── */
+          <StaggerContainer className="space-y-3">
             {filteredAndSortedLooks.map((look) => (
-              <div key={look.id} className="relative">
+              <StaggerItem key={look.id} className="relative">
                 <Link
                   href={isSelectMode ? '#' : `/looks/${look.id}`}
                   className="group flex gap-4 bg-secondary/30 rounded-[1.5rem] p-3 hover:bg-secondary/50 transition-all border border-transparent hover:border-foreground/5"
@@ -342,14 +354,14 @@ export default function LooksPage() {
                     )}
                   </div>
                 </Link>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         ) : (
           /* ── GRID VIEW ── */
-          <div className="grid grid-cols-2 gap-4">
+          <StaggerContainer className="grid grid-cols-2 gap-4">
             {filteredAndSortedLooks.map((look) => (
-              <div key={look.id} className="relative group">
+              <StaggerItem key={look.id} className="relative group">
                 <div className={cn(
                   "bg-secondary/30 rounded-[1.5rem] overflow-hidden border border-transparent transition-all",
                   selectedLookIds.has(look.id) && "neon-border"
@@ -420,9 +432,9 @@ export default function LooksPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         )}
 
         {/* Bulk add to cart bar */}

@@ -185,6 +185,53 @@ body {
   @apply transition-colors duration-300;
 }
 
+/* Hide default cursor on pointer-precise devices so our custom cursor shows */
+@media (pointer: fine) {
+  .fine-cursor,
+  .fine-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* Image hover distortion — subtle 3D tilt card effect */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Magnetic button hover ring */
+@keyframes ring-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--sync-shadow); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.magnetic-ring:hover {
+  animation: ring-pulse 0.6s ease-out;
+}
+
+/* Split-text entrance: each letter slides up from below */
+@keyframes letter-reveal {
+  from { transform: translateY(110%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.letter-reveal span {
+  display: inline-block;
+  overflow: hidden;
+}
+.letter-reveal span > span {
+  animation: letter-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Page entrance wipe overlay */
+@keyframes wipe-in {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+.wipe-overlay {
+  transform-origin: right;
+  animation: wipe-in 0.55s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
 .neon-text {
   color: var(--sync-color) !important;
 }
