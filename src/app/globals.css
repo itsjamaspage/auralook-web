@@ -254,4 +254,19 @@ body {
   * {
     @apply border-border;
   }
+
+  /* Prevent iOS auto-zoom on input focus — font-size must be ≥16px */
+  input, select, textarea {
+    font-size: max(16px, 1rem) !important;
+  }
+}
+
+/* Touch-action utility to eliminate 300ms double-tap delay on mobile */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Safe area padding helpers */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

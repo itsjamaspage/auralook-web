@@ -131,11 +131,11 @@ export function Navbar() {
   const BOT_URL = "https://t.me/jamastore_aibot/auralook?startapp=from_web";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-6 py-4 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-4 py-3 shadow-sm">
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
         
         <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="text-3xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
+          <span className="text-xl sm:text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             AURALOOK
           </span>
         </Link>
@@ -146,7 +146,7 @@ export function Navbar() {
             size="sm" 
             onClick={toggleFullscreen}
             className={cn(
-              "rounded-full border border-border hover:bg-secondary h-12 w-12 p-0 transition-all",
+              "rounded-full border border-border hover:bg-secondary h-11 w-11 p-0 transition-all",
               isFullscreen && "neon-border neon-text"
             )}
           >
@@ -155,7 +155,7 @@ export function Navbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full border border-border hover:bg-secondary h-12 w-12 p-0 font-black text-xs">
+              <Button variant="ghost" size="sm" className="rounded-full border border-border hover:bg-secondary h-11 w-11 p-0 font-black text-xs">
                 {lang.toUpperCase()}
               </Button>
             </DropdownMenuTrigger>
@@ -175,7 +175,7 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className={cn(
-                "rounded-full h-12 w-12 p-0 border border-border bg-secondary hover:neon-border transition-all",
+                "rounded-full h-11 w-11 p-0 border border-border bg-secondary hover:neon-border transition-all",
                 !isVerified && !isLoading && "border-primary animate-pulse"
               )}>
                 {isVerified ? (

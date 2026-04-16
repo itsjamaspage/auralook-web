@@ -146,7 +146,7 @@ export default function ProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+998 90 123 45 67"
-                className="bg-background border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm flex-grow"
+                className="bg-background border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base flex-grow"
               />
               <Button
                 onClick={handleUpdatePhone}
@@ -207,7 +207,7 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.promoteToEditor)}</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="@username or ID" value={newEditorInput} onChange={(e) => setNewEditorInput(e.target.value)} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm" />
+                  <Input placeholder="@username or ID" value={newEditorInput} onChange={(e) => setNewEditorInput(e.target.value)} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
                   <Button onClick={handleAddEditor} disabled={isAddingEditor || !newEditorInput} className="neon-bg text-white font-black px-5 rounded-xl h-11">
                     {isAddingEditor ? <Loader2 className="animate-spin w-4 h-4" /> : t(dictionary.grant)}
                   </Button>

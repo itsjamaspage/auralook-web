@@ -132,7 +132,7 @@ export default function LooksPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-8">
       <div className="max-w-2xl mx-auto px-4">
 
         {/* Search + view toggle row */}
@@ -145,7 +145,7 @@ export default function LooksPage() {
               placeholder={t(dictionary.searchPlaceholder)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-secondary/40 border-transparent h-12 rounded-2xl pl-11 pr-4 text-foreground text-sm font-medium focus:neon-border focus:bg-background transition-all"
+              className="bg-secondary/40 border-transparent h-12 rounded-2xl pl-11 pr-4 text-foreground text-base font-medium focus:neon-border focus:bg-background transition-all"
             />
           </div>
 
@@ -155,7 +155,7 @@ export default function LooksPage() {
             variant="ghost"
             size="icon"
             className={cn(
-              "h-12 w-12 rounded-2xl bg-secondary/40 border-transparent shrink-0 transition-all",
+              "h-12 w-12 rounded-2xl bg-secondary/40 border-transparent shrink-0 transition-all touch-manipulation",
               showFilters && "neon-border neon-text"
             )}
           >
@@ -167,7 +167,7 @@ export default function LooksPage() {
             <button
               onClick={() => setViewMode('list')}
               className={cn(
-                "w-9 h-10 rounded-xl flex items-center justify-center transition-all",
+                "w-11 h-10 rounded-xl flex items-center justify-center transition-all touch-manipulation",
                 viewMode === 'list' ? "neon-bg" : "text-foreground/40"
               )}
             >
@@ -176,7 +176,7 @@ export default function LooksPage() {
             <button
               onClick={() => setViewMode('grid')}
               className={cn(
-                "w-9 h-10 rounded-xl flex items-center justify-center transition-all",
+                "w-11 h-10 rounded-xl flex items-center justify-center transition-all touch-manipulation",
                 viewMode === 'grid' ? "neon-bg" : "text-foreground/40"
               )}
             >
@@ -279,7 +279,7 @@ export default function LooksPage() {
                   )}
 
                   {/* Outfit image — square, rounded */}
-                  <div className="relative w-[110px] h-[130px] rounded-[1.1rem] overflow-hidden shrink-0 bg-foreground/5">
+                  <div className="relative w-[100px] h-[120px] xs:w-[110px] xs:h-[130px] rounded-[1.1rem] overflow-hidden shrink-0 bg-foreground/5">
                     <Image
                       src={look.imageUrl || 'https://picsum.photos/seed/look/300/400'}
                       alt={look.name}
@@ -315,7 +315,7 @@ export default function LooksPage() {
                           <button
                             onClick={(e) => handleToggleLike(e, look.id)}
                             className={cn(
-                              "w-9 h-9 rounded-full border flex items-center justify-center transition-all",
+                              "w-11 h-11 rounded-full border flex items-center justify-center transition-all touch-manipulation",
                               likedLookIds.has(look.id)
                                 ? "neon-border neon-text bg-foreground/5"
                                 : "border-foreground/10 text-foreground/40 hover:border-foreground/30"
@@ -333,7 +333,7 @@ export default function LooksPage() {
                           <button
                             onClick={(e) => handleToggleCart(e, look)}
                             className={cn(
-                              "w-9 h-9 rounded-full border flex items-center justify-center transition-all",
+                              "w-11 h-11 rounded-full border flex items-center justify-center transition-all touch-manipulation",
                               cartLookIds.has(look.id)
                                 ? "neon-border neon-text bg-foreground/5"
                                 : "border-foreground/10 text-foreground/40 hover:border-foreground/30"
@@ -347,7 +347,7 @@ export default function LooksPage() {
                         </div>
 
                         {/* View detail arrow */}
-                        <div className="ml-auto w-9 h-9 rounded-full neon-bg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                        <div className="ml-auto w-11 h-11 rounded-full neon-bg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                           <ArrowRight className="w-4 h-4 text-white" />
                         </div>
                       </div>

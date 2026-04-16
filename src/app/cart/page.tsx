@@ -268,11 +268,11 @@ export default function CartPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.heightShortLabel)}</Label>
-                  <Input type="number" placeholder="175" value={orderDetails.height} onChange={e => setOrderDetails(p => ({ ...p, height: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm" />
+                  <Input type="number" placeholder="175" value={orderDetails.height} onChange={e => setOrderDetails(p => ({ ...p, height: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.weightShortLabel)}</Label>
-                  <Input type="number" placeholder="70" value={orderDetails.weight} onChange={e => setOrderDetails(p => ({ ...p, weight: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm" />
+                  <Input type="number" placeholder="70" value={orderDetails.weight} onChange={e => setOrderDetails(p => ({ ...p, weight: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
                 </div>
               </div>
               <Button onClick={() => setCheckoutStep(cartItems?.some(i => i.hasShoe) ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
@@ -283,11 +283,11 @@ export default function CartPage() {
             <div className="space-y-4 py-1">
               <div className="space-y-2">
                 <div className="flex items-center gap-2"><Phone className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.phoneNumber)}</p></div>
-                <Input placeholder="+998 90 123 45 67" value={orderDetails.phone} onChange={handlePhoneChange} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm" />
+                <Input placeholder="+998 90 123 45 67" value={orderDetails.phone} onChange={handlePhoneChange} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2"><Send className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.telegramUsername)}</p></div>
-                <Input placeholder={t(dictionary.telegramPlaceholder)} value={orderDetails.telegram} onChange={e => setOrderDetails(p => ({ ...p, telegram: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-sm" />
+                <Input placeholder={t(dictionary.telegramPlaceholder)} value={orderDetails.telegram} onChange={e => setOrderDetails(p => ({ ...p, telegram: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
               </div>
               <Button onClick={handleCheckout} disabled={isOrdering || orderDetails.phone.length < 17 || !orderDetails.telegram} className="w-full h-14 rounded-2xl neon-bg text-white font-black uppercase tracking-widest mt-1 shadow-xl">
                 {isOrdering ? <Loader2 className="animate-spin text-white" /> : t(dictionary.executePurchase)}
