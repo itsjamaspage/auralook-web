@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from 'next/link';
 import {
   Loader2,
   ChevronLeft,
@@ -36,13 +37,14 @@ import {
   X,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
+import { useFirestore, useDoc, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { collection, addDoc, serverTimestamp, doc, setDoc, query, orderBy, limit } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
 import { getProductDeepLink } from '@/lib/telegram-link';
+import { StaggerContainer, StaggerItem, FadeUp } from '@/components/motion-reveal';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'CHOOSE_SHOE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -87,6 +89,14 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const lookRef = useMemoFirebase(() => doc(db, 'looks', id), [db, id]);
   const { data: look, isLoading: lookLoading } = useDoc(lookRef);
+
+  // Related looks — latest 4 excluding current
+  const relatedQuery = useMemoFirebase(
+    () => query(collection(db, 'looks'), orderBy('createdAt', 'desc'), limit(5)),
+    [db]
+  );
+  const { data: relatedRaw } = useCollection(relatedQuery);
+  const relatedLooks = relatedRaw?.filter(l => l.id !== id).slice(0, 4) ?? [];
 
   const formatPrice = (val: number) => {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US').format(val).replace(/,/g, ' ');
@@ -353,6 +363,45 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
             )}
           </Button>
         </div>
+
+        {/* ── RELATED LOOKS ── */}
+        {relatedLooks.length > 0 && (
+          <div className="mt-8">
+            <FadeUp>
+              <h2 className="text-sm font-black uppercase tracking-widest text-foreground/50 mb-4">
+                You may also like
+              </h2>
+            </FadeUp>
+            <StaggerContainer className="grid grid-cols-2 gap-3">
+              {relatedLooks.map((rel) => (
+                <StaggerItem key={rel.id}>
+                  <Link
+                    href={`/looks/${rel.id}`}
+                    className="group block bg-secondary/30 rounded-[1.3rem] overflow-hidden border border-foreground/5 hover:border-foreground/10 transition-all"
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-t-[1.3rem]">
+                      <Image
+                        src={rel.imageUrl}
+                        alt={rel.name}
+                        fill quality={80}
+                        sizes="(max-width: 672px) 50vw, 200px"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-2.5 space-y-0.5">
+                      <h3 className="text-xs font-bold text-foreground truncate uppercase tracking-tight">{rel.name}</h3>
+                      <p className="text-xs font-black neon-text">
+                        {rel.currency === 'UZS'
+                          ? `${new Intl.NumberFormat('uz-UZ').format(rel.price).replace(/,/g, ' ')} UZS`
+                          : `$${rel.price}`}
+                      </p>
+                    </div>
+                  </Link>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
+        )}
       </div>
 
       {/* Fullscreen image viewer */}

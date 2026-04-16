@@ -10,9 +10,18 @@ import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
 import { LaneBackground } from '@/components/lane-background';
 import { SmoothScrollProvider } from '@/components/smooth-scroll';
-import { CustomCursor } from '@/components/custom-cursor';
-import { MouseGlow } from '@/components/mouse-glow';
+import dynamic from 'next/dynamic';
 import Script from 'next/script';
+
+// Lazy-load desktop-only visual effects — never blocks mobile first paint
+const CustomCursor = dynamic(
+  () => import('@/components/custom-cursor').then(m => m.CustomCursor),
+  { ssr: false }
+);
+const MouseGlow = dynamic(
+  () => import('@/components/mouse-glow').then(m => m.MouseGlow),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: 'Auralook | Techwear',
@@ -20,7 +29,7 @@ export const metadata: Metadata = {
   icons: {
     icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2262%22 x=%2250%22 font-size=%2222%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AURALOOK</text></svg>',
     shortcut: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2262%22 x=%2250%22 font-size=%2222%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AURALOOK</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2020/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2262%22 x=%2250%22 font-size=%2222%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AURALOOK</text></svg>',
+    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22black%22/><text y=%2262%22 x=%2250%22 font-size=%2222%22 font-weight=%22900%22 fill=%22%23ff0000%22 font-family=%22Arial, sans-serif%22 text-anchor=%22middle%22>AURALOOK</text></svg>',
   },
 };
 
@@ -41,8 +50,6 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LaneBackground />
-
-        {/* Desktop-only enhancements */}
         <MouseGlow />
         <CustomCursor />
 

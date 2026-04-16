@@ -12,6 +12,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FadeUp, FadeIn, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
+import { Onboarding } from '@/components/onboarding';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -70,6 +71,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
+      <Onboarding />
 
       {/* ── HERO CARD ── */}
       <section className="px-4 mb-8">
