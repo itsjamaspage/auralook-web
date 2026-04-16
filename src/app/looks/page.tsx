@@ -7,19 +7,18 @@ import { collection, query, orderBy, doc, setDoc, deleteDoc } from 'firebase/fir
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search } from 'lucide-react';
+import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search, LayoutGrid, AlignJustify, ChevronRight, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -30,13 +29,14 @@ export default function LooksPage() {
   const { user: firebaseUser, isUserLoading } = useUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
-  
+
   const [showFilters, setShowFilters] = useState(false);
   const [filterCurrency, setFilterCurrency] = useState<'ALL' | 'USD' | 'UZS'>('ALL');
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedLookIds, setSelectedLookIds] = useState<Set<string>>(new Set());
@@ -54,7 +54,7 @@ export default function LooksPage() {
     if (isUserLoading || !tgUser || !firebaseUser || !isVerified) return null;
     return collection(db, 'users', tgUser.id, 'liked_looks');
   }, [db, tgUser, firebaseUser, isUserLoading, isVerified]);
-  
+
   const { data: likedLooksData } = useCollection(likedLooksQuery ?? undefined);
   const likedLookIds = useMemo(() => new Set(likedLooksData?.map(l => l.lookId) || []), [likedLooksData]);
 
@@ -80,7 +80,7 @@ export default function LooksPage() {
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
       if (filterCurrency !== 'ALL' && (price < min || price > max)) return false;
-      
+
       return true;
     });
 
@@ -130,134 +130,332 @@ export default function LooksPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen relative pb-48">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-grow group">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-foreground/40 group-focus-within:neon-text" />
-          </div>
-          <Input 
-            placeholder={t(dictionary.searchPlaceholder)}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-background border-border h-14 rounded-2xl pl-12 pr-12 focus:neon-border text-foreground font-medium shadow-xl"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className={cn("h-14 px-6 rounded-2xl glass-surface text-foreground font-bold", showFilters && "neon-border neon-text")}>
-            <Filter className="w-4 h-4 mr-2" /> {t(dictionary.filter)}
-          </Button>
-          <Button onClick={() => setIsSelectMode(!isSelectMode)} variant="outline" className={cn("h-14 px-6 rounded-2xl glass-surface text-foreground font-bold", isSelectMode && "neon-border neon-text")}>
-            <CheckSquare className="w-4 h-4 mr-2" /> {t(dictionary.selectMultiple)}
-          </Button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background pb-32">
+      <div className="max-w-2xl mx-auto px-4">
 
-      {showFilters && (
-        <Card className="glass-surface border-border rounded-[2.5rem] p-8 space-y-10 shadow-2xl">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="space-y-4">
-              <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
-              <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-6">
-                {['ALL', 'USD', 'UZS'].map(curr => (
-                  <div key={curr} className="flex items-center space-x-2">
-                    <RadioGroupItem value={curr} id={curr} />
-                    <Label htmlFor={curr} className="text-xs font-bold text-foreground">{curr === 'ALL' ? t(dictionary.all) : curr}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
+        {/* Search + view toggle row */}
+        <div className="flex gap-3 mb-4">
+          <div className="relative flex-grow">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-foreground/40" />
             </div>
-            <div className="space-y-4">
-              <Label className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="bg-background border-border h-12 rounded-xl focus:neon-border text-foreground font-bold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="glass-surface border-border">
-                  <SelectItem value="newest">{t(dictionary.newest)}</SelectItem>
-                  <SelectItem value="price_asc">{t(dictionary.priceAsc)}</SelectItem>
-                  <SelectItem value="price_desc">{t(dictionary.priceDesc)}</SelectItem>
-                </SelectContent>
-              </Select>
+            <Input
+              placeholder={t(dictionary.searchPlaceholder)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-secondary/40 border-transparent h-12 rounded-2xl pl-11 pr-4 text-foreground text-sm font-medium focus:neon-border focus:bg-background transition-all"
+            />
+          </div>
+
+          {/* filter button */}
+          <Button
+            onClick={() => setShowFilters(!showFilters)}
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-12 w-12 rounded-2xl bg-secondary/40 border-transparent shrink-0 transition-all",
+              showFilters && "neon-border neon-text"
+            )}
+          >
+            <Filter className="w-4 h-4" />
+          </Button>
+
+          {/* view mode toggle */}
+          <div className="flex bg-secondary/40 rounded-2xl p-1 shrink-0">
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                "w-9 h-10 rounded-xl flex items-center justify-center transition-all",
+                viewMode === 'list' ? "neon-bg" : "text-foreground/40"
+              )}
+            >
+              <AlignJustify className={cn("w-4 h-4", viewMode === 'list' ? "text-white" : "")} />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                "w-9 h-10 rounded-xl flex items-center justify-center transition-all",
+                viewMode === 'grid' ? "neon-bg" : "text-foreground/40"
+              )}
+            >
+              <LayoutGrid className={cn("w-4 h-4", viewMode === 'grid' ? "text-white" : "")} />
+            </button>
+          </div>
+        </div>
+
+        {/* Filter panel */}
+        {showFilters && (
+          <div className="mb-4 bg-secondary/30 rounded-[1.5rem] p-5 space-y-5 border border-foreground/5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-widest text-foreground/60">{t(dictionary.filter)}</span>
+              <button onClick={() => setShowFilters(false)} className="w-7 h-7 rounded-full bg-foreground/5 flex items-center justify-center">
+                <X className="w-3.5 h-3.5 text-foreground/40" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              <div className="space-y-2.5">
+                <Label className="text-[10px] font-black text-foreground/50 uppercase tracking-widest">{t(dictionary.currencyUnit)}</Label>
+                <RadioGroup value={filterCurrency} onValueChange={(val: any) => setFilterCurrency(val)} className="flex gap-4">
+                  {['ALL', 'USD', 'UZS'].map(curr => (
+                    <div key={curr} className="flex items-center space-x-1.5">
+                      <RadioGroupItem value={curr} id={curr} />
+                      <Label htmlFor={curr} className="text-xs font-bold text-foreground cursor-pointer">{curr === 'ALL' ? t(dictionary.all) : curr}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              <div className="space-y-2.5">
+                <Label className="text-[10px] font-black text-foreground/50 uppercase tracking-widest">{t(dictionary.sortLabel)}</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="bg-background border-border h-10 rounded-xl text-foreground text-sm font-bold">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border">
+                    <SelectItem value="newest">{t(dictionary.newest)}</SelectItem>
+                    <SelectItem value="price_asc">{t(dictionary.priceAsc)}</SelectItem>
+                    <SelectItem value="price_desc">{t(dictionary.priceDesc)}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </Card>
-      )}
+        )}
 
-      {looksLoading ? (
-        <div className="flex justify-center p-32"><Loader2 className="w-10 h-10 animate-spin neon-text" /></div>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedLooks.map((look) => (
-            <div key={look.id} className="relative group">
-              <Card className={cn("bg-card border border-border overflow-hidden transition-all shadow-lg rounded-[2rem] relative", selectedLookIds.has(look.id) && "neon-border")}>
-                {isSelectMode && (
-                  <button onClick={() => {
+        {/* Items count + select mode */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">
+            {filteredAndSortedLooks.length} {t(dictionary.newArrivals).toLowerCase()}
+          </p>
+          <button
+            onClick={() => setIsSelectMode(!isSelectMode)}
+            className={cn(
+              "text-[10px] font-black uppercase tracking-widest transition-colors",
+              isSelectMode ? "neon-text" : "text-foreground/40"
+            )}
+          >
+            {isSelectMode ? t(dictionary.cancel) : t(dictionary.selectMultiple)}
+          </button>
+        </div>
+
+        {/* Looks list / grid */}
+        {looksLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin neon-text" />
+          </div>
+        ) : viewMode === 'list' ? (
+          /* ── HORIZONTAL LIST VIEW (like right screen in photo) ── */
+          <div className="space-y-3">
+            {filteredAndSortedLooks.map((look) => (
+              <div key={look.id} className="relative">
+                <Link
+                  href={isSelectMode ? '#' : `/looks/${look.id}`}
+                  className="group flex gap-4 bg-secondary/30 rounded-[1.5rem] p-3 hover:bg-secondary/50 transition-all border border-transparent hover:border-foreground/5"
+                  onClick={isSelectMode ? (e) => {
+                    e.preventDefault();
                     const newSet = new Set(selectedLookIds);
                     if (newSet.has(look.id)) newSet.delete(look.id); else newSet.add(look.id);
                     setSelectedLookIds(newSet);
-                  }} className="absolute top-4 left-4 z-20">
-                    {selectedLookIds.has(look.id) ? <CheckSquare className="w-6 h-6 neon-text" /> : <Square className="w-6 h-6 text-foreground/40" />}
-                  </button>
-                )}
-                <Link href={isSelectMode ? '#' : `/looks/${look.id}`} className="block relative aspect-[4/5] overflow-hidden p-1">
-                  <Image src={look.imageUrl || 'https://picsum.photos/seed/look/600/800'} alt={look.name} fill quality={100} sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.8rem]" />
-                  {!isSelectMode && (
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-                      <div className="relative">
-                        <button onClick={(e) => handleToggleLike(e, look.id)} className={cn("w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all", likedLookIds.has(look.id) ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground")}>
-                          <Heart className={cn("w-5 h-5", likedLookIds.has(look.id) && "fill-current")} />
-                        </button>
-                        {animatingLikeId === look.id && !likedLookIds.has(look.id) && <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl animate-float-up">+1</span>}
-                      </div>
-                      <div className="relative">
-                        <button onClick={(e) => handleToggleCart(e, look)} className={cn("w-10 h-10 rounded-full glass-surface border flex items-center justify-center transition-all", cartLookIds.has(look.id) ? "neon-border neon-text bg-foreground/10" : "border-foreground/10 text-foreground")}>
-                          <ShoppingCart className="w-5 h-5" />
-                        </button>
-                        {animatingCartId === look.id && !cartLookIds.has(look.id) && <span className="absolute -top-10 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl animate-float-up">+1</span>}
-                      </div>
+                  } : undefined}
+                >
+                  {/* select checkbox */}
+                  {isSelectMode && (
+                    <div className="absolute top-3 left-3 z-20">
+                      {selectedLookIds.has(look.id)
+                        ? <CheckSquare className="w-5 h-5 neon-text" />
+                        : <Square className="w-5 h-5 text-foreground/40" />}
                     </div>
                   )}
-                </Link>
-                <div className="p-4 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-black neon-text italic tracking-tighter">{look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}</span>
-                    <CheckCircle2 className="w-3 h-3 text-green-500 fill-green-500/20" />
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight italic">{look.name}</h3>
-                </div>
-              </Card>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {selectedLookIds.size > 0 && tgUser && (
-        <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10">
-          <Card className="neon-border glass-surface rounded-2xl p-4 flex items-center justify-between shadow-2xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 neon-bg rounded-xl flex items-center justify-center text-black font-black">{selectedLookIds.size}</div>
-              <p className="text-xs font-black uppercase text-foreground">{t(dictionary.itemsSelected)}</p>
+                  {/* Outfit image — square, rounded */}
+                  <div className="relative w-[110px] h-[130px] rounded-[1.1rem] overflow-hidden shrink-0 bg-foreground/5">
+                    <Image
+                      src={look.imageUrl || 'https://picsum.photos/seed/look/300/400'}
+                      alt={look.name}
+                      fill
+                      quality={90}
+                      sizes="110px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {/* price badge overlaid on image */}
+                    <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full neon-bg text-white text-[10px] font-black shadow-lg">
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                    </div>
+                  </div>
+
+                  {/* Right-side info */}
+                  <div className="flex-grow flex flex-col justify-between py-1 min-w-0">
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-black text-foreground uppercase tracking-tight leading-tight truncate">
+                        {look.name}
+                      </h3>
+                      {look.description && (
+                        <p className="text-xs text-foreground/50 font-medium leading-relaxed line-clamp-2">
+                          {look.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    {!isSelectMode && (
+                      <div className="flex items-center gap-2 mt-2">
+                        {/* Like button */}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleToggleLike(e, look.id)}
+                            className={cn(
+                              "w-9 h-9 rounded-full border flex items-center justify-center transition-all",
+                              likedLookIds.has(look.id)
+                                ? "neon-border neon-text bg-foreground/5"
+                                : "border-foreground/10 text-foreground/40 hover:border-foreground/30"
+                            )}
+                          >
+                            <Heart className={cn("w-4 h-4", likedLookIds.has(look.id) && "fill-current")} />
+                          </button>
+                          {animatingLikeId === look.id && !likedLookIds.has(look.id) && (
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                          )}
+                        </div>
+
+                        {/* Cart button */}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleToggleCart(e, look)}
+                            className={cn(
+                              "w-9 h-9 rounded-full border flex items-center justify-center transition-all",
+                              cartLookIds.has(look.id)
+                                ? "neon-border neon-text bg-foreground/5"
+                                : "border-foreground/10 text-foreground/40 hover:border-foreground/30"
+                            )}
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                          </button>
+                          {animatingCartId === look.id && !cartLookIds.has(look.id) && (
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                          )}
+                        </div>
+
+                        {/* View detail arrow */}
+                        <div className="ml-auto w-9 h-9 rounded-full neon-bg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <ArrowRight className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* ── GRID VIEW ── */
+          <div className="grid grid-cols-2 gap-4">
+            {filteredAndSortedLooks.map((look) => (
+              <div key={look.id} className="relative group">
+                <div className={cn(
+                  "bg-secondary/30 rounded-[1.5rem] overflow-hidden border border-transparent transition-all",
+                  selectedLookIds.has(look.id) && "neon-border"
+                )}>
+                  {isSelectMode && (
+                    <button
+                      onClick={() => {
+                        const newSet = new Set(selectedLookIds);
+                        if (newSet.has(look.id)) newSet.delete(look.id); else newSet.add(look.id);
+                        setSelectedLookIds(newSet);
+                      }}
+                      className="absolute top-3 left-3 z-20"
+                    >
+                      {selectedLookIds.has(look.id)
+                        ? <CheckSquare className="w-5 h-5 neon-text" />
+                        : <Square className="w-5 h-5 text-white drop-shadow" />}
+                    </button>
+                  )}
+
+                  <Link href={isSelectMode ? '#' : `/looks/${look.id}`} className="block relative aspect-[3/4] overflow-hidden rounded-t-[1.5rem]">
+                    <Image
+                      src={look.imageUrl || 'https://picsum.photos/seed/look/600/800'}
+                      alt={look.name}
+                      fill
+                      quality={90}
+                      sizes="(max-width: 672px) 50vw, 336px"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+
+                    {!isSelectMode && (
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleToggleLike(e, look.id)}
+                            className={cn(
+                              "w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border flex items-center justify-center transition-all",
+                              likedLookIds.has(look.id) ? "neon-border neon-text" : "border-foreground/10 text-foreground"
+                            )}
+                          >
+                            <Heart className={cn("w-4 h-4", likedLookIds.has(look.id) && "fill-current")} />
+                          </button>
+                          {animatingLikeId === look.id && !likedLookIds.has(look.id) && (
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleToggleCart(e, look)}
+                            className={cn(
+                              "w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm border flex items-center justify-center transition-all",
+                              cartLookIds.has(look.id) ? "neon-border neon-text" : "border-foreground/10 text-foreground"
+                            )}
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                          </button>
+                          {animatingCartId === look.id && !cartLookIds.has(look.id) && (
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </Link>
+
+                  <div className="p-3 space-y-0.5">
+                    <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight">{look.name}</h3>
+                    <p className="text-sm font-black neon-text">
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Bulk add to cart bar */}
+        {selectedLookIds.size > 0 && tgUser && (
+          <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10 max-w-2xl mx-auto">
+            <div className="neon-border bg-background/95 backdrop-blur-2xl rounded-2xl p-4 flex items-center justify-between shadow-2xl border">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 neon-bg rounded-xl flex items-center justify-center text-white font-black text-sm">{selectedLookIds.size}</div>
+                <p className="text-xs font-black uppercase text-foreground">{t(dictionary.itemsSelected)}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" onClick={() => setSelectedLookIds(new Set())} className="text-foreground/60 h-9 px-3 text-xs">{t(dictionary.cancel)}</Button>
+                <Button
+                  onClick={async () => {
+                    for (const id of Array.from(selectedLookIds)) {
+                      const look = looks?.find(l => l.id === id);
+                      if (look && !cartLookIds.has(id)) {
+                        await setDoc(doc(db, 'users', tgUser.id, 'cart', id), {
+                          lookId: id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
+                        });
+                      }
+                    }
+                    setSelectedLookIds(new Set()); setIsSelectMode(false);
+                  }}
+                  className="neon-bg text-white font-black px-4 rounded-xl h-9 text-xs"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 mr-1.5" /> {t(dictionary.addToCart)}
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => setSelectedLookIds(new Set())} className="text-foreground/60">{t(dictionary.cancel)}</Button>
-              <Button onClick={async () => {
-                for (const id of Array.from(selectedLookIds)) {
-                  const look = looks?.find(l => l.id === id);
-                  if (look && !cartLookIds.has(id)) {
-                    await setDoc(doc(db, 'users', tgUser.id, 'cart', id), {
-                      lookId: id, name: look.name, imageUrl: look.imageUrl, price: look.price, currency: look.currency || 'USD', addedAt: new Date().toISOString()
-                    });
-                  }
-                }
-                setSelectedLookIds(new Set()); setIsSelectMode(false);
-              }} className="neon-bg text-black font-black px-6 rounded-xl">
-                <ShoppingCart className="w-4 h-4 mr-2" /> {t(dictionary.addToCart)}
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
