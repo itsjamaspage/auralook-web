@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Loader2, Send, ChevronRight } from 'lucide-react';
+import { ArrowRight, Loader2, Send, ChevronRight, Info } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -74,14 +74,20 @@ export default function Home() {
       {/* ── STATIC HERO ── */}
       <FadeIn>
         <section className="px-4 pt-4 pb-6">
-          <div className="max-w-2xl mx-auto">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 mb-2">{t(dictionary.newArrivals)}</p>
-            <h1 className="text-4xl sm:text-5xl font-black italic uppercase leading-none tracking-tight text-foreground mb-4">
-              {t(dictionary.heroTitle) || 'Yangi Avlod\nKiyimlari'}
+          <div className="max-w-2xl mx-auto space-y-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">{t(dictionary.newArrivals)}</p>
+            <h1 className="text-4xl sm:text-5xl font-black italic uppercase leading-none tracking-tight text-foreground">
+              {t(dictionary.heroTitle)}
             </h1>
-            <Button asChild className="h-11 px-6 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl">
-              <Link href="/looks">{t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" /></Link>
-            </Button>
+            <p className="text-sm text-foreground/50 font-medium">{t(dictionary.heroSub)}</p>
+            <div className="flex flex-col gap-2 pt-1">
+              <Button asChild className="h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl">
+                <Link href="/looks">{t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+              <Button asChild variant="outline" className="h-12 rounded-2xl border-foreground/15 font-black uppercase text-xs tracking-widest">
+                <Link href="/about"><Info className="mr-2 w-4 h-4" />{t(dictionary.aboutUs)}</Link>
+              </Button>
+            </div>
           </div>
         </section>
       </FadeIn>
