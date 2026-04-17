@@ -118,65 +118,6 @@
   animation: float-up-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* ── Lane / Beam Background Animations ─────────────────────────── */
-@keyframes lane-sweep {
-  0%   { transform: translateX(-110vw); }
-  100% { transform: translateX(110vw); }
-}
-
-@keyframes lane-sweep-reverse {
-  0%   { transform: translateX(110vw); }
-  100% { transform: translateX(-110vw); }
-}
-
-@keyframes lane-flicker {
-  0%, 100% { opacity: var(--lane-op, 0.5); }
-  50%       { opacity: calc(var(--lane-op, 0.5) * 0.4); }
-}
-
-.lane-beam {
-  position: absolute;
-  left: 0;
-  right: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--sync-color) 30%,
-    var(--sync-color) 70%,
-    transparent 100%
-  );
-  box-shadow: 0 0 12px var(--sync-shadow), 0 0 40px var(--sync-shadow);
-  animation: lane-sweep linear infinite;
-  will-change: transform;
-}
-
-.lane-beam-rev {
-  animation-name: lane-sweep-reverse;
-}
-
-/* Light mode — very subtle, no glow */
-:root:not(.dark) .lane-beam,
-:root:not(.dark) .lane-beam-rev {
-  box-shadow: none;
-  opacity: calc(var(--lane-op, 0.5) * 0.18) !important;
-}
-
-/* Vertical static grid lines — ultra subtle */
-.lane-grid {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, var(--sync-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--sync-color) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.025;
-  animation: lane-flicker 6s ease-in-out infinite;
-}
-
-.dark .lane-grid {
-  opacity: 0.04;
-}
 
 body {
   background-color: hsl(var(--background));

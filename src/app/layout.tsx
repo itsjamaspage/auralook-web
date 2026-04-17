@@ -8,7 +8,6 @@ import { Footer } from '@/components/footer';
 import { LanguageProvider } from '@/hooks/use-language';
 import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
-import { LaneBackground } from '@/components/lane-background';
 import { SmoothScrollProvider } from '@/components/smooth-scroll';
 import { DesktopEffects } from '@/components/desktop-effects';
 import Script from 'next/script';
@@ -39,7 +38,6 @@ export default function RootLayout({
         className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col relative fine-cursor"
         suppressHydrationWarning
       >
-        <LaneBackground />
         <DesktopEffects />
 
         <Script

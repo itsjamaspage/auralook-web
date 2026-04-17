@@ -12,7 +12,6 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FadeUp, FadeIn, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
-import { Onboarding } from '@/components/onboarding';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -71,9 +70,23 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Onboarding />
 
-      {/* ── HERO CARD ── */}
+      {/* ── STATIC HERO ── */}
+      <FadeIn>
+        <section className="px-4 pt-4 pb-6">
+          <div className="max-w-2xl mx-auto">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 mb-2">{t(dictionary.newArrivals)}</p>
+            <h1 className="text-4xl sm:text-5xl font-black italic uppercase leading-none tracking-tight text-foreground mb-4">
+              {t(dictionary.heroTitle) || 'Yangi Avlod\nKiyimlari'}
+            </h1>
+            <Button asChild className="h-11 px-6 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl">
+              <Link href="/looks">{t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" /></Link>
+            </Button>
+          </div>
+        </section>
+      </FadeIn>
+
+      {/* ── FEATURED LOOK CARD ── */}
       <section className="px-4 mb-8">
         <div className="max-w-2xl mx-auto">
           {isLoading || !heroLook ? (
