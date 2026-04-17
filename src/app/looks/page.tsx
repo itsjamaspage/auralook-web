@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search, LayoutGrid, AlignJustify, ChevronRight, ArrowRight } from 'lucide-react';
+import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search, LayoutGrid, AlignJustify, ChevronRight, ArrowRight, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -132,158 +132,7 @@ export default function LooksPage() {
   };
 
   return (
-    <>
-    {/* ═══════════════════════════════════════════════════════════
-        DESKTOP WEB CATALOG — lg+ only, never shown on mobile
-    ═══════════════════════════════════════════════════════════ */}
-    <div className="hidden md:block min-h-screen bg-background pb-16">
-      <div className="max-w-7xl mx-auto px-8 py-6">
-
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-1">
-              —— {t(dictionary.browseLooks)}
-            </p>
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-              {t(dictionary.browseLooks)}
-            </h1>
-          </div>
-          <p className="text-sm text-foreground/40 font-bold uppercase tracking-widest">
-            {filteredAndSortedLooks.length} {t(dictionary.newArrivals).toLowerCase()}
-          </p>
-        </div>
-
-        {/* Controls: search + sort + currency */}
-        <div className="flex items-center gap-3 mb-10">
-          <div className="relative flex-1 max-w-sm">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-foreground/40" />
-            </div>
-            <Input
-              placeholder={t(dictionary.searchPlaceholder)}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-secondary/40 border-transparent h-12 rounded-2xl pl-11 pr-4 text-foreground font-medium focus:neon-border focus:bg-background transition-all"
-            />
-          </div>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="bg-secondary/40 border-transparent h-12 rounded-2xl w-52 text-sm font-bold text-foreground">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-background border-border">
-              <SelectItem value="newest">{t(dictionary.newest)}</SelectItem>
-              <SelectItem value="price_asc">{t(dictionary.priceAsc)}</SelectItem>
-              <SelectItem value="price_desc">{t(dictionary.priceDesc)}</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="flex gap-2 ml-auto">
-            {(['ALL', 'USD', 'UZS'] as const).map(curr => (
-              <button
-                key={curr}
-                onClick={() => setFilterCurrency(curr)}
-                className={cn(
-                  'h-12 px-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all',
-                  filterCurrency === curr
-                    ? 'neon-bg text-white shadow-lg'
-                    : 'bg-secondary/40 text-foreground/50 hover:bg-secondary/60'
-                )}
-              >
-                {curr === 'ALL' ? t(dictionary.all) : curr}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Product grid */}
-        {looksLoading ? (
-          <div className="grid grid-cols-3 xl:grid-cols-4 gap-5">
-            {Array(8).fill(0).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-foreground/5 animate-pulse" style={{ height: 340 }} />
-            ))}
-          </div>
-        ) : (
-          <StaggerContainer className="grid grid-cols-3 xl:grid-cols-4 gap-5">
-            {filteredAndSortedLooks.map((look) => (
-              <StaggerItem key={look.id}>
-                <div className="group bg-secondary/30 border border-foreground/[0.06] rounded-2xl overflow-hidden hover:shadow-lg hover:border-foreground/10 transition-all duration-300">
-
-                  {/* Image */}
-                  <div className="relative aspect-[4/3] bg-secondary/40 overflow-hidden">
-                    <Link href={`/looks/${look.id}`} className="block absolute inset-0">
-                      <Image
-                        src={look.imageUrl || ''}
-                        alt={look.name}
-                        fill
-                        quality={90}
-                        sizes="(max-width: 1280px) 33vw, 25vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </Link>
-                    {/* Heart — always visible, top-right */}
-                    <div className="absolute top-3 right-3">
-                      <button
-                        onClick={(e) => handleToggleLike(e, look.id)}
-                        className={cn(
-                          'w-9 h-9 rounded-full bg-background/90 backdrop-blur-sm border flex items-center justify-center transition-all shadow-sm',
-                          likedLookIds.has(look.id) ? 'neon-border neon-text' : 'border-foreground/15 text-foreground/50 hover:neon-border hover:neon-text'
-                        )}
-                      >
-                        <Heart className={cn('w-4 h-4', likedLookIds.has(look.id) && 'fill-current')} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Card info */}
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest neon-text leading-none mb-1">AURALOOK</p>
-                      <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2">{look.name}</h3>
-                    </div>
-
-                    {look.ratingCount > 0 && (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-current neon-text" />
-                        <span className="text-xs font-bold text-foreground/50">{(look.ratingSum / look.ratingCount).toFixed(1)}</span>
-                      </div>
-                    )}
-
-                    <p className="text-base font-black text-foreground">
-                      {look.currency === 'UZS' ? `${formatPrice(look.price)} so'm` : `$${look.price}`}
-                    </p>
-
-                    <div className="flex gap-2 pt-1">
-                      <Link
-                        href={`/looks/${look.id}`}
-                        className="flex-1 flex items-center justify-center h-9 rounded-xl border border-foreground/15 text-[11px] font-black uppercase tracking-wider text-foreground/60 hover:neon-border hover:neon-text transition-all"
-                      >
-                        {t(dictionary.viewLook)}
-                      </Link>
-                      <button
-                        onClick={(e) => handleToggleCart(e, look)}
-                        className={cn(
-                          'w-9 h-9 rounded-xl border flex items-center justify-center transition-all shrink-0',
-                          cartLookIds.has(look.id) ? 'neon-border neon-text' : 'border-foreground/15 text-foreground/50 hover:neon-border hover:neon-text'
-                        )}
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        )}
-      </div>
-    </div>
-
-    {/* ═══════════════════════════════════════════════════════════
-        MOBILE / MINI APP CATALOG — hidden on lg+, unchanged
-    ═══════════════════════════════════════════════════════════ */}
-    <div className="md:hidden min-h-screen bg-background pb-8">
+    <div className="min-h-screen bg-background pb-8">
       <div className="max-w-2xl mx-auto px-4">
 
         {/* Editorial section label */}
@@ -627,6 +476,5 @@ export default function LooksPage() {
         )}
       </div>
     </div>
-    </>
   );
 }
