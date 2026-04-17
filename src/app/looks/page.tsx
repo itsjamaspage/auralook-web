@@ -132,7 +132,172 @@ export default function LooksPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <>
+    {/* ═══════════════════════════════════════════════════════════
+        DESKTOP WEB CATALOG — lg+ only, never shown on mobile
+    ═══════════════════════════════════════════════════════════ */}
+    <div className="hidden lg:block min-h-screen bg-background pb-16">
+      <div className="max-w-7xl mx-auto px-8 py-6">
+
+        {/* Page header */}
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-1">
+              —— {t(dictionary.browseLooks)}
+            </p>
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
+              {t(dictionary.browseLooks)}
+            </h1>
+          </div>
+          <p className="text-sm text-foreground/40 font-bold uppercase tracking-widest">
+            {filteredAndSortedLooks.length} {t(dictionary.newArrivals).toLowerCase()}
+          </p>
+        </div>
+
+        {/* Controls: search + sort + currency */}
+        <div className="flex items-center gap-3 mb-10">
+          <div className="relative flex-1 max-w-sm">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-foreground/40" />
+            </div>
+            <Input
+              placeholder={t(dictionary.searchPlaceholder)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-secondary/40 border-transparent h-12 rounded-2xl pl-11 pr-4 text-foreground font-medium focus:neon-border focus:bg-background transition-all"
+            />
+          </div>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="bg-secondary/40 border-transparent h-12 rounded-2xl w-52 text-sm font-bold text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border">
+              <SelectItem value="newest">{t(dictionary.newest)}</SelectItem>
+              <SelectItem value="price_asc">{t(dictionary.priceAsc)}</SelectItem>
+              <SelectItem value="price_desc">{t(dictionary.priceDesc)}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="flex gap-2 ml-auto">
+            {(['ALL', 'USD', 'UZS'] as const).map(curr => (
+              <button
+                key={curr}
+                onClick={() => setFilterCurrency(curr)}
+                className={cn(
+                  'h-12 px-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all',
+                  filterCurrency === curr
+                    ? 'neon-bg text-white shadow-lg'
+                    : 'bg-secondary/40 text-foreground/50 hover:bg-secondary/60'
+                )}
+              >
+                {curr === 'ALL' ? t(dictionary.all) : curr}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Product grid */}
+        {looksLoading ? (
+          <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array(8).fill(0).map((_, i) => (
+              <div key={i} className="aspect-[3/4] rounded-[1.5rem] bg-foreground/5 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <StaggerContainer className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredAndSortedLooks.map((look, index) => (
+              <StaggerItem key={look.id}>
+                <div className="group relative bg-secondary/20 rounded-[1.5rem] overflow-hidden border border-transparent hover:border-foreground/10 transition-all hover:shadow-xl">
+
+                  {/* Image area */}
+                  <Link href={`/looks/${look.id}`} className="block relative aspect-[3/4] overflow-hidden">
+                    <Image
+                      src={look.imageUrl || ''}
+                      alt={look.name}
+                      fill
+                      quality={90}
+                      sizes="(max-width: 1280px) 33vw, 25vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {/* Index */}
+                    <div className="absolute top-3 left-3 text-[10px] font-mono text-white/50 font-black">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    {/* Price badge */}
+                    <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full neon-bg text-white text-[11px] font-black shadow">
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                    </div>
+                    {/* Hover action buttons */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                      <div className="relative">
+                        <button
+                          onClick={(e) => handleToggleLike(e, look.id)}
+                          className={cn(
+                            'w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border flex items-center justify-center transition-all',
+                            likedLookIds.has(look.id) ? 'neon-border neon-text' : 'border-foreground/20 text-foreground hover:neon-border hover:neon-text'
+                          )}
+                        >
+                          <Heart className={cn('w-4 h-4', likedLookIds.has(look.id) && 'fill-current')} />
+                        </button>
+                        {animatingLikeId === look.id && !likedLookIds.has(look.id) && (
+                          <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <button
+                          onClick={(e) => handleToggleCart(e, look)}
+                          className={cn(
+                            'w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border flex items-center justify-center transition-all',
+                            cartLookIds.has(look.id) ? 'neon-border neon-text' : 'border-foreground/20 text-foreground hover:neon-border hover:neon-text'
+                          )}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </button>
+                        {animatingCartId === look.id && !cartLookIds.has(look.id) && (
+                          <span className="absolute -top-8 left-1/2 -translate-x-1/2 neon-text font-black italic text-base animate-float-up">+1</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* Card info */}
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-black text-sm uppercase tracking-tight text-foreground leading-tight flex-1 truncate">
+                        {look.name}
+                      </h3>
+                      {look.ratingCount > 0 && (
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Star className="w-3 h-3 fill-current neon-text" />
+                          <span className="text-xs font-bold text-foreground/50">
+                            {(look.ratingSum / look.ratingCount).toFixed(1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-lg font-black neon-text leading-none">
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                    </p>
+                    <Link
+                      href={`/looks/${look.id}`}
+                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-foreground/10 text-[11px] font-black uppercase tracking-widest text-foreground/60 hover:neon-border hover:neon-text transition-all mt-1"
+                    >
+                      {t(dictionary.executePurchase)} <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        )}
+      </div>
+    </div>
+
+    {/* ═══════════════════════════════════════════════════════════
+        MOBILE / MINI APP CATALOG — hidden on lg+, unchanged
+    ═══════════════════════════════════════════════════════════ */}
+    <div className="lg:hidden min-h-screen bg-background pb-8">
       <div className="max-w-2xl mx-auto px-4">
 
         {/* Editorial section label */}
