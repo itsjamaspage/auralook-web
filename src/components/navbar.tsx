@@ -145,31 +145,6 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav links */}
-        <div className="hidden lg:flex items-center gap-1">
-          {[
-            { href: '/looks',     icon: Compass,       label: t(dictionary.browseLooks) },
-            { href: '/favorites', icon: Heart,         label: t(dictionary.favorites) },
-            { href: '/cart',      icon: ShoppingCart,  label: t(dictionary.cart) },
-            { href: '/orders',    icon: Package,       label: t(dictionary.myOrders) },
-          ].map(({ href, icon: Icon, label }) => {
-            const active = pathname === href || (href !== '/' && pathname.startsWith(href));
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all',
-                  active ? 'neon-text bg-foreground/5' : 'text-foreground/50 hover:text-foreground hover:bg-foreground/5'
-                )}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
@@ -228,12 +203,25 @@ export function Navbar() {
                 )}
               </div>
               
-              <Link href="/looks">
-                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
-                  <Compass className="w-5 h-5 neon-text" />
-                  <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
-                </DropdownMenuItem>
-              </Link>
+              {[
+                { href: '/looks',     icon: Compass,      label: t(dictionary.browseLooks) },
+                { href: '/favorites', icon: Heart,        label: t(dictionary.favorites) },
+                { href: '/cart',      icon: ShoppingCart, label: t(dictionary.cart) },
+                { href: '/orders',    icon: Package,      label: t(dictionary.myOrders) },
+              ].map(({ href, icon: Icon, label }) => {
+                const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+                return (
+                  <Link key={href} href={href}>
+                    <DropdownMenuItem className={cn(
+                      'flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer',
+                      active && 'bg-secondary'
+                    )}>
+                      <Icon className={cn('w-5 h-5', active ? 'neon-text' : 'text-foreground/60')} />
+                      <span className={cn('font-bold text-xs uppercase tracking-widest', active && 'neon-text')}>{label}</span>
+                    </DropdownMenuItem>
+                  </Link>
+                );
+              })}
 
               {isAdmin && (
                 <Link href="/admin">

@@ -218,7 +218,7 @@ export default function Home() {
         </section>
 
         {/* ── DESKTOP: full looks grid ── */}
-        <section className="hidden lg:block pt-16 pb-8 mb-10">
+        <section className="hidden lg:block pt-16 pb-8 mb-14">
           <FadeUp>
             <div className="flex items-center justify-between mb-6">
               <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
@@ -259,14 +259,14 @@ export default function Home() {
         </section>
 
         {/* ── FEATURE PANELS ── */}
-        <section className="px-4 mb-12 lg:px-0">
+        <section className="px-4 mb-14 lg:px-0">
           <FadeUp>
             <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
               —— {t(dictionary.whatWeStandFor)}
             </p>
           </FadeUp>
 
-          <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
             {featurePanels.map((panel) => (
               <StaggerItem key={panel.num}>
                 <div className={cn(
