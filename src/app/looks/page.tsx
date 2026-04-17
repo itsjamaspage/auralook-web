@@ -135,6 +135,11 @@ export default function LooksPage() {
     <div className="min-h-screen bg-background pb-8">
       <div className="max-w-2xl mx-auto px-4">
 
+        {/* Editorial section label */}
+        <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-4">
+          —— {t(dictionary.browseLooks)}
+        </p>
+
         {/* Search + view toggle row */}
         <div className="flex gap-3 mb-4">
           <div className="relative flex-grow">
@@ -257,7 +262,7 @@ export default function LooksPage() {
         ) : viewMode === 'list' ? (
           /* ── HORIZONTAL LIST VIEW ── */
           <StaggerContainer className="space-y-3">
-            {filteredAndSortedLooks.map((look) => (
+            {filteredAndSortedLooks.map((look, index) => (
               <StaggerItem key={look.id} className="relative">
                 <Link
                   href={isSelectMode ? '#' : `/looks/${look.id}`}
@@ -296,7 +301,8 @@ export default function LooksPage() {
 
                   {/* Right-side info */}
                   <div className="flex-grow flex flex-col justify-between py-1 min-w-0">
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] font-mono text-foreground/25">#{String(index + 1).padStart(3, '0')}</p>
                       <h3 className="text-sm font-black text-foreground uppercase tracking-tight leading-tight truncate">
                         {look.name}
                       </h3>
@@ -360,7 +366,7 @@ export default function LooksPage() {
         ) : (
           /* ── GRID VIEW ── */
           <StaggerContainer className="grid grid-cols-2 gap-4">
-            {filteredAndSortedLooks.map((look) => (
+            {filteredAndSortedLooks.map((look, index) => (
               <StaggerItem key={look.id} className="relative group">
                 <div className={cn(
                   "bg-secondary/30 rounded-[1.5rem] overflow-hidden border border-transparent transition-all",
@@ -426,6 +432,7 @@ export default function LooksPage() {
                   </Link>
 
                   <div className="p-3 space-y-0.5">
+                    <p className="text-[9px] font-mono text-foreground/25">#{String(index + 1).padStart(3, '0')}</p>
                     <h3 className="text-sm font-bold text-foreground truncate uppercase tracking-tight">{look.name}</h3>
                     <p className="text-sm font-black neon-text">
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
