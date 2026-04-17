@@ -207,6 +207,15 @@ body {
   touch-action: manipulation;
 }
 
+/* Hide scrollbar for horizontal strips */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Safe area padding helpers */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
