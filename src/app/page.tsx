@@ -94,7 +94,7 @@ export default function Home() {
               transition={{ duration: 0.75, delay: i * 0.13, ease }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter px-2',
-                'text-[22vw] sm:text-[17vw]',
+                'text-[16vw] sm:text-[17vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
