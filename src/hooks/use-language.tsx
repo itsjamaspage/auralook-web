@@ -529,6 +529,8 @@ const dictionary = {
     en: '© 2026 Auralook. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
+  viewLook: { uz: 'Ko\'rish', ru: 'Смотреть', en: 'View' },
+  routing: { uz: 'Yo\'naltirilmoqda...', ru: 'Перенаправление...', en: 'Routing...' },
 };
 
 interface LanguageContextType {

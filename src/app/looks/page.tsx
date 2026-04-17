@@ -136,7 +136,7 @@ export default function LooksPage() {
     {/* ═══════════════════════════════════════════════════════════
         DESKTOP WEB CATALOG — lg+ only, never shown on mobile
     ═══════════════════════════════════════════════════════════ */}
-    <div className="hidden lg:block min-h-screen bg-background pb-16">
+    <div className="hidden md:block min-h-screen bg-background pb-16">
       <div className="max-w-7xl mx-auto px-8 py-6">
 
         {/* Page header */}
@@ -259,7 +259,7 @@ export default function LooksPage() {
                         href={`/looks/${look.id}`}
                         className="flex-1 flex items-center justify-center h-9 rounded-xl border border-foreground/15 text-[11px] font-black uppercase tracking-wider text-foreground/60 hover:neon-border hover:neon-text transition-all"
                       >
-                        {t(dictionary.executePurchase)}
+                        {t(dictionary.viewLook)}
                       </Link>
                       <button
                         onClick={(e) => handleToggleCart(e, look)}
@@ -283,7 +283,7 @@ export default function LooksPage() {
     {/* ═══════════════════════════════════════════════════════════
         MOBILE / MINI APP CATALOG — hidden on lg+, unchanged
     ═══════════════════════════════════════════════════════════ */}
-    <div className="lg:hidden min-h-screen bg-background pb-8">
+    <div className="md:hidden min-h-screen bg-background pb-8">
       <div className="max-w-2xl mx-auto px-4">
 
         {/* Editorial section label */}
