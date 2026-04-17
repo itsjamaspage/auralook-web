@@ -523,12 +523,20 @@ const dictionary = {
   weightShortLabel: { uz: 'Vazn (kg)', ru: 'Вес (кг)', en: 'Weight (kg)' },
 
   // Footer
-  allRightsReserved: { 
+  allRightsReserved: {
     uz: '© 2026 Auralook. Barcha huquqlar himoyalangan.',
     ru: '© 2026 Auralook. Все права защищены.',
     en: '© 2026 Auralook. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
+
+  // Order Tracking
+  trackingNumber:  { uz: 'Kuzatuv raqami',              ru: 'Трек-номер',            en: 'Tracking No.' },
+  addTracking:     { uz: 'Raqam kiriting...',            ru: 'Введите номер...',      en: 'Enter tracking no.' },
+  trackPackage:    { uz: 'Yukni kuzatish',               ru: 'Отследить посылку',     en: 'Track Package' },
+  trackingAdded:   { uz: 'Kuzatuv raqami saqlandi',      ru: 'Трек-номер сохранён',   en: 'Tracking saved' },
+  saveLabel:       { uz: 'Saqlash',                      ru: 'Сохранить',             en: 'Save' },
+  trackingPending: { uz: 'Kuzatuv raqami hali yo\'q',    ru: 'Трек-номер ещё не добавлен', en: 'Tracking not yet added' },
 };
 
 interface LanguageContextType {
