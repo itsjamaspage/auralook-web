@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Star, User2, EyeOff, Loader2, X, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useFirebase } from '@/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, increment, query, orderBy } from 'firebase/firestore';
+import { useUser, useFirebase } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useLanguage } from '@/hooks/use-language';
@@ -55,13 +54,14 @@ function StarRow({
 }
 
 export function RatingsSection({ lookId }: { lookId: string }) {
-  const db = useFirestore();
   const { storage } = useFirebase();
   const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser } = useUser();
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
 
+  const [ratings, setRatings] = useState<any[]>([]);
+  const [loadingRatings, setLoadingRatings] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [stars, setStars] = useState(0);
   const [hoverStar, setHoverStar] = useState(0);
@@ -71,14 +71,24 @@ export function RatingsSection({ lookId }: { lookId: string }) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const ratingsQuery = useMemoFirebase(
-    () => query(collection(db, 'looks', lookId, 'ratings'), orderBy('createdAt', 'desc')),
-    [db, lookId]
-  );
-  const { data: ratings } = useCollection(ratingsQuery);
+  const fetchRatings = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/ratings?lookId=${encodeURIComponent(lookId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRatings(data.ratings || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingRatings(false);
+    }
+  }, [lookId]);
+
+  useEffect(() => { fetchRatings(); }, [fetchRatings]);
 
   const avgStars =
-    ratings && ratings.length > 0
+    ratings.length > 0
       ? ratings.reduce((sum, r) => sum + (r.stars || 0), 0) / ratings.length
       : 0;
 
@@ -100,23 +110,24 @@ export function RatingsSection({ lookId }: { lookId: string }) {
         photoUrl = await getDownloadURL(storageRef);
       }
 
-      await addDoc(collection(db, 'looks', lookId, 'ratings'), {
-        userId: firebaseUser.uid,
-        telegramId: tgUser?.telegramId ?? null,
-        telegramUsername: anonymous ? null : (tgUser?.username ? `@${tgUser.username}` : null),
-        telegramPhoto: anonymous ? null : (tgUser?.photoUrl ?? null),
-        displayName: anonymous ? null : (tgUser?.firstName ?? null),
-        anonymous,
-        stars,
-        text: text.trim(),
-        photoUrl,
-        createdAt: serverTimestamp(),
+      const res = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lookId,
+          stars,
+          text: text.trim(),
+          anonymous,
+          photoUrl,
+          userId: firebaseUser.uid,
+          telegramId: tgUser?.telegramId ?? null,
+          telegramUsername: anonymous ? null : (tgUser?.username ? `@${tgUser.username}` : null),
+          telegramPhoto: anonymous ? null : (tgUser?.photoUrl ?? null),
+          displayName: anonymous ? null : (tgUser?.firstName ?? null),
+        }),
       });
 
-      await updateDoc(doc(db, 'looks', lookId), {
-        ratingCount: increment(1),
-        ratingSum: increment(stars),
-      });
+      if (!res.ok) throw new Error('Submit failed');
 
       toast({ title: t(dictionary.ratingSubmitted) });
       setShowForm(false);
@@ -125,6 +136,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
       setPhoto(null);
       setPhotoPreview(null);
       setAnonymous(false);
+      await fetchRatings();
     } catch (e) {
       console.error(e);
       toast({ variant: 'destructive', title: t(dictionary.errorTitle) });
@@ -135,7 +147,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
 
   const formatDate = (d: any) => {
     if (!d) return '';
-    const date = d.seconds ? d.toDate() : new Date(d);
+    const date = typeof d === 'string' ? new Date(d) : d.seconds ? d.toDate() : new Date(d);
     return new Intl.DateTimeFormat('uz-UZ', { month: 'short', day: '2-digit' }).format(date);
   };
 
@@ -146,7 +158,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
         <div className="flex items-center gap-2.5">
           <StarRow value={Math.round(avgStars)} size="md" />
           <span className="text-xs font-black text-foreground/50">
-            {ratings && ratings.length > 0
+            {ratings.length > 0
               ? `${avgStars.toFixed(1)} · ${ratings.length} ${t(dictionary.ratingsLabel)}`
               : t(dictionary.noRatingsYet)}
           </span>
@@ -215,21 +227,13 @@ export function RatingsSection({ lookId }: { lookId: string }) {
                   <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide">
                     {t(dictionary.addPhoto)}
                   </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoChange}
-                  />
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
                 </label>
                 {photoPreview && (
                   <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                     <Image src={photoPreview} alt="preview" fill className="object-cover" sizes="48px" />
                     <button
-                      onClick={() => {
-                        setPhoto(null);
-                        setPhotoPreview(null);
-                      }}
+                      onClick={() => { setPhoto(null); setPhotoPreview(null); }}
                       className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3 text-white" />
@@ -246,9 +250,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
                 <div
                   className={cn(
                     'w-9 h-9 rounded-xl border flex items-center justify-center transition-all shrink-0',
-                    anonymous
-                      ? 'neon-border neon-text'
-                      : 'border-foreground/10 text-foreground/40'
+                    anonymous ? 'neon-border neon-text' : 'border-foreground/10 text-foreground/40'
                   )}
                 >
                   {anonymous ? <EyeOff className="w-4 h-4" /> : <User2 className="w-4 h-4" />}
@@ -263,17 +265,12 @@ export function RatingsSection({ lookId }: { lookId: string }) {
                 </div>
               </button>
 
-              {/* Submit */}
               <Button
                 onClick={handleSubmit}
                 disabled={!stars || submitting}
                 className="w-full h-11 rounded-2xl neon-bg text-white font-black text-xs uppercase tracking-widest"
               >
-                {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  t(dictionary.submitRating)
-                )}
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t(dictionary.submitRating)}
               </Button>
             </div>
           </motion.div>
@@ -281,7 +278,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
       </AnimatePresence>
 
       {/* Reviews list */}
-      {ratings && ratings.length > 0 && (
+      {ratings.length > 0 && (
         <div className="space-y-3">
           {ratings.map((r) => (
             <div
@@ -291,20 +288,13 @@ export function RatingsSection({ lookId }: { lookId: string }) {
               <div className="flex items-start gap-2.5">
                 {!r.anonymous && r.telegramPhoto ? (
                   <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0 border border-foreground/10">
-                    <Image
-                      src={r.telegramPhoto}
-                      alt="avatar"
-                      fill
-                      className="object-cover"
-                      sizes="32px"
-                    />
+                    <Image src={r.telegramPhoto} alt="avatar" fill className="object-cover" sizes="32px" />
                   </div>
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-foreground/5 border border-foreground/10 flex items-center justify-center shrink-0">
                     <User2 className="w-4 h-4 text-foreground/30" />
                   </div>
                 )}
-
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-xs font-black text-foreground truncate">
@@ -312,23 +302,16 @@ export function RatingsSection({ lookId }: { lookId: string }) {
                         ? t(dictionary.anonymous)
                         : r.telegramUsername || r.displayName || t(dictionary.anonymous)}
                     </p>
-                    <span className="text-[9px] text-foreground/30 shrink-0">
-                      {formatDate(r.createdAt)}
-                    </span>
+                    <span className="text-[9px] text-foreground/30 shrink-0">{formatDate(r.createdAt)}</span>
                   </div>
                   <StarRow value={r.stars || 0} size="sm" />
                 </div>
               </div>
-
               {r.text && (
                 <p className="text-xs text-foreground/70 font-medium leading-relaxed">{r.text}</p>
               )}
-
               {r.photoUrl && (
-                <div
-                  className="relative rounded-xl overflow-hidden"
-                  style={{ aspectRatio: '4/3', maxHeight: 200 }}
-                >
+                <div className="relative rounded-xl overflow-hidden" style={{ aspectRatio: '4/3', maxHeight: 200 }}>
                   <Image
                     src={r.photoUrl}
                     alt="review photo"
