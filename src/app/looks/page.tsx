@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search, LayoutGrid, AlignJustify, ChevronRight, ArrowRight } from 'lucide-react';
+import { Loader2, Heart, Filter, CheckCircle2, X, ArrowUpDown, ShoppingCart, CheckSquare, Square, Search, LayoutGrid, AlignJustify, ChevronRight, ArrowRight, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -311,6 +311,14 @@ export default function LooksPage() {
                           {look.description}
                         </p>
                       )}
+                      {look.ratingCount > 0 && (
+                        <div className="flex items-center gap-1 pt-0.5">
+                          <Star className="w-2.5 h-2.5 fill-current neon-text" />
+                          <span className="text-[9px] font-bold text-foreground/50">
+                            {(look.ratingSum / look.ratingCount).toFixed(1)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Action buttons */}
@@ -437,6 +445,14 @@ export default function LooksPage() {
                     <p className="text-sm font-black neon-text">
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
                     </p>
+                    {look.ratingCount > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Star className="w-2.5 h-2.5 fill-current neon-text" />
+                        <span className="text-[9px] font-bold text-foreground/50">
+                          {(look.ratingSum / look.ratingCount).toFixed(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </StaggerItem>

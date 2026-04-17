@@ -10,7 +10,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: var(--sync-hue) 100% 50%;
+    --primary: var(--sync-hue) 100% var(--sync-lightness);
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -22,7 +22,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: var(--sync-hue) 100% 50%;
+    --ring: var(--sync-hue) 100% var(--sync-lightness);
     --radius: 1.5rem;
   }
 
@@ -33,7 +33,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: var(--sync-hue) 100% 50%;
+    --primary: var(--sync-hue) 100% var(--sync-lightness);
     --primary-foreground: 0 0% 9%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -45,7 +45,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: var(--sync-hue) 100% 50%;
+    --ring: var(--sync-hue) 100% var(--sync-lightness);
   }
 }
 
@@ -53,6 +53,12 @@
 @property --sync-hue {
   syntax: '<number>';
   initial-value: 0;
+  inherits: true;
+}
+
+@property --sync-lightness {
+  syntax: '<percentage>';
+  initial-value: 50%;
   inherits: true;
 }
 
@@ -71,19 +77,18 @@
 /*
   7-Color smooth cycle:
   Red → Orange → Green → Cyan → Blue → Violet → Magenta → Red
-  Each color gets equal screen time, CSS interpolates smoothly between them.
-  Both --sync-hue (for --primary) and --sync-color (for neon-* classes)
-  are animated directly so every element updates at once.
+  --sync-lightness mirrors the lightness in --sync-color so that
+  hsl(var(--primary)) and ring-ring always match neon-* exactly.
 */
 @keyframes color-sync {
-  0%      { --sync-hue: 0;   --sync-color: hsl(0,   100%, 50%); --sync-shadow: hsla(0,   100%, 50%, 0.45); }
-  14.28%  { --sync-hue: 30;  --sync-color: hsl(30,  100%, 50%); --sync-shadow: hsla(30,  100%, 50%, 0.45); }
-  28.57%  { --sync-hue: 145; --sync-color: hsl(145, 100%, 40%); --sync-shadow: hsla(145, 100%, 40%, 0.45); }
-  42.85%  { --sync-hue: 190; --sync-color: hsl(190, 100%, 50%); --sync-shadow: hsla(190, 100%, 50%, 0.45); }
-  57.14%  { --sync-hue: 225; --sync-color: hsl(225, 100%, 60%); --sync-shadow: hsla(225, 100%, 60%, 0.45); }
-  71.42%  { --sync-hue: 275; --sync-color: hsl(275, 100%, 60%); --sync-shadow: hsla(275, 100%, 60%, 0.45); }
-  85.71%  { --sync-hue: 315; --sync-color: hsl(315, 100%, 55%); --sync-shadow: hsla(315, 100%, 55%, 0.45); }
-  100%    { --sync-hue: 360; --sync-color: hsl(360, 100%, 50%); --sync-shadow: hsla(360, 100%, 50%, 0.45); }
+  0%      { --sync-hue: 0;   --sync-lightness: 50%; --sync-color: hsl(0,   100%, 50%); --sync-shadow: hsla(0,   100%, 50%, 0.45); }
+  14.28%  { --sync-hue: 30;  --sync-lightness: 50%; --sync-color: hsl(30,  100%, 50%); --sync-shadow: hsla(30,  100%, 50%, 0.45); }
+  28.57%  { --sync-hue: 145; --sync-lightness: 40%; --sync-color: hsl(145, 100%, 40%); --sync-shadow: hsla(145, 100%, 40%, 0.45); }
+  42.85%  { --sync-hue: 190; --sync-lightness: 50%; --sync-color: hsl(190, 100%, 50%); --sync-shadow: hsla(190, 100%, 50%, 0.45); }
+  57.14%  { --sync-hue: 225; --sync-lightness: 60%; --sync-color: hsl(225, 100%, 60%); --sync-shadow: hsla(225, 100%, 60%, 0.45); }
+  71.42%  { --sync-hue: 275; --sync-lightness: 60%; --sync-color: hsl(275, 100%, 60%); --sync-shadow: hsla(275, 100%, 60%, 0.45); }
+  85.71%  { --sync-hue: 315; --sync-lightness: 55%; --sync-color: hsl(315, 100%, 55%); --sync-shadow: hsla(315, 100%, 55%, 0.45); }
+  100%    { --sync-hue: 360; --sync-lightness: 50%; --sync-color: hsl(360, 100%, 50%); --sync-shadow: hsla(360, 100%, 50%, 0.45); }
 }
 
 :root {
@@ -123,6 +128,7 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: var(--sync-shadow);
   @apply transition-colors duration-300;
 }
 

@@ -537,6 +537,20 @@ const dictionary = {
   trackingAdded:   { uz: 'Kuzatuv raqami saqlandi',      ru: 'Трек-номер сохранён',   en: 'Tracking saved' },
   saveLabel:       { uz: 'Saqlash',                      ru: 'Сохранить',             en: 'Save' },
   trackingPending: { uz: 'Kuzatuv raqami hali yo\'q',    ru: 'Трек-номер ещё не добавлен', en: 'Tracking not yet added' },
+
+  // Ratings & Reviews
+  rateThisLook:    { uz: 'Bu libosni baholang',                    ru: 'Оцените этот образ',                   en: 'Rate this look' },
+  leaveRating:     { uz: 'Baholash',                               ru: 'Оставить отзыв',                       en: 'Leave Review' },
+  submitRating:    { uz: 'Yuborish',                               ru: 'Отправить',                            en: 'Submit' },
+  ratingPlaceholder: { uz: 'Fikringizni yozing...',                ru: 'Напишите свой отзыв...',                en: 'Write your review...' },
+  addPhoto:        { uz: "Rasm qo'shish",                          ru: 'Добавить фото',                        en: 'Add Photo' },
+  anonymous:       { uz: 'Anonim',                                 ru: 'Анонимно',                             en: 'Anonymous' },
+  showProfile:     { uz: "Profilni ko'rsatish",                    ru: 'Показать профиль',                     en: 'Show Profile' },
+  anonymousHint:   { uz: "Ismingiz ko'rinmaydi",                   ru: 'Имя не будет видно',                   en: "Your name won't be shown" },
+  showProfileHint: { uz: "Telegram profilingiz ko'rinadi",         ru: 'Будет виден ваш профиль Telegram',     en: 'Your Telegram profile will be shown' },
+  ratingsLabel:    { uz: 'ta baho',                                ru: 'отзывов',                              en: 'reviews' },
+  noRatingsYet:    { uz: "Hali baholar yo'q",                      ru: 'Отзывов ещё нет',                      en: 'No reviews yet' },
+  ratingSubmitted: { uz: 'Bahoyingiz qabul qilindi!',              ru: 'Ваш отзыв принят!',                    en: 'Review submitted!' },
 };
 
 interface LanguageContextType {
