@@ -76,11 +76,11 @@ export default function Home() {
       {/* ── EDITORIAL HERO ── */}
       <section className="
         min-h-[100svh] flex flex-col justify-between px-4 pb-8 pt-2
-        lg:min-h-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-12 lg:items-center
-        lg:max-w-7xl lg:mx-auto lg:px-12 lg:py-20
+        lg:min-h-0 lg:flex lg:flex-col lg:justify-start
+        lg:max-w-7xl lg:mx-auto lg:px-12 lg:py-20 lg:gap-12
       ">
 
-        {/* Left: hero content */}
+        {/* Hero content */}
         <div className="flex flex-col justify-between min-h-[100svh] lg:min-h-0 lg:gap-10 lg:justify-start">
 
           <FadeIn>
@@ -133,40 +133,6 @@ export default function Home() {
           </FadeUp>
         </div>
 
-        {/* Right: featured looks grid (desktop only) */}
-        <div className="hidden lg:grid grid-cols-2 gap-3">
-          {(isLoading ? Array(4).fill(null) : (featuredLooks ?? []).slice(0, 4)).map((look, i) =>
-            look ? (
-              <motion.div
-                key={look.id}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.3 + i * 0.1, ease }}
-              >
-                <Link href={`/looks/${look.id}`} className="group block">
-                  <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-foreground/5">
-                    <Image
-                      src={look.imageUrl}
-                      alt={look.name}
-                      fill
-                      quality={85}
-                      sizes="240px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-full neon-bg text-white text-[10px] font-black shadow">
-                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
-                    </div>
-                  </div>
-                  <p className="text-[11px] font-black uppercase mt-2 truncate tracking-tight text-foreground">
-                    {look.name}
-                  </p>
-                </Link>
-              </motion.div>
-            ) : (
-              <div key={i} className="aspect-[2/3] rounded-2xl bg-foreground/5 animate-pulse" />
-            )
-          )}
-        </div>
       </section>
 
       {/* ── TICKER ── */}
@@ -194,8 +160,8 @@ export default function Home() {
 
       <div className="lg:max-w-7xl lg:mx-auto lg:px-12">
 
-        {/* ── NUMBERED LOOKS STRIP — mobile only (shown in hero on desktop) ── */}
-        <section className="pt-8 pb-4 mb-2 lg:hidden">
+        {/* ── NUMBERED LOOKS STRIP — mobile only ── */}
+        <section className="pt-10 pb-6 mb-6 lg:hidden">
           <FadeUp>
             <div className="flex items-center justify-between px-4 mb-4">
               <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
@@ -252,7 +218,7 @@ export default function Home() {
         </section>
 
         {/* ── DESKTOP: full looks grid ── */}
-        <section className="hidden lg:block pt-12 pb-4 mb-2">
+        <section className="hidden lg:block pt-16 pb-8 mb-10">
           <FadeUp>
             <div className="flex items-center justify-between mb-6">
               <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
@@ -293,7 +259,7 @@ export default function Home() {
         </section>
 
         {/* ── FEATURE PANELS ── */}
-        <section className="px-4 mb-8 lg:px-0">
+        <section className="px-4 mb-12 lg:px-0">
           <FadeUp>
             <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
               —— {t(dictionary.whatWeStandFor)}
@@ -334,7 +300,7 @@ export default function Home() {
           <FadeUp delay={0.15}>
             <Button
               asChild
-              className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-3 magnetic-ring lg:max-w-sm lg:mx-auto lg:flex"
+              className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-8 magnetic-ring lg:max-w-sm lg:mx-auto lg:flex"
             >
               <Link href="/looks">
                 {t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" />
@@ -345,7 +311,7 @@ export default function Home() {
 
         {/* ── TELEGRAM CTA ── */}
         <FadeUp delay={0.05}>
-          <section className="px-4 mb-10 lg:px-0 lg:max-w-2xl lg:mx-auto">
+          <section className="px-4 mb-12 mt-2 lg:px-0 lg:max-w-2xl lg:mx-auto">
             <div className="relative overflow-hidden rounded-[2rem] bg-secondary/30 border border-foreground/5 p-7 shadow-sm">
               <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-4">
                 —— {t(dictionary.orderViaTelegram)}
