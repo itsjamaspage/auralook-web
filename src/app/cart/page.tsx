@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -7,17 +6,18 @@ import { collection, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/fi
 import { useLanguage } from '@/hooks/use-language';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, Ruler, Sparkles, Globe } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, Ruler, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { notifyAdminOfBatchOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FadeUp, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
 
 type CheckoutStep = 'CHOOSE_SIZE' | 'CHOOSE_SHOE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -34,19 +34,14 @@ export default function CartPage() {
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>('CHOOSE_SIZE');
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedShoeSize, setSelectedShoeSize] = useState('');
-  const [orderDetails, setOrderDetails] = useState({
-    height: '',
-    weight: '',
-    phone: '+998 ',
-    telegram: ''
-  });
+  const [orderDetails, setOrderDetails] = useState({ height: '', weight: '', phone: '+998 ', telegram: '' });
 
   useEffect(() => {
     if (tgUser && isVerified) {
       setOrderDetails(prev => ({
         ...prev,
         telegram: tgUser.username ? `@${tgUser.username.replace('@', '')}` : prev.telegram,
-        phone: tgUser.phone || prev.phone
+        phone: tgUser.phone || prev.phone,
       }));
     }
   }, [tgUser, isVerified]);
@@ -61,114 +56,70 @@ export default function CartPage() {
   const totals = useMemo(() => {
     if (!cartItems) return { usd: 0, uzs: 0 };
     return cartItems.reduce((acc, item) => {
-      const price = Number(item.price || 0);
-      if (item.currency === 'UZS') acc.uzs += price;
-      else acc.usd += price;
+      if (item.currency === 'UZS') acc.uzs += Number(item.price || 0);
+      else acc.usd += Number(item.price || 0);
       return acc;
     }, { usd: 0, uzs: 0 });
   }, [cartItems]);
 
   const handleRemove = async (itemId: string) => {
     if (!tgUser) return;
-    try {
-      await deleteDoc(doc(db, 'users', tgUser.id, 'cart', itemId));
-    } catch (e) { console.error(e); }
+    await deleteDoc(doc(db, 'users', tgUser.id, 'cart', itemId)).catch(console.error);
   };
 
-  const formatPrice = (val: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
-  };
+  const formatPrice = (val: number) => new Intl.NumberFormat('uz-UZ').format(val).replace(/,/g, ' ');
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (!val.startsWith('+998')) {
-      setOrderDetails(prev => ({ ...prev, phone: '+998 ' }));
-      return;
-    }
+    if (!val.startsWith('+998')) { setOrderDetails(p => ({ ...p, phone: '+998 ' })); return; }
     const digits = val.substring(4).replace(/\D/g, '').substring(0, 9);
     let res = '+998';
     if (digits.length > 0) res += ' ' + digits.substring(0, 2);
     if (digits.length > 2) res += ' ' + digits.substring(2, 5);
     if (digits.length > 5) res += ' ' + digits.substring(5, 7);
     if (digits.length > 7) res += ' ' + digits.substring(7, 9);
-    setOrderDetails(prev => ({ ...prev, phone: res }));
+    setOrderDetails(p => ({ ...p, phone: res }));
   };
 
   const handleCheckout = async () => {
     if (orderDetails.phone.length < 17 || !orderDetails.telegram || !tgUser || !firebaseUser || !cartItems) return;
-
     setIsOrdering(true);
     try {
       const timestamp = new Date().toLocaleString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US');
-      
       const orderIds: string[] = [];
       const itemsForAdmin: any[] = [];
 
       for (const item of cartItems) {
         const orderData = {
-          userId: firebaseUser.uid,
-          firebaseUid: firebaseUser.uid,
-          telegramId: tgUser.id,
+          userId: firebaseUser.uid, firebaseUid: firebaseUser.uid, telegramId: tgUser.id,
           customerName: tgUser.firstName || orderDetails.telegram,
-          orderDate: new Date().toISOString(),
-          status: 'New',
-          totalAmount: item.price,
-          currency: item.currency || 'USD',
-          lookId: item.lookId,
-          lookName: item.name,
-          lookImageUrl: item.imageUrl,
+          orderDate: new Date().toISOString(), status: 'New',
+          totalAmount: item.price, currency: item.currency || 'USD',
+          lookId: item.lookId, lookName: item.name, lookImageUrl: item.imageUrl,
           size: selectedSize || `M (${t(dictionary.managerAdviceLabel)})`,
           ...(item.hasShoe && { shoeSize: selectedShoeSize || t(dictionary.managerAdviceLabel) }),
-          phoneNumber: orderDetails.phone,
-          telegramUsername: orderDetails.telegram,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          measurements: {
-            height: orderDetails.height || 'Noma\'lum',
-            weight: orderDetails.weight || 'Noma\'lum',
-          }
+          phoneNumber: orderDetails.phone, telegramUsername: orderDetails.telegram,
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+          measurements: { height: orderDetails.height || "Noma'lum", weight: orderDetails.weight || "Noma'lum" },
         };
-
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         orderIds.push(docRef.id);
-        itemsForAdmin.push({
-          productName: item.name,
-          size: orderData.size,
-          imageUrl: item.imageUrl,
-          lookId: item.lookId
+        itemsForAdmin.push({ productName: item.name, size: orderData.size, imageUrl: item.imageUrl, lookId: item.lookId });
+        await notifyCustomerOfOrder({
+          customerName: orderData.customerName, orderId: docRef.id, lookId: item.lookId,
+          currentStatus: 'New', productName: item.name, phoneNumber: orderData.phoneNumber,
+          telegramUsername: orderData.telegramUsername, customerTelegramId: tgUser.telegramId,
+          imageUrl: item.imageUrl, language: 'uz', timestamp,
+          physique: { height: orderDetails.height || undefined, weight: orderDetails.weight || undefined, size: orderData.size },
         });
-        
-        const notificationInput = {
-          customerName: orderData.customerName,
-          orderId: docRef.id,
-          lookId: item.lookId,
-          currentStatus: 'New' as const,
-          productName: item.name,
-          phoneNumber: orderData.phoneNumber,
-          telegramUsername: orderData.telegramUsername,
-          customerTelegramId: tgUser.telegramId,
-          imageUrl: item.imageUrl,
-          language: 'uz' as const,
-          timestamp: timestamp,
-          physique: {
-            height: orderDetails.height || undefined,
-            weight: orderDetails.weight || undefined,
-            size: orderData.size,
-          }
-        };
-
-        await notifyCustomerOfOrder(notificationInput);
         await deleteDoc(doc(db, 'users', tgUser.id, 'cart', item.id));
       }
 
       await notifyAdminOfBatchOrder({
         customerName: tgUser.firstName || orderDetails.telegram,
-        telegramUsername: orderDetails.telegram,
-        phoneNumber: orderDetails.phone,
+        telegramUsername: orderDetails.telegram, phoneNumber: orderDetails.phone,
         physique: { height: orderDetails.height, weight: orderDetails.weight },
-        items: itemsForAdmin,
-        timestamp: timestamp,
-        orderIds: orderIds
+        items: itemsForAdmin, timestamp, orderIds,
       });
 
       toast({ title: t(dictionary.orderSuccessTitle), description: t(dictionary.orderSuccessDescription) });
@@ -176,27 +127,18 @@ export default function CartPage() {
       router.push('/orders');
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: t(dictionary.errorTitle) });
-    } finally {
-      setIsOrdering(false);
-    }
+      toast({ variant: 'destructive', title: t(dictionary.errorTitle) });
+    } finally { setIsOrdering(false); }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 animate-spin neon-text" />
-        <p className="text-foreground font-mono text-xs uppercase tracking-widest">{t(dictionary.syncing)}</p>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin neon-text" /></div>;
 
   if (!cartItems || cartItems.length === 0) {
     return (
-      <div className="container mx-auto px-6 py-32 text-center space-y-6">
-        <ShoppingCart className="w-16 h-16 neon-text mx-auto opacity-20" />
-        <h1 className="text-xl font-black text-foreground uppercase italic">{t(dictionary.emptyCart)}</h1>
-        <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
+      <div className="max-w-2xl mx-auto px-4 py-28 text-center space-y-5">
+        <ShoppingCart className="w-12 h-12 text-foreground/10 mx-auto" />
+        <p className="text-sm font-black text-foreground/30 uppercase tracking-widest">{t(dictionary.emptyCart)}</p>
+        <Button asChild variant="outline" className="h-11 px-6 rounded-2xl border-foreground/10 font-black uppercase text-xs tracking-widest hover:neon-border hover:neon-text transition-all">
           <Link href="/looks">{t(dictionary.browseLooks)}</Link>
         </Button>
       </div>
@@ -204,181 +146,151 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 lg:px-6 py-8 space-y-8 min-h-screen pb-48">
-      <div className="flex items-center gap-3">
-        <ShoppingCart className="w-6 h-6 neon-text" />
-        <h1 className="text-2xl font-black text-foreground italic uppercase tracking-tight">
-          {t(dictionary.cart)}
-        </h1>
-      </div>
+    <div className="min-h-screen bg-background pb-32">
+      <div className="max-w-2xl mx-auto px-4">
 
-      <div className="grid lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-4">
-          {cartItems.map((item) => (
-            <Card key={item.id} className="glass-surface border-foreground/10 p-4 rounded-[2rem] flex items-center gap-4 group">
-              <div className="relative w-20 h-24 sm:w-24 sm:h-32 shrink-0 rounded-xl overflow-hidden border border-foreground/10 bg-muted/20">
-                <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
-              </div>
-              <div className="flex-grow space-y-1">
-                <h3 className="text-sm font-black text-foreground uppercase italic truncate">{item.name}</h3>
-                <p className="neon-text font-black tracking-tighter">
-                  {item.currency === 'UZS' ? `${formatPrice(item.price)} UZS` : `$${item.price}`}
-                </p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => handleRemove(item.id)}
-                className="text-foreground/40 hover:text-destructive hover:bg-destructive/5 rounded-xl transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-              </Button>
-            </Card>
-          ))}
-        </div>
+        <FadeUp>
+          <div className="flex items-center gap-3 mb-6">
+            <ShoppingCart className="w-5 h-5 neon-text" />
+            <h1 className="text-lg font-black text-foreground uppercase tracking-wide">{t(dictionary.cart)}</h1>
+            <span className="ml-auto text-xs font-bold text-foreground/40 uppercase tracking-widest">{cartItems.length}</span>
+          </div>
+        </FadeUp>
 
-        <div className="lg:col-span-4">
-          <Card className="glass-surface border-foreground/10 p-10 rounded-[3rem] space-y-10 sticky top-24 shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-            <h2 className="text-3xl font-black text-foreground uppercase italic tracking-tighter">{t(dictionary.total)}</h2>
-            
-            <div className="space-y-6 pt-6 border-t border-foreground/5">
+        {/* Cart items */}
+        <StaggerContainer className="space-y-3 mb-6">
+          <AnimatePresence>
+            {cartItems.map((item) => (
+              <StaggerItem key={item.id}>
+                <motion.div exit={{ opacity: 0, x: -20, height: 0 }} transition={{ duration: 0.25 }}>
+                  <div className="group flex gap-4 bg-secondary/30 rounded-[1.5rem] p-3 border border-foreground/5">
+                    {/* Image */}
+                    <div className="relative w-[90px] h-[110px] rounded-[1rem] overflow-hidden shrink-0 bg-foreground/5">
+                      <Image src={item.imageUrl} alt={item.name} fill quality={80} sizes="90px" className="object-cover" />
+                    </div>
+                    {/* Info */}
+                    <div className="flex-grow flex flex-col justify-between py-1 min-w-0">
+                      <div>
+                        <h3 className="text-sm font-black text-foreground uppercase tracking-tight leading-tight truncate">{item.name}</h3>
+                        <p className="text-sm font-black neon-text mt-0.5">
+                          {item.currency === 'UZS' ? `${formatPrice(item.price)} UZS` : `$${item.price}`}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleRemove(item.id)}
+                        className="flex items-center gap-1.5 text-foreground/30 hover:text-destructive transition-colors w-fit mt-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Remove</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </StaggerItem>
+            ))}
+          </AnimatePresence>
+        </StaggerContainer>
+
+        {/* Total + checkout */}
+        <FadeUp delay={0.1}>
+          <div className="bg-secondary/30 rounded-[1.5rem] p-5 border border-foreground/5 space-y-4">
+            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.total)}</p>
+            <div className="space-y-1">
               {totals.usd > 0 && (
                 <div className="flex justify-between items-baseline">
-                  <span className="text-[11px] font-black text-foreground/40 uppercase tracking-[0.2em]">USD</span>
-                  <span className="text-3xl font-black text-foreground tracking-tighter">${totals.usd}</span>
+                  <span className="text-xs font-bold text-foreground/50 uppercase">USD</span>
+                  <span className="text-2xl font-black text-foreground tracking-tight">${totals.usd}</span>
                 </div>
               )}
               {totals.uzs > 0 && (
                 <div className="flex justify-between items-baseline">
-                  <span className="text-[11px] font-black text-foreground/40 uppercase tracking-[0.2em]">UZS</span>
-                  <span className="text-3xl font-black neon-text tracking-tighter">{formatPrice(totals.uzs)}</span>
+                  <span className="text-xs font-bold text-foreground/50 uppercase">UZS</span>
+                  <span className="text-2xl font-black neon-text tracking-tight">{formatPrice(totals.uzs)}</span>
                 </div>
               )}
             </div>
-
-            <Button 
+            <Button
               onClick={() => setShowCheckout(true)}
-              className="w-full h-20 rounded-[2rem] neon-bg text-black font-black uppercase tracking-[0.15em] border-none shadow-[0_0_40px_var(--sync-shadow)] hover:scale-105 transition-transform text-lg"
+              className="w-full h-14 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              {t(dictionary.checkout)}
-              <ArrowRight className="ml-3 w-6 h-6 stroke-[3px]" />
+              {t(dictionary.checkout)} <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
-          </Card>
-        </div>
+          </div>
+        </FadeUp>
       </div>
 
+      {/* Checkout dialog */}
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="glass-surface border-foreground/10 rounded-[2.5rem] text-foreground p-8 max-w-[90vw] sm:max-w-md mx-auto shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black italic uppercase neon-text flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6" />
-              {t(dictionary.checkoutTitle)}
+        <DialogContent className="bg-background border border-foreground/10 rounded-[2rem] text-foreground p-6 max-w-[92vw] sm:max-w-md mx-auto shadow-2xl">
+          <DialogHeader className="mb-5">
+            <DialogTitle className="text-lg font-black italic uppercase neon-text flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5" /> {t(dictionary.checkoutTitle)}
             </DialogTitle>
           </DialogHeader>
 
           {checkoutStep === 'CHOOSE_SIZE' && (
-            <div className="space-y-8 py-2">
-              <div className="flex items-center gap-2 text-foreground mb-2">
-                <CheckCircle2 className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.selectSizeTitle)}</p>
-              </div>
+            <div className="space-y-6 py-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.selectSizeTitle)}</p>
               <div className="grid grid-cols-3 gap-3">
-                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={cn(
-                      "h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
-                      selectedSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'
-                    )}
-                  >
-                    {size}
-                  </button>
+                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                  <button key={size} onClick={() => setSelectedSize(size)}
+                    className={cn("h-11 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                      selectedSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
+                  >{size}</button>
                 ))}
               </div>
-              <Button
-                onClick={() => setCheckoutStep('ENTER_MEASUREMENTS')}
-                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest mt-4"
-              >
-                {t(dictionary.nextStep)}
-              </Button>
+              <Button onClick={() => setCheckoutStep('ENTER_MEASUREMENTS')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
             </div>
           )}
 
           {checkoutStep === 'CHOOSE_SHOE_SIZE' && (
-            <div className="space-y-8 py-2">
-              <div className="flex items-center gap-2 text-foreground mb-2">
-                <CheckCircle2 className="w-4 h-4 neon-text" />
-                <p className="text-[10px] font-black uppercase tracking-widest">👟 SHOE SIZE (EUR)</p>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {['36','37','38','39','40','41','42','43','44','45'].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedShoeSize(size)}
-                    className={cn(
-                      "h-12 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
-                      selectedShoeSize === size ? 'neon-bg border-none text-black animate-pop' : 'bg-foreground/5 border-foreground/10 text-foreground hover:border-foreground/30'
-                    )}
-                  >
-                    {size}
-                  </button>
+            <div className="space-y-6 py-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">👟 SHOE SIZE (EUR)</p>
+              <div className="grid grid-cols-4 gap-2.5">
+                {['36','37','38','39','40','41','42','43','44','45'].map(size => (
+                  <button key={size} onClick={() => setSelectedShoeSize(size)}
+                    className={cn("h-11 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                      selectedShoeSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
+                  >{size}</button>
                 ))}
               </div>
-              <Button
-                onClick={() => setCheckoutStep('CONTACT')}
-                disabled={!selectedShoeSize}
-                className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest mt-4"
-              >
-                {t(dictionary.nextStep)}
-              </Button>
+              <Button onClick={() => setCheckoutStep('CONTACT')} disabled={!selectedShoeSize} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
             </div>
           )}
 
           {checkoutStep === 'ENTER_MEASUREMENTS' && (
-            <div className="space-y-8 py-2">
-              <div className="flex flex-col gap-2 mb-2">
-                <div className="flex items-center gap-2 text-foreground">
-                  <Ruler className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.enterMeasurementsTitle)}</p>
+            <div className="space-y-5 py-1">
+              <div className="flex items-center gap-2"><Ruler className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.enterMeasurementsTitle)}</p></div>
+              <div className="flex items-start gap-3 bg-foreground/5 p-3.5 rounded-xl border border-foreground/5">
+                <Sparkles className="w-4 h-4 neon-text shrink-0 mt-0.5" />
+                <p className="text-xs text-foreground/70 italic font-bold leading-relaxed">{t(dictionary.managerAdvisory)}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.heightShortLabel)}</Label>
+                  <Input type="number" placeholder="175" value={orderDetails.height} onChange={e => setOrderDetails(p => ({ ...p, height: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
                 </div>
-                <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-xl border border-primary/20">
-                  <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-xs text-foreground italic font-bold leading-relaxed">{t(dictionary.managerAdvisory)}</p>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.weightShortLabel)}</Label>
+                  <Input type="number" placeholder="70" value={orderDetails.weight} onChange={e => setOrderDetails(p => ({ ...p, weight: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-foreground">Bo'y (cm)</Label>
-                  <Input type="number" placeholder="175" value={orderDetails.height} onChange={(e) => setOrderDetails({...orderDetails, height: e.target.value})} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl text-foreground focus:neon-border" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] uppercase font-black text-foreground">Vazn (kg)</Label>
-                  <Input type="number" placeholder="70" value={orderDetails.weight} onChange={(e) => setOrderDetails({...orderDetails, weight: e.target.value})} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl text-foreground focus:neon-border" />
-                </div>
-              </div>
-              <Button onClick={() => setCheckoutStep(cartItems?.some(i => i.hasShoe) ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')} className="w-full h-14 rounded-2xl neon-bg text-black font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
+              <Button onClick={() => setCheckoutStep(cartItems?.some(i => i.hasShoe) ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
             </div>
           )}
 
           {checkoutStep === 'CONTACT' && (
-            <div className="space-y-6 py-2">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-foreground">
-                  <Phone className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.phoneNumber)}</p>
-                </div>
-                <Input placeholder="+998 90 123 45 67" value={orderDetails.phone} onChange={handlePhoneChange} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl text-foreground focus:neon-border" />
+            <div className="space-y-4 py-1">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.phoneNumber)}</p></div>
+                <Input placeholder="+998 90 123 45 67" value={orderDetails.phone} onChange={handlePhoneChange} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-foreground">
-                  <Send className="w-4 h-4 neon-text" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">{t(dictionary.telegramUsername)}</p>
-                </div>
-                <Input placeholder={t(dictionary.telegramPlaceholder)} value={orderDetails.telegram} onChange={(e) => setOrderDetails({...orderDetails, telegram: e.target.value})} className="bg-foreground/5 border-foreground/10 h-12 rounded-xl text-foreground focus:neon-border" />
+              <div className="space-y-2">
+                <div className="flex items-center gap-2"><Send className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.telegramUsername)}</p></div>
+                <Input placeholder={t(dictionary.telegramPlaceholder)} value={orderDetails.telegram} onChange={e => setOrderDetails(p => ({ ...p, telegram: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
               </div>
-              <Button onClick={handleCheckout} disabled={isOrdering || orderDetails.phone.length < 17 || !orderDetails.telegram} className="w-full h-14 sm:h-16 rounded-2xl neon-bg text-black font-black uppercase tracking-[0.2em] mt-2 shadow-2xl">
-                {isOrdering ? <Loader2 className="animate-spin text-black" /> : t(dictionary.executePurchase)}
+              <Button onClick={handleCheckout} disabled={isOrdering || orderDetails.phone.length < 17 || !orderDetails.telegram} className="w-full h-14 rounded-2xl neon-bg text-white font-black uppercase tracking-widest mt-1 shadow-xl">
+                {isOrdering ? <Loader2 className="animate-spin text-white" /> : t(dictionary.executePurchase)}
               </Button>
             </div>
           )}

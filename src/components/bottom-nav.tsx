@@ -82,10 +82,10 @@ export function BottomNav() {
     const showPulse = (isCart && showPlusOneCart) || (isFav && showPlusOneFav);
     
     return (
-      <Link 
-        href={item.href} 
+      <Link
+        href={item.href}
         target={item.isExternal ? "_blank" : "_self"}
-        className="flex flex-col items-center gap-1 group relative py-2 flex-1"
+        className="flex flex-col items-center gap-1 group relative py-1 flex-1 min-h-[44px] justify-center touch-manipulation"
       >
         <div className={cn(
           "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative",
@@ -105,7 +105,7 @@ export function BottomNav() {
             <span className="absolute -top-12 left-1/2 -translate-x-1/2 neon-text font-black italic text-xl animate-float-up">+1</span>
           )}
         </div>
-        <span className={cn("text-[10px] font-black uppercase tracking-wider transition-colors truncate w-full px-1 text-center", isActive ? "neon-text" : "text-foreground")}>
+        <span className={cn("text-[11px] font-black uppercase tracking-wider transition-colors truncate w-full px-1 text-center", isActive ? "neon-text" : "text-foreground")}>
           {item.label}
         </span>
       </Link>
@@ -116,7 +116,10 @@ export function BottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="bg-background/95 backdrop-blur-2xl border-t border-foreground/10 h-20 sm:h-24 w-full flex items-center justify-between px-3 rounded-t-[2.5rem] shadow-2xl">
+      <div
+        className="bg-background/95 backdrop-blur-2xl border-t border-foreground/10 w-full flex items-center justify-between px-3 rounded-t-[2.5rem] shadow-2xl"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingTop: '12px', minHeight: '72px' }}
+      >
         {navItems.map((item) => <NavButton key={item.label} item={item} />)}
       </div>
     </div>

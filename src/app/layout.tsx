@@ -9,7 +9,19 @@ import { LanguageProvider } from '@/hooks/use-language';
 import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
 import { LaneBackground } from '@/components/lane-background';
+import { SmoothScrollProvider } from '@/components/smooth-scroll';
+import dynamic from 'next/dynamic';
 import Script from 'next/script';
+
+// Lazy-load desktop-only visual effects — never blocks mobile first paint
+const CustomCursor = dynamic(
+  () => import('@/components/custom-cursor').then(m => m.CustomCursor),
+  { ssr: false }
+);
+const MouseGlow = dynamic(
+  () => import('@/components/mouse-glow').then(m => m.MouseGlow),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: 'Auralook | Techwear',
@@ -33,23 +45,31 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col relative" suppressHydrationWarning>
+      <body
+        className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col relative fine-cursor"
+        suppressHydrationWarning
+      >
         <LaneBackground />
-        <Script 
-          src="https://telegram.org/js/telegram-web-app.js?v=1" 
+        <MouseGlow />
+        <CustomCursor />
+
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js?v=1"
           strategy="beforeInteractive"
         />
         <FirebaseClientProvider>
           <LanguageProvider>
             <TelegramUserProvider>
-              <Navbar />
-              <main className="flex-grow pt-32 pb-24 lg:pb-0">
-                {children}
-                <Footer className="lg:hidden" />
-              </main>
-              <BottomNav />
-              <Toaster />
-              <Footer className="hidden lg:block" />
+              <SmoothScrollProvider>
+                <Navbar />
+                <main className="flex-grow pt-20 sm:pt-28 pb-28 lg:pb-0">
+                  {children}
+                  <Footer className="lg:hidden" />
+                </main>
+                <BottomNav />
+                <Toaster />
+                <Footer className="hidden lg:block" />
+              </SmoothScrollProvider>
             </TelegramUserProvider>
           </LanguageProvider>
         </FirebaseClientProvider>
