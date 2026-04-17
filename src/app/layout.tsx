@@ -10,18 +10,8 @@ import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
 import { LaneBackground } from '@/components/lane-background';
 import { SmoothScrollProvider } from '@/components/smooth-scroll';
-import dynamic from 'next/dynamic';
+import { DesktopEffects } from '@/components/desktop-effects';
 import Script from 'next/script';
-
-// Lazy-load desktop-only visual effects — never blocks mobile first paint
-const CustomCursor = dynamic(
-  () => import('@/components/custom-cursor').then(m => m.CustomCursor),
-  { ssr: false }
-);
-const MouseGlow = dynamic(
-  () => import('@/components/mouse-glow').then(m => m.MouseGlow),
-  { ssr: false }
-);
 
 export const metadata: Metadata = {
   title: 'Auralook | Techwear',
@@ -50,8 +40,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LaneBackground />
-        <MouseGlow />
-        <CustomCursor />
+        <DesktopEffects />
 
         <Script
           src="https://telegram.org/js/telegram-web-app.js?v=1"
