@@ -33,6 +33,7 @@ import {
   ShoppingCart,
   Link as LinkIcon,
   Maximize2,
+  ZoomIn,
   X,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -63,6 +64,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [showFullscreen, setShowFullscreen] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
+  const [pinchStart, setPinchStart] = useState<{ dist: number; scale: number } | null>(null);
   const [step, setStep] = useState<CheckoutStep>('ENTER_MEASUREMENTS');
   const [isOrdering, setIsOrdering] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -409,27 +413,104 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         )}
       </div>
 
-      {/* Fullscreen image viewer */}
+      {/* Fullscreen image viewer with zoom */}
       {showFullscreen && (
         <div
           className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
-          onClick={() => setShowFullscreen(false)}
+          onClick={() => { setShowFullscreen(false); setZoomScale(1); setPinchStart(null); }}
         >
+          {/* Close button */}
           <button
             className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center z-10"
-            onClick={() => setShowFullscreen(false)}
+            onClick={() => { setShowFullscreen(false); setZoomScale(1); setPinchStart(null); }}
           >
             <X className="w-5 h-5 text-white" />
           </button>
-          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+
+          {/* Zoom hint */}
+          {zoomScale === 1 && (
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full pointer-events-none">
+              <ZoomIn className="w-4 h-4 text-white" />
+              <span className="text-white text-xs font-bold sm:block hidden">Hold to zoom</span>
+              <span className="text-white text-xs font-bold sm:hidden">Pinch to zoom</span>
+            </div>
+          )}
+
+          {/* Image container */}
+          <div
+            className="relative w-full h-full overflow-hidden select-none"
+            style={{
+              cursor: zoomScale > 1 ? 'zoom-out' : 'zoom-in',
+              touchAction: 'none',
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              if (e.button !== 0) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              setZoomOrigin({
+                x: ((e.clientX - rect.left) / rect.width) * 100,
+                y: ((e.clientY - rect.top) / rect.height) * 100,
+              });
+              setZoomScale(2.5);
+            }}
+            onMouseMove={(e) => {
+              if (zoomScale <= 1) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              setZoomOrigin({
+                x: ((e.clientX - rect.left) / rect.width) * 100,
+                y: ((e.clientY - rect.top) / rect.height) * 100,
+              });
+            }}
+            onMouseUp={() => setZoomScale(1)}
+            onMouseLeave={() => setZoomScale(1)}
+            onTouchStart={(e) => {
+              if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                  e.touches[0].clientX - e.touches[1].clientX,
+                  e.touches[0].clientY - e.touches[1].clientY
+                );
+                setPinchStart({ dist, scale: zoomScale });
+              }
+            }}
+            onTouchMove={(e) => {
+              if (e.touches.length === 2 && pinchStart) {
+                const dist = Math.hypot(
+                  e.touches[0].clientX - e.touches[1].clientX,
+                  e.touches[0].clientY - e.touches[1].clientY
+                );
+                const newScale = Math.min(4, Math.max(1, pinchStart.scale * (dist / pinchStart.dist)));
+                const rect = e.currentTarget.getBoundingClientRect();
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                setZoomOrigin({
+                  x: ((midX - rect.left) / rect.width) * 100,
+                  y: ((midY - rect.top) / rect.height) * 100,
+                });
+                setZoomScale(newScale);
+              }
+            }}
+            onTouchEnd={(e) => {
+              if (e.touches.length < 2) {
+                setPinchStart(null);
+                if (zoomScale < 1.2) setZoomScale(1);
+              }
+            }}
+          >
             <Image
               src={look.imageUrl}
               alt={look.name}
               fill
               quality={100}
-              className="object-contain"
               sizes="100vw"
               priority
+              draggable={false}
+              style={{
+                objectFit: 'contain',
+                transform: `scale(${zoomScale})`,
+                transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                transition: zoomScale === 1 && !pinchStart ? 'transform 0.3s ease' : 'none',
+                userSelect: 'none',
+              }}
             />
           </div>
         </div>
