@@ -140,7 +140,7 @@ export function Navbar() {
       <div className="max-w-2xl mx-auto lg:max-w-7xl lg:px-8 flex items-center justify-between gap-4">
 
         <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="neon-text group-hover:scale-105 transition-transform flex items-center whitespace-nowrap text-2xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none">
+          <span className="neon-text-self group-hover:scale-105 transition-transform flex items-center whitespace-nowrap text-2xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none">
             AURAL
             <svg
               viewBox="0 0 52 26"
@@ -153,6 +153,7 @@ export function Navbar() {
               <circle cx="39" cy="13" r="11" fill="none" stroke="currentColor" strokeWidth="2.5"/>
               <circle cx="39" cy="13" r="3.8" fill="currentColor"/>
             </svg>
+            K
           </span>
         </Link>
 
