@@ -38,7 +38,7 @@ export default function LooksPage() {
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
 
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedLookIds, setSelectedLookIds] = useState<Set<string>>(new Set());
@@ -133,7 +133,7 @@ export default function LooksPage() {
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 md:px-12">
 
         {/* Editorial section label */}
         <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-4">
@@ -261,7 +261,7 @@ export default function LooksPage() {
           </div>
         ) : viewMode === 'list' ? (
           /* ── HORIZONTAL LIST VIEW ── */
-          <StaggerContainer className="space-y-3">
+          <StaggerContainer className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {filteredAndSortedLooks.map((look, index) => (
               <StaggerItem key={look.id} className="relative">
                 <Link
@@ -284,7 +284,7 @@ export default function LooksPage() {
                   )}
 
                   {/* Outfit image — square, rounded */}
-                  <div className="relative w-[100px] h-[120px] xs:w-[110px] xs:h-[130px] rounded-[1.1rem] overflow-hidden shrink-0 bg-foreground/5">
+                  <div className="relative w-[100px] h-[120px] xs:w-[110px] xs:h-[130px] md:w-[140px] md:h-[170px] rounded-[1.1rem] overflow-hidden shrink-0 bg-foreground/5">
                     <Image
                       src={look.imageUrl || 'https://picsum.photos/seed/look/300/400'}
                       alt={look.name}
@@ -373,7 +373,7 @@ export default function LooksPage() {
           </StaggerContainer>
         ) : (
           /* ── GRID VIEW ── */
-          <StaggerContainer className="grid grid-cols-2 gap-4">
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
             {filteredAndSortedLooks.map((look, index) => (
               <StaggerItem key={look.id} className="relative group">
                 <div className={cn(
@@ -462,7 +462,7 @@ export default function LooksPage() {
 
         {/* Bulk add to cart bar */}
         {selectedLookIds.size > 0 && tgUser && (
-          <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10 max-w-2xl mx-auto">
+          <div className="fixed bottom-28 left-4 right-4 z-40 animate-in slide-in-from-bottom-10 max-w-7xl mx-auto">
             <div className="neon-border bg-background/95 backdrop-blur-2xl rounded-2xl p-4 flex items-center justify-between shadow-2xl border">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 neon-bg rounded-xl flex items-center justify-center text-white font-black text-sm">{selectedLookIds.size}</div>
