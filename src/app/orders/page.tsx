@@ -127,6 +127,13 @@ export default function UserOrdersPage() {
               const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.New;
               const StatusIcon = cfg.icon;
               const isCancelled = order.status === 'Cancelled';
+              const rank = STATUS_RANK[order.status] ?? 0;
+              const timelineSteps = [
+                { label: t(dictionary.stepOrderPlaced), icon: ShoppingBag },
+                { label: t(dictionary.stepConfirmed),   icon: CheckCircle2 },
+                { label: t(dictionary.stepInTransit),   icon: Truck },
+                { label: t(dictionary.stepDelivered),   icon: Star },
+              ];
               return (
                 <StaggerItem key={order.id}>
                   <div className={cn(
@@ -159,49 +166,40 @@ export default function UserOrdersPage() {
                     </div>
 
                     {/* Status timeline */}
-                    {!isCancelled && (() => {
-                      const rank = STATUS_RANK[order.status] ?? 0;
-                      const steps = [
-                        { label: t(dictionary.stepOrderPlaced), icon: ShoppingBag },
-                        { label: t(dictionary.stepConfirmed),   icon: CheckCircle2 },
-                        { label: t(dictionary.stepInTransit),   icon: Truck },
-                        { label: t(dictionary.stepDelivered),   icon: Star },
-                      ];
-                      return (
-                        <div className="flex items-center gap-1 py-1">
-                          {steps.map((step, i) => {
-                            const done = i <= rank;
-                            const active = i === rank;
-                            const StepIcon = step.icon;
-                            return (
-                              <div key={i} className="flex items-center flex-1 min-w-0">
-                                <div className="flex flex-col items-center gap-1 shrink-0">
-                                  <div className={cn(
-                                    'w-7 h-7 rounded-full flex items-center justify-center border transition-all',
-                                    done ? 'neon-bg border-transparent' : 'bg-foreground/5 border-foreground/10'
-                                  )}>
-                                    <StepIcon className={cn('w-3 h-3', done ? 'text-white' : 'text-foreground/25')} />
-                                  </div>
-                                  <p className={cn(
-                                    'text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[48px]',
-                                    active ? 'neon-text' : done ? 'text-foreground/60' : 'text-foreground/20'
-                                  )}>{step.label}</p>
+                    {!isCancelled && (
+                      <div className="flex items-center gap-1 py-1">
+                        {timelineSteps.map((step, i) => {
+                          const done = i <= rank;
+                          const active = i === rank;
+                          const StepIcon = step.icon;
+                          return (
+                            <div key={i} className="flex items-center flex-1 min-w-0">
+                              <div className="flex flex-col items-center gap-1 shrink-0">
+                                <div className={cn(
+                                  'w-7 h-7 rounded-full flex items-center justify-center border transition-all',
+                                  done ? 'neon-bg border-transparent' : 'bg-foreground/5 border-foreground/10'
+                                )}>
+                                  <StepIcon className={cn('w-3 h-3', done ? 'text-white' : 'text-foreground/25')} />
                                 </div>
-                                {i < steps.length - 1 && (
-                                  <div className={cn('h-[2px] flex-1 mx-1 rounded-full transition-all', done && i < rank ? 'neon-bg' : 'bg-foreground/10')} />
-                                )}
+                                <p className={cn(
+                                  'text-[8px] font-black uppercase tracking-tight text-center leading-tight max-w-[48px]',
+                                  active ? 'neon-text' : done ? 'text-foreground/60' : 'text-foreground/20'
+                                )}>{step.label}</p>
                               </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
+                              {i < timelineSteps.length - 1 && (
+                                <div className={cn('h-[2px] flex-1 mx-1 rounded-full transition-all', done && i < rank ? 'neon-bg' : 'bg-foreground/10')} />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     {/* Tracking rows */}
                     <div className="space-y-2">
                       {/* China domestic tracking */}
                       {order.domesticTracking ? (
-                        <div className="flex items-center justify-between gap-3 py-2 px-3 rounded-xl bg-foreground/[0.03] border border-foreground/8">
+                        <div className="flex items-center justify-between gap-3 py-2 px-3 rounded-xl bg-foreground/[0.03] border border-foreground/10">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-base shrink-0">🇨🇳</span>
                             <div className="min-w-0">
@@ -212,15 +210,15 @@ export default function UserOrdersPage() {
                           <a
                             href={`https://t.17track.net/en#nums=${encodeURIComponent(order.domesticTracking)}`}
                             target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-foreground/8 border border-foreground/10 text-foreground/60 text-[9px] font-black uppercase tracking-wide shrink-0"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-foreground/10 text-foreground/60 text-[9px] font-black uppercase tracking-wide shrink-0"
                           >
                             <ExternalLink className="w-3 h-3" /> Track
                           </a>
                         </div>
-                      ) : order.status === 'Confirmed' && (
+                      ) : !isCancelled && (
                         <div className="flex items-center gap-2 py-2 px-3 rounded-xl bg-foreground/[0.02] border border-foreground/5">
-                          <span className="text-sm">🇨🇳</span>
-                          <p className="text-[10px] text-foreground/30 font-medium">{t(dictionary.trackingPending)}</p>
+                          <span className="text-sm opacity-30">🇨🇳</span>
+                          <p className="text-[10px] text-foreground/30 font-medium">{t(dictionary.chinaTracking)}: {t(dictionary.trackingPending)}</p>
                         </div>
                       )}
 
@@ -243,10 +241,10 @@ export default function UserOrdersPage() {
                             {t(dictionary.trackPackage)}
                           </a>
                         </div>
-                      ) : order.status === 'Shipped' && (
+                      ) : !isCancelled && (
                         <div className="flex items-center gap-2 py-2 px-3 rounded-xl bg-foreground/[0.03] border border-foreground/5">
                           <Truck className="w-3.5 h-3.5 text-foreground/20 shrink-0" />
-                          <p className="text-[10px] text-foreground/30 font-medium">{t(dictionary.trackingPending)}</p>
+                          <p className="text-[10px] text-foreground/30 font-medium">{t(dictionary.intlTracking)}: {t(dictionary.trackingPending)}</p>
                         </div>
                       )}
                     </div>
