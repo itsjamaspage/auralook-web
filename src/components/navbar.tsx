@@ -144,7 +144,7 @@ export function Navbar() {
             AURAL
             <svg
               viewBox="0 0 52 26"
-              className="inline-block h-[0.85em] mx-[0.04em] align-middle"
+              className="inline-block h-[0.85em] ml-[0.04em] mr-[-0.05em] align-middle"
               fill="currentColor"
               aria-hidden="true"
             >
