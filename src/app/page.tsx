@@ -207,7 +207,7 @@ export default function Home() {
       <section className="pt-8 pb-4 mb-10 md:hidden">
         <FadeUp>
           <div className="flex items-center justify-between px-4 mb-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
               —— {t(dictionary.newArrivals)}
             </p>
             <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
@@ -264,7 +264,7 @@ export default function Home() {
       <section className="hidden md:block pt-8 pb-10 mb-12 max-w-7xl mx-auto px-12">
         <FadeUp>
           <div className="flex items-center justify-between mb-6">
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
               —— {t(dictionary.newArrivals)}
             </p>
             <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
@@ -313,7 +313,7 @@ export default function Home() {
       {/* ── FEATURE PANELS ── */}
       <section className="px-4 mb-8 md:max-w-7xl md:mx-auto md:px-12">
         <FadeUp>
-          <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
+          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70 mb-4">
             —— {t(dictionary.whatWeStandFor)}
           </p>
         </FadeUp>
