@@ -48,7 +48,8 @@ async function runSetup() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         commands: [
-          { command: 'start', description: 'Botni boshlash / Запустить бота / Start bot' }
+          { command: 'start',    description: 'Botni boshlash / Запустить бота / Start bot' },
+          { command: 'tracking', description: 'Buyurtmalarimni kuzatish / Отследить заказы / Track my orders' },
         ]
       }),
     });

@@ -120,6 +120,22 @@ export async function POST(req: NextRequest) {
     const text: string = message.text.toLowerCase();
     const firstName: string = message.from?.first_name || 'Voyager';
 
+    // /tracking command — open orders page in mini app
+    if (text === '/tracking') {
+      const ordersUrl = `${baseUrl}/orders?v=${Date.now()}`;
+      await tgApi('sendMessage', {
+        chat_id: chatId,
+        text: `📦 <b>Buyurtmalaringizni kuzatish</b>\n\nQuyidagi tugmani bosing — buyurtmalaringiz holati va yetkazib berish joyi ko'rsatiladi.`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '📦 Buyurtmalarni kuzatish', web_app: { url: ordersUrl } }],
+          ],
+        },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     // Respond to /start OR any other message with the language menu
     await sendLangMenu(tgApi, chatId, cacheBusterUrl, firstName);
 

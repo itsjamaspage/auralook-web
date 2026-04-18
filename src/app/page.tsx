@@ -36,7 +36,10 @@ export default function Home() {
     const urlStartParam = urlParams.get('tgWebAppStartParam');
     const sdkStartParam = (window as any).Telegram?.WebApp?.initDataUnsafe?.start_param;
     const startParam = urlStartParam || sdkStartParam;
-    if (startParam?.startsWith('product_')) {
+    if (startParam === 'orders') {
+      setIsDeepLinking(true);
+      router.replace('/orders');
+    } else if (startParam?.startsWith('product_')) {
       const id = startParam.replace('product_', '');
       setIsDeepLinking(true);
       router.replace(`/looks/${id}`);
