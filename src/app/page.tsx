@@ -92,7 +92,7 @@ export default function Home() {
               transition={{ duration: 0.75, delay: i * 0.13, ease }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter px-2',
-                'text-[22vw] sm:text-[17vw]',
+                'text-[17vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
@@ -204,10 +204,10 @@ export default function Home() {
       {/* ── LOOKS STRIP (mobile) / GRID (desktop) ── */}
 
       {/* Mobile: horizontal scroll */}
-      <section className="pt-8 pb-4 mb-10 md:hidden">
+      <section className="pt-8 pb-4 mb-6 md:hidden">
         <FadeUp>
           <div className="flex items-center justify-between px-4 mb-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
               —— {t(dictionary.newArrivals)}
             </p>
             <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
@@ -261,10 +261,10 @@ export default function Home() {
       </section>
 
       {/* Desktop: 4-column card grid */}
-      <section className="hidden md:block pt-8 pb-10 mb-12 max-w-7xl mx-auto px-12">
+      <section className="hidden md:block pt-8 pb-10 mb-6 max-w-7xl mx-auto px-12">
         <FadeUp>
           <div className="flex items-center justify-between mb-6">
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
               —— {t(dictionary.newArrivals)}
             </p>
             <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
@@ -310,10 +310,34 @@ export default function Home() {
         )}
       </section>
 
+      {/* ── TICKER 2 — values ── */}
+      <FadeIn>
+        <div className="border-y border-foreground/5 bg-foreground/[0.02] py-4 overflow-hidden relative my-10 md:my-16">
+          <div className="flex animate-marquee-right whitespace-nowrap">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex shrink-0 items-center gap-10 px-6">
+                {[
+                  dictionary.qualityTitle,
+                  dictionary.honestPriceTitle,
+                  dictionary.fastOrderTitle,
+                  dictionary.freeDelivery,
+                  dictionary.goodQuality,
+                  dictionary.limitedEdition,
+                ].map((dictKey, idx) => (
+                  <span key={idx} className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                    <div className="w-1.5 h-1.5 neon-bg rotate-45 shrink-0" /> {t(dictKey)}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
+
       {/* ── FEATURE PANELS ── */}
       <section className="px-4 mb-8 md:max-w-7xl md:mx-auto md:px-12">
         <FadeUp>
-          <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
+          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70 mb-4">
             —— {t(dictionary.whatWeStandFor)}
           </p>
         </FadeUp>
@@ -360,6 +384,30 @@ export default function Home() {
           </Button>
         </FadeUp>
       </section>
+
+      {/* ── TICKER 3 — ordering ── */}
+      <FadeIn>
+        <div className="border-y border-foreground/5 bg-foreground/[0.02] py-4 overflow-hidden relative my-10 md:my-16">
+          <div className="flex animate-marquee-right whitespace-nowrap">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex shrink-0 items-center gap-10 px-6">
+                {[
+                  dictionary.orderViaTelegram,
+                  dictionary.newArrivals,
+                  dictionary.freeDelivery,
+                  dictionary.limitedEdition,
+                  dictionary.goodQuality,
+                  dictionary.fastOrderTitle,
+                ].map((dictKey, idx) => (
+                  <span key={idx} className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                    <div className="w-1.5 h-1.5 neon-bg rotate-45 shrink-0" /> {t(dictKey)}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
 
       {/* ── TELEGRAM CTA ── */}
       <FadeUp delay={0.05}>

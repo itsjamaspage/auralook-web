@@ -539,6 +539,14 @@ const dictionary = {
   trackingAdded:   { uz: 'Kuzatuv raqami saqlandi',      ru: 'Трек-номер сохранён',   en: 'Tracking saved' },
   saveLabel:       { uz: 'Saqlash',                      ru: 'Сохранить',             en: 'Save' },
   trackingPending: { uz: 'Kuzatuv raqami hali yo\'q',    ru: 'Трек-номер ещё не добавлен', en: 'Tracking not yet added' },
+  chinaTracking:   { uz: 'Xitoy ichki tracking',         ru: 'Трекинг по Китаю',          en: 'China Domestic Tracking' },
+  intlTracking:    { uz: 'Xalqaro tracking (Toshkentga)',ru: 'Международный трекинг',       en: 'International Tracking' },
+  addChinaTracking:{ uz: 'Xitoy raqami...',              ru: 'Номер по Китаю...',           en: 'China tracking no.' },
+  chinaTrackingAdded: { uz: 'Xitoy tracking saqlandi',   ru: 'Китайский трекинг сохранён', en: 'China tracking saved' },
+  stepOrderPlaced: { uz: 'Buyurtma berildi',             ru: 'Заказ оформлен',             en: 'Order Placed' },
+  stepConfirmed:   { uz: 'Tasdiqlandi',                  ru: 'Подтверждён',                en: 'Confirmed' },
+  stepInTransit:   { uz: 'Yo\'lda (Toshkentga)',         ru: 'В пути (в Ташкент)',          en: 'In Transit' },
+  stepDelivered:   { uz: 'Yetkazildi',                   ru: 'Доставлен',                  en: 'Delivered' },
 
   // Ratings & Reviews
   rateThisLook:    { uz: 'Bu libosni baholang',                    ru: 'Оцените этот образ',                   en: 'Rate this look' },
