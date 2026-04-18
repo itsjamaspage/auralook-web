@@ -447,19 +447,6 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
           {step === 'ENTER_MEASUREMENTS' && (
             <div className="space-y-5 py-1">
-              {/* Clothing size */}
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/60 mb-3">{t(dictionary.selectSizeTitle)}</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {['XS','S','M','L','XL','XXL'].map((size) => (
-                    <button key={size} onClick={() => setSelectedSize(size)}
-                      className={cn("h-10 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
-                        selectedSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
-                    >{size}</button>
-                  ))}
-                </div>
-              </div>
-
               {/* Height + Weight */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
