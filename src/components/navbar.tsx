@@ -143,15 +143,15 @@ export function Navbar() {
           <span className="neon-text-self group-hover:scale-105 transition-transform flex items-center whitespace-nowrap text-2xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none">
             AURAL
             <svg
-              viewBox="0 0 52 26"
+              viewBox="0 0 54 24"
               className="inline-block h-[0.85em] ml-[0.04em] mr-[-0.05em] align-middle"
               fill="currentColor"
               aria-hidden="true"
             >
-              <circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" strokeWidth="2.5"/>
-              <circle cx="13" cy="13" r="3.8" fill="currentColor"/>
-              <circle cx="39" cy="13" r="11" fill="none" stroke="currentColor" strokeWidth="2.5"/>
-              <circle cx="39" cy="13" r="3.8" fill="currentColor"/>
+              <path d="M2 12 Q13 3.5 24 12 Q13 20.5 2 12Z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"/>
+              <circle cx="16" cy="12" r="3.5"/>
+              <path d="M30 12 Q41 3.5 52 12 Q41 20.5 30 12Z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"/>
+              <circle cx="44" cy="12" r="3.5"/>
             </svg>
             K
           </span>
