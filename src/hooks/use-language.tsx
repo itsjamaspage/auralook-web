@@ -523,12 +523,14 @@ const dictionary = {
   weightShortLabel: { uz: 'Vazn (kg)', ru: 'Вес (кг)', en: 'Weight (kg)' },
 
   // Footer
-  allRightsReserved: {
+  allRightsReserved: { 
     uz: '© 2026 Auralook. Barcha huquqlar himoyalangan.',
     ru: '© 2026 Auralook. Все права защищены.',
     en: '© 2026 Auralook. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
+  viewLook: { uz: 'Ko\'rish', ru: 'Смотреть', en: 'View' },
+  routing: { uz: 'Yo\'naltirilmoqda...', ru: 'Перенаправление...', en: 'Routing...' },
 
   // Order Tracking
   trackingNumber:  { uz: 'Kuzatuv raqami',              ru: 'Трек-номер',            en: 'Tracking No.' },
@@ -546,7 +548,7 @@ const dictionary = {
   addPhoto:        { uz: "Rasm qo'shish",                          ru: 'Добавить фото',                        en: 'Add Photo' },
   anonymous:       { uz: 'Anonim',                                 ru: 'Анонимно',                             en: 'Anonymous' },
   showProfile:     { uz: "Profilni ko'rsatish",                    ru: 'Показать профиль',                     en: 'Show Profile' },
-  anonymousHint:   { uz: "Ismingiz ko'rinmaydi",                   ru: 'Имя не будет видно',                   en: "Your name won't be shown" },
+  anonymousHint:   { uz: "Ismingiz ko'rinmaydi",                   ru: 'Имя ne budet vidno',                   en: "Your name won't be shown" },
   showProfileHint: { uz: "Telegram profilingiz ko'rinadi",         ru: 'Будет виден ваш профиль Telegram',     en: 'Your Telegram profile will be shown' },
   ratingsLabel:    { uz: 'ta baho',                                ru: 'отзывов',                              en: 'reviews' },
   noRatingsYet:    { uz: "Hali baholar yo'q",                      ru: 'Отзывов ещё нет',                      en: 'No reviews yet' },
