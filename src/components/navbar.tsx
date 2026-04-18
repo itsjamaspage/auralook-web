@@ -12,24 +12,29 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Menu, 
-  Compass, 
-  LayoutDashboard, 
+import {
+  Menu,
+  Compass,
+  LayoutDashboard,
   User,
   Maximize2,
   Minimize2,
   Sun,
   Moon,
   ShieldCheck,
-  LogIn
+  LogIn,
+  Heart,
+  ShoppingCart,
+  Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
   const { user, isVerified, isLoading } = useTelegramUser();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
@@ -132,8 +137,8 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-4 py-3 shadow-sm">
-      <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-        
+      <div className="max-w-2xl mx-auto lg:max-w-7xl lg:px-8 flex items-center justify-between gap-4">
+
         <Link href="/" className="flex items-center gap-2 group shrink-0">
           <span className="text-xl sm:text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
             AURALOOK
@@ -198,12 +203,25 @@ export function Navbar() {
                 )}
               </div>
               
-              <Link href="/looks">
-                <DropdownMenuItem className="flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer">
-                  <Compass className="w-5 h-5 neon-text" />
-                  <span className="font-bold text-xs uppercase tracking-widest">{t(dictionary.browseLooks)}</span>
-                </DropdownMenuItem>
-              </Link>
+              {[
+                { href: '/looks',     icon: Compass,      label: t(dictionary.browseLooks) },
+                { href: '/favorites', icon: Heart,        label: t(dictionary.favorites) },
+                { href: '/cart',      icon: ShoppingCart, label: t(dictionary.cart) },
+                { href: '/orders',    icon: Package,      label: t(dictionary.myOrders) },
+              ].map(({ href, icon: Icon, label }) => {
+                const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+                return (
+                  <Link key={href} href={href}>
+                    <DropdownMenuItem className={cn(
+                      'flex items-center gap-3 px-3 py-3.5 rounded-lg cursor-pointer',
+                      active && 'bg-secondary'
+                    )}>
+                      <Icon className={cn('w-5 h-5', active ? 'neon-text' : 'text-foreground/60')} />
+                      <span className={cn('font-bold text-xs uppercase tracking-widest', active && 'neon-text')}>{label}</span>
+                    </DropdownMenuItem>
+                  </Link>
+                );
+              })}
 
               {isAdmin && (
                 <Link href="/admin">

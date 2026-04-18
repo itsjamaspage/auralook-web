@@ -5,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebas
 import { collection, query, doc, updateDoc, serverTimestamp, where, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingCart, Send, Phone, XCircle, Truck, Star } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingCart, Send, Phone, XCircle, Truck, Star, ExternalLink, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
@@ -171,6 +171,33 @@ export default function UserOrdersPage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Tracking row */}
+                    {order.trackingNumber ? (
+                      <div className="flex items-center justify-between gap-3 py-2.5 px-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <MapPin className="w-3.5 h-3.5 neon-text shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.trackingNumber)}</p>
+                            <p className="text-[11px] font-mono font-bold text-foreground truncate">{order.trackingNumber}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={`https://t.17track.net/en#nums=${encodeURIComponent(order.trackingNumber)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg neon-bg text-black text-[9px] font-black uppercase tracking-wider shrink-0"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          {t(dictionary.trackPackage)}
+                        </a>
+                      </div>
+                    ) : (order.status === 'Shipped' || order.status === 'Confirmed') && (
+                      <div className="flex items-center gap-2 py-2 px-3 rounded-xl bg-foreground/[0.03] border border-foreground/5">
+                        <Truck className="w-3.5 h-3.5 text-foreground/20 shrink-0" />
+                        <p className="text-[10px] text-foreground/30 font-medium">{t(dictionary.trackingPending)}</p>
+                      </div>
+                    )}
 
                     {/* Bottom row */}
                     <div className="flex items-center justify-between">

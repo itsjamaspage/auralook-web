@@ -54,8 +54,17 @@ service cloud.firestore {
 
     match /looks/{lookId} {
       allow read: if true;
-      // BOTH Owners and Editors can manage inventory
-      allow write: if isEditor();
+      allow create, delete: if isEditor();
+      allow update: if isEditor() || (
+        isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ratingCount', 'ratingSum'])
+      );
+
+      match /ratings/{ratingId} {
+        allow read: if true;
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      }
     }
 
     match /users/{userId} {
