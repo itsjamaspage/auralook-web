@@ -204,7 +204,7 @@ export default function Home() {
       {/* ── LOOKS STRIP (mobile) / GRID (desktop) ── */}
 
       {/* Mobile: horizontal scroll */}
-      <section className="pt-8 pb-4 mb-2 md:hidden">
+      <section className="pt-8 pb-4 mb-10 md:hidden">
         <FadeUp>
           <div className="flex items-center justify-between px-4 mb-4">
             <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
@@ -261,7 +261,7 @@ export default function Home() {
       </section>
 
       {/* Desktop: 4-column card grid */}
-      <section className="hidden md:block pt-8 pb-10 mb-4 max-w-7xl mx-auto px-12">
+      <section className="hidden md:block pt-8 pb-10 mb-12 max-w-7xl mx-auto px-12">
         <FadeUp>
           <div className="flex items-center justify-between mb-6">
             <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
@@ -352,7 +352,7 @@ export default function Home() {
         <FadeUp delay={0.15}>
           <Button
             asChild
-            className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-3 magnetic-ring"
+            className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-8 magnetic-ring"
           >
             <Link href="/looks">
               {t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" />
