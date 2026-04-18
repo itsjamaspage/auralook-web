@@ -140,8 +140,20 @@ export function Navbar() {
       <div className="max-w-2xl mx-auto lg:max-w-7xl lg:px-8 flex items-center justify-between gap-4">
 
         <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="text-xl sm:text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            AURALOOK
+          <span className="neon-text group-hover:scale-105 transition-transform flex items-center whitespace-nowrap text-xl sm:text-2xl font-black tracking-tighter italic uppercase leading-none">
+            AURAL
+            <svg
+              viewBox="0 0 48 24"
+              className="inline-block h-[0.82em] mx-[0.03em] align-middle"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+              <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+              <circle cx="36" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+              <circle cx="36" cy="12" r="3.5" fill="currentColor"/>
+            </svg>
+            K
           </span>
         </Link>
 
