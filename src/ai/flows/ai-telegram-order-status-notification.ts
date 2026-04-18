@@ -162,6 +162,8 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
   try {
     const cleanUsername = input.telegramUsername?.replace(/^@/, '') || '';
     const greetingName = cleanUsername ? `@${cleanUsername} (${input.customerName})` : input.customerName;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
+    const ordersUrl = `${baseUrl}/orders?v=${Date.now()}`;
 
     let message = `<b>✅ Buyurtmangiz qabul qilindi!</b>\n\n`;
     message += `Hurmatli ${greetingName},\n`;
@@ -171,7 +173,13 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
     message += `⚡️ Menejerimiz tez orada siz bilan bog'lanib, to'lov turlari va yetkazib berish tafsilotlarini muhokama qiladi.\n\n`;
     message += `<i>Auralook — Kelajak uslubini tanlaganingiz uchun rahmat!</i>`;
 
-    await sendTelegramMessage(token, input.customerTelegramId.toString(), message);
+    const replyMarkup = {
+      inline_keyboard: [[
+        { text: '📦 Buyurtmalarimni kuzatish', web_app: { url: ordersUrl } }
+      ]]
+    };
+
+    await sendTelegramMessage(token, input.customerTelegramId.toString(), message, undefined, replyMarkup);
   } catch (error) {
     console.error("[Telegram Protocol] CUSTOMER NOTIFY FAILURE:", error);
   }
