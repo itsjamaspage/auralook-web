@@ -179,48 +179,57 @@ export async function notifyCustomerOfOrder(input: AiTelegramOrderStatusNotifica
 
 /**
  * Internal helper to send Telegram messages (Photo or Text).
+ * Falls back to text+link if sendPhoto fails.
  */
 async function sendTelegramMessage(token: string, chatId: string, text: string, imageUrl?: string, replyMarkup?: any) {
   const isDataUri = imageUrl?.startsWith('data:');
-  
+
   if (imageUrl) {
     if (isDataUri) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
       formData.append('parse_mode', 'HTML');
-      formData.append('caption', text);
+      formData.append('caption', text.slice(0, 1024));
       if (replyMarkup) formData.append('reply_markup', JSON.stringify(replyMarkup));
-      
+
       const [meta, base64] = imageUrl.split(',');
       const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
       const binary = Buffer.from(base64, 'base64');
       const blob = new Blob([binary], { type: mime });
       formData.append('photo', blob, 'outfit.jpg');
 
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData });
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData });
+      const result = await res.json();
+      if (!result.ok) {
+        // fallback to text
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: `${text}\n\n📸 <a href="${imageUrl}">Rasmni ko'rish</a>`.slice(0, 4096), parse_mode: 'HTML', reply_markup: replyMarkup }),
+        });
+      }
     } else {
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          photo: imageUrl,
-          caption: text,
-          parse_mode: 'HTML',
-          reply_markup: replyMarkup
-        })
+        body: JSON.stringify({ chat_id: chatId, photo: imageUrl, caption: text.slice(0, 1024), parse_mode: 'HTML', reply_markup: replyMarkup }),
       });
+      const result = await res.json();
+      if (!result.ok) {
+        // Telegram couldn't fetch the photo URL — send text with image link instead
+        const fallbackText = `${text}\n\n📸 <a href="${imageUrl}">Rasmni ko'rish</a>`;
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: fallbackText.slice(0, 4096), parse_mode: 'HTML', reply_markup: replyMarkup }),
+        });
+      }
     }
   } else {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: text,
-        parse_mode: 'HTML',
-        reply_markup: replyMarkup
-      })
+      body: JSON.stringify({ chat_id: chatId, text: text.slice(0, 4096), parse_mode: 'HTML', reply_markup: replyMarkup }),
     });
   }
 }

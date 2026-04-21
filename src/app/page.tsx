@@ -75,7 +75,7 @@ export default function Home() {
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
 
       {/* ── EDITORIAL HERO ── */}
-      <section className="min-h-[100svh] flex flex-col justify-between px-4 pb-8 pt-2">
+      <section className="min-h-[100svh] lg:min-h-0 lg:py-20 flex flex-col justify-between px-4 pb-8 pt-2">
 
         {/* Top meta label */}
         <FadeIn>
@@ -94,7 +94,7 @@ export default function Home() {
               transition={{ duration: 0.75, delay: i * 0.13, ease }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter px-2',
-                'text-[22vw] sm:text-[17vw]',
+                'text-[17vw] sm:text-[13vw] md:text-[10vw] lg:text-[7vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
