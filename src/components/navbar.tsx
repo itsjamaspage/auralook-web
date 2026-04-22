@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { AuralookLogo } from '@/components/auralook-logo';
 
 export function Navbar() {
   const { dictionary, t, lang, setLang } = useLanguage();
@@ -134,10 +135,8 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-4 py-3 shadow-sm">
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
         
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="text-xl sm:text-2xl font-black tracking-tighter neon-text whitespace-nowrap italic group-hover:scale-105 transition-transform uppercase">
-            AURALOOK
-          </span>
+        <Link href="/" className="flex items-center gap-2 group shrink-0 group-hover:scale-105 transition-transform">
+          <AuralookLogo />
         </Link>
 
         <div className="flex items-center gap-3">
