@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
+import { AuralookLogo } from '@/components/auralook-logo';
 import { usePathname } from 'next/navigation';
 
 export function Navbar() {
@@ -139,22 +140,8 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-4 py-3 shadow-sm">
       <div className="max-w-2xl mx-auto lg:max-w-7xl lg:px-8 flex items-center justify-between gap-4">
 
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="neon-text-self group-hover:scale-105 transition-transform flex items-center whitespace-nowrap text-2xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none">
-            AURAL
-            <svg
-              viewBox="0 0 52 26"
-              className="inline-block h-[0.85em] ml-[0.04em] mr-[-0.05em] align-middle"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" strokeWidth="2.5"/>
-              <circle cx="16" cy="11" r="4"/>
-              <circle cx="39" cy="13" r="11" fill="none" stroke="currentColor" strokeWidth="2.5"/>
-              <circle cx="42" cy="11" r="4"/>
-            </svg>
-            K
-          </span>
+        <Link href="/" className="flex items-center gap-2 group shrink-0 group-hover:scale-105 transition-transform">
+          <AuralookLogo />
         </Link>
 
         <div className="flex items-center gap-3">

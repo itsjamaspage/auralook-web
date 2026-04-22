@@ -27,13 +27,11 @@ import {
   Ruler,
   Phone,
   CheckCircle2,
-  ArrowRight,
+  Sparkles,
   Send,
   Globe,
   ShoppingCart,
   Link as LinkIcon,
-  Maximize2,
-  ZoomIn,
   X,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -260,160 +258,152 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <div className="max-w-2xl mx-auto px-4">
 
-        {/* Back + share buttons */}
-        <div className="flex items-center gap-2 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="rounded-full w-10 h-10 bg-secondary/50 hover:bg-secondary border-none text-foreground"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCopyLink}
-            className="rounded-full w-10 h-10 bg-secondary/50 hover:bg-secondary border-none text-foreground"
-          >
-            <LinkIcon className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {/* Hero image — full-width, tall */}
-        <div
-          className="relative rounded-[2rem] overflow-hidden mb-5 cursor-zoom-in shadow-xl group"
-          style={{ aspectRatio: '3/4', maxHeight: '70vh' }}
-          onClick={() => setShowFullscreen(true)}
+      {/* ── BACK + SHARE ── */}
+      <div className="flex items-center gap-2 px-4 pb-3">
+        <Button
+          variant="ghost" size="icon"
+          onClick={() => router.back()}
+          className="rounded-full w-10 h-10 bg-secondary/50 hover:bg-secondary border-none text-foreground"
         >
-          <Image
-            src={look.imageUrl}
-            alt={look.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            priority
-            quality={100}
-            sizes="(max-width: 672px) calc(100vw - 32px), 640px"
-          />
-          <div className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Maximize2 className="w-4 h-4 text-white" />
-          </div>
-        </div>
+          <ChevronLeft className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost" size="icon"
+          onClick={handleCopyLink}
+          className="rounded-full w-10 h-10 bg-secondary/50 hover:bg-secondary border-none text-foreground"
+        >
+          <LinkIcon className="w-4 h-4" />
+        </Button>
+      </div>
 
-        {/* Info card */}
-        <div className="bg-secondary/30 rounded-[1.5rem] p-5 space-y-4 mb-4 border border-foreground/5">
-          {/* Price + name */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-foreground tracking-tighter">
-                {look.currency === 'UZS' ? formatPrice(look.price) : `$${formatPrice(look.price)}`}
+      {/* ── HERO IMAGE — full-bleed mobile, constrained desktop ── */}
+      <div
+        className="relative w-full lg:max-w-lg lg:mx-auto lg:rounded-2xl cursor-zoom-in overflow-hidden"
+        style={{ aspectRatio: '3/4', maxHeight: '80vh' }}
+        onClick={() => setShowFullscreen(true)}
+      >
+        <Image
+          src={look.imageUrl}
+          alt={look.name}
+          fill
+          className="object-cover"
+          priority
+          quality={100}
+          sizes="(max-width: 1024px) 100vw, 512px"
+        />
+        {/* Bottom gradient for price readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+        {/* Price overlay */}
+        <div className="absolute bottom-5 right-5">
+          <p className="text-4xl font-black text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)] tracking-tight">
+            {look.currency === 'UZS'
+              ? `${formatPrice(look.price)} UZS`
+              : `${formatPrice(look.price)} $`}
+          </p>
+        </div>
+      </div>
+
+      {/* ── CONTENT ── */}
+      <div className="max-w-2xl mx-auto px-6 pt-8 space-y-4">
+
+        {/* Name */}
+        <h1 className="text-2xl sm:text-3xl font-black text-foreground text-center leading-tight tracking-tight">
+          {look.name}
+        </h1>
+
+        {/* Description */}
+        {look.description && (
+          <p className="text-sm text-foreground/55 text-center leading-relaxed font-medium whitespace-pre-line">
+            {look.description}
+          </p>
+        )}
+
+        {/* Tags */}
+        {look.tags && look.tags.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {look.tags.map((tag: string) => (
+              <span key={tag} className="px-3 py-1 rounded-full bg-foreground/5 text-[10px] font-bold uppercase tracking-wide text-foreground/55">
+                {tag}
               </span>
-              <span className="text-xs font-black text-foreground/40 uppercase tracking-wider">{look.currency || 'USD'}</span>
-            </div>
-            <h1 className="text-lg font-black neon-text italic uppercase tracking-tight leading-snug">
-              {look.name}
-            </h1>
+            ))}
           </div>
+        )}
 
-          {/* Divider */}
-          <div className="h-px bg-foreground/5" />
-
-          {/* Description */}
-          {look.description && (
-            <div className="space-y-1">
-              <p className="text-[9px] font-black text-foreground/40 uppercase tracking-[0.2em]">
-                {t(dictionary.technicalDetails)}
-              </p>
-              <p className="text-sm text-foreground/70 font-medium leading-relaxed whitespace-pre-line">
-                {look.description}
-              </p>
-            </div>
-          )}
-
-          {/* Tags */}
-          {look.tags && look.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {look.tags.map((tag: string) => (
-                <span key={tag} className="px-3 py-1 bg-foreground/5 rounded-full text-[10px] font-bold text-foreground/60 uppercase tracking-wide">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Action buttons */}
-        <div className="space-y-3">
+        {/* ── CTA BUTTONS ── */}
+        <div className="space-y-3 pt-2">
           <Button
             onClick={() => setShowCheckout(true)}
-            className="w-full h-14 rounded-2xl neon-bg text-white font-black text-xs uppercase tracking-widest border-none transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl"
+            className="w-full h-14 rounded-full bg-foreground text-background font-black text-sm uppercase tracking-[0.25em] border-none shadow-lg hover:opacity-90 active:scale-[0.98] transition-all"
           >
             {t(dictionary.executePurchase)}
-            <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
           <Button
             onClick={handleAddToCart}
             disabled={isAddingToCart}
             variant="outline"
-            className="w-full h-14 rounded-2xl border-foreground/10 bg-secondary/30 text-foreground font-black text-xs uppercase tracking-widest hover:neon-border transition-all"
+            className="w-full h-12 rounded-full border-foreground/15 bg-transparent text-foreground font-bold text-xs uppercase tracking-widest hover:bg-foreground/5 transition-all"
           >
             {isAddingToCart ? (
               <Loader2 className="animate-spin w-4 h-4" />
             ) : (
-              <>
-                <ShoppingCart className="mr-2 w-4 h-4" />
-                {t(dictionary.addToCart)}
-              </>
+              <><ShoppingCart className="mr-2 w-4 h-4" />{t(dictionary.addToCart)}</>
             )}
           </Button>
         </div>
 
+        {/* Pagination dots */}
+        <div className="flex justify-center gap-2 pt-2">
+          <div className="w-2.5 h-2.5 rounded-full neon-bg" />
+          <div className="w-2.5 h-2.5 rounded-full bg-foreground/15" />
+          <div className="w-2.5 h-2.5 rounded-full bg-foreground/15" />
+          <div className="w-2.5 h-2.5 rounded-full bg-foreground/15" />
+        </div>
+
         {/* ── RATINGS ── */}
         <RatingsSection lookId={id} />
-
-        {/* ── RELATED LOOKS ── */}
-        {relatedLooks.length > 0 && (
-          <div className="mt-8">
-            <FadeUp>
-              <h2 className="text-sm font-black uppercase tracking-widest text-foreground/50 mb-4">
-                You may also like
-              </h2>
-            </FadeUp>
-            <StaggerContainer className="grid grid-cols-2 gap-3">
-              {relatedLooks.map((rel) => (
-                <StaggerItem key={rel.id}>
-                  <Link
-                    href={`/looks/${rel.id}`}
-                    className="group block bg-secondary/30 rounded-[1.3rem] overflow-hidden border border-foreground/5 hover:border-foreground/10 transition-all"
-                  >
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-t-[1.3rem]">
-                      <Image
-                        src={rel.imageUrl}
-                        alt={rel.name}
-                        fill quality={80}
-                        sizes="(max-width: 672px) 50vw, 200px"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="p-2.5 space-y-0.5">
-                      <h3 className="text-xs font-bold text-foreground truncate uppercase tracking-tight">{rel.name}</h3>
-                      <p className="text-xs font-black neon-text">
-                        {rel.currency === 'UZS'
-                          ? `${new Intl.NumberFormat('uz-UZ').format(rel.price).replace(/,/g, ' ')} UZS`
-                          : `$${rel.price}`}
-                      </p>
-                    </div>
-                  </Link>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </div>
-        )}
       </div>
 
-      {/* Fullscreen image viewer with zoom */}
+      {/* ── RELATED LOOKS ── */}
+      {relatedLooks.length > 0 && (
+        <div className="max-w-2xl mx-auto px-4 mt-10">
+          <FadeUp>
+            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
+              —— You may also like
+            </p>
+          </FadeUp>
+          <StaggerContainer className="grid grid-cols-2 gap-3">
+            {relatedLooks.map((rel) => (
+              <StaggerItem key={rel.id}>
+                <Link
+                  href={`/looks/${rel.id}`}
+                  className="group block bg-secondary/30 rounded-[1.3rem] overflow-hidden border border-foreground/5 hover:border-foreground/10 transition-all"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-t-[1.3rem]">
+                    <Image
+                      src={rel.imageUrl}
+                      alt={rel.name}
+                      fill quality={80}
+                      sizes="(max-width: 672px) 50vw, 200px"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-2.5 space-y-0.5">
+                    <h3 className="text-xs font-bold text-foreground truncate uppercase tracking-tight">{rel.name}</h3>
+                    <p className="text-xs font-black neon-text">
+                      {rel.currency === 'UZS'
+                        ? `${new Intl.NumberFormat('uz-UZ').format(rel.price).replace(/,/g, ' ')} UZS`
+                        : `$${rel.price}`}
+                    </p>
+                  </div>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
+      )}
+
+      {/* Fullscreen image viewer */}
       {showFullscreen && (
         <div
           className="fixed inset-0 z-[100] bg-black flex items-center justify-center"

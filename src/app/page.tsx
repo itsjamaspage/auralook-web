@@ -13,6 +13,7 @@ import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { FadeUp, FadeIn, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
 import { cn } from '@/lib/utils';
+import { SnapLoader } from '@/components/snap-loader';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -51,7 +52,7 @@ export default function Home() {
       .format(val).replace(/,/g, ' ');
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <SnapLoader />;
 
   if (isDeepLinking) {
     return (
@@ -75,7 +76,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="relative min-h-screen text-foreground overflow-x-hidden">
 
       {/* ── EDITORIAL HERO ── */}
 
@@ -86,6 +87,8 @@ export default function Home() {
             —— EST. 2026 // TOSHKENT, UZ
           </p>
         </FadeIn>
+
+        {/* Staircase: each word indented progressively */}
         <div className="-mx-2 overflow-hidden">
           {heroWords.map((word, i) => (
             <motion.div
@@ -93,9 +96,10 @@ export default function Home() {
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.75, delay: i * 0.13, ease }}
+              style={{ paddingLeft: i === 0 ? '0.5rem' : i === 1 ? '4vw' : `${i * 4}vw` }}
               className={cn(
-                'font-black uppercase leading-[0.88] tracking-tighter px-2',
-                'text-[17vw]',
+                'font-black uppercase leading-[0.88] tracking-tighter',
+                'text-[14vw] sm:text-[13vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >

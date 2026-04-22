@@ -10,6 +10,7 @@ import { TelegramUserProvider } from '@/hooks/use-telegram-user';
 import { BottomNav } from '@/components/bottom-nav';
 import { SmoothScrollProvider } from '@/components/smooth-scroll';
 import { DesktopEffects } from '@/components/desktop-effects';
+import { FloatingOrbs } from '@/components/floating-orbs';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function RootLayout({
         className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col relative"
         suppressHydrationWarning
       >
+        <FloatingOrbs />
         <DesktopEffects />
 
         <Script
