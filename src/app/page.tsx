@@ -13,6 +13,7 @@ import { collection, query, limit, orderBy } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { FadeUp, FadeIn, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
 import { cn } from '@/lib/utils';
+import { SnapLoader } from '@/components/snap-loader';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -48,7 +49,7 @@ export default function Home() {
       .format(val).replace(/,/g, ' ');
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <SnapLoader />;
 
   if (isDeepLinking) {
     return (
