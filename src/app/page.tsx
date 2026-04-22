@@ -81,7 +81,7 @@ export default function Home() {
       {/* ── EDITORIAL HERO ── */}
 
       {/* MOBILE hero */}
-      <section className="min-h-[100svh] flex flex-col justify-between px-4 pb-8 pt-2 lg:hidden">
+      <section className="flex flex-col gap-6 px-4 pt-4 pb-8 lg:hidden">
         <FadeIn>
           <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30">
             —— EST. 2026 // TOSHKENT, UZ
