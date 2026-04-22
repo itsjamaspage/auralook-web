@@ -2,68 +2,112 @@
 
 import { useEffect, useRef } from 'react';
 
-const COLORS = ['#ff2222', '#ff6600', '#00cc55', '#00ccff', '#4488ff', '#aa44ff', '#ff44cc'];
+const COLORS_RGB = [
+  [255, 34,  34 ],
+  [255, 102, 0  ],
+  [0,   204, 85 ],
+  [0,   204, 255],
+  [68,  136, 255],
+  [170, 68,  255],
+  [255, 68,  204],
+];
+
 const COUNT = 12;
 
+interface Ball {
+  x: number; y: number;
+  vx: number; vy: number;
+  r: number;
+}
+
+function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+
 export function FloatingOrbs() {
-  const ref = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const container = ref.current;
-    if (!container) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const orbs: HTMLDivElement[] = [];
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    canvas.width  = w;
+    canvas.height = h;
 
-    for (let i = 0; i < COUNT; i++) {
-      const orb = document.createElement('div');
-      const color = COLORS[i % COLORS.length];
-      // Round to whole pixels so the circle stays crisp
-      const sizePx = Math.round(8 + Math.random() * 14);
+    const balls: Ball[] = Array.from({ length: COUNT }, () => ({
+      x:  Math.random() * w,
+      y:  Math.random() * h,
+      r:  Math.round(7 + Math.random() * 10),
+      vx: (Math.random() - 0.5) * 1.8,
+      vy: (Math.random() - 0.5) * 1.8,
+    }));
 
-      Object.assign(orb.style, {
-        position: 'absolute',
-        borderRadius: '50%',
-        background: color,
-        left: `${Math.round(Math.random() * 95)}%`,
-        top: `${Math.round(Math.random() * 95)}%`,
-        width: `${sizePx}px`,
-        height: `${sizePx}px`,
-        opacity: '0.85',
-        pointerEvents: 'none',
-      });
+    let colorIdx  = 0;
+    let [cr, cg, cb] = COLORS_RGB[0];        // current rendered color
+    const SWITCH_MS  = 2000;
+    const BLEND_MS   = 700;
+    let lastSwitch   = performance.now();
+    let raf: number;
+    let lastT = performance.now();
 
-      // Integer px distances — avoids sub-pixel blur during animation
-      const tx = Math.round((Math.random() - 0.5) * 200);
-      const ty = Math.round((Math.random() - 0.5) * 160);
-      const duration = 1000 + Math.random() * 1000;
+    const draw = (now: number) => {
+      const dt = Math.min(now - lastT, 32);
+      lastT = now;
 
-      orb.animate(
-        [
-          { transform: 'translate(0px, 0px)' },
-          { transform: `translate(${tx}px, ${ty}px)` },
-        ],
-        {
-          duration,
-          direction: 'alternate',
-          fill: 'both',
-          iterations: Infinity,
-          easing: 'ease-in-out',
-          delay: -(Math.random() * duration),
-        }
-      );
+      // Blend colour
+      const elapsed = now - lastSwitch;
+      if (elapsed > SWITCH_MS) {
+        colorIdx  = (colorIdx + 1) % COLORS_RGB.length;
+        lastSwitch = now;
+      }
+      const [tr, tg, tb] = COLORS_RGB[(colorIdx + 1) % COLORS_RGB.length];
+      const t = Math.min(elapsed / BLEND_MS, 1);
+      [cr, cg, cb] = [
+        Math.round(lerp(COLORS_RGB[colorIdx][0], tr, t)),
+        Math.round(lerp(COLORS_RGB[colorIdx][1], tg, t)),
+        Math.round(lerp(COLORS_RGB[colorIdx][2], tb, t)),
+      ];
 
-      orbs.push(orb);
-      container.appendChild(orb);
-    }
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = `rgba(${cr},${cg},${cb},0.82)`;
 
-    return () => orbs.forEach(o => o.remove());
+      for (const b of balls) {
+        b.x += b.vx * dt * 0.06;
+        b.y += b.vy * dt * 0.06;
+        if (b.x - b.r < 0)  { b.x = b.r;     b.vx *= -1; }
+        if (b.x + b.r > w)  { b.x = w - b.r; b.vx *= -1; }
+        if (b.y - b.r < 0)  { b.y = b.r;     b.vy *= -1; }
+        if (b.y + b.r > h)  { b.y = h - b.r; b.vy *= -1; }
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    raf = requestAnimationFrame(draw);
+
+    const onResize = () => {
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = w; canvas.height = h;
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
+    <canvas
+      ref={canvasRef}
       aria-hidden
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: -1 }}
     />
   );
 }
