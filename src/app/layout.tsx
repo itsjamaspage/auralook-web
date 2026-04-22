@@ -51,7 +51,7 @@ export default function RootLayout({
             <TelegramUserProvider>
               <SmoothScrollProvider>
                 <Navbar />
-                <main className="flex-grow pt-20 sm:pt-28 pb-28 lg:pb-0">
+                <main className="flex-grow pt-20 sm:pt-28 pb-28 lg:pb-16">
                   {children}
                   <Footer className="lg:hidden" />
                 </main>

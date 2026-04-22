@@ -56,7 +56,7 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin neon-text" />
         <p className="text-foreground/40 font-mono text-[10px] uppercase tracking-widest animate-pulse">
-          Routing...
+          {t(dictionary.routing)}
         </p>
       </div>
     );
@@ -76,9 +76,9 @@ export default function Home() {
     <div className="relative min-h-screen text-foreground overflow-x-hidden">
 
       {/* ── EDITORIAL HERO ── */}
-      <section className="min-h-[100svh] lg:min-h-0 lg:py-20 flex flex-col justify-between px-4 pb-8 pt-2">
 
-        {/* Top meta label */}
+      {/* MOBILE hero */}
+      <section className="min-h-[100svh] flex flex-col justify-between px-4 pb-8 pt-2 lg:hidden">
         <FadeIn>
           <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30">
             —— EST. 2026 // TOSHKENT, UZ
@@ -96,7 +96,7 @@ export default function Home() {
               style={{ paddingLeft: i === 0 ? '0.5rem' : i === 1 ? '4vw' : `${i * 4}vw` }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter',
-                'text-[14vw] sm:text-[13vw] md:text-[10vw] lg:text-[7vw]',
+                'text-[14vw] sm:text-[13vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
@@ -104,8 +104,6 @@ export default function Home() {
             </motion.div>
           ))}
         </div>
-
-        {/* Bottom row: sub-text + circular arrow CTA */}
         <FadeUp delay={0.45}>
           <div className="flex items-end justify-between gap-4">
             <div className="space-y-2">
@@ -125,6 +123,59 @@ export default function Home() {
                 className="w-16 h-16 rounded-full neon-bg flex items-center justify-center shadow-xl shrink-0 magnetic-ring"
               >
                 <ArrowRight className="w-6 h-6 text-white" />
+              </Link>
+            </motion.div>
+          </div>
+        </FadeUp>
+      </section>
+
+      {/* DESKTOP hero */}
+      <section className="hidden lg:flex flex-col justify-center max-w-7xl mx-auto px-12 py-20 pb-12 min-h-[55vh]">
+        <FadeIn>
+          <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-8">
+            —— EST. 2026 // TOSHKENT, UZ
+          </p>
+        </FadeIn>
+
+        {/* Title: all words on one line, big but not viewport-filling */}
+        <div className="overflow-hidden mb-10">
+          <motion.h1
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.75, ease }}
+            className="font-black uppercase tracking-tighter leading-[0.9] text-[7rem] xl:text-[9rem]"
+          >
+            {heroWords.map((word, i) => (
+              <span
+                key={i}
+                className={cn(
+                  'inline-block mr-6',
+                  i === 1 ? 'neon-text' : 'text-foreground'
+                )}
+              >
+                {word}
+              </span>
+            ))}
+          </motion.h1>
+        </div>
+
+        <FadeUp delay={0.35}>
+          <div className="flex items-center gap-6">
+            <p className="text-sm text-foreground/50 font-medium max-w-xs leading-relaxed">
+              {t(dictionary.heroSub)}
+            </p>
+            <Link
+              href="/about"
+              className="px-6 py-3 rounded-full border border-foreground/20 text-xs font-black uppercase tracking-widest text-foreground/60 hover:neon-border hover:neon-text transition-all"
+            >
+              {t(dictionary.aboutUs)} →
+            </Link>
+            <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }} className="ml-auto">
+              <Link
+                href="/looks"
+                className="flex items-center gap-3 px-8 py-4 rounded-full neon-bg text-white font-black uppercase text-sm tracking-widest shadow-xl magnetic-ring"
+              >
+                {t(dictionary.viewAll)} <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
           </div>
@@ -154,11 +205,13 @@ export default function Home() {
         </div>
       </FadeIn>
 
-      {/* ── NUMBERED LOOKS STRIP ── */}
-      <section className="pt-8 pb-4 mb-2">
+      {/* ── LOOKS STRIP (mobile) / GRID (desktop) ── */}
+
+      {/* Mobile: horizontal scroll */}
+      <section className="pt-8 pb-4 mb-6 md:hidden">
         <FadeUp>
           <div className="flex items-center justify-between px-4 mb-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
               —— {t(dictionary.newArrivals)}
             </p>
             <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
@@ -194,11 +247,9 @@ export default function Home() {
                       sizes="168px"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {/* Index number */}
                     <div className="absolute top-2.5 left-2.5 text-[10px] font-mono text-white/50 font-black">
                       {String(i + 1).padStart(2, '0')}
                     </div>
-                    {/* Price badge */}
                     <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-full neon-bg text-white text-[10px] font-black shadow">
                       {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
                     </div>
@@ -213,15 +264,89 @@ export default function Home() {
         )}
       </section>
 
-      {/* ── FEATURE PANELS — Dave Holloway service-card style ── */}
-      <section className="px-4 mb-8">
+      {/* Desktop: 4-column card grid */}
+      <section className="hidden md:block pt-8 pb-10 mb-6 max-w-7xl mx-auto px-12">
         <FadeUp>
-          <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/40 mb-4">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70">
+              —— {t(dictionary.newArrivals)}
+            </p>
+            <Link href="/looks" className="text-[10px] font-black uppercase tracking-widest neon-text">
+              {t(dictionary.viewAll)} →
+            </Link>
+          </div>
+        </FadeUp>
+
+        {isLoading ? (
+          <div className="grid grid-cols-4 gap-5">
+            {Array(8).fill(0).map((_, i) => (
+              <div key={i} className="rounded-2xl bg-foreground/5 animate-pulse" style={{ height: 320 }} />
+            ))}
+          </div>
+        ) : (
+          <StaggerContainer className="grid grid-cols-4 gap-5">
+            {(featuredLooks ?? []).slice(0, 8).map((look, i) => (
+              <StaggerItem key={look.id}>
+                <Link href={`/looks/${look.id}`} className="group block">
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-foreground/5 mb-3">
+                    <Image
+                      src={look.imageUrl}
+                      alt={look.name}
+                      fill
+                      quality={85}
+                      sizes="300px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-2.5 left-2.5 text-[10px] font-mono text-white/50 font-black">
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-full neon-bg text-white text-[10px] font-black shadow">
+                      {look.currency === 'UZS' ? `${formatPrice(look.price)} UZS` : `$${look.price}`}
+                    </div>
+                  </div>
+                  <p className="text-[12px] font-black uppercase tracking-tight text-foreground truncate">
+                    {look.name}
+                  </p>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        )}
+      </section>
+
+      {/* ── TICKER 2 — values ── */}
+      <FadeIn>
+        <div className="border-y border-foreground/5 bg-foreground/[0.02] py-4 overflow-hidden relative my-10 md:my-16">
+          <div className="flex animate-marquee-right whitespace-nowrap">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex shrink-0 items-center gap-10 px-6">
+                {[
+                  dictionary.qualityTitle,
+                  dictionary.honestPriceTitle,
+                  dictionary.fastOrderTitle,
+                  dictionary.freeDelivery,
+                  dictionary.goodQuality,
+                  dictionary.limitedEdition,
+                ].map((dictKey, idx) => (
+                  <span key={idx} className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                    <div className="w-1.5 h-1.5 neon-bg rotate-45 shrink-0" /> {t(dictKey)}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
+
+      {/* ── FEATURE PANELS ── */}
+      <section className="px-4 mb-8 md:max-w-7xl md:mx-auto md:px-12">
+        <FadeUp>
+          <p className="text-[11px] font-mono font-bold uppercase tracking-[0.35em] text-foreground/70 mb-4">
             —— {t(dictionary.whatWeStandFor)}
           </p>
         </FadeUp>
 
-        <StaggerContainer className="grid grid-cols-2 gap-3">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
           {featurePanels.map((panel) => (
             <StaggerItem key={panel.num}>
               <div className={cn(
@@ -255,7 +380,7 @@ export default function Home() {
         <FadeUp delay={0.15}>
           <Button
             asChild
-            className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-3 magnetic-ring"
+            className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none shadow-xl mt-8 magnetic-ring"
           >
             <Link href="/looks">
               {t(dictionary.shopTheDrop)} <ArrowRight className="ml-2 w-4 h-4" />
@@ -264,9 +389,33 @@ export default function Home() {
         </FadeUp>
       </section>
 
+      {/* ── TICKER 3 — ordering ── */}
+      <FadeIn>
+        <div className="border-y border-foreground/5 bg-foreground/[0.02] py-4 overflow-hidden relative my-10 md:my-16">
+          <div className="flex animate-marquee-right whitespace-nowrap">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex shrink-0 items-center gap-10 px-6">
+                {[
+                  dictionary.orderViaTelegram,
+                  dictionary.newArrivals,
+                  dictionary.freeDelivery,
+                  dictionary.limitedEdition,
+                  dictionary.goodQuality,
+                  dictionary.fastOrderTitle,
+                ].map((dictKey, idx) => (
+                  <span key={idx} className="flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                    <div className="w-1.5 h-1.5 neon-bg rotate-45 shrink-0" /> {t(dictKey)}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
+
       {/* ── TELEGRAM CTA ── */}
       <FadeUp delay={0.05}>
-        <section className="px-4 mb-10">
+        <section className="px-4 mb-10 md:max-w-7xl md:mx-auto md:px-12 md:mb-16">
           <div className="relative overflow-hidden rounded-[2rem] bg-secondary/30 border border-foreground/5 p-7 shadow-sm">
             <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30 mb-4">
               —— {t(dictionary.orderViaTelegram)}

@@ -43,6 +43,7 @@ import { notifyAdminOfOrder, notifyCustomerOfOrder } from '@/ai/flows/ai-telegra
 import { cn } from '@/lib/utils';
 import { getProductDeepLink } from '@/lib/telegram-link';
 import { StaggerContainer, StaggerItem, FadeUp } from '@/components/motion-reveal';
+import { RatingsSection } from '@/components/ratings-section';
 
 type CheckoutStep = 'ASK_KNOWLEDGE' | 'CHOOSE_SIZE' | 'CHOOSE_SHOE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
 
@@ -353,6 +354,9 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           <div className="w-2.5 h-2.5 rounded-full bg-foreground/15" />
           <div className="w-2.5 h-2.5 rounded-full bg-foreground/15" />
         </div>
+
+        {/* ── RATINGS ── */}
+        <RatingsSection lookId={id} />
       </div>
 
       {/* ── RELATED LOOKS ── */}

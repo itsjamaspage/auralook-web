@@ -233,3 +233,40 @@ async function sendTelegramMessage(token: string, chatId: string, text: string, 
     });
   }
 }
+
+export async function notifyCustomerOfTracking({
+  customerTelegramId,
+  customerName,
+  orderId,
+  productName,
+  trackingNumber,
+}: {
+  customerTelegramId: number;
+  customerName: string;
+  orderId: string;
+  productName: string;
+  trackingNumber: string;
+}) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !customerTelegramId) return;
+
+  const trackUrl = `https://t.17track.net/en#nums=${encodeURIComponent(trackingNumber)}`;
+  const text =
+    `📦 <b>Buyurtmangiz yo'lda!</b>\n\n` +
+    `Salom, <b>${customerName}</b>!\n\n` +
+    `<b>${productName}</b> buyurtmangiz jo'natildi.\n\n` +
+    `🔍 <b>Kuzatuv raqami:</b> <code>${trackingNumber}</code>\n\n` +
+    `📍 <a href="${trackUrl}">Yukni kuzatish →</a>\n\n` +
+    `Buyurtma <b>7–12 kun</b> ichida yetib keladi. Savollar uchun menejerga murojaat qiling!`;
+
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: customerTelegramId,
+      text,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+    }),
+  });
+}

@@ -529,6 +529,38 @@ const dictionary = {
     en: '© 2026 Auralook. All rights reserved.'
   },
   contact: { uz: 'BOG\'LANISH', ru: 'КОНТАКТ', en: 'CONTACT' },
+  viewLook: { uz: 'Ko\'rish', ru: 'Смотреть', en: 'View' },
+  routing: { uz: 'Yo\'naltirilmoqda...', ru: 'Перенаправление...', en: 'Routing...' },
+
+  // Order Tracking
+  trackingNumber:  { uz: 'Kuzatuv raqami',              ru: 'Трек-номер',            en: 'Tracking No.' },
+  addTracking:     { uz: 'Raqam kiriting...',            ru: 'Введите номер...',      en: 'Enter tracking no.' },
+  trackPackage:    { uz: 'Yukni kuzatish',               ru: 'Отследить посылку',     en: 'Track Package' },
+  trackingAdded:   { uz: 'Kuzatuv raqami saqlandi',      ru: 'Трек-номер сохранён',   en: 'Tracking saved' },
+  saveLabel:       { uz: 'Saqlash',                      ru: 'Сохранить',             en: 'Save' },
+  trackingPending: { uz: 'Kuzatuv raqami hali yo\'q',    ru: 'Трек-номер ещё не добавлен', en: 'Tracking not yet added' },
+  chinaTracking:   { uz: 'Xitoy ichki tracking',         ru: 'Трекинг по Китаю',          en: 'China Domestic Tracking' },
+  intlTracking:    { uz: 'Xalqaro tracking (Toshkentga)',ru: 'Международный трекинг',       en: 'International Tracking' },
+  addChinaTracking:{ uz: 'Xitoy raqami...',              ru: 'Номер по Китаю...',           en: 'China tracking no.' },
+  chinaTrackingAdded: { uz: 'Xitoy tracking saqlandi',   ru: 'Китайский трекинг сохранён', en: 'China tracking saved' },
+  stepOrderPlaced: { uz: 'Buyurtma berildi',             ru: 'Заказ оформлен',             en: 'Order Placed' },
+  stepConfirmed:   { uz: 'Tasdiqlandi',                  ru: 'Подтверждён',                en: 'Confirmed' },
+  stepInTransit:   { uz: 'Yo\'lda (Toshkentga)',         ru: 'В пути (в Ташкент)',          en: 'In Transit' },
+  stepDelivered:   { uz: 'Yetkazildi',                   ru: 'Доставлен',                  en: 'Delivered' },
+
+  // Ratings & Reviews
+  rateThisLook:    { uz: 'Bu libosni baholang',                    ru: 'Оцените этот образ',                   en: 'Rate this look' },
+  leaveRating:     { uz: 'Baholash',                               ru: 'Оставить отзыв',                       en: 'Leave Review' },
+  submitRating:    { uz: 'Yuborish',                               ru: 'Отправить',                            en: 'Submit' },
+  ratingPlaceholder: { uz: 'Fikringizni yozing...',                ru: 'Напишите свой отзыв...',                en: 'Write your review...' },
+  addPhoto:        { uz: "Rasm qo'shish",                          ru: 'Добавить фото',                        en: 'Add Photo' },
+  anonymous:       { uz: 'Anonim',                                 ru: 'Анонимно',                             en: 'Anonymous' },
+  showProfile:     { uz: "Profilni ko'rsatish",                    ru: 'Показать профиль',                     en: 'Show Profile' },
+  anonymousHint:   { uz: "Ismingiz ko'rinmaydi",                   ru: 'Имя ne budet vidno',                   en: "Your name won't be shown" },
+  showProfileHint: { uz: "Telegram profilingiz ko'rinadi",         ru: 'Будет виден ваш профиль Telegram',     en: 'Your Telegram profile will be shown' },
+  ratingsLabel:    { uz: 'ta baho',                                ru: 'отзывов',                              en: 'reviews' },
+  noRatingsYet:    { uz: "Hali baholar yo'q",                      ru: 'Отзывов ещё нет',                      en: 'No reviews yet' },
+  ratingSubmitted: { uz: 'Bahoyingiz qabul qilindi!',              ru: 'Ваш отзыв принят!',                    en: 'Review submitted!' },
 };
 
 interface LanguageContextType {

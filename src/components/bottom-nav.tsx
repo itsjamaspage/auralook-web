@@ -115,7 +115,7 @@ export function BottomNav() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
       <div
         className="bg-background/95 backdrop-blur-2xl border-t border-foreground/10 w-full flex items-center justify-between px-3 rounded-t-[2.5rem] shadow-2xl"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingTop: '12px', minHeight: '72px' }}
