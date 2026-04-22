@@ -81,7 +81,7 @@ export default function Home() {
       {/* ── EDITORIAL HERO ── */}
 
       {/* MOBILE hero */}
-      <section className="min-h-[100svh] flex flex-col justify-between px-4 pb-8 pt-2 lg:hidden">
+      <section className="flex flex-col gap-6 px-4 pt-4 pb-8 lg:hidden">
         <FadeIn>
           <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-foreground/30">
             —— EST. 2026 // TOSHKENT, UZ
@@ -140,26 +140,24 @@ export default function Home() {
           </p>
         </FadeIn>
 
-        {/* Title: all words on one line, big but not viewport-filling */}
-        <div className="overflow-hidden mb-10">
-          <motion.h1
-            initial={{ y: 60, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.75, ease }}
-            className="font-black uppercase tracking-tighter leading-[0.9] text-[7rem] xl:text-[9rem]"
-          >
-            {heroWords.map((word, i) => (
-              <span
-                key={i}
-                className={cn(
-                  'inline-block mr-6',
-                  i === 1 ? 'neon-text' : 'text-foreground'
-                )}
-              >
-                {word}
-              </span>
-            ))}
-          </motion.h1>
+        {/* Staircase: each word on its own line, indented progressively */}
+        <div className="-mx-4 overflow-hidden mb-10">
+          {heroWords.map((word, i) => (
+            <motion.div
+              key={i}
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.75, delay: i * 0.13, ease }}
+              style={{ paddingLeft: i === 0 ? '1rem' : `${i * 6}rem` }}
+              className={cn(
+                'font-black uppercase leading-[0.88] tracking-tighter',
+                'text-[7rem] xl:text-[9rem]',
+                i === 1 ? 'neon-text' : 'text-foreground'
+              )}
+            >
+              {word}
+            </motion.div>
+          ))}
         </div>
 
         <FadeUp delay={0.35}>
