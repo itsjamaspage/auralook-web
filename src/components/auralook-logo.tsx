@@ -88,7 +88,7 @@ export function AuralookLogo() {
   const [gx, gy] = GAZE[gazeIndex];
 
   return (
-    <span className="text-2xl sm:text-3xl font-black tracking-tighter neon-text-self italic inline-flex items-center">
+    <span className="text-2xl sm:text-3xl font-black tracking-tighter logo-color-cycle italic inline-flex items-center">
       AURAL<Eye gazeX={gx} gazeY={gy} blinking={blinking} /><Eye gazeX={gx} gazeY={gy} blinking={blinking} />K
     </span>
   );

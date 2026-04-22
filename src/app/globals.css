@@ -91,6 +91,23 @@
   100%    { --sync-hue: 360; --sync-lightness: 50%; --sync-color: hsl(360, 100%, 50%); --sync-shadow: hsla(360, 100%, 50%, 0.45); }
 }
 
+/* Direct color animation — bypasses CSS custom property inheritance issues.
+   Matches the same stops as color-sync so the logo stays in sync with neon elements. */
+@keyframes logo-color-cycle {
+  0%      { color: hsl(0,   100%, 50%); }
+  14.28%  { color: hsl(30,  100%, 50%); }
+  28.57%  { color: hsl(145, 100%, 40%); }
+  42.85%  { color: hsl(190, 100%, 50%); }
+  57.14%  { color: hsl(225, 100%, 60%); }
+  71.42%  { color: hsl(275, 100%, 60%); }
+  85.71%  { color: hsl(315, 100%, 55%); }
+  100%    { color: hsl(360, 100%, 50%); }
+}
+
+.logo-color-cycle {
+  animation: logo-color-cycle 24.5s linear infinite !important;
+}
+
 :root {
   animation: color-sync 24.5s linear infinite;
 }
