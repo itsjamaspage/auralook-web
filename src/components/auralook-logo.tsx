@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 const GAZE: [number, number][] = [
@@ -10,42 +10,28 @@ const GAZE: [number, number][] = [
   [0.5, -0.45], [-0.5, -0.45],
   [0.5, 0.45], [-0.5, 0.45],
 ];
+const MAX = 14;
 
-function Eye({ delay = 0 }: { delay?: number }) {
+// Both eyes receive the same gaze + blink props so they always move in sync
+function Eye({ gazeX, gazeY, blinking }: { gazeX: number; gazeY: number; blinking: boolean }) {
   const pupilAnim = useAnimation();
   const eyeAnim = useAnimation();
-  const MAX = 14;
 
   useEffect(() => {
-    let alive = true;
+    pupilAnim.start({
+      x: gazeX * MAX,
+      y: gazeY * MAX,
+      transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+    });
+  }, [gazeX, gazeY]);
 
-    async function wander() {
-      await new Promise(r => setTimeout(r, delay * 450));
-      while (alive) {
-        const [gx, gy] = GAZE[Math.floor(Math.random() * GAZE.length)];
-        await pupilAnim.start({
-          x: gx * MAX,
-          y: gy * MAX,
-          transition: { duration: 0.28 + Math.random() * 0.45, ease: [0.22, 1, 0.36, 1] },
-        });
-        await new Promise(r => setTimeout(r, 700 + Math.random() * 2200));
-      }
+  useEffect(() => {
+    if (blinking) {
+      eyeAnim.start({ scaleY: 0.05, transition: { duration: 0.07, ease: 'easeIn' } });
+    } else {
+      eyeAnim.start({ scaleY: 1, transition: { duration: 0.12, ease: 'easeOut' } });
     }
-
-    async function blink() {
-      await new Promise(r => setTimeout(r, 900 + delay * 1400 + Math.random() * 1000));
-      while (alive) {
-        await eyeAnim.start({ scaleY: 0.05, transition: { duration: 0.07, ease: 'easeIn' } });
-        await new Promise(r => setTimeout(r, 80));
-        await eyeAnim.start({ scaleY: 1, transition: { duration: 0.12, ease: 'easeOut' } });
-        await new Promise(r => setTimeout(r, 2200 + Math.random() * 4000));
-      }
-    }
-
-    wander();
-    blink();
-    return () => { alive = false; };
-  }, []);
+  }, [blinking]);
 
   return (
     <svg
@@ -58,23 +44,52 @@ function Eye({ delay = 0 }: { delay?: number }) {
         initial={{ scaleY: 1 }}
         style={{ transformOrigin: '50px 65px' }}
       >
-        {/* Outer O ring */}
         <ellipse cx="50" cy="65" rx="48" ry="63" fill="currentColor" />
-        {/* Iris area */}
         <ellipse cx="50" cy="65" rx="32" ry="44" fill="hsl(var(--background))" />
-        {/* Pupil */}
         <motion.circle cx="50" cy="65" r="17" fill="hsl(var(--foreground))" animate={pupilAnim} initial={{ x: 0, y: 0 }} />
-        {/* Catchlight */}
         <motion.circle cx="60" cy="55" r="6" fill="hsl(var(--background))" opacity={0.55} animate={pupilAnim} initial={{ x: 0, y: 0 }} />
       </motion.g>
     </svg>
   );
 }
 
+function delay(ms: number) { return new Promise<void>(r => setTimeout(r, ms)); }
+
 export function AuralookLogo() {
+  const [gazeIndex, setGazeIndex] = useState(0);
+  const [blinking, setBlinking] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function wander() {
+      await delay(500);
+      while (alive) {
+        setGazeIndex(Math.floor(Math.random() * GAZE.length));
+        await delay(800 + Math.random() * 2200);
+      }
+    }
+
+    async function blink() {
+      await delay(1200 + Math.random() * 800);
+      while (alive) {
+        setBlinking(true);
+        await delay(75 + 120);
+        setBlinking(false);
+        await delay(2400 + Math.random() * 3500);
+      }
+    }
+
+    wander();
+    blink();
+    return () => { alive = false; };
+  }, []);
+
+  const [gx, gy] = GAZE[gazeIndex];
+
   return (
-    <span className="text-xl sm:text-2xl font-black tracking-tighter neon-text italic inline-flex items-center">
-      AURAL<Eye delay={0} /><Eye delay={1} />K
+    <span className="text-2xl sm:text-3xl font-black tracking-tighter neon-text italic inline-flex items-center">
+      AURAL<Eye gazeX={gx} gazeY={gy} blinking={blinking} /><Eye gazeX={gx} gazeY={gy} blinking={blinking} />K
     </span>
   );
 }

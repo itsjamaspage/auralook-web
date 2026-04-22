@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-// Same hues as the app's neon color-sync keyframe stops
 const HUES = [0, 30, 145, 190, 225, 275, 315];
-const COUNT = 22;
+const COUNT = 30;
 
 export function FloatingOrbs() {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,15 +17,13 @@ export function FloatingOrbs() {
     for (let i = 0; i < COUNT; i++) {
       const orb = document.createElement('div');
       const hue = HUES[i % HUES.length];
+      const isSmall = i < 10;
 
-      // Mix of tiny dots and large soft glows
-      const sizePx = i < 8
-        ? 8 + Math.random() * 24          // small sharp dots: 8–32px
-        : 80 + Math.random() * 220;       // large soft glows: 80–300px
+      const sizePx = isSmall
+        ? 10 + Math.random() * 28    // small sharp dots: 10–38px
+        : 90 + Math.random() * 240;  // large soft glows: 90–330px
 
-      const blurPx = i < 8
-        ? sizePx * 0.4
-        : sizePx * 0.65;
+      const blurPx = isSmall ? sizePx * 0.35 : sizePx * 0.6;
 
       Object.assign(orb.style, {
         position: 'absolute',
@@ -36,8 +33,7 @@ export function FloatingOrbs() {
         top: `${Math.random() * 110 - 5}%`,
         width: `${sizePx}px`,
         height: `${sizePx}px`,
-        // Small dots more visible, large glows soft
-        opacity: i < 8 ? '0.22' : '0.10',
+        opacity: isSmall ? '0.35' : '0.18',
         filter: `blur(${blurPx}px)`,
         willChange: 'transform',
         pointerEvents: 'none',
@@ -57,7 +53,7 @@ export function FloatingOrbs() {
           fill: 'both',
           iterations: Infinity,
           easing: 'ease-in-out',
-          delay: -(Math.random() * 5000), // stagger so they don't all start at same position
+          delay: -(Math.random() * 5000),
         }
       );
 
@@ -71,7 +67,9 @@ export function FloatingOrbs() {
   return (
     <div
       ref={ref}
-      className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
+      // multiply blends colors against white in light mode (shows tints)
+      // screen blends additively against dark in dark mode (shows glows)
+      className="fixed inset-0 z-0 overflow-hidden pointer-events-none [mix-blend-mode:multiply] dark:[mix-blend-mode:screen]"
       aria-hidden
     />
   );

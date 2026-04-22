@@ -271,10 +271,10 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
         </Button>
       </div>
 
-      {/* ── FULL-BLEED HERO IMAGE ── */}
+      {/* ── HERO IMAGE — full-bleed mobile, constrained desktop ── */}
       <div
-        className="relative w-full cursor-zoom-in overflow-hidden"
-        style={{ height: '56vh' }}
+        className="relative w-full lg:max-w-lg lg:mx-auto lg:rounded-2xl cursor-zoom-in overflow-hidden"
+        style={{ aspectRatio: '3/4', maxHeight: '80vh' }}
         onClick={() => setShowFullscreen(true)}
       >
         <Image
@@ -284,7 +284,7 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
           className="object-cover"
           priority
           quality={100}
-          sizes="100vw"
+          sizes="(max-width: 1024px) 100vw, 512px"
         />
         {/* Bottom gradient for price readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />

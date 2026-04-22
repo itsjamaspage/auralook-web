@@ -76,7 +76,7 @@ export default function Home() {
     <div className="relative min-h-screen text-foreground overflow-x-hidden">
 
       {/* ── EDITORIAL HERO ── */}
-      <section className="min-h-screen flex flex-col justify-between px-4 pb-10 pt-2">
+      <section className="min-h-[100svh] lg:min-h-0 lg:py-20 flex flex-col justify-between px-4 pb-8 pt-2">
 
         {/* Top meta label */}
         <FadeIn>
@@ -85,18 +85,18 @@ export default function Home() {
           </p>
         </FadeIn>
 
-        {/* Staircase title — each word indented more than the last */}
-        <div className="overflow-hidden">
+        {/* Staircase: each word indented progressively */}
+        <div className="-mx-2 overflow-hidden">
           {heroWords.map((word, i) => (
             <motion.div
               key={i}
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.75, delay: i * 0.13, ease }}
-              style={{ paddingLeft: i === 0 ? '0.25rem' : i === 1 ? '6vw' : `${i * 6}vw` }}
+              style={{ paddingLeft: i === 0 ? '0.5rem' : i === 1 ? '4vw' : `${i * 4}vw` }}
               className={cn(
-                'font-black uppercase leading-[0.9] tracking-tighter',
-                'text-[16vw] sm:text-[12vw] md:text-[9vw] lg:text-[8.5vw]',
+                'font-black uppercase leading-[0.88] tracking-tighter',
+                'text-[14vw] sm:text-[13vw] md:text-[10vw] lg:text-[7vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
