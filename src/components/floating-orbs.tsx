@@ -36,8 +36,8 @@ export function FloatingOrbs() {
         top: `${Math.random() * 110 - 5}%`,
         width: `${sizePx}px`,
         height: `${sizePx}px`,
-        // Small dots slightly more visible, large glows very faint
-        opacity: i < 8 ? '0.12' : '0.055',
+        // Small dots more visible, large glows soft
+        opacity: i < 8 ? '0.22' : '0.10',
         filter: `blur(${blurPx}px)`,
         willChange: 'transform',
         pointerEvents: 'none',
