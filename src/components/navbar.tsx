@@ -137,7 +137,7 @@ export function Navbar() {
   const BOT_URL = "https://t.me/jamastore_aibot/auralook?startapp=from_web";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-b border-border px-4 py-3 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border px-4 py-3 shadow-sm">
       <div className="max-w-2xl mx-auto lg:max-w-7xl lg:px-8 flex items-center justify-between gap-4">
 
         <Link href="/" className="flex items-center gap-2 group shrink-0 group-hover:scale-105 transition-transform">
