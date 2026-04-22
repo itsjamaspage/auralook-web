@@ -99,7 +99,7 @@ export default function Home() {
               style={{ paddingLeft: i === 0 ? '0.5rem' : i === 1 ? '4vw' : `${i * 4}vw` }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter',
-                'text-[10vw] sm:text-[9vw]',
+                'text-[12vw] sm:text-[11vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
@@ -151,7 +151,7 @@ export default function Home() {
               style={{ paddingLeft: i === 0 ? '1rem' : `${i * 6}rem` }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter',
-                'text-[7rem] xl:text-[9rem]',
+                'text-[4rem] xl:text-[5.5rem]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
