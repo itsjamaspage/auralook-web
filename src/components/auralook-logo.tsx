@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 const GAZE: [number, number][] = [
@@ -58,6 +58,21 @@ function delay(ms: number) { return new Promise<void>(r => setTimeout(r, ms)); }
 export function AuralookLogo() {
   const [gazeIndex, setGazeIndex] = useState(0);
   const [blinking, setBlinking] = useState(false);
+  const spanRef = useRef<HTMLSpanElement>(null);
+
+  // Directly read --sync-color from :root every frame — bypasses all CSS
+  // specificity / inheritance issues so the logo is always pixel-perfect in sync.
+  useEffect(() => {
+    let raf: number;
+    const sync = () => {
+      const color = getComputedStyle(document.documentElement)
+        .getPropertyValue('--sync-color').trim();
+      if (spanRef.current && color) spanRef.current.style.color = color;
+      raf = requestAnimationFrame(sync);
+    };
+    raf = requestAnimationFrame(sync);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -88,7 +103,7 @@ export function AuralookLogo() {
   const [gx, gy] = GAZE[gazeIndex];
 
   return (
-    <span className="text-2xl sm:text-3xl font-black tracking-tighter neon-text italic inline-flex items-center">
+    <span ref={spanRef} className="text-2xl sm:text-3xl font-black tracking-tighter italic inline-flex items-center">
       AURAL<Eye gazeX={gx} gazeY={gy} blinking={blinking} /><Eye gazeX={gx} gazeY={gy} blinking={blinking} />K
     </span>
   );
