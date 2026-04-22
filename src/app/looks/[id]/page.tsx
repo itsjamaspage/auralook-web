@@ -25,6 +25,7 @@ import {
   Loader2,
   ChevronLeft,
   Ruler,
+  ZoomIn,
   Phone,
   CheckCircle2,
   Sparkles,
