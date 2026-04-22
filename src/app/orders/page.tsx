@@ -205,27 +205,48 @@ export default function UserOrdersPage() {
 
                       {/* Status timeline */}
                       {!isCancelled && (
-                        <div className="flex items-start gap-0 py-2 px-1 bg-foreground/[0.02] rounded-2xl">
+                        <div className="flex items-start py-3 px-2 bg-foreground/[0.02] rounded-2xl">
                           {timelineSteps.map((step, i) => {
                             const done = i <= rank;
                             const active = i === rank;
                             const StepIcon = step.icon;
                             return (
                               <div key={i} className="flex items-center flex-1 min-w-0">
-                                <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                                  <div className={cn(
-                                    'w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all',
-                                    done ? 'neon-bg border-transparent shadow-[0_0_12px_rgba(var(--sync-color),0.4)]' : 'bg-background border-foreground/10'
-                                  )}>
-                                    <StepIcon className={cn('w-3.5 h-3.5', done ? 'text-white' : 'text-foreground/20')} />
+                                <motion.div
+                                  className="flex flex-col items-center gap-1.5 flex-1 min-w-0"
+                                  initial={{ opacity: 0, y: 6 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.35, delay: i * 0.1 }}
+                                >
+                                  <div className="relative flex items-center justify-center">
+                                    {active && (
+                                      <motion.div
+                                        className="absolute w-9 h-9 rounded-full neon-bg"
+                                        animate={{ scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                                      />
+                                    )}
+                                    <div className={cn(
+                                      'relative w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all',
+                                      done
+                                        ? 'neon-bg border-transparent shadow-[0_0_14px_rgba(var(--sync-color),0.5)]'
+                                        : 'bg-background border-foreground/10'
+                                    )}>
+                                      <StepIcon className={cn('w-4 h-4', done ? 'text-white' : 'text-foreground/20')} />
+                                    </div>
                                   </div>
                                   <p className={cn(
                                     'text-[8px] font-black uppercase tracking-tight text-center leading-tight px-1',
                                     active ? 'neon-text' : done ? 'text-foreground/50' : 'text-foreground/20'
                                   )}>{step.label}</p>
-                                </div>
+                                </motion.div>
                                 {i < timelineSteps.length - 1 && (
-                                  <div className={cn('h-[2px] w-4 rounded-full mx-0.5 mb-5 shrink-0 transition-all', done && i < rank ? 'neon-bg' : 'bg-foreground/10')} />
+                                  <motion.div
+                                    className={cn('h-[2px] w-4 rounded-full mx-0.5 mb-5 shrink-0', done && i < rank ? 'neon-bg' : 'bg-foreground/10')}
+                                    initial={{ scaleX: 0, originX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ duration: 0.3, delay: i * 0.1 + 0.25 }}
+                                  />
                                 )}
                               </div>
                             );

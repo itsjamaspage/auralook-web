@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Globe, Zap, ArrowRight, Quote, Bot, MessageSquare, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Globe, Zap, ArrowRight, Quote, Bot, MessageSquare, ShieldAlert, Send } from 'lucide-react';
 import Link from 'next/link';
 
 const TESTIMONIALS = [
@@ -249,6 +249,30 @@ export default function AboutPage() {
               <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </Link>
           </Button>
+
+          {/* Social links */}
+          <div className="flex justify-center gap-4 pt-4">
+            <a
+              href="https://t.me/jamastore_aibot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#229ED9]/10 border border-[#229ED9]/20 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all text-[11px] font-black uppercase tracking-widest"
+            >
+              <Send className="w-4 h-4" />
+              @jamastore_aibot
+            </a>
+            <a
+              href="https://www.instagram.com/auralook.uz/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-pink-500/10 border border-pink-500/20 text-pink-500 hover:bg-pink-500/20 transition-all text-[11px] font-black uppercase tracking-widest"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              @auralook.uz
+            </a>
+          </div>
         </section>
 
       </div>

@@ -202,7 +202,7 @@ export function Navbar() {
                 )}
               </div>
               
-              {[
+              {!isInsideTelegram && [
                 { href: '/looks',     icon: Compass,      label: t(dictionary.browseLooks) },
                 { href: '/favorites', icon: Heart,        label: t(dictionary.favorites) },
                 { href: '/cart',      icon: ShoppingCart, label: t(dictionary.cart) },

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, Ruler, Sparkles } from 'lucide-react';
+import { Loader2, Trash2, ShoppingCart, ArrowRight, CheckCircle2, Phone, Send, Ruler } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeUp, StaggerContainer, StaggerItem } from '@/components/motion-reveal';
 
-type CheckoutStep = 'CHOOSE_SIZE' | 'CHOOSE_SHOE_SIZE' | 'ENTER_MEASUREMENTS' | 'CONTACT';
+type CheckoutStep = 'ENTER_MEASUREMENTS' | 'CONTACT';
 
 export default function CartPage() {
   const db = useFirestore();
@@ -31,9 +31,10 @@ export default function CartPage() {
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>('CHOOSE_SIZE');
+  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>('ENTER_MEASUREMENTS');
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedShoeSize, setSelectedShoeSize] = useState('');
+  const [showShoeSize, setShowShoeSize] = useState(false);
   const [orderDetails, setOrderDetails] = useState({ height: '', weight: '', phone: '+998 ', telegram: '' });
 
   useEffect(() => {
@@ -89,6 +90,8 @@ export default function CartPage() {
       const orderIds: string[] = [];
       const itemsForAdmin: any[] = [];
 
+      const shoeSize = showShoeSize && selectedShoeSize ? selectedShoeSize : undefined;
+
       for (const item of cartItems) {
         const orderData = {
           userId: firebaseUser.uid, firebaseUid: firebaseUser.uid, telegramId: tgUser.id,
@@ -96,21 +99,22 @@ export default function CartPage() {
           orderDate: new Date().toISOString(), status: 'New',
           totalAmount: item.price, currency: item.currency || 'USD',
           lookId: item.lookId, lookName: item.name, lookImageUrl: item.imageUrl,
-          size: selectedSize || `M (${t(dictionary.managerAdviceLabel)})`,
-          ...(item.hasShoe && { shoeSize: selectedShoeSize || t(dictionary.managerAdviceLabel) }),
+          size: selectedSize || 'M',
+          ...(shoeSize && { shoeSize }),
           phoneNumber: orderDetails.phone, telegramUsername: orderDetails.telegram,
           createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
           measurements: { height: orderDetails.height || "Noma'lum", weight: orderDetails.weight || "Noma'lum" },
         };
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         orderIds.push(docRef.id);
-        itemsForAdmin.push({ productName: item.name, size: orderData.size, imageUrl: item.imageUrl, lookId: item.lookId });
+        itemsForAdmin.push({ productName: item.name, size: orderData.size, imageUrl: item.imageUrl, lookId: item.lookId, shoeSize });
         await notifyCustomerOfOrder({
           customerName: orderData.customerName, orderId: docRef.id, lookId: item.lookId,
           currentStatus: 'New', productName: item.name, phoneNumber: orderData.phoneNumber,
           telegramUsername: orderData.telegramUsername, customerTelegramId: tgUser.telegramId,
           imageUrl: item.imageUrl, language: 'uz', timestamp,
           physique: { height: orderDetails.height || undefined, weight: orderDetails.weight || undefined, size: orderData.size },
+          shoeSize,
         });
         await deleteDoc(doc(db, 'users', tgUser.id, 'cart', item.id));
       }
@@ -228,54 +232,54 @@ export default function CartPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {checkoutStep === 'CHOOSE_SIZE' && (
-            <div className="space-y-6 py-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.selectSizeTitle)}</p>
-              <div className="grid grid-cols-3 gap-3">
-                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
-                  <button key={size} onClick={() => setSelectedSize(size)}
-                    className={cn("h-11 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
-                      selectedSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
-                  >{size}</button>
-                ))}
-              </div>
-              <Button onClick={() => setCheckoutStep('ENTER_MEASUREMENTS')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
-            </div>
-          )}
-
-          {checkoutStep === 'CHOOSE_SHOE_SIZE' && (
-            <div className="space-y-6 py-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">👟 SHOE SIZE (EUR)</p>
-              <div className="grid grid-cols-4 gap-2.5">
-                {['36','37','38','39','40','41','42','43','44','45'].map(size => (
-                  <button key={size} onClick={() => setSelectedShoeSize(size)}
-                    className={cn("h-11 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
-                      selectedShoeSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
-                  >{size}</button>
-                ))}
-              </div>
-              <Button onClick={() => setCheckoutStep('CONTACT')} disabled={!selectedShoeSize} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
-            </div>
-          )}
-
           {checkoutStep === 'ENTER_MEASUREMENTS' && (
             <div className="space-y-5 py-1">
-              <div className="flex items-center gap-2"><Ruler className="w-4 h-4 neon-text" /><p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.enterMeasurementsTitle)}</p></div>
-              <div className="flex items-start gap-3 bg-foreground/5 p-3.5 rounded-xl border border-foreground/5">
-                <Sparkles className="w-4 h-4 neon-text shrink-0 mt-0.5" />
-                <p className="text-xs text-foreground/70 italic font-bold leading-relaxed">{t(dictionary.managerAdvisory)}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.heightShortLabel)}</Label>
-                  <Input type="number" placeholder="175" value={orderDetails.height} onChange={e => setOrderDetails(p => ({ ...p, height: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
+              {/* Height + Weight */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Ruler className="w-4 h-4 neon-text" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t(dictionary.enterMeasurementsTitle)}</p>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.weightShortLabel)}</Label>
-                  <Input type="number" placeholder="70" value={orderDetails.weight} onChange={e => setOrderDetails(p => ({ ...p, weight: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.heightShortLabel)}</Label>
+                    <Input type="number" placeholder="175" value={orderDetails.height} onChange={e => setOrderDetails(p => ({ ...p, height: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-black text-foreground/50">{t(dictionary.weightShortLabel)}</Label>
+                    <Input type="number" placeholder="70" value={orderDetails.weight} onChange={e => setOrderDetails(p => ({ ...p, weight: e.target.value }))} className="bg-secondary/50 border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base" />
+                  </div>
                 </div>
               </div>
-              <Button onClick={() => setCheckoutStep(cartItems?.some(i => i.hasShoe) ? 'CHOOSE_SHOE_SIZE' : 'CONTACT')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
+
+              {/* Shoe size toggle */}
+              <div className="border border-foreground/10 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">👟</span>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Poyabzal o'lchami (EUR)</p>
+                  </div>
+                  <button
+                    onClick={() => { setShowShoeSize(v => !v); setSelectedShoeSize(''); }}
+                    className={cn("relative w-11 h-6 rounded-full transition-all duration-200 shrink-0", showShoeSize ? 'neon-bg' : 'bg-foreground/20')}
+                    aria-label="Toggle shoe size"
+                  >
+                    <span className={cn("absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200", showShoeSize ? 'left-[1.375rem]' : 'left-0.5')} />
+                  </button>
+                </div>
+                {showShoeSize && (
+                  <div className="grid grid-cols-5 gap-2">
+                    {['36','37','38','39','40','41','42','43','44','45'].map(size => (
+                      <button key={size} onClick={() => setSelectedShoeSize(size)}
+                        className={cn("h-10 rounded-xl text-xs font-black transition-all border flex items-center justify-center",
+                          selectedShoeSize === size ? 'neon-bg border-none text-white animate-pop' : 'bg-secondary/50 border-foreground/10 text-foreground hover:border-foreground/30')}
+                      >{size}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Button onClick={() => setCheckoutStep('CONTACT')} className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase tracking-widest">{t(dictionary.nextStep)}</Button>
             </div>
           )}
 

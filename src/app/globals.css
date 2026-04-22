@@ -183,6 +183,12 @@ body {
   color: var(--sync-color) !important;
 }
 
+/* Self-contained color animation — does not rely on :root inheritance */
+.neon-text-self {
+  animation: color-sync 24.5s linear infinite;
+  color: var(--sync-color) !important;
+}
+
 .neon-border {
   border-color: var(--sync-color) !important;
 }
