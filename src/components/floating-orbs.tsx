@@ -13,26 +13,25 @@ export function FloatingOrbs() {
     if (!container) return;
 
     const orbs: HTMLDivElement[] = [];
+    let colorIndex = 0;
 
     for (let i = 0; i < COUNT; i++) {
       const orb = document.createElement('div');
-      const color = COLORS[i % COLORS.length];
-      // Round to whole pixels so the circle stays crisp
       const sizePx = Math.round(8 + Math.random() * 14);
 
       Object.assign(orb.style, {
         position: 'absolute',
         borderRadius: '50%',
-        background: color,
+        background: COLORS[0],
         left: `${Math.round(Math.random() * 95)}%`,
         top: `${Math.round(Math.random() * 95)}%`,
         width: `${sizePx}px`,
         height: `${sizePx}px`,
         opacity: '0.85',
         pointerEvents: 'none',
+        transition: 'background-color 0.8s ease',
       });
 
-      // Integer px distances — avoids sub-pixel blur during animation
       const tx = Math.round((Math.random() - 0.5) * 200);
       const ty = Math.round((Math.random() - 0.5) * 160);
       const duration = 1000 + Math.random() * 1000;
@@ -56,13 +55,24 @@ export function FloatingOrbs() {
       container.appendChild(orb);
     }
 
-    return () => orbs.forEach(o => o.remove());
+    // All balls cycle through the same color together
+    const cycleInterval = setInterval(() => {
+      colorIndex = (colorIndex + 1) % COLORS.length;
+      orbs.forEach(orb => { orb.style.background = COLORS[colorIndex]; });
+    }, 1800);
+
+    return () => {
+      clearInterval(cycleInterval);
+      orbs.forEach(o => o.remove());
+    };
   }, []);
 
   return (
     <div
       ref={ref}
-      className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
+      // z-index: -1 puts orbs behind all page content but above the body background
+      style={{ zIndex: -1 }}
+      className="fixed inset-0 overflow-hidden pointer-events-none"
       aria-hidden
     />
   );
