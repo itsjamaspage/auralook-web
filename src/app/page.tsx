@@ -99,7 +99,7 @@ export default function Home() {
               style={{ paddingLeft: i === 0 ? '0.5rem' : i === 1 ? '4vw' : `${i * 4}vw` }}
               className={cn(
                 'font-black uppercase leading-[0.88] tracking-tighter',
-                'text-[14vw] sm:text-[13vw]',
+                'text-[10vw] sm:text-[9vw]',
                 i === 1 ? 'neon-text' : 'text-foreground'
               )}
             >
