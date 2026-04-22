@@ -95,6 +95,20 @@
   animation: color-sync 24.5s linear infinite;
 }
 
+/* Network dots: travel left → right across viewport */
+@keyframes sweep-right {
+  0%   { transform: translateX(-30px); opacity: 0;   }
+  7%   { opacity: 0.78; }
+  93%  { opacity: 0.78; }
+  100% { transform: translateX(calc(100vw + 30px)); opacity: 0; }
+}
+
+/* Vertical wave layered on top of horizontal travel */
+@keyframes wave-y {
+  from { transform: translateY(calc(-1 * var(--amp, 18px))); }
+  to   { transform: translateY(var(--amp, 18px)); }
+}
+
 @keyframes marquee-right {
   0% { transform: translateX(-50%); }
   100% { transform: translateX(0); }
