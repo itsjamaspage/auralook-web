@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-const HUES = [0, 30, 145, 190, 225, 275, 315];
-const COUNT = 30;
+const COLORS = ['#ff2222', '#ff6600', '#00cc55', '#00ccff', '#4488ff', '#aa44ff', '#ff44cc'];
+const COUNT = 12;
 
 export function FloatingOrbs() {
   const ref = useRef<HTMLDivElement>(null);
@@ -16,44 +16,39 @@ export function FloatingOrbs() {
 
     for (let i = 0; i < COUNT; i++) {
       const orb = document.createElement('div');
-      const hue = HUES[i % HUES.length];
-      const isSmall = i < 10;
-
-      const sizePx = isSmall
-        ? 10 + Math.random() * 28    // small sharp dots: 10–38px
-        : 90 + Math.random() * 240;  // large soft glows: 90–330px
-
-      const blurPx = isSmall ? sizePx * 0.35 : sizePx * 0.6;
+      const color = COLORS[i % COLORS.length];
+      // Round to whole pixels so the circle stays crisp
+      const sizePx = Math.round(8 + Math.random() * 14);
 
       Object.assign(orb.style, {
         position: 'absolute',
         borderRadius: '50%',
-        background: `hsl(${hue}, 100%, 55%)`,
-        left: `${Math.random() * 110 - 5}%`,
-        top: `${Math.random() * 110 - 5}%`,
+        background: color,
+        left: `${Math.round(Math.random() * 95)}%`,
+        top: `${Math.round(Math.random() * 95)}%`,
         width: `${sizePx}px`,
         height: `${sizePx}px`,
-        opacity: isSmall ? '0.35' : '0.18',
-        filter: `blur(${blurPx}px)`,
-        willChange: 'transform',
+        opacity: '0.85',
         pointerEvents: 'none',
       });
 
-      const tx = (Math.random() - 0.5) * 18;
-      const ty = (Math.random() - 0.5) * 14;
+      // Integer px distances — avoids sub-pixel blur during animation
+      const tx = Math.round((Math.random() - 0.5) * 200);
+      const ty = Math.round((Math.random() - 0.5) * 160);
+      const duration = 1000 + Math.random() * 1000;
 
       orb.animate(
         [
-          { transform: 'translate(0, 0)' },
-          { transform: `translate(${tx}rem, ${ty}rem)` },
+          { transform: 'translate(0px, 0px)' },
+          { transform: `translate(${tx}px, ${ty}px)` },
         ],
         {
-          duration: 3000 + Math.random() * 6000,
+          duration,
           direction: 'alternate',
           fill: 'both',
           iterations: Infinity,
           easing: 'ease-in-out',
-          delay: -(Math.random() * 5000),
+          delay: -(Math.random() * duration),
         }
       );
 
@@ -67,9 +62,7 @@ export function FloatingOrbs() {
   return (
     <div
       ref={ref}
-      // multiply blends colors against white in light mode (shows tints)
-      // screen blends additively against dark in dark mode (shows glows)
-      className="fixed inset-0 z-0 overflow-hidden pointer-events-none [mix-blend-mode:multiply] dark:[mix-blend-mode:screen]"
+      className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
       aria-hidden
     />
   );
