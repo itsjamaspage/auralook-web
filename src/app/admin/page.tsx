@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -42,15 +42,21 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useAuth } from '@/firebase';
+import { collection, doc, updateDoc, query, orderBy, deleteDoc, getDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { getProductDeepLink } from '@/lib/telegram-link';
 import { notifyCustomerOfTracking, notifyCustomerOfDelivery } from '@/ai/flows/ai-telegram-order-status-notification';
 
+async function sha256(text: string): Promise<string> {
+  const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export default function AdminDashboard() {
   const db = useFirestore();
+  const auth = useAuth();
   const { user, isLoading: userLoading } = useTelegramUser();
   const { toast } = useToast();
   const { t, dictionary } = useLanguage();
@@ -61,14 +67,45 @@ export default function AdminDashboard() {
   const [savingTracking, setSavingTracking] = useState<string | null>(null);
   const [savingDomestic, setSavingDomestic] = useState<string | null>(null);
 
-  // UNIFIED ADMIN ACCESS PROTOCOL
-  const isAdmin = user?.role === 'owner' || 
-                  user?.role === 'editor' || 
-                  user?.firebaseUid === 'demo_admin_session' ||
-                  user?.id === '6884517020' ||
-                  user?.id === '7213073025' ||
+  // PIN 2FA state
+  const [pinVerified, setPinVerified] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [storedPinHash, setStoredPinHash] = useState<string | null | undefined>(undefined);
+  const pinInputRef = useRef<HTMLInputElement>(null);
+
+  const isAdmin = user?.role === 'owner' || user?.role === 'editor' ||
+                  user?.id === '6884517020' || user?.id === '7213073025' ||
                   user?.username?.toLowerCase() === 'itsjamaspage' ||
                   user?.username?.toLowerCase() === 'jama_khaki';
+
+  // Load stored PIN hash from user's Firestore doc
+  useEffect(() => {
+    if (!user?.id || !isAdmin) return;
+    getDoc(doc(db, 'users', user.id)).then(snap => {
+      setStoredPinHash(snap.data()?.pinHash ?? null);
+    }).catch(() => setStoredPinHash(null));
+  }, [user?.id, isAdmin, db]);
+
+  // Focus PIN input when gate appears
+  useEffect(() => {
+    if (storedPinHash && !pinVerified) {
+      setTimeout(() => pinInputRef.current?.focus(), 100);
+    }
+  }, [storedPinHash, pinVerified]);
+
+  const handlePinSubmit = async () => {
+    if (!pinInput || pinInput.length < 4 || !user?.id) return;
+    const hash = await sha256(pinInput + user.id);
+    if (hash === storedPinHash) {
+      setPinVerified(true);
+      setPinError(false);
+    } else {
+      setPinError(true);
+      setPinInput('');
+      setTimeout(() => pinInputRef.current?.focus(), 50);
+    }
+  };
 
   // SECURE QUERY GATING
   const looksQuery = useMemoFirebase(() => {
@@ -124,7 +161,11 @@ export default function AdminDashboard() {
   const handleSyncBot = async () => {
     setIsSyncingBot(true);
     try {
-      const res = await fetch('/api/admin/bot-setup', { method: 'POST' });
+      const idToken = await auth.currentUser?.getIdToken();
+      const res = await fetch('/api/admin/bot-setup', {
+        method: 'POST',
+        headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
+      });
       const data = await res.json();
       if (data.success) {
         toast({ 
@@ -243,6 +284,79 @@ export default function AdminDashboard() {
         <Button asChild variant="outline" className="rounded-xl border-foreground/10 text-foreground">
           <Link href="/">Back to Surface</Link>
         </Button>
+      </div>
+    );
+  }
+
+  // PIN gate — wait for hash to load
+  if (storedPinHash === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin neon-text" />
+      </div>
+    );
+  }
+
+  // No PIN configured — force admin to set one first
+  if (storedPinHash === null && !pinVerified) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-6 px-6 text-center">
+        <div className="relative">
+          <ShieldAlert className="w-16 h-16 neon-text opacity-15" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Settings2 className="w-7 h-7 neon-text" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-lg font-black text-foreground uppercase tracking-tight">Admin PIN Required</h1>
+          <p className="text-xs text-foreground/50 max-w-xs leading-relaxed">
+            Set an Admin PIN in your Profile before accessing the dashboard. This is your second authentication factor.
+          </p>
+        </div>
+        <Button asChild className="h-12 px-8 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none">
+          <Link href="/profile">Go to Profile → Set PIN</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // PIN entry screen
+  if (!pinVerified) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 px-6">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 rounded-full neon-bg/10 border-2 neon-border flex items-center justify-center mx-auto mb-4">
+            <ShieldAlert className="w-7 h-7 neon-text" />
+          </div>
+          <h1 className="text-lg font-black text-foreground uppercase tracking-tight">Enter Admin PIN</h1>
+          <p className="text-xs text-foreground/40 uppercase tracking-widest">2-Step Verification</p>
+        </div>
+
+        <div className="w-full max-w-xs space-y-4">
+          <input
+            ref={pinInputRef}
+            type="password"
+            inputMode="numeric"
+            maxLength={8}
+            value={pinInput}
+            onChange={e => { setPinInput(e.target.value.replace(/\D/g, '')); setPinError(false); }}
+            onKeyDown={e => e.key === 'Enter' && handlePinSubmit()}
+            placeholder="••••••"
+            className={`w-full h-14 rounded-2xl bg-secondary/30 border text-center text-2xl font-black text-foreground tracking-[0.5em] focus:outline-none focus:ring-2 transition-all ${pinError ? 'border-destructive ring-destructive/30' : 'border-foreground/10 focus:ring-primary/30 focus:neon-border'}`}
+          />
+          {pinError && (
+            <p className="text-center text-xs font-bold text-destructive uppercase tracking-widest">
+              Incorrect PIN — try again
+            </p>
+          )}
+          <Button
+            onClick={handlePinSubmit}
+            disabled={pinInput.length < 4}
+            className="w-full h-12 rounded-2xl neon-bg text-white font-black uppercase text-xs tracking-widest border-none"
+          >
+            Verify
+          </Button>
+        </div>
       </div>
     );
   }

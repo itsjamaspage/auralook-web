@@ -1,17 +1,44 @@
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 
 /**
- * @fileOverview Administrative tool to sync the Telegram Webhook and Menu Button.
- * Accepts GET (browser-friendly) or POST. Visit /api/admin/bot-setup in the browser to sync.
+ * Administrative tool to sync the Telegram Webhook and Menu Button.
+ * Accepts either:
+ *   - X-Admin-Secret header / ?secret= query param (for curl/CI use)
+ *   - Firebase ID token from an owner account (for in-app use)
  */
+
+const OWNER_IDS = ['6884517020', '7213073025'];
+
+async function isAuthorized(req: NextRequest): Promise<boolean> {
+  // Option A: static secret (for server/CI access)
+  const expected = process.env.ADMIN_SECRET;
+  if (expected) {
+    const fromHeader = req.headers.get('x-admin-secret');
+    const fromQuery = req.nextUrl.searchParams.get('secret');
+    if (fromHeader === expected || fromQuery === expected) return true;
+  }
+
+  // Option B: Firebase ID token from a verified owner account
+  const authorization = req.headers.get('Authorization');
+  const idToken = authorization?.startsWith('Bearer ') ? authorization.slice(7) : null;
+  if (!idToken) return false;
+  try {
+    const admin = getFirebaseAdmin();
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    if (OWNER_IDS.includes(decoded.uid)) return true;
+    const roleSnap = await admin.firestore().doc(`roles/${decoded.uid}`).get();
+    return roleSnap.exists && roleSnap.data()?.role === 'owner';
+  } catch {
+    return false;
+  }
+}
 
 async function runSetup() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://studio--studio-2916828899-aeb98.us-central1.hosted.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
   const webhookUrl = `${baseUrl}/api/webhook/telegram`;
-  
-  // Use a fresh timestamp to force-refresh the Mini App cache
   const cacheBusterUrl = `${baseUrl}?v=${Date.now()}`;
 
   if (!token) {
@@ -19,7 +46,6 @@ async function runSetup() {
   }
 
   try {
-    // 1. Reset Webhook
     await fetch(`https://api.telegram.org/bot${token}/deleteWebhook?drop_pending_updates=true`);
     const webhookRes = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
       method: 'POST',
@@ -28,21 +54,15 @@ async function runSetup() {
     });
     const webhookResult = await webhookRes.json();
 
-    // 2. Synchronize Menu Button (bottom-left button opens Mini App)
     const menuRes = await fetch(`https://api.telegram.org/bot${token}/setChatMenuButton`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        menu_button: {
-          type: 'web_app',
-          text: 'Auralook',
-          web_app: { url: cacheBusterUrl }
-        }
-      })
+        menu_button: { type: 'web_app', text: 'Auralook', web_app: { url: cacheBusterUrl } }
+      }),
     });
     const menuResult = await menuRes.json();
 
-    // 3. Set only /start command — removes /help and any other defaults
     await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -54,7 +74,6 @@ async function runSetup() {
       }),
     });
 
-    // 4. Set description shown when chat is empty / cleared
     await fetch(`https://api.telegram.org/bot${token}/setMyDescription`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -64,28 +83,22 @@ async function runSetup() {
     });
 
     if (webhookResult.ok && menuResult.ok) {
-      return NextResponse.json({
-        success: true,
-        message: 'All bot settings synchronized.',
-        url: cacheBusterUrl
-      });
-    } else {
-      return NextResponse.json({
-        success: false,
-        message: 'Sync failed for one or more protocols.',
-        details: { webhook: webhookResult, menu: menuResult }
-      }, { status: 400 });
+      return NextResponse.json({ success: true, message: 'All bot settings synchronized.', url: cacheBusterUrl });
     }
+    return NextResponse.json({ success: false, message: 'Sync failed.', details: { webhook: webhookResult, menu: menuResult } }, { status: 400 });
   } catch (error) {
     console.error('[Bot Setup] Protocol Failure:', error);
     return NextResponse.json({ success: false, message: String(error) }, { status: 500 });
   }
 }
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
+  if (!await isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   return runSetup();
 }
 
-export async function POST(_req: NextRequest) {
+export async function POST(req: NextRequest) {
+  if (!await isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   return runSetup();
 }
+
