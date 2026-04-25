@@ -47,7 +47,7 @@ import { collection, doc, updateDoc, query, orderBy, deleteDoc } from 'firebase/
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { getProductDeepLink } from '@/lib/telegram-link';
-import { notifyCustomerOfTracking } from '@/ai/flows/ai-telegram-order-status-notification';
+import { notifyCustomerOfTracking, notifyCustomerOfDelivery } from '@/ai/flows/ai-telegram-order-status-notification';
 
 export default function AdminDashboard() {
   const db = useFirestore();
@@ -98,13 +98,24 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string, order?: any) => {
     try {
       await updateDoc(doc(db, 'orders', orderId), {
         status: newStatus,
         updatedAt: new Date().toISOString()
       });
-      toast({ title: t(dictionary.operationSuccess) });
+
+      // Send delivery notification when marked as Delivered
+      if (newStatus === 'Delivered' && order?.customerTelegramId) {
+        await notifyCustomerOfDelivery({
+          customerTelegramId: order.customerTelegramId,
+          customerName: order.customerName || order.telegramUsername || 'Mijoz',
+          orderCode: order.orderCode || orderId.substring(0, 8),
+          productName: order.lookName || 'Buyurtma',
+        });
+      }
+
+      toast({ title: newStatus === 'Delivered' ? '✅ Yetkazildi — mijozga xabar yuborildi' : t(dictionary.operationSuccess) });
     } catch (e) {
       toast({ variant: "destructive", title: "Update Failed" });
     }
@@ -367,7 +378,7 @@ export default function AdminDashboard() {
                 <Card key={order.id} className="glass-surface border-foreground/5 p-5 sm:p-6 rounded-[2.5rem] space-y-6 relative overflow-hidden group hover:border-foreground/20 transition-all shadow-xl">
                   <div className="flex justify-between items-start relative z-10">
                     <div className="space-y-1 flex-grow pr-4">
-                      <p className="text-[9px] font-black text-foreground uppercase tracking-[0.2em]">{t(dictionary.orderRef)}: {order.id.substring(0, 8)}</p>
+                      <p className="text-[9px] font-black text-foreground uppercase tracking-[0.2em]">#{order.orderCode || order.id.substring(0, 8)}</p>
                       <h3 className="text-lg sm:text-xl font-black text-foreground italic tracking-tight uppercase leading-tight uppercase line-clamp-2">
                         {order.lookName || t(dictionary.outfit)}
                       </h3>
@@ -431,7 +442,7 @@ export default function AdminDashboard() {
                       <select
                         className="appearance-none bg-primary text-black text-[10px] font-black rounded-xl pl-4 pr-10 h-12 w-full sm:w-auto outline-none cursor-pointer uppercase tracking-widest shadow-[0_0_20px_rgba(var(--sync-color),0.3)]"
                         value={order.status || 'New'}
-                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value, order)}
                       >
                         <option value="New">{t(dictionary.orderPending)}</option>
                         <option value="Confirmed">{t(dictionary.orderAccepted)}</option>

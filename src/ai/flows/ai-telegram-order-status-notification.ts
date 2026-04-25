@@ -244,6 +244,51 @@ async function sendTelegramMessage(token: string, chatId: string, text: string, 
   }
 }
 
+/**
+ * Notifies the customer that their order has been delivered.
+ */
+export async function notifyCustomerOfDelivery({
+  customerTelegramId,
+  customerName,
+  orderCode,
+  productName,
+}: {
+  customerTelegramId: number | string;
+  customerName: string;
+  orderCode: string;
+  productName: string;
+}) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !customerTelegramId) return;
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://auralook.uz';
+  const ordersUrl = `${baseUrl}/orders?v=${Date.now()}`;
+
+  const text =
+    `🎉 <b>Buyurtmangiz yetib keldi!</b>\n\n` +
+    `Salom, <b>${customerName}</b>!\n\n` +
+    `<b>${productName}</b> buyurtmangiz (<code>#${orderCode}</code>) muvaffaqiyatli yetkazildi.\n\n` +
+    `Auralook'ni tanlaganingiz uchun katta rahmat! 🙏\n` +
+    `<i>Kelajak uslubini kiyishda davom eting.</i>`;
+
+  const replyMarkup = {
+    inline_keyboard: [[
+      { text: '📦 Buyurtmalarimni ko\'rish', web_app: { url: ordersUrl } }
+    ]]
+  };
+
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: customerTelegramId.toString(),
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
+    }),
+  });
+}
+
 export async function notifyCustomerOfTracking({
   customerTelegramId,
   customerName,

@@ -187,9 +187,18 @@ export default function LookPage({ params }: { params: Promise<{ id: string }> }
     setIsOrdering(true);
     try {
       const timestamp = new Date().toLocaleString(lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-US');
+      // Generate unique order code like LJIpye47
+      const orderCode = Array.from({ length: 8 }, () =>
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[
+          Math.floor(Math.random() * 62)
+        ]
+      ).join('');
+
       const orderData = {
         userId: firebaseUser.uid,
         firebaseUid: firebaseUser.uid,
+        orderCode,
+        customerTelegramId: tgUser?.telegramId ?? null,
         customerName: tgUser?.firstName || orderDetails.telegram,
         orderDate: new Date().toISOString(),
         status: 'New',
