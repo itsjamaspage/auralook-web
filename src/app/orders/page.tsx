@@ -168,7 +168,7 @@ export default function UserOrdersPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-0.5 min-w-0">
                           <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">
-                            #{order.id.substring(0, 8)}
+                            #{order.orderCode || order.id.substring(0, 8)}
                           </p>
                           <h3 className="text-base font-black text-foreground uppercase tracking-tight leading-tight">
                             {order.lookName || 'Outfit'}
