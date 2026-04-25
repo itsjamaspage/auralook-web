@@ -80,34 +80,38 @@ export function TelegramUserProvider({ children }: { children: ReactNode }) {
     const processUser = async (rawUser: any, initData: string) => {
       const tg = (window as any).Telegram?.WebApp;
       try {
-        const verifyRes = await fetch('/api/telegram-auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData })
-        });
+        const stableId = rawUser.id.toString();
+        let firebaseUid: string;
 
-        if (!verifyRes.ok) throw new Error('Verification failed.');
-
-        const validatedUser = await verifyRes.json();
-        const stableId = validatedUser.id.toString();
-
-        // Sign in with custom token — Firebase UID will always equal the Telegram ID
-        const userCred = await signInWithCustomToken(auth, validatedUser.firebaseToken);
-        const firebaseUid = userCred.user.uid; // This is now always the Telegram ID string
+        // Skip expensive API + signInWithCustomToken if already signed in as this user
+        if (auth.currentUser && auth.currentUser.uid === stableId) {
+          firebaseUid = stableId;
+        } else {
+          const verifyRes = await fetch('/api/telegram-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData })
+          });
+          if (!verifyRes.ok) throw new Error('Verification failed.');
+          const validatedUser = await verifyRes.json();
+          const userCred = await signInWithCustomToken(auth, validatedUser.firebaseToken);
+          firebaseUid = userCred.user.uid;
+        }
 
         const userRef = doc(db, 'users', stableId);
         const profileData = {
           id: stableId,
-          telegramId: validatedUser.id,
-          firstName: validatedUser.first_name,
-          username: validatedUser.username?.toLowerCase() || null,
-          photoUrl: validatedUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(validatedUser.first_name)}&background=00FF88&color=000&bold=true`,
+          telegramId: rawUser.id,
+          firstName: rawUser.first_name,
+          username: rawUser.username?.toLowerCase() || null,
+          photoUrl: rawUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUser.first_name)}&background=00FF88&color=000&bold=true`,
           firebaseUid,
           lastSeen: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
 
-        await setDoc(userRef, profileData, { merge: true });
+        // Fire-and-forget — don't block UI on the Firestore write
+        setDoc(userRef, profileData, { merge: true }).catch(() => {});
 
         const roleRef = doc(db, 'roles', stableId);
         const unsubscribeRole = onSnapshot(roleRef, (snap) => {
