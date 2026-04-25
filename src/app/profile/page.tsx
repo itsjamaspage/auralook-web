@@ -222,9 +222,11 @@ export default function ProfilePage() {
                         <p className="text-sm font-black text-foreground">@{editor.username || editor.id}</p>
                         <p className="text-[9px] font-bold neon-text uppercase">{editor.role}</p>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: t(dictionary.revoked) }); }} className="text-destructive hover:bg-destructive/10 rounded-xl w-9 h-9">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {editor.role !== 'owner' && (
+                        <Button variant="ghost" size="icon" onClick={async () => { await deleteDoc(doc(db, 'roles', editor.id)); toast({ title: t(dictionary.revoked) }); }} className="text-destructive hover:bg-destructive/10 rounded-xl w-9 h-9">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
