@@ -37,8 +37,7 @@ import {
   RefreshCw,
   Settings2,
   Zap,
-  Truck,
-  ExternalLink
+
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +46,7 @@ import { collection, doc, updateDoc, query, orderBy, deleteDoc, getDoc } from 'f
 import { useLanguage } from '@/hooks/use-language';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { getProductDeepLink } from '@/lib/telegram-link';
-import { notifyCustomerOfTracking, notifyCustomerOfDelivery } from '@/ai/flows/ai-telegram-order-status-notification';
+import { notifyCustomerOfDelivery } from '@/ai/flows/ai-telegram-order-status-notification';
 
 async function sha256(text: string): Promise<string> {
   const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -62,10 +61,6 @@ export default function AdminDashboard() {
   const { t, dictionary } = useLanguage();
   const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'look' | 'order' } | null>(null);
   const [isSyncingBot, setIsSyncingBot] = useState(false);
-  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
-  const [domesticInputs, setDomesticInputs] = useState<Record<string, string>>({});
-  const [savingTracking, setSavingTracking] = useState<string | null>(null);
-  const [savingDomestic, setSavingDomestic] = useState<string | null>(null);
 
   // PIN 2FA state
   const [pinVerified, setPinVerified] = useState(false);
@@ -197,50 +192,6 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleSaveTracking = async (order: any) => {
-    const trackingNumber = (trackingInputs[order.id] ?? '').trim();
-    if (!trackingNumber) return;
-    setSavingTracking(order.id);
-    try {
-      await updateDoc(doc(db, 'orders', order.id), {
-        trackingNumber,
-        updatedAt: new Date().toISOString(),
-      });
-      if (order.telegramId) {
-        await notifyCustomerOfTracking({
-          customerTelegramId: Number(order.telegramId),
-          customerName: order.customerName || order.telegramUsername || 'Mijoz',
-          orderId: order.id,
-          productName: order.lookName || 'Buyurtma',
-          trackingNumber,
-        });
-      }
-      setTrackingInputs(prev => { const n = { ...prev }; delete n[order.id]; return n; });
-      toast({ title: t(dictionary.trackingAdded) });
-    } catch {
-      toast({ variant: 'destructive', title: 'Tracking save failed' });
-    } finally {
-      setSavingTracking(null);
-    }
-  };
-
-  const handleSaveDomesticTracking = async (order: any) => {
-    const domesticTracking = (domesticInputs[order.id] ?? '').trim();
-    if (!domesticTracking) return;
-    setSavingDomestic(order.id);
-    try {
-      await updateDoc(doc(db, 'orders', order.id), {
-        domesticTracking,
-        updatedAt: new Date().toISOString(),
-      });
-      setDomesticInputs(prev => { const n = { ...prev }; delete n[order.id]; return n; });
-      toast({ title: t(dictionary.chinaTrackingAdded) });
-    } catch {
-      toast({ variant: 'destructive', title: 'China tracking save failed' });
-    } finally {
-      setSavingDomestic(null);
-    }
-  };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -567,79 +518,6 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Tracking Numbers */}
-                  <div className="pt-4 border-t border-foreground/5 relative z-10 space-y-3">
-                    {/* China domestic tracking */}
-                    <div className="space-y-1.5">
-                      <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest flex items-center gap-1.5">
-                        🇨🇳 {t(dictionary.chinaTracking)}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder={t(dictionary.addChinaTracking)}
-                          value={domesticInputs[order.id] ?? order.domesticTracking ?? ''}
-                          onChange={(e) => setDomesticInputs(prev => ({ ...prev, [order.id]: e.target.value }))}
-                          className="flex-1 h-9 bg-foreground/5 border border-foreground/10 rounded-xl px-3 text-[11px] font-mono text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 transition-colors min-w-0"
-                        />
-                        {order.domesticTracking && !domesticInputs[order.id] && (
-                          <a
-                            href={`https://t.17track.net/en#nums=${encodeURIComponent(order.domesticTracking)}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="h-9 px-3 rounded-xl border border-foreground/10 bg-foreground/5 text-foreground/60 hover:neon-text flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide shrink-0 transition-colors"
-                          >
-                            <ExternalLink className="w-3 h-3" /> Track
-                          </a>
-                        )}
-                        {(domesticInputs[order.id] || (!order.domesticTracking && !domesticInputs[order.id])) && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveDomesticTracking(order)}
-                            disabled={!domesticInputs[order.id] || savingDomestic === order.id}
-                            className="h-9 px-4 rounded-xl bg-foreground/10 text-foreground text-[10px] font-black uppercase tracking-wider border-none disabled:opacity-30 shrink-0"
-                          >
-                            {savingDomestic === order.id ? <Loader2 className="w-3 h-3 animate-spin" /> : t(dictionary.saveLabel)}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* International tracking */}
-                    <div className="space-y-1.5">
-                      <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest flex items-center gap-1.5">
-                        <Truck className="w-3 h-3" />
-                        {t(dictionary.intlTracking)}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder={t(dictionary.addTracking)}
-                          value={trackingInputs[order.id] ?? order.trackingNumber ?? ''}
-                          onChange={(e) => setTrackingInputs(prev => ({ ...prev, [order.id]: e.target.value }))}
-                          className="flex-1 h-9 bg-foreground/5 border border-foreground/10 rounded-xl px-3 text-[11px] font-mono text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 transition-colors min-w-0"
-                        />
-                        {order.trackingNumber && !trackingInputs[order.id] && (
-                          <a
-                            href={`https://t.17track.net/en#nums=${encodeURIComponent(order.trackingNumber)}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="h-9 px-3 rounded-xl border border-foreground/10 bg-foreground/5 text-foreground/60 hover:neon-text flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide shrink-0 transition-colors"
-                          >
-                            <ExternalLink className="w-3 h-3" /> Track
-                          </a>
-                        )}
-                        {(trackingInputs[order.id] || (!order.trackingNumber && !trackingInputs[order.id])) && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveTracking(order)}
-                            disabled={!trackingInputs[order.id] || savingTracking === order.id}
-                            className="h-9 px-4 rounded-xl neon-bg text-black text-[10px] font-black uppercase tracking-wider border-none disabled:opacity-30 shrink-0"
-                          >
-                            {savingTracking === order.id ? <Loader2 className="w-3 h-3 animate-spin" /> : t(dictionary.saveLabel)}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
                 </Card>
               ))}
 
