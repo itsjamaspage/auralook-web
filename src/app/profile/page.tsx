@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { User, Package, ChevronRight, Save, Loader2, Send, ShieldCheck, PlusCircle, Users, Trash2, ShieldAlert, LogIn } from 'lucide-react';
+import { User, Package, ChevronRight, Save, Loader2, Send, ShieldCheck, PlusCircle, Users, Trash2, ShieldAlert, LogIn, KeyRound, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/use-language';
@@ -31,6 +31,12 @@ export default function ProfilePage() {
   const [newEditorInput, setNewEditorInput] = useState('');
   const [isAddingEditor, setIsAddingEditor] = useState(false);
 
+  // PIN 2FA setup
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [isSavingPin, setIsSavingPin] = useState(false);
+  const [pinSaved, setPinSaved] = useState(false);
+
   const rolesQuery = useMemoFirebase(() => {
     if (!isVerified || !user || user.role !== 'owner') return null;
     return collection(db, 'roles');
@@ -48,6 +54,25 @@ export default function ProfilePage() {
       toast({ title: t(dictionary.success) });
     } catch { toast({ variant: 'destructive', title: t(dictionary.errorTitle) }); }
     finally { setIsSaving(false); }
+  };
+
+  const handleSavePin = async () => {
+    if (!user || newPin.length < 4 || newPin !== confirmPin) return;
+    setIsSavingPin(true);
+    try {
+      const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(newPin + user.id));
+      const pinHash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      await updateDoc(doc(db, 'users', user.id), { pinHash, updatedAt: serverTimestamp() });
+      setPinSaved(true);
+      setNewPin('');
+      setConfirmPin('');
+      toast({ title: 'Admin PIN updated' });
+      setTimeout(() => setPinSaved(false), 3000);
+    } catch {
+      toast({ variant: 'destructive', title: t(dictionary.errorTitle) });
+    } finally {
+      setIsSavingPin(false);
+    }
   };
 
   const handleAddEditor = async () => {
@@ -178,6 +203,49 @@ export default function ProfilePage() {
             </div>
           </div>
         </FadeUp>
+
+        {/* Admin PIN setup — only for editors and owners */}
+        {isPrivileged && (
+          <FadeUp delay={0.08}>
+            <div className="mb-3">
+              <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-2 px-1">
+                Admin PIN (2FA)
+              </p>
+              <div className="bg-secondary/30 rounded-[1.5rem] p-4 border border-foreground/5 space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={8}
+                    value={newPin}
+                    onChange={e => setNewPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="New PIN (4–8 digits)"
+                    className="bg-background border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base flex-grow"
+                  />
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={8}
+                    value={confirmPin}
+                    onChange={e => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Confirm PIN"
+                    className="bg-background border-foreground/10 h-11 rounded-xl focus:neon-border text-foreground text-base flex-grow"
+                  />
+                </div>
+                {newPin.length >= 4 && confirmPin.length >= 4 && newPin !== confirmPin && (
+                  <p className="text-[10px] font-bold text-destructive px-1">PINs do not match</p>
+                )}
+                <Button
+                  onClick={handleSavePin}
+                  disabled={isSavingPin || newPin.length < 4 || newPin !== confirmPin}
+                  className="w-full h-11 rounded-xl neon-bg text-white font-black text-xs uppercase tracking-widest border-none"
+                >
+                  {isSavingPin ? <Loader2 className="animate-spin w-4 h-4" /> : pinSaved ? <><Check className="w-4 h-4 mr-2" />Saved</> : <><KeyRound className="w-4 h-4 mr-2" />Save Admin PIN</>}
+                </Button>
+              </div>
+            </div>
+          </FadeUp>
+        )}
 
         {/* Menu items */}
         <FadeUp delay={0.1}>

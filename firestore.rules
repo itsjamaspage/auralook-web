@@ -1,57 +1,57 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ===============================================================
-    // Universal Identity & Supreme Security Protocol (v25.4.12)
-    // ===============================================================
-    
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // SUPREME OWNER LOGIC: Hardcoded IDs + Database Role Verification
-    // Only the 'owner' can manage the team registry (add/remove users)
+    // Owner: hardcoded Telegram IDs only — no demo/dev bypass
     function isOwner() {
-      let masterUids = ['YY2N2ZCt98MDI795LtpRhBENcnF3', 'BfzJ3dJCGVHyD7s6rjom4EDO2R2', 'demo_admin_session'];
       let masterTgIds = ['6884517020', '7213073025'];
-      
-      let isMaster = request.auth.uid in masterUids ||
-                     (exists(/databases/$(database)/documents/users/6884517020) && get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
-                     (exists(/databases/$(database)/documents/users/7213073025) && get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid);
-      
+
+      let isMasterById = request.auth.uid in masterTgIds;
+
+      let isMasterByFirebaseUid =
+        (exists(/databases/$(database)/documents/users/6884517020) &&
+         get(/databases/$(database)/documents/users/6884517020).data.firebaseUid == request.auth.uid) ||
+        (exists(/databases/$(database)/documents/users/7213073025) &&
+         get(/databases/$(database)/documents/users/7213073025).data.firebaseUid == request.auth.uid);
+
       let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
       let isRegisteredOwner = exists(roleDoc) && get(roleDoc).data.role == 'owner';
 
-      return isAuthenticated() && (isMaster || isRegisteredOwner);
+      return isAuthenticated() && (isMasterById || isMasterByFirebaseUid || isRegisteredOwner);
     }
 
-    // EDITOR LOGIC: Can manage catalog but NOT the team
     function isEditor() {
       let roleDoc = /databases/$(database)/documents/roles/$(request.auth.uid);
-      let isPrivileged = exists(roleDoc) && (get(roleDoc).data.role == 'editor' || get(roleDoc).data.role == 'owner');
-      
+      let isPrivileged = exists(roleDoc) &&
+        (get(roleDoc).data.role == 'editor' || get(roleDoc).data.role == 'owner');
       return isOwner() || isPrivileged;
     }
 
-    // Identity Bridge: Recursive ownership check
     function isProfileOwner(userId) {
       if (!isAuthenticated()) return false;
       if (isOwner()) return true;
-      
       let userDocPath = /databases/$(database)/documents/users/$(userId);
       let isPathOwner = userId == request.auth.uid;
       let isDataOwner = exists(userDocPath) && get(userDocPath).data.firebaseUid == request.auth.uid;
-      let isCreating = request.resource != null && request.resource.data.get('firebaseUid', '') == request.auth.uid;
-
+      let isCreating = request.resource != null &&
+        request.resource.data.get('firebaseUid', '') == request.auth.uid;
       return isPathOwner || isDataOwner || isCreating;
     }
 
+    // ── Roles ───────────────────────────────────────────────────────────────
+    // Only owners and the role subject themselves can read — no public roster
     match /roles/{identifier} {
-      allow read: if isAuthenticated();
-      // SECURITY LOCKDOWN: Only the SUPREME OWNER can manage the team
+      allow read: if isOwner() || (isAuthenticated() && request.auth.uid == identifier);
       allow write: if isOwner();
     }
 
+    // ── Looks ───────────────────────────────────────────────────────────────
     match /looks/{lookId} {
       allow read: if true;
       allow create, delete: if isEditor();
@@ -62,38 +62,63 @@ service cloud.firestore {
 
       match /ratings/{ratingId} {
         allow read: if true;
-        allow create: if isAuthenticated();
+        // Ratings are written via the authenticated /api/ratings server route only;
+        // direct client writes are blocked to prevent spoofing
+        allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
         allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
       }
     }
 
+    // ── Users ───────────────────────────────────────────────────────────────
     match /users/{userId} {
       allow read, write: if isProfileOwner(userId);
-      
       match /{allSubcollections=**} {
         allow read, write: if isProfileOwner(userId);
       }
     }
 
+    // ── Orders ──────────────────────────────────────────────────────────────
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && (resource.data.firebaseUid == request.auth.uid || isEditor());
-      allow list: if isEditor() || (isAuthenticated() && request.query.limit <= 20);
-      allow create: if isAuthenticated(); 
+      // Read a single order: own order or editor
+      allow read: if isAuthenticated() &&
+        (resource.data.firebaseUid == request.auth.uid || isEditor());
+
+      // List orders: editors only — prevents any user from enumerating all orders
+      allow list: if isEditor();
+
+      // Create: must be authenticated, firebaseUid must match the caller,
+      // required fields must be present, and status must start as 'New'
+      allow create: if isAuthenticated() &&
+        request.resource.data.firebaseUid == request.auth.uid &&
+        request.resource.data.status == 'New' &&
+        request.resource.data.keys().hasAll(['firebaseUid', 'lookId', 'size', 'status', 'createdAt']);
+
+      // Update by editor: full access
+      // Update by owner of order: may only set status → 'Cancelled', touching only status + updatedAt
       allow update: if isEditor() || (
-        isAuthenticated() && 
-        resource.data.firebaseUid == request.auth.uid
+        isAuthenticated() &&
+        resource.data.firebaseUid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+        request.resource.data.status == 'Cancelled'
       );
+
       allow delete: if isOwner();
     }
 
+    // ── Consultations ────────────────────────────────────────────────────────
     match /consultations/{id} {
       allow read: if isEditor();
-      allow write: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.keys().hasAll(['createdAt']) &&
+        request.resource.data.get('firebaseUid', '') == request.auth.uid;
+      allow update, delete: if isEditor();
     }
 
+    // ── Audit Logs ───────────────────────────────────────────────────────────
+    // Written only by server-side Admin SDK — never by clients
     match /audit_logs/{logId} {
       allow read: if isOwner();
-      allow write: if false; 
+      allow write: if false;
     }
   }
 }

@@ -43,6 +43,22 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify Firebase ID token — prevents unauthenticated actors from writing ratings
+    const authorization = req.headers.get('Authorization');
+    const idToken = authorization?.startsWith('Bearer ') ? authorization.slice(7) : null;
+    if (!idToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const admin = getFirebaseAdmin();
+
+    let decodedToken: { uid: string };
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { lookId, stars, text, anonymous, photoUrl, userId, telegramId, telegramUsername, telegramPhoto, displayName } = body;
 
@@ -50,7 +66,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const admin = getFirebaseAdmin();
+    // userId in body must match the verified Firebase UID
+    if (decodedToken.uid !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const db = admin.firestore();
 
     await db.collection('looks').doc(lookId).collection('ratings').add({

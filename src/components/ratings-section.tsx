@@ -6,7 +6,7 @@ import { Star, User2, EyeOff, Loader2, X, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { useUser, useFirebase } from '@/firebase';
+import { useUser, useFirebase, useAuth } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useTelegramUser } from '@/hooks/use-telegram-user';
 import { useLanguage } from '@/hooks/use-language';
@@ -57,6 +57,7 @@ export function RatingsSection({ lookId }: { lookId: string }) {
   const { storage } = useFirebase();
   const { user: tgUser } = useTelegramUser();
   const { user: firebaseUser } = useUser();
+  const auth = useAuth();
   const { t, dictionary } = useLanguage();
   const { toast } = useToast();
 
@@ -110,9 +111,13 @@ export function RatingsSection({ lookId }: { lookId: string }) {
         photoUrl = await getDownloadURL(storageRef);
       }
 
+      const idToken = await auth.currentUser?.getIdToken();
       const res = await fetch('/api/ratings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
         body: JSON.stringify({
           lookId,
           stars,
