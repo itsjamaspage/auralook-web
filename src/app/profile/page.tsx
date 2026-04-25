@@ -69,8 +69,28 @@ export default function ProfilePage() {
 
   if (isLoading && !user) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin neon-text" />
+      <div className="min-h-screen bg-background pb-32">
+        <div className="max-w-2xl mx-auto px-4">
+          {/* Avatar skeleton */}
+          <div className="flex flex-col items-center gap-4 mb-8">
+            <div className="w-20 h-20 rounded-full bg-foreground/8 animate-pulse" />
+            <div className="space-y-2 flex flex-col items-center">
+              <div className="h-5 w-32 rounded-full bg-foreground/8 animate-pulse" />
+              <div className="h-3 w-20 rounded-full bg-foreground/5 animate-pulse" />
+              <div className="h-5 w-24 rounded-full bg-foreground/5 animate-pulse mt-1" />
+            </div>
+          </div>
+          {/* Phone field skeleton */}
+          <div className="mb-3">
+            <div className="h-3 w-28 rounded-full bg-foreground/5 animate-pulse mb-2 mx-1" />
+            <div className="h-[3.25rem] rounded-[1.5rem] bg-foreground/5 animate-pulse" />
+          </div>
+          {/* Menu items skeleton */}
+          <div className="space-y-2 mt-2">
+            <div className="h-[3.75rem] rounded-[1.5rem] bg-foreground/5 animate-pulse" />
+            <div className="h-[3.75rem] rounded-[1.5rem] bg-foreground/5 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
