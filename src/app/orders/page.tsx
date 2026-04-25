@@ -5,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebas
 import { collection, query, doc, updateDoc, serverTimestamp, where, deleteDoc } from 'firebase/firestore';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, XCircle, Truck, Star, ExternalLink, MapPin } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle2, ShoppingBag, XCircle, Truck, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { notifyAdminOfOrder } from '@/ai/flows/ai-telegram-order-status-notification';
 import { cn } from '@/lib/utils';
@@ -251,68 +251,6 @@ export default function UserOrdersPage() {
                               </div>
                             );
                           })}
-                        </div>
-                      )}
-
-                      {/* Tracking rows */}
-                      {!isCancelled && (
-                        <div className="space-y-2.5">
-                          {/* China domestic tracking */}
-                          {order.domesticTracking ? (
-                            <div className="flex items-center justify-between gap-3 py-3 px-4 rounded-2xl bg-foreground/[0.03] border border-foreground/10">
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="text-lg shrink-0">🇨🇳</span>
-                                <div className="min-w-0">
-                                  <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.chinaTracking)}</p>
-                                  <p className="text-[12px] font-mono font-bold text-foreground truncate">{order.domesticTracking}</p>
-                                </div>
-                              </div>
-                              <a
-                                href={`https://t.17track.net/en#nums=${encodeURIComponent(order.domesticTracking)}`}
-                                target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-foreground/15 text-foreground/60 text-[9px] font-black uppercase tracking-wide shrink-0"
-                              >
-                                <ExternalLink className="w-3 h-3" /> Track
-                              </a>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-foreground/[0.02] border border-foreground/5">
-                              <span className="text-lg opacity-25">🇨🇳</span>
-                              <div>
-                                <p className="text-[9px] font-black text-foreground/30 uppercase tracking-widest">{t(dictionary.chinaTracking)}</p>
-                                <p className="text-[10px] text-foreground/25 font-medium">{t(dictionary.trackingPending)}</p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* International tracking */}
-                          {order.trackingNumber ? (
-                            <div className="flex items-center justify-between gap-3 py-3 px-4 rounded-2xl bg-primary/5 border border-primary/15">
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <MapPin className="w-4 h-4 neon-text shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest">{t(dictionary.intlTracking)}</p>
-                                  <p className="text-[12px] font-mono font-bold text-foreground truncate">{order.trackingNumber}</p>
-                                </div>
-                              </div>
-                              <a
-                                href={`https://t.17track.net/en#nums=${encodeURIComponent(order.trackingNumber)}`}
-                                target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl neon-bg text-black text-[9px] font-black uppercase tracking-wider shrink-0"
-                              >
-                                <ExternalLink className="w-3 h-3" />
-                                {t(dictionary.trackPackage)}
-                              </a>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-foreground/[0.02] border border-foreground/5">
-                              <Truck className="w-4 h-4 text-foreground/20 shrink-0" />
-                              <div>
-                                <p className="text-[9px] font-black text-foreground/30 uppercase tracking-widest">{t(dictionary.intlTracking)}</p>
-                                <p className="text-[10px] text-foreground/25 font-medium">{t(dictionary.trackingPending)}</p>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
 
